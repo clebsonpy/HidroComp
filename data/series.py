@@ -22,7 +22,6 @@ class Series(object):
             raise KeyError('Font not suported!')
 
     @abstractmethod
-
     def month_start_year_hydrologic(self, n_posto):
         pass
 
@@ -38,3 +37,22 @@ class Series(object):
         elif date_end is not None:
             self.date_end = pd.to_datetime(date_end, dayfirst=True)
             self.data = self.data.loc[:self.date_end]
+
+    @abstractmethod
+    def flawless_period(self, n_posto):
+        aux = []
+        list_start = []
+        list_end = []
+        gantt_bool = self.data.isnull()[self.n_posto]
+        for i in gantt_bool.index:
+            if ~gantt_bool.loc[i]:
+                aux.append(i)
+            elif len(aux) > 2 and gantt_bool.loc[i]:
+                list_start.append(aux[0])
+                list_end.append(aux[-1])
+                aux = []
+        if len(aux) > 0:
+            list_start.append(aux[0])
+            list_end.append(aux[-1])
+        dic = {'Inicio': list_start, 'Fim': list_end}
+        return pd.DataFrame(dic)

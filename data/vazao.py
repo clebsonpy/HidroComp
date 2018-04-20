@@ -21,3 +21,4 @@ class Vazao(Series):
 
         return self.month_start_year_hydrologic, \
                self.month_start_year_hydrologic_abr
+
