@@ -1,6 +1,8 @@
 import os
 import calendar as cal
 
+import pandas as pd
+
 from data.series import Series
 
 
@@ -10,7 +12,6 @@ class Vazao(Series):
 
     def __init__(self, path=os.getcwd(), font=None):
         super().__init__(path, font, type_data=self.type_data)
-
 
     def month_start_year_hydrologic(self, n_posto):
         mean_month = [self.data[n_posto].loc[self.data.index.month == i].mean()
@@ -22,3 +23,11 @@ class Vazao(Series):
         return self.month_start_year_hydrologic, \
                self.month_start_year_hydrologic_abr
 
+    def annual_maximum(self, n_posto):
+        gDados = self.dadosVazao.groupby(pd.Grouper(
+            freq='AS-%s' % self.mesInicioAnoHidrologico()[1]))
+        maxVazao = gDados[self.nPosto].max().values
+        dataVazao = gDados[self.nPosto].idxmax().values
+
+        dfMax = pd.DataFrame(maxVazao, index=dataVazao, columns=[self.nPosto])
+        return dfMax

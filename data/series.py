@@ -14,15 +14,21 @@ class Series(object):
         "ANA": ana.Ana
     }
 
-    def __init__(self, path=os.getcwd(), font=None, *args, **kwargs):
+    def __init__(self, data=None, path=os.getcwd(),
+                 font=None, *args, **kwargs):
         self.path = path
-        if font in self.fonts:
-            self.data = self.fonts[font](self.path, *args, **kwargs).data
+        if data is not None:
+            self.data = data
         else:
-            raise KeyError('Font not suported!')
+            if font in self.fonts:
+                self.data = self.fonts[font](self.path, *args, **kwargs).data
+            else:
+                raise KeyError('Font not supported!')
 
         self.date_start = self.data.index[0]
         self.date_end = self.data.index[-1]
+        self.month_start_year_hydrologic = None
+        self.month_start_year_hydrologic_abr = None
 
     @abstractmethod
     def month_start_year_hydrologic(self, n_posto):
