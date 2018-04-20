@@ -11,4 +11,5 @@ class Vazao(Series):
         super().__init__(path, font, type_data=self.type_data)
 
 
-    def mes_inicio_ano_hidrologico(self, ):
+    def month_start_year_hydrologic(self):
+        pass
