@@ -23,7 +23,7 @@ class Series(object):
 
     @abstractmethod
 
-    def month_start_year_hydrologic(self):
+    def month_start_year_hydrologic(self, n_posto):
         pass
 
     @abstractmethod
