@@ -21,6 +21,9 @@ class Series(object):
         else:
             raise KeyError('Font not suported!')
 
+        self.date_start = self.data.index[0]
+        self.date_end = self.data.index[-1]
+
     @abstractmethod
     def month_start_year_hydrologic(self, n_posto):
         pass
@@ -43,7 +46,7 @@ class Series(object):
         aux = []
         list_start = []
         list_end = []
-        gantt_bool = self.data.isnull()[self.n_posto]
+        gantt_bool = self.data.isnull()[n_posto]
         for i in gantt_bool.index:
             if ~gantt_bool.loc[i]:
                 aux.append(i)
