@@ -9,7 +9,7 @@ from abc import ABCMeta
 import calendar as ca
 import numpy as np
 import pandas as pd
-from .fileRead import FileRead
+from file.fileRead import FileRead
 
 
 class Ana(FileRead):

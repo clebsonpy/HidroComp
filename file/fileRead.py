@@ -7,7 +7,7 @@ Created on 21 de mar de 2018
 import os
 import multiprocessing as mp
 import pandas as pd
-from .files import Files
+from file.files import Files
 from abc import abstractmethod, ABCMeta
 
 

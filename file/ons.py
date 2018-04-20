@@ -4,7 +4,7 @@ Created on 21 de mar de 2018
 @author: clebson
 """
 
-from .fileRead import FileRead
+from file.fileRead import FileRead
 import os
 import pandas as pd
 import numpy as np
