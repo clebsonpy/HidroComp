@@ -15,7 +15,7 @@ class FileRead(Files):
     
     __metaclass__ = ABCMeta
 
-    def __init__(self, path=os.getcwd()):
+    def __init__(self, path=os.getcwd(), type_data='FLUVIOMÉTRICO'):
         if os.path.isfile(path):
             self.path = os.path.dirname(path)
             self.name, ext = os.path.splitext(os.path.basename(path))

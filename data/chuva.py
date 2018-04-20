@@ -1,6 +1,6 @@
 import os
 
-from series import Series
+from data.series import Series
 
 
 class Chuva(Series):

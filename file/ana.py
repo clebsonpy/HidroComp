@@ -24,7 +24,7 @@ class Ana(FileRead):
     font = "ANA"
     extension = "TXT"
 
-    def __init__(self, path=os.getcwd(), consistencia=2, type_data='FLUVIOMÉTRICO'):
+    def __init__(self, path=os.getcwd(), type_data='FLUVIOMÉTRICO', consistencia=2):
         super().__init__(path)
         self.consistencia = consistencia
         self.type_data = type_data.upper()

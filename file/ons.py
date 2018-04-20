@@ -15,8 +15,8 @@ class Ons(FileRead):
     font = "ONS"
     extension = "xls"
 
-    def __init__(self, path=os.getcwd()):
-        super().__init__(path)
+    def __init__(self, path=os.getcwd(), type_data='FLUVIOMÉTRICO'):
+        super().__init__(path, type_data)
         self.data = self.read(self.name)
 
     def list_files(self):
