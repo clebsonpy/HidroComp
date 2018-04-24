@@ -14,8 +14,7 @@ class Series(object):
         "ANA": ana.Ana
     }
 
-    def __init__(self, data=None, path=os.getcwd(),
-                 font=None, *args, **kwargs):
+    def __init__(self, data=None, path=os.getcwd(), font=None, *args, **kwargs):
         self.path = path
         if data is not None:
             self.data = data
@@ -27,8 +26,6 @@ class Series(object):
 
         self.date_start = self.data.index[0]
         self.date_end = self.data.index[-1]
-        self.month_start_year_hydrologic = None
-        self.month_start_year_hydrologic_abr = None
 
     @abstractmethod
     def month_start_year_hydrologic(self, n_posto):
