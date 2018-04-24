@@ -10,9 +10,10 @@ if __name__ == '__main__':
                                   type_threshold='stationary',
                                   type_event='cheia',
                                   value_threshold=0.75,
-                                  type_criterion='media')
-
-    print(parcial.event_peaks(duration=5))
+                                  type_criterion='autocorrelação')
+    peaks = parcial.event_peaks(duration=5)
+    print(peaks)
+    print(len(peaks))
 
     fim = timeit.default_timer()
     print('Duração: ', fim-ini)
