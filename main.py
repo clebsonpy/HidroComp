@@ -5,8 +5,14 @@ if __name__ == '__main__':
     ini = timeit.default_timer()
     path = "/home/clebson/Documentos/Projetos/HidroComp1_8"
     serie_vazao = Vazao(path=path, font='ONS')
+    parcial = serie_vazao.parcial(station='XINGO',
+                                  type_threshold='stationary',
+                                  type_event='cheia',
+                                  value_threshold=0.75,
+                                  type_criterion='media')
 
-    print(serie_vazao.parcial('XINGO', 'stationary', 'cheia').threshold(value=0.75))
+    print(parcial.event_peaks(duration=5))
+
 
 
     fim = timeit.default_timer()

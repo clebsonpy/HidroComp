@@ -34,7 +34,11 @@ class Vazao(Series):
 
         return pd.DataFrame(max_vazao, index=idx_vazao, columns=[station])
 
-    def parcial(self, station, type_threshold, type_event):
-        self.parcial = Parcial(self.data, station, type_threshold, type_event)
+    def parcial(self, station, type_threshold, type_event, type_criterion,
+                value_threshold):
+        self.parcial = Parcial(data=self.data, station=station,
+                               type_threshold=type_threshold, type_event=type_event,
+                               type_criterion=type_criterion,
+                               value_threshold=value_threshold)
 
         return self.parcial
