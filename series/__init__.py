@@ -1,1 +1,1 @@
-__all__ = ["vazao"]
+__all__ = ["vazao", "chuva", "parcial"]

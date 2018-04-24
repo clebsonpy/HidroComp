@@ -20,15 +20,17 @@ class Parcial(object):
         max_events = {'Data': [], 'Vazao': [], 'Inicio': [], 'Fim': [],
                       'Duracao': []}
 
-        events = self.__events_over_threshold(self.threshold)
-        idx_before = events.index[0]
+        events_threshold = self.__events_over_threshold(self.threshold)[0]
+        events_criterion = self.__events_over_threshold()[0]
+        idx_before = events_threshold.index[0]
         low_limiar = False
         data = {'Data': [], 'Vazao': []}
-        for i in events.index:
-            boolean, data, max_events = self.__criterion(data=data, idx=i,
+        for i in events_threshold.index:
+            boolean, data, max_events = self.__criterion(data=data,
                                                          max_events=max_events,
-                                                         duration=duration)
-            if events.loc[i]:
+                                                         duration=duration,
+                                                         events_criterion=events_criterion.loc[i])
+            if events_threshold.loc[i]:
                 data['Vazao'].append(self.data.loc[idx_before, self.station])
                 data['Data'].append(idx_before)
                 low_limiar = True
@@ -57,16 +59,22 @@ class Parcial(object):
             return self.event_peaks(duration=duration+1)
         return peaks
 
-    def __events_over_threshold(self, threshold):
+    def __events_over_threshold(self, threshold=None):
+        if threshold is None:
+            if self.type_criterion == 'media':
+                threshold = self.data[self.station].mean()
+            elif self.type_criterion == 'mediana':
+                threshold = self.data[self.station].median()
+
         if self.type_event == 'cheia':
             events = self.data[self.station].isin(self.data.loc[self.data[
                 self.station] >= threshold, self.station])
-            return events
+            return events, threshold
 
         elif self.type_event == 'estiagem':
             events = self.data[self.station].isin(self.data.loc[self.data[
                 self.station] <= threshold, self.station])
-            return events
+            return events, threshold
 
         else:
             return 'Evento erro!'
@@ -91,33 +99,30 @@ class Parcial(object):
     def __criterion(self, *args, **kwargs):
         if self.type_criterion == 'media':
             return self.__criterion_media(data=kwargs['data'],
-                                          idx=kwargs['idx']), kwargs['data'], kwargs['max_events']
+                                          events_criterion=kwargs['events_criterion']), \
+                   kwargs['data'], kwargs['max_events']
+
         elif self.type_criterion == 'mediana':
             return self.__criterion_mediana(data=kwargs['data'],
-                                            idx=kwargs['idx']), kwargs['data'], kwargs['max_events']
+                                            events_criterion=kwargs['events_criterion']), \
+                   kwargs['data'], kwargs['max_events']
+
         elif self.type_criterion == 'autocorrelação':
             return self.__criterion_autocorrelation(data=kwargs['data'],
                                                     max_events=kwargs['max_events'],
                                                     duration=kwargs['duration'])
 
-    def __criterion_media(self, data, idx):
-        mean = self.data[self.station].mean()
-        events = self.__events_over_threshold(mean)
-        if len(data['Vazao']) > 0 and (not events.loc[idx]):
+    def __criterion_media(self, data, events_criterion):
+        if len(data['Vazao']) > 0 and (not events_criterion):
             return True
         else:
             return False
 
-    def __criterion_mediana(self, data, idx):
-        median = self.data[self.station].median()
-        events = self.__events_over_threshold(median)
-        if len(data['Vazao']) > 0 and (not events.loc[idx]):
+    def __criterion_mediana(self, data, events_criterion):
+        if len(data['Vazao']) > 0 and (not events_criterion):
             return True
         else:
             return False
-
-    def auto(self):
-        pass
 
     def __criterion_autocorrelation(self, data, max_events, duration):
         if len(max_events['Data']) == 0:
