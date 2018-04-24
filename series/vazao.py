@@ -3,8 +3,8 @@ import calendar as cal
 
 import pandas as pd
 
-from data.series import Series
-from data.parcial import Parcial
+from series.series import Series
+from series.parcial import Parcial
 
 
 class Vazao(Series):

@@ -82,7 +82,7 @@ class Parcial(object):
 
     def __criterion(self, *args, **kwargs):
         if self.type_criterion == 'media':
-            return self.__criterion_media(data=kwargs['data'], idx=kwargs['idx'])
+            return self.__criterion_media(data=kwargs['series'], idx=kwargs['idx'])
         elif self.type_criterion == 'mediana':
             return self.__criterion_mediana(data, idx)
 
