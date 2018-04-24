@@ -20,8 +20,9 @@ class Parcial(object):
         max_events = {'Data': [], 'Vazao': [], 'Inicio': [], 'Fim': [],
                       'Duracao': []}
 
-        events_threshold = self.__events_over_threshold(self.threshold)[0]
         events_criterion = self.__events_over_threshold()[0]
+        events_threshold = self.__events_over_threshold(self.threshold)[0]
+
         idx_before = events_threshold.index[0]
         low_limiar = False
         data = {'Data': [], 'Vazao': []}
@@ -48,7 +49,7 @@ class Parcial(object):
                 max_events['Duracao'].append(len(data['Data']))
                 max_events['Data'].append(data['Data'][data['Vazao'].index(max(data['Vazao']))])
                 data = {'Data': [], 'Vazao': []}
-            
+
             idx_before = i
 
         peaks = pd.DataFrame(max_events,
@@ -90,10 +91,18 @@ class Parcial(object):
             self.threshold = value
         else:
             self.threshold = self.data[self.station].quantile(value)
-
         return self.threshold
 
-    def __threshold_events_by_year(self, value):
+    def __threshold_events_by_year(self, value, percentil):
+        """
+        n_year = self.data[self.station].index.year[-1] - \
+                self.data[self.station].index.year[0]
+
+        threshold = self.data[self.station].quantile(percentil)
+        print(threshold)
+        peaks = self.event_peaks()
+        print(len(peaks), value * n_year)
+        """
         pass
 
     def __criterion(self, *args, **kwargs):
