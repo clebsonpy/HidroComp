@@ -43,15 +43,7 @@ class Parcial(object):
                 max_events['Duracao'].append(len(data['Data']))
                 max_events['Data'].append(data['Data'][data['Vazao'].index(max(data['Vazao']))])
                 data = {'Data': [], 'Vazao': []}
-            """
-            elif dias > 0 and len(dados['Vazao']) > 0 and max_evento['Vazao'][-1] < max(dados['Vazao']):
-                max_evento['Ano'][-1] = key.year
-                max_evento['Vazao'][-1] = max(dados['Vazao'])
-                max_evento['Fim'][-1] = dados['Data'][-1]
-                max_evento['Duracao'][-1] = len(dados['Data'])
-                max_evento['Data'][-1] = dados['Data'][dados['Vazao'].index(max(dados['Vazao']))]
-                dados = {'Data': [], 'Vazao': []}
-            """
+            
             idx_before = i
         return pd.DataFrame(max_events,
                             columns=['Duracao', 'Inicio', 'Fim', 'Vazao'],
@@ -116,66 +108,3 @@ class Parcial(object):
 
     def __criterion_duration(self):
         pass
-
-
-
-
-
-
-    """
-    def parcialEventoPorAno(self, limiar, tipoEvento):
-        if tipoEvento == 'cheia':
-            eventoL = self.dadosVazao[self.nPosto].isin(
-                self.dadosVazao.loc[self.dadosVazao[self.nPosto] >= limiar, self.nPosto])
-            return eventoL
-        elif tipoEvento == 'estiagem':
-            eventoL = self.dadosVazao[self.nPosto].isin(
-                self.dadosVazao.loc[self.dadosVazao[self.nPosto] <= limiar, self.nPosto])
-            return eventoL
-        else:
-            return 'Evento erro!'
-
-    def parcialPorAno(self, nEventos, tipoEvento):
-        nAnos = self.dadosVazao[self.nPosto].index.year[-1] - \
-            self.dadosVazao[self.nPosto].index.year[0]
-        l = self.dadosVazao[self.nPosto].quantile(0.7)
-        #vazao = -np.sort(-self.dadosVazao.loc[self.dadosVazao[self.nPosto] <= l, self.nPosto])
-        q = 0.8
-        while q != 0:
-            limiar = self.dadosVazao[self.nPosto].quantile(q)
-            print(limiar)
-            eventosL = self.parcialEventoPorAno(limiar, tipoEvento)
-            picos = self.eventos_picos(eventosL, tipoEvento)
-            print(len(picos), nEventos * nAnos)
-            if len(picos) >= nEventos * nAnos:
-                return picos, limiar
-            q -= 0.005
-
-    def parcialEventoPercentil(self, quartilLimiar, tipoEvento):
-        limiar = self.dadosVazao[self.nPosto].quantile(quartilLimiar)
-        if tipoEvento == 'cheia':
-            eventoL = self.dadosVazao[self.nPosto].isin(
-                self.dadosVazao.loc[self.dadosVazao[self.nPosto] >= limiar, self.nPosto])
-            return eventoL, limiar
-        elif tipoEvento == 'estiagem':
-            eventoL = self.dadosVazao[self.nPosto].isin(
-                self.dadosVazao.loc[self.dadosVazao[self.nPosto] <= limiar, self.nPosto])
-            return eventoL, limiar
-        else:
-            return 'Evento erro!'
-
-    def __criterioMedia(self, dados, index, tipoEvento):
-        mean = self.dadosVazao[self.nPosto].mean()
-        if tipoEvento == 'cheia':
-            eventos = self.dadosVazao[self.nPosto].isin(
-                self.dadosVazao.loc[self.dadosVazao[self.nPosto] >= mean, self.nPosto])
-        elif tipoEvento == 'estiagem':
-            eventos = self.dadosVazao[self.nPosto].isin(
-                self.dadosVazao.loc[self.dadosVazao[self.nPosto] <= mean, self.nPosto])
-
-        if len(dados['Vazao']) > 0 and (not eventos.loc[index] or
-                                        index == pd.to_datetime("%s0831" % index.year)):
-            return True
-        else:
-            return False
-    """
