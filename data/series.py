@@ -3,7 +3,7 @@ import pandas as pd
 
 from abc import abstractmethod, ABCMeta
 
-from file import *
+from files import *
 
 
 class Series(object):
@@ -28,7 +28,7 @@ class Series(object):
         self.date_end = self.data.index[-1]
 
     @abstractmethod
-    def month_start_year_hydrologic(self, n_posto):
+    def month_start_year_hydrologic(self, station):
         pass
 
     @abstractmethod
@@ -45,11 +45,11 @@ class Series(object):
             self.data = self.data.loc[:self.date_end]
 
     @abstractmethod
-    def flawless_period(self, n_posto):
+    def flawless_period(self, station):
         aux = []
         list_start = []
         list_end = []
-        gantt_bool = self.data.isnull()[n_posto]
+        gantt_bool = self.data.isnull()[station]
         for i in gantt_bool.index:
             if ~gantt_bool.loc[i]:
                 aux.append(i)

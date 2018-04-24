@@ -6,8 +6,8 @@ if __name__ == '__main__':
     path = "/home/clebson/Documentos/Projetos/HidroComp1_8"
     serie_vazao = Vazao(path=path, font='ONS')
 
-    print(serie_vazao.annual_maximum('XINGO'))
+    print(serie_vazao.parcial('XINGO', 'stationary', 'cheia').threshold(value=0.75))
 
-    
+
     fim = timeit.default_timer()
     print('Duração: ', fim-ini)

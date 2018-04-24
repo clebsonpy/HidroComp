@@ -4,7 +4,7 @@ Created on 21 de mar de 2018
 @author: clebson
 """
 
-from file.fileRead import FileRead
+from files.fileRead import FileRead
 import os
 import pandas as pd
 import numpy as np
@@ -33,7 +33,7 @@ class Ons(FileRead):
         file_ons = os.path.join(self.path, self.name+'.xls')
         data_flow = pd.read_excel(file_ons, shettname='Total', header=0, skiprows=5, index_col=0)
         data_flow.drop(np.NaN, inplace=True)
-        
+
         aux = []
         dic = {'jan':'1', 'fev':'2', 'mar':'3', 'abr':'4', 'mai':'5', 'jun':'6', 'jul':'7', 'ago':'8', 'set':'9', 'out':'10', 'nov':'11', 'dez':'12'}
         for i in data_flow.index:

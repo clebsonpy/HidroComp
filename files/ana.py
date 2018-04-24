@@ -9,7 +9,7 @@ from abc import ABCMeta
 import calendar as ca
 import numpy as np
 import pandas as pd
-from file.fileRead import FileRead
+from files.fileRead import FileRead
 
 
 class Ana(FileRead):
@@ -42,7 +42,7 @@ class Ana(FileRead):
             data = data.iloc[data.index.isin([self.consistencia], level=1)]
             data.reset_index(level=1, drop=True, inplace=True)
             return data
-    
+
     def __lines(self):
         list_lines = []
         with open(os.path.join(self.path, self.name+'.'+Ana.extension), encoding="Latin-1") as file:
@@ -60,7 +60,7 @@ class Ana(FileRead):
         list_cons = [int(consistencia)]*n_days
         index_mult = list(zip(*[list_date, list_cons]))
         return pd.MultiIndex.from_tuples(index_mult, names=["Data", "Consistencia"])
-    
+
     def __readTxt(self):
         list_lines = self.__lines()
         data_flow = []

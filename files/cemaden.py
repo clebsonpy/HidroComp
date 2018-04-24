@@ -3,7 +3,7 @@ Created on 21 de mar de 2018
 
 @author: clebson
 """
-from .fileRead import FileRead
+from files.fileRead import FileRead
 
 
 class Cemaden(FileRead):

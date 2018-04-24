@@ -4,7 +4,7 @@ Created on 21 de mar de 2018
 @author: clebson
 """
 
-from file.fileRead import FileRead
+from files.fileRead import FileRead
 
 
 class Nasa(FileRead):

@@ -7,12 +7,12 @@ Created on 21 de mar de 2018
 import os
 import multiprocessing as mp
 import pandas as pd
-from file.files import Files
+from files.files import Files
 from abc import abstractmethod, ABCMeta
 
 
 class FileRead(Files):
-    
+
     __metaclass__ = ABCMeta
 
     def __init__(self, path=os.getcwd(), type_data='FLUVIOMÉTRICO'):
@@ -27,11 +27,11 @@ class FileRead(Files):
         else:
             raise Exception('Arquivo ou diretório não existe')
         super().__init__(path)
-        
+
     @abstractmethod
     def list_files(self):
         return super().list_files()
-    
+
     @abstractmethod
     def read(self):
         self.name = self.list_files()
