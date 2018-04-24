@@ -1,4 +1,5 @@
 import pandas as pd
+import math
 
 
 class Parcial(object):
@@ -52,7 +53,7 @@ class Parcial(object):
                             columns=['Duracao', 'Inicio', 'Fim', 'Vazao'],
                             index=max_events['Data'])
 
-        if self.__test_autocorrelation(peaks) and self.type_criterion=='autocorrelação':
+        if self.__test_autocorrelation(peaks)[0] and self.type_criterion=='autocorrelação':
             return self.event_peaks(duration=duration+1)
         return peaks
 
@@ -137,7 +138,20 @@ class Parcial(object):
             return True, data, max_events
 
     def __test_autocorrelation(self, events_peaks):
-        pass
+        x = events_peaks.index
+        y = events_peaks.Vazao
+        N = len(y)
+        serie = pd.Series(y, index=x)
+        r1 = serie.autocorr(lag=1)
+        r2 = serie.autocorr(lag=2)
+        r11_n = (-1 + 1.645 * math.sqrt(N - 1 - 1)) / (N - 1)
+        r12_n = (-1 - 1.645 * math.sqrt(N - 1 - 1)) / (N - 1)
+        r21_n = (-1 + 1.645 * math.sqrt(N - 2 - 1)) / (N - 2)
+        r22_n = (-1 - 1.645 * math.sqrt(N - 2 - 1)) / (N - 2)
+
+        if r11_n > r1 > r12_n and r21_n > r2 > r22_n:
+            return False, r1, r2
+        return True, r1, r2
 
     def __criterion_duration(self):
         pass

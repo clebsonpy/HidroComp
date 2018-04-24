@@ -11,6 +11,7 @@ if __name__ == '__main__':
                                   type_event='cheia',
                                   value_threshold=0.75,
                                   type_criterion='autocorrelação')
+
     peaks = parcial.event_peaks(duration=5)
     print(peaks)
     print(len(peaks))
