@@ -9,7 +9,17 @@ class Parcial(object):
     def __init__(self, obj, station, type_threshold, value_threshold,
                  type_criterion, type_event):
         """
-            type_threshold: Type of threshold (stationary or events by year)
+            Parâmetros:
+                obj: Objeto Série;
+                station: Ponto de observação dos dados('XINGO')
+                type_threshold: Tipo de calculo do limiar('stationary' ou
+                                                          'events_by_year')
+                value_threshold: Valor do limiar:
+                    Para type_threshold = 'stationary': percentil ou valor
+                    Para type_threshold = 'events_by_year': quantidade média de
+                                                            picos por ano
+                type_criterion: Critério de Independência ('media', 'mediana')
+                type_event: Tipo do evento em estudo ('cheia' ou 'estiagem')
         """
         self.obj = obj
         self.data = self.obj.data
@@ -95,15 +105,6 @@ class Parcial(object):
         else:
             self.threshold = self.data[self.station].quantile(value)
         return self.threshold
-
-    """
-    def __threshold_stationary(self, value):
-        if value > 1:
-            self.threshold = value
-        else:
-            self.threshold = self.data[self.station].quantile(value)
-        return self.threshold
-    """
 
     def __test_threshold_events_by_year(self, peaks, value):
         n_year = self.obj.date_end.year - self.obj.date_start.year
