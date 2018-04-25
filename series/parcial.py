@@ -1,9 +1,11 @@
 import pandas as pd
 import math
+import scipy.stats as stat
 
 
 class Parcial(object):
 
+    distribution = 'GEV'
     __percentil = 0.8
 
     def __init__(self, obj, station, type_threshold, value_threshold,
@@ -30,12 +32,11 @@ class Parcial(object):
         self.value = value_threshold
         self.__threshold(self.value)
 
-    def event_peaks(self, duration):
+    def event_peaks(self, duration=None):
         max_events = {'Data': [], 'Vazao': [], 'Inicio': [], 'Fim': [],
                       'Duracao': []}
 
         events_criterion = self.__events_over_threshold()[0]
-        print(self.threshold)
         events_threshold = self.__events_over_threshold(self.threshold)[0]
 
         idx_before = events_threshold.index[0]
@@ -67,15 +68,15 @@ class Parcial(object):
 
             idx_before = i
 
-        peaks = pd.DataFrame(max_events,
+        self.peaks = pd.DataFrame(max_events,
                             columns=['Duracao', 'Inicio', 'Fim', 'Vazao'],
                             index=max_events['Data'])
 
-        if self.__test_autocorrelation(peaks)[0] and self.type_criterion=='autocorrelação':
+        if self.__test_autocorrelation(self.peaks)[0] and self.type_criterion=='autocorrelação':
             return self.event_peaks(duration=duration+1)
-        elif self.__test_threshold_events_by_year(peaks, self.value) and self.type_threshold == 'events_by_year':
+        elif self.__test_threshold_events_by_year(self.peaks, self.value) and self.type_threshold == 'events_by_year':
             return self.event_peaks(duration=duration)
-        return peaks
+        return self.peaks
 
     def __events_over_threshold(self, threshold=None):
         if threshold is None:
@@ -108,11 +109,8 @@ class Parcial(object):
 
     def __test_threshold_events_by_year(self, peaks, value):
         n_year = self.obj.date_end.year - self.obj.date_start.year
-        print(n_year * value)
-        print(len(peaks))
         if len(peaks) < value * n_year:
             self.__percentil -= 0.005
-            print(self.__percentil)
             self.__threshold(self.__percentil)
             return True
         return False
@@ -182,3 +180,12 @@ class Parcial(object):
 
     def __criterion_duration(self):
         pass
+
+    def mvs(self):
+        try:
+            parametros = stat.genpareto.fit(self.peaks['Vazao'].values)
+        except AttributeError:
+            self.event_peaks()
+            parametros = stat.genpareto.fit(self.peaks['Vazao'].values)
+
+        return parametros
