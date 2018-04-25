@@ -36,7 +36,7 @@ class Vazao(Series):
 
     def parcial(self, station, type_threshold, type_event, type_criterion,
                 value_threshold):
-        self.parcial = Parcial(data=self.data, station=station,
+        self.parcial = Parcial(obj=self, station=station,
                                type_threshold=type_threshold, type_event=type_event,
                                type_criterion=type_criterion,
                                value_threshold=value_threshold)

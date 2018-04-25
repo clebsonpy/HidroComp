@@ -7,10 +7,10 @@ if __name__ == '__main__':
     serie_vazao = Vazao(path=path, font='ONS')
     serie_vazao.date(date_start='1/1/1999')
     parcial = serie_vazao.parcial(station='XINGO',
-                                  type_threshold='stationary',
+                                  type_threshold='events_by_year',
                                   type_event='cheia',
-                                  value_threshold=0.75,
-                                  type_criterion='mediana')
+                                  value_threshold=1.65,
+                                  type_criterion='media')
 
     peaks = parcial.event_peaks(duration=5)
     print(peaks)

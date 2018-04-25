@@ -4,23 +4,28 @@ import math
 
 class Parcial(object):
 
-    def __init__(self, data, station, type_threshold, value_threshold,
+    __percentil = 0.8
+
+    def __init__(self, obj, station, type_threshold, value_threshold,
                  type_criterion, type_event):
         """
             type_threshold: Type of threshold (stationary or events by year)
         """
-        self.data = data
+        self.obj = obj
+        self.data = self.obj.data
         self.station = station
         self.type_threshold = type_threshold
         self.type_criterion = type_criterion
         self.type_event = type_event
-        self.threshold(value_threshold)
+        self.value = value_threshold
+        self.__threshold(self.value)
 
     def event_peaks(self, duration):
         max_events = {'Data': [], 'Vazao': [], 'Inicio': [], 'Fim': [],
                       'Duracao': []}
 
         events_criterion = self.__events_over_threshold()[0]
+        print(self.threshold)
         events_threshold = self.__events_over_threshold(self.threshold)[0]
 
         idx_before = events_threshold.index[0]
@@ -58,6 +63,8 @@ class Parcial(object):
 
         if self.__test_autocorrelation(peaks)[0] and self.type_criterion=='autocorrelação':
             return self.event_peaks(duration=duration+1)
+        elif self.__test_threshold_events_by_year(peaks, self.value) and self.type_threshold == 'events_by_year':
+            return self.event_peaks(duration=duration)
         return peaks
 
     def __events_over_threshold(self, threshold=None):
@@ -80,30 +87,35 @@ class Parcial(object):
         else:
             return 'Evento erro!'
 
-    def threshold(self, value):
-        if self.type_threshold == 'stationary' and value > 0:
-            return self.__threshold_stationary(value)
-        elif self.type_threshold == 'events_by_year' and value > 0:
-            return self.__threshold_events_by_year(value)
+    def __threshold(self, value):
+        if value > 1 and self.type_threshold == 'events_by_year':
+            self.threshold = self.data[self.station].quantile(self.__percentil)
+        elif value > 1 and self.type_threshold == 'stationary':
+            self.threshold = value
+        else:
+            self.threshold = self.data[self.station].quantile(value)
+        return self.threshold
 
+    """
     def __threshold_stationary(self, value):
         if value > 1:
             self.threshold = value
         else:
             self.threshold = self.data[self.station].quantile(value)
         return self.threshold
+    """
 
-    def __threshold_events_by_year(self, value, percentil):
-        """
-        n_year = self.data[self.station].index.year[-1] - \
-                self.data[self.station].index.year[0]
+    def __test_threshold_events_by_year(self, peaks, value):
+        n_year = self.obj.date_end.year - self.obj.date_start.year
+        print(n_year * value)
+        print(len(peaks))
+        if len(peaks) < value * n_year:
+            self.__percentil -= 0.005
+            print(self.__percentil)
+            self.__threshold(self.__percentil)
+            return True
+        return False
 
-        threshold = self.data[self.station].quantile(percentil)
-        print(threshold)
-        peaks = self.event_peaks()
-        print(len(peaks), value * n_year)
-        """
-        pass
 
     def __criterion(self, *args, **kwargs):
         if self.type_criterion == 'media':
