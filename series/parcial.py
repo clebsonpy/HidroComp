@@ -5,11 +5,11 @@ import scipy.stats as stat
 
 class Parcial(object):
 
-    distribution = 'GEV'
+    distribution = 'GP'
     __percentil = 0.8
 
     def __init__(self, obj, station, type_threshold, value_threshold,
-                 type_criterion, type_event):
+                 type_criterion, type_event, **kwargs):
         """
             Parâmetros:
                 obj: Objeto Série;
@@ -30,9 +30,10 @@ class Parcial(object):
         self.type_criterion = type_criterion
         self.type_event = type_event
         self.value = value_threshold
+        self.duration = kwargs['duration']
         self.__threshold(self.value)
 
-    def event_peaks(self, duration=None):
+    def event_peaks(self):
         max_events = {'Data': [], 'Vazao': [], 'Inicio': [], 'Fim': [],
                       'Duracao': []}
 
@@ -45,7 +46,6 @@ class Parcial(object):
         for i in events_threshold.index:
             boolean, data, max_events = self.__criterion(data=data,
                                                          max_events=max_events,
-                                                         duration=duration,
                                                          events_criterion=events_criterion.loc[i])
             if events_threshold.loc[i]:
                 data['Vazao'].append(self.data.loc[idx_before, self.station])
@@ -73,9 +73,10 @@ class Parcial(object):
                             index=max_events['Data'])
 
         if self.__test_autocorrelation(self.peaks)[0] and self.type_criterion=='autocorrelação':
-            return self.event_peaks(duration=duration+1)
+            self.duration += 1
+            return self.event_peaks()
         elif self.__test_threshold_events_by_year(self.peaks, self.value) and self.type_threshold == 'events_by_year':
-            return self.event_peaks(duration=duration)
+            return self.event_peaks()
         return self.peaks
 
     def __events_over_threshold(self, threshold=None):
@@ -128,9 +129,11 @@ class Parcial(object):
                    kwargs['data'], kwargs['max_events']
 
         elif self.type_criterion == 'autocorrelação':
-            return self.__criterion_autocorrelation(data=kwargs['data'],
-                                                    max_events=kwargs['max_events'],
-                                                    duration=kwargs['duration'])
+            return self.__criterion_duration(data=kwargs['data'],
+                                             max_events=kwargs['max_events'])
+
+        elif self.type_criterion == '':
+            pass
 
     def __criterion_media(self, data, events_criterion):
         if len(data['Vazao']) > 0 and (not events_criterion):
@@ -144,7 +147,7 @@ class Parcial(object):
         else:
             return False
 
-    def __criterion_autocorrelation(self, data, max_events, duration):
+    def __criterion_duration(self, data, max_events):
         if len(max_events['Data']) == 0:
             return True, data, max_events
         elif len(data['Data']) == 0:
@@ -152,7 +155,7 @@ class Parcial(object):
         else:
             data_max = data['Data'][data['Vazao'].index(max(data['Vazao']))]
             distancia_dias = data_max - max_events['Data'][-1]
-            if distancia_dias.days <= duration:
+            if distancia_dias.days <= self.duration:
                 if len(data['Vazao']) > 0 and max_events['Vazao'][-1] < max(data['Vazao']):
                     max_events['Vazao'][-1] = max(data['Vazao'])
                     max_events['Fim'][-1] = data['Data'][-1]
@@ -177,9 +180,6 @@ class Parcial(object):
         if r11_n > r1 > r12_n and r21_n > r2 > r22_n:
             return False, r1, r2
         return True, r1, r2
-
-    def __criterion_duration(self):
-        pass
 
     def mvs(self):
         try:

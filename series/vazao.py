@@ -29,14 +29,14 @@ class Vazao(Series):
     def maximum(self, station):
         self.maximum = Maximum(obj=self, station=station)
         self.month_start_year_hydrologic(station=station)
-        
+
         return self.maximum
 
     def parcial(self, station, type_threshold, type_event, type_criterion,
-                value_threshold):
+                value_threshold, **kwargs):
         self.parcial = Parcial(obj=self, station=station,
                                type_threshold=type_threshold, type_event=type_event,
                                type_criterion=type_criterion,
-                               value_threshold=value_threshold)
+                               value_threshold=value_threshold, **kwargs)
 
         return self.parcial

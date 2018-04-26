@@ -12,7 +12,8 @@ if __name__ == '__main__':
                                   type_threshold='stationary',
                                   type_event='cheia',
                                   value_threshold=0.75,
-                                  type_criterion='mediana')
+                                  type_criterion='autocorrelação',
+                                  duration=5)
 
     para_maximum = maximum.mvs()
     para_parcial = parcial.mvs()
