@@ -3,7 +3,7 @@ import calendar as cal
 
 import pandas as pd
 
-from series.series import Series
+from series.series_biuld import Series
 from series.parcial import Parcial
 from series.maximum import Maximum
 

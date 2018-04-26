@@ -1,6 +1,8 @@
 import pandas as pd
 import scipy.stats as stat
 
+from graphics.gev import Gev
+
 
 class Maximum(object):
 
@@ -22,9 +24,16 @@ class Maximum(object):
 
     def mvs(self):
         try:
-            parametros = stat.genpareto.fit(self.peaks['Vazao'].values)
+            self.fit = stat.genextreme.fit(self.peaks['Vazao'].values)
         except AttributeError:
             self.annual()
-            parametros = stat.genpareto.fit(self.peaks['Vazao'].values)
+            self.fit = stat.genextreme.fit(self.peaks['Vazao'].values)
 
-        return parametros
+        return self.fit
+
+    def plot_distribution(self, title, type_function):
+        try:
+            genextreme = Gev(title, self.fit[0], self.fit[1], self.fit[2])
+        except AttributeError:
+            self.mvs()
+            genextreme = Gev(title, self.fit[0], self.fit[1], self.fit[2]).plot(type_function)

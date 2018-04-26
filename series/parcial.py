@@ -189,3 +189,6 @@ class Parcial(object):
             parametros = stat.genpareto.fit(self.peaks['Vazao'].values)
 
         return parametros
+
+    def plot_distribution(self, type_distribution):
+        pass
