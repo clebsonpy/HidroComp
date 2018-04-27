@@ -27,25 +27,26 @@ class DistributionBiuld(object):
             return self.__data_cumulative()
 
     def __data_cumulative(self):
-        prob = []
+        probability = []
         for i in range(1, 1000):
-            prob.append(i/1000)
+            probability.append(i/1000)
 
-        quantiles = stat.genpareto.ppf(prob, self.forma,
+        quantiles = stat.genpareto.ppf(probability, self.forma,
                                         loc=self.localizacao,
                                         scale=self.escala)
 
-        return pd.DataFrame(quantiles, index=prob, columns=[self.title])
+        dic = {'Vazao': quantiles, 'Probabilidade': probability}
+
+        return pd.DataFrame(dic)
 
     def __data_density(self):
 
         cumulative = self.__data_cumulative()
 
-        density = stat.genpareto.pdf(cumulative[self.title].values, self.forma,
+        density = stat.genpareto.pdf(cumulative['Vazao'].values, self.forma,
                                  loc=self.localizacao, scale=self.escala)
 
-        dic = {'Vazao': cumulative[self.title].values,
-               'Densidade': density}
+        dic = {'Vazao': cumulative['Vazao'].values, 'Densidade': density}
 
         return pd.DataFrame(dic)
 
