@@ -3,6 +3,7 @@ import math
 import scipy.stats as stat
 
 from graphics.genpareto import GenPareto
+from graphics.hydrogram_parcial import HydrogramParcial
 
 
 class Parcial(object):
@@ -39,7 +40,7 @@ class Parcial(object):
         max_events = {'Data': [], 'Vazao': [], 'Inicio': [], 'Fim': [],
                       'Duracao': []}
 
-        events_criterion = self.__events_over_threshold()[0]
+        events_criterion, self.threshold_criterion = self.__events_over_threshold()
         events_threshold = self.__events_over_threshold(self.threshold)[0]
 
         idx_before = events_threshold.index[0]
@@ -96,7 +97,7 @@ class Parcial(object):
         elif self.type_event == 'estiagem':
             events = self.data[self.station].isin(self.data.loc[self.data[
                 self.station] <= threshold, self.station])
-            return events, threshold
+            return events, threshold_criterion
 
         else:
             return 'Evento erro!'
@@ -200,3 +201,17 @@ class Parcial(object):
             self.mvs()
             genpareto = GenPareto(title, self.para[0], self.para[1], self.para[2])
             genpareto.plot(type_function)
+
+    def plot_hydrogram(self, title):
+        try:
+            hydrogrm = HydrogramParcial(data=self.data[self.station],
+                                        peaks=self.peaks,
+                                        threshold=self.threshold,
+                                        threshold_criterion=self.threshold_criterion)
+        except AttributeError:
+            self.event_peaks()
+            hydrogrm = HydrogramParcial(data=self.data[self.station],
+                                        peaks=self.peaks,
+                                        threshold=self.threshold,
+                                        threshold_criterion=self.threshold_criterion)
+        hydrogrm.plot(type_criterion=self.type_criterion)

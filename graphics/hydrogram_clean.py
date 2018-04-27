@@ -30,7 +30,7 @@ class HydrogramClean(HydrogramBiuld):
                 yaxis=bandyaxis,
                 font=dict(family='Courier New, monospace', size=16, color='#7f7f7f'))
 
-            data = [self.__plot_one(self.data)]
+            data = [self._plot_one(self.data)]
             fig = dict(data=data, layout=layout)
             py.offline.plot(fig, filename='gráficos/'+ name.replace(' - ', '_') +'.html')
         except AttributeError:
@@ -41,16 +41,10 @@ class HydrogramClean(HydrogramBiuld):
                 yaxis=bandyaxis,
                 font=dict(family='Courier New, monospace', size=16, color='#7f7f7f'))
 
-            fig = dict(data=self.__plot_multi(), layout=layout)
+            fig = dict(data=self._plot_multi(), layout=layout)
             py.offline.plot(fig, filename='gráficos/'+ name.replace(' - ', '_') +'.html')
 
-    def __plot_one(self, data):
-
-        fig = go.Scatter(x=data.index, y=data.values, name=data.name)
-
-        return fig
-
-    def __plot_multi(self):
+    def _plot_multi(self):
         fig = []
         for i in self.data:
             fig.append(self.__plot_one(self.data[i]))
