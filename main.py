@@ -17,7 +17,7 @@ if __name__ == '__main__':
 
     #para_maximum = maximum.mvs()
     #para_parcial = parcial.mvs()
-    print(parcial.plot_distribution('Test', 'cumulative'))
+    print(parcial.plot_distribution('Test', 'density'))
     #print(para_maximum)
 
     fim = timeit.default_timer()
