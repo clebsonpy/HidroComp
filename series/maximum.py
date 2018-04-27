@@ -1,7 +1,7 @@
 import pandas as pd
 import scipy.stats as stat
 
-from graphics.gev import Gev
+from graphics.genextreme import GenExtreme
 
 
 class Maximum(object):
@@ -33,9 +33,9 @@ class Maximum(object):
 
     def plot_distribution(self, title, type_function):
         try:
-            genextreme = Gev(title, self.para[0], self.para[1], self.para[2])
+            genextreme = GenExtreme(title, self.para[0], self.para[1], self.para[2])
             genextreme.plot(type_function)
         except AttributeError:
             self.mvs()
-            genextreme = Gev(title, self.para[0], self.para[1], self.para[2])
+            genextreme = GenExtreme(title, self.para[0], self.para[1], self.para[2])
             genextreme.plot(type_function)
