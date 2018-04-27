@@ -2,6 +2,8 @@ import pandas as pd
 import math
 import scipy.stats as stat
 
+from graphics.genpareto import GenPareto
+
 
 class Parcial(object):
 
@@ -183,12 +185,18 @@ class Parcial(object):
 
     def mvs(self):
         try:
-            parametros = stat.genpareto.fit(self.peaks['Vazao'].values)
+            self.para = stat.genpareto.fit(self.peaks['Vazao'].values)
         except AttributeError:
             self.event_peaks()
-            parametros = stat.genpareto.fit(self.peaks['Vazao'].values)
+            self.para = stat.genpareto.fit(self.peaks['Vazao'].values)
 
-        return parametros
+        return self.para
 
-    def plot_distribution(self, type_distribution):
-        pass
+    def plot_distribution(self, title, type_function):
+        try:
+            genpareto = GenPareto(title, self.para[0], self.para[1], self.para[2])
+            genpareto.plot(type_function)
+        except AttributeError:
+            self.mvs()
+            genpareto = GenPareto(title, self.para[0], self.para[1], self.para[2])
+            genpareto.plot(type_function)
