@@ -6,6 +6,7 @@ import pandas as pd
 from series.series_biuld import Series
 from series.parcial import Parcial
 from series.maximum import Maximum
+from graphics.hydrogram_clean import HydrogramClean
 
 
 class Vazao(Series):
@@ -40,3 +41,10 @@ class Vazao(Series):
                                value_threshold=value_threshold, **kwargs)
 
         return self.parcial
+
+    def plot_hydrogram(self, station=None):
+        if station is None:
+            hydrogram = HydrogramClean(self.data)
+        else:
+            hydrogram = HydrogramClean(self.data[station])
+        hydrogram.plot()

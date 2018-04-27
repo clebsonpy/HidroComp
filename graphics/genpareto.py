@@ -27,9 +27,10 @@ class GenPareto(DistributionBiuld):
 
         layout = dict(title="GP - Acumulada", xaxis=bandxaxis, width=840, height=672,
                       yaxis=bandyaxis,
-                      font=dict(family='Courier New, monospace', size=12,
+                      font=dict(family='Courier New, monospace', size=16,
                                 color='#7f7f7f'))
 
+        fig = dict(data=data_fig, layout=layout)
         name_graphic = 'GP_Densidade_%s' % self.title
         py.offline.plot(fig, filename='gráficos/'+ name_graphic + '.html')
 
@@ -48,7 +49,7 @@ class GenPareto(DistributionBiuld):
 
         layout = dict(title="GP - Densidade", xaxis=bandxaxis, width=840,
                       height=672, yaxis=bandyaxis,
-                      font=dict(family='Courier New, monospace', size=12,
+                      font=dict(family='Courier New, monospace', size=16,
                                 color='#7f7f7f'))
 
         fig = dict(data=data_fig, layout=layout)
