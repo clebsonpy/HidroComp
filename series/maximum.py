@@ -24,16 +24,18 @@ class Maximum(object):
 
     def mvs(self):
         try:
-            self.fit = stat.genextreme.fit(self.peaks['Vazao'].values)
+            self.para = stat.genextreme.fit(self.peaks['Vazao'].values)
         except AttributeError:
             self.annual()
-            self.fit = stat.genextreme.fit(self.peaks['Vazao'].values)
+            self.para = stat.genextreme.fit(self.peaks['Vazao'].values)
 
-        return self.fit
+        return self.para
 
     def plot_distribution(self, title, type_function):
         try:
-            genextreme = Gev(title, self.fit[0], self.fit[1], self.fit[2])
+            genextreme = Gev(title, self.para[0], self.para[1], self.para[2])
+            genextreme.plot(type_function)
         except AttributeError:
             self.mvs()
-            genextreme = Gev(title, self.fit[0], self.fit[1], self.fit[2]).plot(type_function)
+            genextreme = Gev(title, self.para[0], self.para[1], self.para[2])
+            genextreme.plot(type_function)

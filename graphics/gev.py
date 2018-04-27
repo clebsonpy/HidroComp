@@ -15,23 +15,21 @@ class Gev(DistributionBiuld):
         super().__init__(title, forma, localizacao, escala)
 
     def cumulative(self):
-        data = []
-        for i in self._data():
-            line = go.Scatter(x=dados[i], y=dados.index, name=i)
-            data.append(line)
+        dados = self._data()
+        print(dados)
+        data_fig = go.Scatter(x=dados[self.title], y=dados.index, name=self.title)
+        data_figs = [data_fig]
 
         bandxaxis = go.XAxis(title="Vazão(m³/s)")
 
         bandyaxis = go.YAxis(title="Probabilidade")
 
-        layout = dict(title="Generalizada de Pareto", xaxis=bandxaxis,
-                    yaxis=bandyaxis,
-                    dth=840,
-                    height=672,
-                    font=dict(family='Courier New, monospace', size=12,
-                            color='#7f7f7f'))
+        layout = dict(title="GEV - Acumulada", xaxis=bandxaxis, width=840, height=672,
+                      yaxis=bandyaxis,
+                      font=dict(family='Courier New, monospace', size=12,
+                                color='#7f7f7f'))
 
-        fig = dict(data=data, layout=layout)
+        fig = dict(data=data_figs, layout=layout)
         py.offline.plot(fig, filename='gráficos/GEV_Acumulada' + '.html')
 
         def density(self):
