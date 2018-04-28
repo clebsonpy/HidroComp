@@ -14,7 +14,7 @@ if __name__ == '__main__':
                                   type_threshold='stationary',
                                   type_event='cheia',
                                   value_threshold=0.75,
-                                  type_criterion='autocorrelação',
+                                  type_criterion='media',
                                   duration=5)
 
     #para_maximum = maximum.mvs()

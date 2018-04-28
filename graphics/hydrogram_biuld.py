@@ -13,6 +13,8 @@ class HydrogramBiuld(object, metaclass=ABCMeta):
 
     def _plot_one(self, data):
 
-        fig = go.Scatter(x=data.index, y=data.values, name=data.name)
+        fig = go.Scatter(x=data.index, y=data.values, name=data.name,
+                         line = dict(
+                             color = ('rgb(0,191,255)')))
 
         return fig
