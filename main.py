@@ -13,7 +13,7 @@ if __name__ == '__main__':
     parcial = serie_vazao.parcial(station='XINGO',
                                   type_threshold='stationary',
                                   type_event='cheia',
-                                  value_threshold=0.8,
+                                  value_threshold=0.75,
                                   type_criterion='autocorrelação',
                                   duration=5)
 

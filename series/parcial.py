@@ -42,7 +42,6 @@ class Parcial(object):
 
         events_criterion, self.threshold_criterion = self.__events_over_threshold()
         events_threshold = self.__events_over_threshold(self.threshold)[0]
-        print(events_threshold)
 
         idx_before = events_threshold.index[0]
         low_limiar = False
@@ -51,7 +50,6 @@ class Parcial(object):
             boolean, data, max_events = self.__criterion(data=data,
                                                          max_events=max_events,
                                                          events_criterion=events_criterion.loc[i])
-
             if events_threshold.loc[i]:
                 data['Vazao'].append(self.data.loc[idx_before, self.station])
                 data['Data'].append(idx_before)
@@ -105,7 +103,7 @@ class Parcial(object):
         elif self.type_event == 'estiagem':
             events = self.data[self.station].isin(self.data.loc[self.data[
                 self.station] <= threshold, self.station])
-            return events, threshold_criterion
+            return events, threshold
 
         else:
             return 'Evento erro!'
