@@ -15,11 +15,12 @@ if __name__ == '__main__':
                                   type_event='cheia',
                                   value_threshold=0.75,
                                   type_criterion='autocorrelação',
-                                  duration=5)
+                                  duration=0)
 
     #para_maximum = maximum.mvs()
     #para_parcial = parcial.mvs()
-    print(parcial.plot_hydrogram('Test'))
+    print(len(parcial.event_peaks()))
+    parcial.plot_hydrogram('Test')
     #print(para_maximum)
 
     fim = timeit.default_timer()
