@@ -215,11 +215,11 @@ class Parcial(object):
     def plot_distribution(self, title, type_function):
         try:
             genpareto = GenPareto(title, self.para[0], self.para[1], self.para[2])
-            genpareto.plot(type_function)
+            return genpareto.plot(type_function)
         except AttributeError:
             self.mvs()
             genpareto = GenPareto(title, self.para[0], self.para[1], self.para[2])
-            genpareto.plot(type_function)
+            return genpareto.plot(type_function)
 
     def plot_hydrogram(self, title):
         try:

@@ -17,7 +17,7 @@ class GenPareto(DistributionBiuld):
     def cumulative(self):
         dados = self._data('cumulative')
 
-        data = go.Scatter(x=dados[self.title], y=dados['Probabilidade'],
+        data = go.Scatter(x=dados['Vazao'], y=dados['Probabilidade'],
                           name=self.title)
         data_fig = [data]
 
@@ -31,10 +31,10 @@ class GenPareto(DistributionBiuld):
                                 color='#7f7f7f'))
 
         fig = dict(data=data_fig, layout=layout)
-        name_graphic = 'GP_Densidade_%s' % self.title
+        name_graphic = 'GP_Acumulada_%s' % self.title
         py.offline.plot(fig, filename='gráficos/'+ name_graphic + '.html')
 
-        return data_fig
+        return data
 
     def density(self):
         dados = self._data('density')
@@ -56,4 +56,4 @@ class GenPareto(DistributionBiuld):
         name_graphic = 'GP_Densidade_%s' % self.title
         py.offline.plot(fig, filename='gráficos/'+ name_graphic + '.html')
 
-        return data_fig
+        return fig
