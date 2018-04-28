@@ -17,21 +17,11 @@ if __name__ == '__main__':
                                   value_threshold=0.75,
                                   type_criterion='autocorrelação',
                                   duration=0)
-    plot = parcial.plot_distribution('Ref', 'cumulative')
+    plot = parcial.plot_distribution('Referência', 'cumulative')
 
-    parcial1 = serie_vazao.parcial(station='XINGO',
-                                  type_threshold='stationary',
-                                  type_event='cheia',
-                                  value_threshold=0.75,
-                                  type_criterion='media',
-                                  duration=0)
+    print(plot)
 
-
-    plot1 = parcial1.plot_distribution('media', 'cumulative')
-
-    print(plot, plot1)
-
-    Comparation_Distribution([plot, plot1]).plot()
+    Comparation_Distribution([plot]).plot()
 
     fim = timeit.default_timer()
     print('Duração: ', fim-ini)

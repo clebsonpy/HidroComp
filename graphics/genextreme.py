@@ -16,12 +16,11 @@ class GenExtreme(DistributionBiuld):
 
     def cumulative(self):
         dados = self._data()
-        print(dados)
-        data_fig = go.Scatter(x=dados[self.title], y=dados.index, name=self.title)
+        data_fig = go.Scatter(x=dados[self.title], y=dados.index,
+                              name=self.title.title())
         data_figs = [data_fig]
 
         bandxaxis = go.XAxis(title="Vazão(m³/s)")
-
         bandyaxis = go.YAxis(title="Probabilidade")
 
         layout = dict(title="GEV - Acumulada", xaxis=bandxaxis, width=840, height=672,
@@ -30,7 +29,8 @@ class GenExtreme(DistributionBiuld):
                                 color='#7f7f7f'))
 
         fig = dict(data=data_figs, layout=layout)
-        py.offline.plot(fig, filename='gráficos/GEV_Acumulada' + '.html')
+        name_graphic = 'GEV_Acumulada_%s' % self.title
+        py.offline.plot(fig, filename='gráficos/'+ name_graphic +'.html')
 
         def density(self):
             pass
