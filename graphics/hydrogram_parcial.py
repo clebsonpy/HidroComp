@@ -30,10 +30,10 @@ class HydrogramParcial(HydrogramBiuld):
                 raise AttributeError
             name = 'Hidrograma Parcial - %s' % self.data.name
             layout = dict(
-                title=name.title(),
+                title = "Hidrograma Série Duração Parcial (%s)" % nomeGrafico.title(),
                 xaxis=bandxaxis,
                 yaxis=bandyaxis,
-                font=dict(family='Courier New, monospace', size=16, color='#7f7f7f'))
+                font=dict(family='Courier New, monospace', size=18, color='#7f7f7f'))
 
             data = []
             data.append(self._plot_one(self.data))

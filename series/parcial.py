@@ -42,6 +42,7 @@ class Parcial(object):
 
         events_criterion, self.threshold_criterion = self.__events_over_threshold()
         events_threshold = self.__events_over_threshold(self.threshold)[0]
+        print(events_threshold)
 
         idx_before = events_threshold.index[0]
         low_limiar = False
@@ -50,6 +51,7 @@ class Parcial(object):
             boolean, data, max_events = self.__criterion(data=data,
                                                          max_events=max_events,
                                                          events_criterion=events_criterion.loc[i])
+
             if events_threshold.loc[i]:
                 data['Vazao'].append(self.data.loc[idx_before, self.station])
                 data['Data'].append(idx_before)
@@ -74,13 +76,19 @@ class Parcial(object):
         self.peaks = pd.DataFrame(max_events,
                             columns=['Duracao', 'Inicio', 'Fim', 'Vazao'],
                             index=max_events['Data'])
+        print(self.peaks)
+        if self.type_criterion=='autocorrelação' and self.type_threshold=='events_by_year':
+            if self.__test_autocorrelation(self.peaks)[0] or self.__test_threshold_events_by_year(self.peaks, self.value):
+                return self.event_peaks()
+            return self.peaks
 
-        if self.__test_autocorrelation(self.peaks)[0] and self.type_criterion=='autocorrelação':
-            self.duration += 1
-            return self.event_peaks()
-        elif self.__test_threshold_events_by_year(self.peaks, self.value) and self.type_threshold == 'events_by_year':
-            return self.event_peaks()
-        return self.peaks
+        else:
+            if self.__test_autocorrelation(self.peaks)[0] and self.type_criterion=='autocorrelação':
+                self.duration += 1
+                return self.event_peaks()
+            elif self.__test_threshold_events_by_year(self.peaks, self.value) and self.type_threshold == 'events_by_year':
+                return self.event_peaks()
+            return self.peaks
 
     def __events_over_threshold(self, threshold=None):
         if threshold is None:
@@ -151,6 +159,7 @@ class Parcial(object):
             return False
 
     def __criterion_duration(self, data, max_events):
+
         if len(max_events['Data']) == 0:
             return True, data, max_events
         elif len(data['Data']) == 0:
@@ -159,7 +168,7 @@ class Parcial(object):
             data_max = data['Data'][data['Vazao'].index(max(data['Vazao']))]
             distancia_dias = data_max - max_events['Data'][-1]
             if distancia_dias.days <= self.duration:
-                if len(data['Vazao']) > 0 and max_events['Vazao'][-1] < max(data['Vazao']):
+                if self.duration > 0 and len(data['Vazao']) > 0 and max_events['Vazao'][-1] < max(data['Vazao']):
                     max_events['Vazao'][-1] = max(data['Vazao'])
                     max_events['Fim'][-1] = data['Data'][-1]
                     max_events['Duracao'][-1] = len(data['Data'])
