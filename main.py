@@ -11,15 +11,27 @@ if __name__ == '__main__':
 
     #maximum = serie_vazao.maximum(station='XINGO')
 
-    parcial = serie_vazao.parcial(station='XINGO',
+    parcial1 = serie_vazao.parcial(station='XINGO',
                                   type_threshold='stationary',
                                   type_event='cheia',
                                   value_threshold=0.75,
                                   type_criterion='autocorrelação',
                                   duration=0)
 
-    print(parcial.event_peaks())
-    print(parcial.resample(tamanho=25, quantidade=100))
+    parcial2 = serie_vazao.parcial(station='XINGO',
+                                  type_threshold='stationary',
+                                  type_event='cheia',
+                                  value_threshold=0.75,
+                                  type_criterion='media',
+                                  duration=0)
+
+    compared = parcial2.magnitudes()
+    reference = parcial1.magnitudes()
+
+    rmse = parcial1.rmse(compared)
+    print(rmse)
+    #print(parcial.event_peaks())
+    #print(parcial.resample(tamanho=25, quantidade=100))
 
     #print(plot)
 

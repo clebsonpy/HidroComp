@@ -2,7 +2,8 @@ import pandas as pd
 import math
 import scipy.stats as stat
 
-from comparation.genpareto import BootsGenPareto
+from comparasion.rmse import RMSE
+from comparasion.genpareto import BootsGenPareto
 from graphics.genpareto import GenPareto
 from graphics.hydrogram_parcial import HydrogramParcial
 
@@ -125,16 +126,16 @@ class Parcial(object):
 
     def __criterion(self, *args, **kwargs):
         if self.type_criterion == 'media':
-            return self.__criterion_media(data=kwargs['data'],
+            data, max_events = self.__criterion_media(data=kwargs['data'],
                                     max_events=kwargs['max_events'],
-                                    events_criterion=kwargs['events_criterion']),\
-                                    kwargs['data_min']
+                                    events_criterion=kwargs['events_criterion'])
+            return data, max_events, kwargs['data_min']
 
         elif self.type_criterion == 'mediana':
-            return self.__criterion_mediana(data=kwargs['data'],
+            data, max_events = self.__criterion_mediana(data=kwargs['data'],
                                     max_events=kwargs['max_events'],
-                                    events_criterion=kwargs['events_criterion']),\
-                                    kwargs['data_min']
+                                    events_criterion=kwargs['events_criterion'])
+            return data, max_events, kwargs['data_min']
 
         elif self.type_criterion == 'autocorrelação':
             data, max_events = self.__criterion_duration(data=kwargs['data'],
@@ -342,16 +343,23 @@ class Parcial(object):
         try:
             dic_magns = {0.001:[], 0.01:[], 0.1:[], 0.5:[], 0.9:[], 0.99:[], 0.999:[]}
             for j in dic_magns:
-                mag = genpareto.ppf(j, fit[0], fit[1], fit[2])
+                mag = stat.genpareto.ppf(j, self.para[0], self.para[1],
+                                         self.para[2])
                 dic_magns[j].append(mag)
         except AttributeError:
             self.mvs()
             dic_magns = {0.001:[], 0.01:[], 0.1:[], 0.5:[], 0.9:[], 0.99:[], 0.999:[]}
             for j in dic_magns:
-                mag = genpareto.ppf(j, fit[0], fit[1], fit[2])
+                mag = stat.genpareto.ppf(j, self.para[0], self.para[1],
+                                         self.para[2])
                 dic_magns[j].append(mag)
 
         return pd.DataFrame(dic_magns)
+
+    def rmse(self, compared):
+        reference = self.magnitudes()
+        rmse_compared = RMSE(reference, compared)
+        return rmse_compared.quantify()
 
     def plot_distribution(self, title, type_function):
         try:
