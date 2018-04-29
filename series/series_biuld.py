@@ -6,9 +6,8 @@ from abc import abstractmethod, ABCMeta
 from files import *
 
 
-class Series(object):
+class Series(object, metaclass=ABCMeta):
 
-    __metaclass__ = ABCMeta
     fonts = {
         "ONS": ons.Ons,
         "ANA": ana.Ana

@@ -15,13 +15,11 @@ if __name__ == '__main__':
                                   type_threshold='stationary',
                                   type_event='cheia',
                                   value_threshold=0.75,
-                                  type_criterion='xmin_maior_qmin',
-                                  duration=5)
+                                  type_criterion='autocorrelação',
+                                  duration=0)
 
     print(parcial.event_peaks())
-    print(len(parcial.peaks))
-    print(parcial.plot_hydrogram('Test'))
-
+    print(parcial.resample(tamanho=25, quantidade=100))
 
     #print(plot)
 

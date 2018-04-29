@@ -4,9 +4,7 @@ import pandas as pd
 from abc import ABCMeta, abstractmethod
 
 
-class DistributionBiuld(object):
-
-    __metaclass__ = ABCMeta
+class DistributionBiuld(object, metaclass=ABCMeta):
 
     def __init__(self, title, forma, localizacao, escala):
         self.title = title

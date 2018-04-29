@@ -2,6 +2,7 @@ import pandas as pd
 import math
 import scipy.stats as stat
 
+from comparation.genpareto import BootsGenPareto
 from graphics.genpareto import GenPareto
 from graphics.hydrogram_parcial import HydrogramParcial
 
@@ -136,10 +137,10 @@ class Parcial(object):
                                     kwargs['data_min']
 
         elif self.type_criterion == 'autocorrelação':
-            return self.__criterion_duration(data=kwargs['data'],
+            data, max_events = self.__criterion_duration(data=kwargs['data'],
                                     max_events=kwargs['max_events'],
-                                    events_criterion=kwargs['events_criterion']),\
-                                    kwargs['data_min']
+                                    events_criterion=kwargs['events_criterion'])
+            return data, max_events, kwargs['data_min']
 
         elif self.type_criterion == 'xmin_maior_qmin':
             return self.__criterion_xmin_maior_qmin(data=kwargs['data'],
@@ -327,14 +328,38 @@ class Parcial(object):
 
         return self.para
 
+    def resample(self, tamanho, quantidade):
+        try:
+            boots_genpareto = BootsGenPareto(self.para[0], self.para[1],
+                                             self.para[2], tamanho)
+        except AttributeError:
+            self.mvs()
+            boots_genpareto = BootsGenPareto(self.para[0], self.para[1],
+                                             self.para[2], tamanho)
+        return boots_genpareto.magnitudes_resamples(quantidade)
+
+    def magnitudes(self):
+        try:
+            dic_magns = {0.001:[], 0.01:[], 0.1:[], 0.5:[], 0.9:[], 0.99:[], 0.999:[]}
+            for j in dic_magns:
+                mag = genpareto.ppf(j, fit[0], fit[1], fit[2])
+                dic_magns[j].append(mag)
+        except AttributeError:
+            self.mvs()
+            dic_magns = {0.001:[], 0.01:[], 0.1:[], 0.5:[], 0.9:[], 0.99:[], 0.999:[]}
+            for j in dic_magns:
+                mag = genpareto.ppf(j, fit[0], fit[1], fit[2])
+                dic_magns[j].append(mag)
+
+        return pd.DataFrame(dic_magns)
+
     def plot_distribution(self, title, type_function):
         try:
             genpareto = GenPareto(title, self.para[0], self.para[1], self.para[2])
-            return genpareto.plot(type_function), self.para
         except AttributeError:
             self.mvs()
             genpareto = GenPareto(title, self.para[0], self.para[1], self.para[2])
-            return genpareto.plot(type_function), self.para
+        return genpareto.plot(type_function), self.para
 
     def plot_hydrogram(self, title):
         try:
