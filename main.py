@@ -25,10 +25,18 @@ if __name__ == '__main__':
                                   type_criterion='media',
                                   duration=0)
 
-    compared = parcial2.magnitudes()
-    reference = parcial1.magnitudes()
+    parcial3 = serie_vazao.parcial(station='XINGO',
+                                  type_threshold='stationary',
+                                  type_event='cheia',
+                                  value_threshold=0.75,
+                                  type_criterion='mediana',
+                                  duration=0)
 
-    rmse = parcial1.rmse(compared)
+    reference = parcial1.magnitudes()
+    compared = parcial2.magnitudes()
+    compared2 = parcial3.magnitudes()
+
+    rmse = parcial1.rmse({'Média': compared, 'Mediana': compared2})
     print(rmse)
     #print(parcial.event_peaks())
     #print(parcial.resample(tamanho=25, quantidade=100))

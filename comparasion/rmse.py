@@ -15,18 +15,24 @@ class RMSE(QuantifyUncertainty):
     def resample_quantify(self):
         pass
 
-    def quantify(self):
+    def __rmse(self, compared=None, type_criterion=None):
         rmse = []
         prob = []
         for i in self.reference:
-            compared = self.compared[i]
             soma = 0
             prob.append(i)
-            for x in compared:
+            for x in compared[i]:
                 aux = (x - self.reference[i].values[0])
                 soma += np.power(aux, 2)
 
             aux2 = (1/len(compared))*soma
             rmse.append(np.power(aux2, 0.5))
+        name = ('RMSE', type_criterion)
+        return pd.DataFrame(rmse, index=prob, columns=[name])
 
-        return pd.DataFrame(rmse, index=prob, columns=['RMSE'])
+    def quantify(self):
+        df_rmse = pd.DataFrame()
+        for i in self.compared:
+            df = self.__rmse(self.compared[i], i)
+            df_rmse = df_rmse.combine_first(df)
+        return df_rmse
