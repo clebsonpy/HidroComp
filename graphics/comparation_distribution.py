@@ -24,12 +24,3 @@ class Comparation_Distribution(object):
         py.offline.plot(fig, filename='gráficos/' + name_graphic + '.html')
 
         return fig
-
-    def rmae(self):
-        pass
-
-    def rmse(self):
-        pass
-
-    def mae(self):
-        pass
