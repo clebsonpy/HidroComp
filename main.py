@@ -15,8 +15,8 @@ if __name__ == '__main__':
                                   type_threshold='stationary',
                                   type_event='cheia',
                                   value_threshold=0.75,
-                                  type_criterion='xmin_maior_dois_terco',
-                                  duration=0)
+                                  type_criterion='xmin_maior_qmin',
+                                  duration=5)
 
     print(parcial.event_peaks())
     print(len(parcial.peaks))
