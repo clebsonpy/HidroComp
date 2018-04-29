@@ -12,16 +12,20 @@ if __name__ == '__main__':
     #maximum = serie_vazao.maximum(station='XINGO')
 
     parcial = serie_vazao.parcial(station='XINGO',
-                                  type_threshold='stationary',
+                                  type_threshold='events_by_year',
                                   type_event='cheia',
-                                  value_threshold=0.75,
-                                  type_criterion='autocorrelação',
+                                  value_threshold=1.65,
+                                  type_criterion='xmin_maior_dois_terco',
                                   duration=0)
-    plot = parcial.plot_distribution('Referência', 'cumulative')
 
-    print(plot)
+    print(parcial.event_peaks())
+    print(len(parcial.peaks))
+    print(parcial.plot_hydrogram('Test'))
 
-    Comparation_Distribution([plot]).plot()
+
+    #print(plot)
+
+    #Comparation_Distribution([plot]).plot()
 
     fim = timeit.default_timer()
     print('Duração: ', fim-ini)

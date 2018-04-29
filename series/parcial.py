@@ -45,15 +45,17 @@ class Parcial(object):
 
         idx_before = events_threshold.index[0]
         low_limiar = False
+
         data = {'Data': [], 'Vazao': []}
         data_min = []
         for i in events_threshold.index:
-            boolean, data, max_events = self.__criterion(data=data,
-                                                         max_events=max_events,
-                                                         events_criterion=events_criterion.loc[i],
-                                                         data_min=data_min)
-            if not events_threshold.loc[i]:
+            if not events_threshold.loc[i] and not(low_limiar):
                 data_min.append(self.data.loc[idx_before, self.station])
+
+            boolean, data, max_events, data_min = self.__criterion(data=data,
+                                        max_events=max_events, data_min=data_min,
+                                        events_criterion=events_criterion.loc[i])
+
             if events_threshold.loc[i]:
                 data['Vazao'].append(self.data.loc[idx_before, self.station])
                 data['Data'].append(idx_before)
@@ -72,6 +74,7 @@ class Parcial(object):
                 max_events['Duracao'].append(len(data['Data']))
                 max_events['Data'].append(data['Data'][data['Vazao'].index(max(data['Vazao']))])
                 data = {'Data': [], 'Vazao': []}
+                data_min = []
 
             idx_before = i
 
@@ -79,10 +82,11 @@ class Parcial(object):
                             columns=['Duracao', 'Inicio', 'Fim', 'Vazao'],
                             index=max_events['Data'])
 
-        if self.__test_autocorrelation(self.peaks)[0] and self.type_criterion=='autocorrelação':
+        if self.type_criterion=='autocorrelação' and self.__test_autocorrelation(self.peaks)[0]:
             self.duration += 1
             return self.event_peaks()
-        elif self.__test_threshold_events_by_year(self.peaks, self.value) and self.type_threshold == 'events_by_year':
+        elif self.type_threshold == 'events_by_year' and \
+                self.__test_threshold_events_by_year(self.peaks, self.value):
             return self.event_peaks()
         return self.peaks
 
@@ -123,7 +127,6 @@ class Parcial(object):
             return True
         return False
 
-
     def __criterion(self, *args, **kwargs):
         if self.type_criterion == 'media':
             return self.__criterion_media(data=kwargs['data'],
@@ -137,14 +140,20 @@ class Parcial(object):
 
         elif self.type_criterion == 'autocorrelação':
             return self.__criterion_duration(data=kwargs['data'],
-                                             max_events=kwargs['max_events'])
+                                    max_events=kwargs['max_events'],
+                                    events_criterion=kwargs['events_criterion'])
 
         elif self.type_criterion == 'duração_e_xmin':
-            return self.__criterion_duration(data=kwargs['data'],
-                                             max_events=kwargs['max_events']) or \
-                   self.__criterion_xmin_maior_qmin(data=kwargs['data'],
-                                                    max_events=kwargs['max_events'],
-                                                    data_min=kwargs['data_min'])
+            return self.__criterion_xmin_maior_qmin(data=kwargs['data'],
+                             max_events=kwargs['max_events'],
+                             data_min=kwargs['data_min'],
+                             events_criterion=kwargs['events_criterion'])
+
+        elif self.type_criterion == 'xmin_maior_dois_terco':
+            return self.__criterion_xmin_maior_dois_terco(data=kwargs['data'],
+                                    max_events=kwargs['max_events'],
+                                    data_min=kwargs['data_min'],
+                                    events_criterion=kwargs['events_criterion'])
 
     def __criterion_media(self, data, events_criterion):
         if len(data['Vazao']) > 0 and (not events_criterion):
@@ -158,34 +167,63 @@ class Parcial(object):
         else:
             return False
 
-    def __criterion_duration(self, data, max_events):
+    def __criterion_duration(self, data, max_events, events_criterion):
 
-        if len(max_events['Data']) == 0:
-            return True, data, max_events
-        elif len(data['Data']) == 0:
-            return False, data, max_events
-        else:
-            data_max = data['Data'][data['Vazao'].index(max(data['Vazao']))]
-            distancia_dias = data_max - max_events['Data'][-1]
-            if distancia_dias.days <= self.duration:
-                if self.duration > 0 and len(data['Vazao']) > 0 and max_events['Vazao'][-1] < max(data['Vazao']):
-                    max_events['Vazao'][-1] = max(data['Vazao'])
-                    max_events['Fim'][-1] = data['Data'][-1]
-                    max_events['Duracao'][-1] = len(data['Data'])
-                    max_events['Data'][-1] = data['Data'][data['Vazao'].index(max(data['Vazao']))]
-                    data = {'Data': [], 'Vazao': []}
+        if not events_criterion:
+            if len(max_events['Data']) == 0:
+                return True, data, max_events
+            elif len(data['Data']) == 0:
                 return False, data, max_events
-            return True, data, max_events
-
-    def __criterion_xmin_maior_qmin(self, data, max_events, data_min):
-        q1 = max_events['Vazao'][-1]
-        q2 = max(data['Vazao'])
-        xmin = min(data_min)
-        menor = min(q1, q2)
-
-        if xmin > (3/4)*menor:
+            else:
+                data_max = data['Data'][data['Vazao'].index(max(data['Vazao']))]
+                distancia_dias = data_max - max_events['Data'][-1]
+                if distancia_dias.days < self.duration:
+                    data, max_events = self.__troca_peaks()
+                    return False, data, max_events
+                return True, data, max_events
+        else:
             return False, data, max_events
-        return True, data, max_events
+
+    def __criterion_xmin_maior_qmin(self, data, max_events, data_min, events_criterion):
+        if not events_criterion:
+            if len(data['Data']) == 0:
+                return False, data, max_events, data_min
+            elif len(max_events['Data']) == 0:
+                return True, data, max_events, data_min
+            elif len(data_min) == 0:
+                return False, data, max_events, data_min
+            else:
+                q1 = max_events['Vazao'][-1]
+                q2 = max(data['Vazao'])
+                menor = min(q1, q2)
+                xmin = min(data_min)
+                if xmin > (3/4)*menor:
+                    data, max_events = self.__troca_peaks(data, max_events)
+                    data_min = []
+                    return False, data, max_events, data_min
+                return True, data, max_events, data_min
+        else:
+            return False, data, max_events, data_min
+
+    def __criterion_xmin_maior_dois_terco(self, data, max_events, data_min,
+                                          events_criterion):
+        if not events_criterion:
+            if len(data['Data']) == 0:
+                return False, data, max_events, data_min
+            elif len(max_events['Data']) == 0:
+                return True, data, max_events, data_min
+            elif len(data_min) == 0:
+                return False, data, max_events, data_min
+            else:
+                xmin = min(data_min)
+                q = max_events['Vazao'][-1]
+                if xmin > (2/3)*q:
+                    data, max_events = self.__troca_peaks(data, max_events)
+                    data_min = []
+                    return False, data, max_events, data_min
+                return True, data, max_events, data_min
+        else:
+            return False, data, max_events, data_min
 
     def __test_autocorrelation(self, events_peaks):
         x = events_peaks.index
@@ -203,6 +241,21 @@ class Parcial(object):
             return False, r1, r2
         return True, r1, r2
 
+    def __troca_peaks(self, data, max_events):
+
+        if max_events['Vazao'][-1] < max(data['Vazao']):
+            max_events['Vazao'][-1] = max(data['Vazao'])
+            max_events['Fim'][-1] = data['Data'][-1]
+            max_events['Duracao'][-1] = len(data['Data'])
+            max_events['Data'][-1] = data['Data'][data['Vazao'].index(max(data['Vazao']))]
+            data = {'Data': [], 'Vazao': []}
+        else:
+            max_events['Fim'][-1] = data['Data'][-1]
+            max_events['Duracao'][-1] = len(data['Data'])
+            data = {'Data': [], 'Vazao': []}
+
+        return data, max_events
+
     def mvs(self):
         try:
             self.para = stat.genpareto.fit(self.peaks['Vazao'].values)
@@ -215,11 +268,11 @@ class Parcial(object):
     def plot_distribution(self, title, type_function):
         try:
             genpareto = GenPareto(title, self.para[0], self.para[1], self.para[2])
-            return genpareto.plot(type_function)
+            return genpareto.plot(type_function), self.para
         except AttributeError:
             self.mvs()
             genpareto = GenPareto(title, self.para[0], self.para[1], self.para[2])
-            return genpareto.plot(type_function)
+            return genpareto.plot(type_function), self.para
 
     def plot_hydrogram(self, title):
         try:

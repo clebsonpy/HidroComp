@@ -7,15 +7,12 @@ import cufflinks as cf
 
 class Comparation_Distribution(object):
 
-    def __init__(self, figs):
+    def __init__(self, figs, para):
         self.figs = figs
 
     def plot(self):
         bandxaxis = go.XAxis(title="Vazão(m³/s)")
-
         bandyaxis = go.YAxis(title="Probabilidade")
-
-        print(self.figs)
 
         layout = dict(title="Generalizada de Pareto", xaxis=bandxaxis, width=840, height=672,
                       yaxis=bandyaxis,
@@ -24,5 +21,15 @@ class Comparation_Distribution(object):
 
         fig = dict(data=self.figs, layout=layout)
         name_graphic = 'GP_Acumulada'
-
         py.offline.plot(fig, filename='gráficos/' + name_graphic + '.html')
+
+        return fig
+
+    def rmae(self):
+        pass
+
+    def rmse(self):
+        pass
+
+    def mae(self):
+        pass

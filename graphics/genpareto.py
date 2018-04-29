@@ -52,4 +52,4 @@ class GenPareto(DistributionBiuld):
         name_graphic = 'GP_Densidade_%s' % self.title
         py.offline.plot(fig, filename='gráficos/'+ name_graphic + '.html')
 
-        return fig
+        return data
