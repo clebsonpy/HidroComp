@@ -12,9 +12,9 @@ if __name__ == '__main__':
     #maximum = serie_vazao.maximum(station='XINGO')
 
     parcial = serie_vazao.parcial(station='XINGO',
-                                  type_threshold='events_by_year',
+                                  type_threshold='stationary',
                                   type_event='cheia',
-                                  value_threshold=1.65,
+                                  value_threshold=0.75,
                                   type_criterion='xmin_maior_dois_terco',
                                   duration=0)
 

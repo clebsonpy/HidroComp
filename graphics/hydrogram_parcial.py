@@ -28,9 +28,10 @@ class HydrogramParcial(HydrogramBiuld):
         try:
             if self.threshold_criterion is None:
                 raise AttributeError
+
             name = 'Hidrograma Parcial - %s' % self.data.name
             layout = dict(
-                title = "Hidrograma Série Duração Parcial (%s)" % nomeGrafico.title(),
+                title = "Hidrograma Série Duração Parcial",
                 xaxis=bandxaxis,
                 yaxis=bandyaxis,
                 font=dict(family='Courier New, monospace', size=18, color='#7f7f7f'))
