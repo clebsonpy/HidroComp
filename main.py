@@ -1,6 +1,7 @@
 from series.vazao import Vazao
 from comparasion.rmse import RMSE
 from comparasion.mae import MAE
+from comparasion.rmae import RMAE
 
 from graphics.comparation_distribution import Comparation_Distribution
 import timeit
@@ -50,8 +51,10 @@ if __name__ == '__main__':
 
     rmse = RMSE(reference, [compared2, compared3])
     mae = MAE(reference, [compared2, compared3])
+    rmae = RMAE(reference, [compared2, compared3])
     print(rmse.quantify())
     print(mae.quantify())
+    print(rmae.quantify())
     #print(parcial.event_peaks())
     #print(parcial.resample(tamanho=25, quantidade=100))
 

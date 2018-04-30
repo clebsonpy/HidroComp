@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 
 from comparasion.quantify_uncertainty import QuantifyUncertainty
 
@@ -10,12 +9,6 @@ class RMSE(QuantifyUncertainty):
     RMSE = [1/n * soma(xi - Qmax)²]^1/2
     """
     def __init__(self, reference, compared):
-        """Dados de entrada:
-            reference: <pd.DataFrame> com as magnitudes estimadas pela distribuiçao
-            de referência.
-            compared: <dict> contendo os <pd.DataFrame> com as magnitudes estimadas
-            pelas distribuições a serem comparadas.
-        """
         super().__init__(reference, compared)
 
     def calculo_erro(self, compared):

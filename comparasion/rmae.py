@@ -1,34 +1,31 @@
 import pandas as pd
-import numpy as np
 
+from comparasion.mae import MAE
 from comparasion.quantify_uncertainty import QuantifyUncertainty
 
 
-class RMSE(QuantifyUncertainty):
+class RMAE(QuantifyUncertainty):
     """
-    Root Mean Square Error - RMSE
-    RMSE = [1/n * soma(xi - Qmax)²]^1/2
+    Relative Mean Absolute Error - RMSE
+    RMAE = MAE/mean(Qmax)
     """
     def __init__(self, reference, compared):
-        """Dados de entrada:
-            reference: <pd.DataFrame> com as magnitudes estimadas pela distribuiçao
-            de referência.
-            compared: <dict> contendo os <pd.DataFrame> com as magnitudes estimadas
-            pelas distribuições a serem comparadas.
-        """
         super().__init__(reference, compared)
 
-    def __rmse(self, compared=None, type_criterion=None):
-        rmse = []
+    def calculo_erro(self, compared):
+        mae = MAE(self.reference, compared).quantify()
+        rmae = []
         prob = []
-        for i in self.reference:
-            soma = 0
+        soma = 0
+        for i in self.reference.index:
             prob.append(i)
-            for x in compared[i]:
-                aux = (x - self.reference[i].values[0])
-                soma += np.power(aux, 2)
+            aux = mae[compared.name][i] / self.reference[i]
+            soma += aux
 
-            aux2 = (1/len(compared))*soma
-            rmse.append(np.power(aux2, 0.5))
-        name = ('RMSE', type_criterion)
-        return pd.DataFrame(rmse, index=prob, columns=[name])
+            rmae.append(aux)
+
+        rmae_value = (1/len(self.reference)*soma)
+        rmae.append(rmae_value)
+        prob.append('RMAE')
+        rmae_serie = pd.Series(rmae, index=prob, name=compared.name)
+        return rmae_serie
