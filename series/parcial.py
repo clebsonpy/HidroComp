@@ -3,6 +3,7 @@ import math
 import scipy.stats as stat
 
 from comparasion.rmse import RMSE
+from comparasion.mae import MAE
 from comparasion.genpareto import BootsGenPareto
 from graphics.genpareto import GenPareto
 from graphics.hydrogram_parcial import HydrogramParcial
@@ -345,7 +346,7 @@ class Parcial(object):
     def magnitude(self, tempo_de_retorno):
         try:
             if type(tempo_de_retorno) is list:
-                raise ValueError
+                raise TypeError
             try:
                 prob = 1-(1/tempo_de_retorno)
                 mag = stat.genpareto.ppf(prob, self.para[0], self.para[1],
@@ -354,7 +355,7 @@ class Parcial(object):
                 self.mvs()
                 mag = stat.genpareto.ppf(prob, self.para[0], self.para[1],
                                          self.para[2])
-        except ValueError:
+        except TypeError:
             mag = self.__magnitudes(tempo_de_retorno)
         return mag
 
@@ -368,12 +369,7 @@ class Parcial(object):
 
             magns.append(mag)
 
-        return pd.DataFrame(magns, index=tempo_de_retorno, columns=[self.name])
-
-    def rmse(self, compared):
-        reference = self.magnitudes()
-        rmse_compared = RMSE(reference, compared)
-        return rmse_compared.quantify()
+        return pd.Series(magns, index=tempo_de_retorno, name=self.name)
 
     def plot_distribution(self, title, type_function):
         try:
