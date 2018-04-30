@@ -12,6 +12,7 @@ class Parcial(object):
 
     distribution = 'GP'
     __percentil = 0.8
+    dic_name = {'stationary': 'Percentil', 'events_by_year': 'Eventos por Ano'}
 
     def __init__(self, obj, station, type_threshold, value_threshold,
                  type_criterion, type_event, **kwargs):
@@ -37,6 +38,8 @@ class Parcial(object):
         self.value = value_threshold
         self.duration = kwargs['duration']
         self.__threshold(self.value)
+        self.name = '%s(%s) - %s' % (self.dic_name[self.type_threshold],
+                                     self.value, self.type_criterion.title())
 
     def event_peaks(self):
         max_events = {'Data': [], 'Vazao': [], 'Inicio': [], 'Fim': [],
@@ -339,22 +342,33 @@ class Parcial(object):
                                              self.para[2], tamanho)
         return boots_genpareto.magnitudes_resamples(quantidade)
 
-    def magnitudes(self):
+    def magnitude(self, tempo_de_retorno):
         try:
-            dic_magns = {0.001:[], 0.01:[], 0.1:[], 0.5:[], 0.9:[], 0.99:[], 0.999:[]}
-            for j in dic_magns:
-                mag = stat.genpareto.ppf(j, self.para[0], self.para[1],
+            if type(tempo_de_retorno) is list:
+                raise ValueError
+            try:
+                prob = 1-(1/tempo_de_retorno)
+                mag = stat.genpareto.ppf(prob, self.para[0], self.para[1],
                                          self.para[2])
-                dic_magns[j].append(mag)
-        except AttributeError:
-            self.mvs()
-            dic_magns = {0.001:[], 0.01:[], 0.1:[], 0.5:[], 0.9:[], 0.99:[], 0.999:[]}
-            for j in dic_magns:
-                mag = stat.genpareto.ppf(j, self.para[0], self.para[1],
+            except AttributeError:
+                self.mvs()
+                mag = stat.genpareto.ppf(prob, self.para[0], self.para[1],
                                          self.para[2])
-                dic_magns[j].append(mag)
+        except ValueError:
+            mag = self.__magnitudes(tempo_de_retorno)
+        return mag
 
-        return pd.DataFrame(dic_magns)
+    def __magnitudes(self, tempo_de_retorno):
+        #dic_magns = {0.001:[], 0.01:[], 0.1:[], 0.5:[], 0.9:[], 0.99:[], 0.999:[]}
+        magns = []
+        for tempo in tempo_de_retorno:
+            mag = self.magnitude(tempo)
+            #mag = stat.genpareto.ppf(j, self.para[0], self.para[1],
+            #                         self.para[2])
+
+            magns.append(mag)
+
+        return pd.DataFrame(magns, index=tempo_de_retorno, columns=[self.name])
 
     def rmse(self, compared):
         reference = self.magnitudes()

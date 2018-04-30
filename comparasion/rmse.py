@@ -10,10 +10,13 @@ class RMSE(QuantifyUncertainty):
     RMSE = [1/n * soma(xi - Qmax)²]^1/2
     """
     def __init__(self, reference, compared):
+        """Dados de entrada:
+            reference: <pd.DataFrame> com as magnitudes estimadas pela distribuiçao
+            de referência.
+            compared: <dict> contendo os <pd.DataFrame> com as magnitudes estimadas
+            pelas distribuições a serem comparadas.
+        """
         super().__init__(reference, compared)
-
-    def resample_quantify(self):
-        pass
 
     def __rmse(self, compared=None, type_criterion=None):
         rmse = []
@@ -29,10 +32,3 @@ class RMSE(QuantifyUncertainty):
             rmse.append(np.power(aux2, 0.5))
         name = ('RMSE', type_criterion)
         return pd.DataFrame(rmse, index=prob, columns=[name])
-
-    def quantify(self):
-        df_rmse = pd.DataFrame()
-        for i in self.compared:
-            df = self.__rmse(self.compared[i], i)
-            df_rmse = df_rmse.combine_first(df)
-        return df_rmse

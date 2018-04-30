@@ -1,3 +1,5 @@
+import pandas as pd
+
 from abc import ABCMeta, abstractmethod
 
 
@@ -7,9 +9,9 @@ class QuantifyUncertainty(object, metaclass=ABCMeta):
         self.reference = reference
         self.compared = compared
 
-    @abstractmethod
-    def resample_quantify(self):
-        pass
-
     def quantify(self):
-        pass
+        df_comp = pd.DataFrame()
+        for i in self.compared:
+            df = self.__rmse(self.compared[i], i)
+            df_comp = df_comp.combine_first(df)
+        return df_comp
