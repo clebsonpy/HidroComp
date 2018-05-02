@@ -136,7 +136,6 @@ class Parcial(object):
             self.__percentil -= 0.005
             self.__threshold(self.__percentil)
 
-
     def __criterion(self, *args, **kwargs):
         if self.type_criterion == 'media':
             data, max_events = self.__criterion_media(data=kwargs['data'],
