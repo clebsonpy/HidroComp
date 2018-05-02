@@ -12,8 +12,9 @@ from graphics.hydrogram_parcial import HydrogramParcial
 class Parcial(object):
 
     distribution = 'GP'
-    __percentil = 0.8
-    dic_name = {'stationary': 'Percentil', 'events_by_year': 'Eventos por Ano'}
+    __percentil = 0.99
+    dic_name = {'stationary': 'Percentil', 'events_by_year': 'Eventos por Ano',
+                'autocorrelação': 'Autocorrelacao'}
 
     def __init__(self, obj, station, type_threshold, value_threshold,
                  type_criterion, type_event, **kwargs):
@@ -80,7 +81,10 @@ class Parcial(object):
                             index=max_events['Data'])
 
         if self.type_criterion=='autocorrelação' and self.__test_autocorrelation(self.peaks)[0]:
-            self.duration += 1
+            if self.type_threshold == 'autocorrelação':
+                self.__test_threshold_events_by_year()
+            else:
+                self.duration += 1
             return self.event_peaks()
         elif self.type_threshold == 'events_by_year' and \
                 self.__test_threshold_events_by_year(self.peaks, self.value):
@@ -112,21 +116,26 @@ class Parcial(object):
             self.threshold = self.data[self.station].quantile(self.__percentil)
         elif value > 1 and self.type_threshold == 'stationary':
             self.threshold = value
-        else:
-            self.threshold = self.data[self.station].quantile(value)
+        elif self.type_threshold == 'autocorrelação':
+            self.threshold = self.data[self.station].quantile(self.__percentil)
         return self.threshold
 
-    def __test_threshold_events_by_year(self, peaks, value):
+    def __test_threshold_events_by_year(self, peaks = None, value = None):
         n_year = self.obj.date_end.year - self.obj.date_start.year
-        if len(peaks) < int(value * n_year):
+        if self.type_criterion == 'events_by_year':
+            if len(peaks) < int(value * n_year):
+                self.__percentil -= 0.005
+                self.__threshold(self.__percentil)
+                return True
+            elif len(peaks) > (int(value * n_year)+3):
+                self.__percentil += 0.005
+                self.__threshold(self.__percentil)
+                return True
+            return False
+        if self.type_threshold == 'autocorrelação':
             self.__percentil -= 0.005
             self.__threshold(self.__percentil)
-            return True
-        elif len(peaks) > (int(value * n_year)+3):
-            self.__percentil += 0.005
-            self.__threshold(self.__percentil)
-            return True
-        return False
+
 
     def __criterion(self, *args, **kwargs):
         if self.type_criterion == 'media':

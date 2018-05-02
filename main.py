@@ -16,19 +16,19 @@ if __name__ == '__main__':
     #maximum = serie_vazao.maximum(station='XINGO')
 
     parcial1 = serie_vazao.parcial(station='XINGO',
-                                  type_threshold='stationary',
+                                  type_threshold='autocorrelação',
                                   type_event='cheia',
-                                  value_threshold=0.75,
+                                  value_threshold=0,
                                   type_criterion='autocorrelação',
-                                  duration=0)
-
+                                  duration=1)
+    """
     parcial2 = serie_vazao.parcial(station='XINGO',
                                   type_threshold='stationary',
                                   type_event='cheia',
                                   value_threshold=0.75,
                                   type_criterion='media',
                                   duration=0)
-    """
+
     parcial3 = serie_vazao.parcial(station='XINGO',
                                   type_threshold='stationary',
                                   type_event='cheia',
@@ -55,9 +55,10 @@ if __name__ == '__main__':
     print(rmse.quantify())
     print(mae.quantify())
     print(rmae.quantify())
-    """
+
     tempos_retorno = [2, 5, 10, 25, 50, 100, 500]
     #print(parcial1.event_peaks())
+
     reference = parcial1.magnitude(tempos_retorno)
     compared2 = parcial1.magnitude_resample(quantidade=150, tempo_de_retorno=tempos_retorno)
     rmse = RMSE(reference, compared2)
@@ -66,12 +67,8 @@ if __name__ == '__main__':
     print(rmse.quantify_resample())
     print(mae.quantify_resample())
     print(rmae.quantify_resample())
-
-
-
-    #print(plot)
-
-    #Comparation_Distribution([plot]).plot()
+    """
+    parcial1.plot_hydrogram('autocorrelacao')
 
     fim = timeit.default_timer()
     print('Duração: ', fim-ini)
