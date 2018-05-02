@@ -59,7 +59,7 @@ if __name__ == '__main__':
     tempos_retorno = [2, 5, 10, 25, 50, 100, 500]
     #print(parcial1.event_peaks())
     reference = parcial1.magnitude(tempos_retorno)
-    compared2 = parcial2.magnitude_resample(quantidade=100, tempo_de_retorno=tempos_retorno)
+    compared2 = parcial1.magnitude_resample(quantidade=150, tempo_de_retorno=tempos_retorno)
     rmse = RMSE(reference, compared2)
     mae = MAE(reference, compared2)
     rmae = RMAE(reference, compared2)
