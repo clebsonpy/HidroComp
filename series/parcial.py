@@ -333,15 +333,28 @@ class Parcial(object):
 
         return self.para
 
-    def resample(self, tamanho, quantidade):
+    def resample(self, quantidade):
         try:
-            boots_genpareto = BootsGenPareto(self.para[0], self.para[1],
-                                             self.para[2], tamanho)
+            n = len(self.peaks)
+            df_resample = pd.DataFrame()
+            for i in range(quantidade):
+                df = pd.DataFrame(self.peaks['Vazao'].sample(n=n, replace=True).values,
+                                    columns=['%s' % i])
+                df_resample = df_resample.combine_first(df)
+            return df_resample
         except AttributeError:
-            self.mvs()
-            boots_genpareto = BootsGenPareto(self.para[0], self.para[1],
-                                             self.para[2], tamanho)
-        return boots_genpareto.magnitudes_resamples(quantidade)
+            self.event_peaks()
+            return self.resample(quantidade)
+
+    def mvs_resample(self, quantidade):
+        dic = {'Parametro': []}
+        resample = self.resample(quantidade)
+        peaks = self.peaks.copy()
+        for i in resample:
+            self.peaks['Vazao'] = resample[i].values
+            dic['Parametro'].append(self.mvs())
+        self.peaks = peaks
+        return pd.DataFrame(dic)
 
     def magnitude(self, tempo_de_retorno):
         try:
@@ -353,14 +366,16 @@ class Parcial(object):
                                          self.para[2])
             except AttributeError:
                 self.mvs()
-                mag = stat.genpareto.ppf(prob, self.para[0], self.para[1],
-                                         self.para[2])
+                self.magnitude(tempo_de_retorno)
         except TypeError:
             mag = self.__magnitudes(tempo_de_retorno)
         return mag
 
-    def __magnitudes(self, tempo_de_retorno):
+    def __magnitudes(self, tempo_de_retorno, name=None):
         #dic_magns = {0.001:[], 0.01:[], 0.1:[], 0.5:[], 0.9:[], 0.99:[], 0.999:[]}
+        if name is None:
+            name = self.name
+
         magns = []
         for tempo in tempo_de_retorno:
             mag = self.magnitude(tempo)
@@ -369,15 +384,28 @@ class Parcial(object):
 
             magns.append(mag)
 
-        return pd.Series(magns, index=tempo_de_retorno, name=self.name)
+        return pd.Series(magns, index=tempo_de_retorno, name=name)
+
+    def magnitude_resample(self, quantidade, tempo_de_retorno):
+        df_magn = pd.DataFrame()
+        para = self.mvs_resample(quantidade)
+        para_origon = self.mvs()
+        print(self.para)
+        for i in para.index:
+            self.para = para['Parametro'][i]
+            serie = self.__magnitudes(tempo_de_retorno, i)
+            df_magn = df_magn.combine_first(serie.to_frame())
+
+        self.para = para_origon
+        return df_magn.T
 
     def plot_distribution(self, title, type_function):
         try:
             genpareto = GenPareto(title, self.para[0], self.para[1], self.para[2])
+            return genpareto.plot(type_function), self.para
         except AttributeError:
             self.mvs()
-            genpareto = GenPareto(title, self.para[0], self.para[1], self.para[2])
-        return genpareto.plot(type_function), self.para
+            self.plot_distribution(title, type_function)
 
     def plot_hydrogram(self, title):
         try:
@@ -385,10 +413,7 @@ class Parcial(object):
                                         peaks=self.peaks,
                                         threshold=self.threshold,
                                         threshold_criterion=self.threshold_criterion)
+            hydrogrm.plot(type_criterion=self.type_criterion)
         except AttributeError:
             self.event_peaks()
-            hydrogrm = HydrogramParcial(data=self.data[self.station],
-                                        peaks=self.peaks,
-                                        threshold=self.threshold,
-                                        threshold_criterion=self.threshold_criterion)
-        hydrogrm.plot(type_criterion=self.type_criterion)
+            self.plot_hydrogram(title)
