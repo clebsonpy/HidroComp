@@ -366,7 +366,7 @@ class Parcial(object):
                                          self.para[2])
             except AttributeError:
                 self.mvs()
-                self.magnitude(tempo_de_retorno)
+                return self.magnitude(tempo_de_retorno)
         except TypeError:
             mag = self.__magnitudes(tempo_de_retorno)
         return mag
@@ -390,7 +390,6 @@ class Parcial(object):
         df_magn = pd.DataFrame()
         para = self.mvs_resample(quantidade)
         para_origon = self.mvs()
-        print(self.para)
         for i in para.index:
             self.para = para['Parametro'][i]
             serie = self.__magnitudes(tempo_de_retorno, i)

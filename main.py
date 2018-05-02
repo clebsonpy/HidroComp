@@ -21,14 +21,14 @@ if __name__ == '__main__':
                                   value_threshold=0.75,
                                   type_criterion='autocorrelação',
                                   duration=0)
-    """
+
     parcial2 = serie_vazao.parcial(station='XINGO',
                                   type_threshold='stationary',
                                   type_event='cheia',
                                   value_threshold=0.75,
                                   type_criterion='media',
                                   duration=0)
-
+    """
     parcial3 = serie_vazao.parcial(station='XINGO',
                                   type_threshold='stationary',
                                   type_event='cheia',
@@ -58,8 +58,16 @@ if __name__ == '__main__':
     """
     tempos_retorno = [2, 5, 10, 25, 50, 100, 500]
     #print(parcial1.event_peaks())
-    print(parcial1.magnitude_resample(quantidade=100, tempo_de_retorno=tempos_retorno))
-    print(parcial1.para)
+    reference = parcial1.magnitude(tempos_retorno)
+    compared2 = parcial2.magnitude_resample(quantidade=100, tempo_de_retorno=tempos_retorno)
+    rmse = RMSE(reference, compared2)
+    mae = MAE(reference, compared2)
+    rmae = RMAE(reference, compared2)
+    print(rmse.quantify_resample())
+    print(mae.quantify_resample())
+    print(rmae.quantify_resample())
+
+
 
     #print(plot)
 
