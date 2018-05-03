@@ -1,3 +1,5 @@
+import pandas as pd
+
 from series.vazao import Vazao
 from comparasion.rmse import RMSE
 from comparasion.mae import MAE
@@ -9,65 +11,30 @@ import timeit
 if __name__ == '__main__':
     ini = timeit.default_timer()
     path = "/home/clebson/Documentos/Projetos/HidroComp1_8"
-    serie_vazao = Vazao(path=path, font='ONS')
+    dados = pd.read_csv("dadosXingo.csv", index_col=0, names=[
+                        "Data", "XINGO"], parse_dates=True)
+    serie_vazao = Vazao(data=dados, path=path, font='ONS')
     serie_vazao.date(date_start='1/1/1999')
     #print(serie_vazao.plot_hydrogram('XINGO'))
 
-    #maximum = serie_vazao.maximum(station='XINGO')
+    maximum = serie_vazao.maximum(station='XINGO')
 
     parcial1 = serie_vazao.parcial(station='XINGO',
-                                  type_threshold='stationary',
+                                  type_threshold='events_by_year',
                                   type_event='cheia',
-                                  value_threshold=0.75,
+                                  value_threshold=2.3,
                                   type_criterion='autocorrelação',
                                   duration=0)
 
-    parcial2 = serie_vazao.parcial(station='XINGO',
-                                  type_threshold='stationary',
-                                  type_event='cheia',
-                                  value_threshold=0.75,
-                                  type_criterion='media',
-                                  duration=0)
-    """
-    parcial3 = serie_vazao.parcial(station='XINGO',
-                                  type_threshold='stationary',
-                                  type_event='cheia',
-                                  value_threshold=0.75,
-                                  type_criterion='mediana',
-                                  duration=0)
+    #print(parcial1.mvs())
+    #parcial1.plot_hydrogram("Referência")
+    #parcial1.plot_distribution(title="Referência", type_function='cumulative')
+    #parcial1.plot_distribution(title="Referência", type_function='density')
 
-    parcial4 = serie_vazao.parcial(station='XINGO',
-                                  type_threshold='events_by_year',
-                                  type_event='cheia',
-                                  value_threshold=1.65,
-                                  type_criterion='media',
-                                  duration=0)
-
-
-    reference = parcial1.magnitude(tempos_retorno)
-    compared2 = parcial2.magnitude(tempos_retorno)
-    compared3 = parcial3.magnitude(tempos_retorno)
-    #compared4 = parcial4.magnitude(tempos_retorno)
-
-    rmse = RMSE(reference, [compared2, compared3])
-    mae = MAE(reference, [compared2, compared3])
-    rmae = RMAE(reference, [compared2, compared3])
-    print(rmse.quantify())
-    print(mae.quantify())
-    print(rmae.quantify())
-    """
-    tempos_retorno = [2, 5, 10, 25, 50, 100, 500]
-    #print(parcial1.event_peaks())
-    reference = parcial1.magnitude(tempos_retorno)
-    compared2 = parcial2.magnitude_resample(quantidade=100, tempo_de_retorno=tempos_retorno)
-    rmse = RMSE(reference, compared2)
-    mae = MAE(reference, compared2)
-    rmae = RMAE(reference, compared2)
-    print(rmse.quantify_resample())
-    print(mae.quantify_resample())
-    print(rmae.quantify_resample())
-
-
+    print(maximum.mvs())
+    maximum.plot_hydrogram()
+    maximum.plot_distribution(title='maxima', type_function='cumulative')
+    maximum.plot_distribution(title='maxima', type_function='density')
 
     #print(plot)
 

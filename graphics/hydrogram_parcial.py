@@ -9,12 +9,13 @@ from graphics.hydrogram_biuld import HydrogramBiuld
 
 class HydrogramParcial(HydrogramBiuld):
 
-    def __init__(self, data, peaks, threshold, threshold_criterion=None):
+    def __init__(self, data, peaks, threshold, title, threshold_criterion=None):
         super().__init__()
         self.data = data
         self.peaks = peaks
         self.threshold = threshold
         self.threshold_criterion = threshold_criterion
+        self.title = title
 
     def plot(self, type_criterion):
         bandxaxis = go.XAxis(
@@ -29,7 +30,7 @@ class HydrogramParcial(HydrogramBiuld):
             if self.threshold_criterion is None:
                 raise AttributeError
 
-            name = 'Hidrograma Parcial - %s' % self.data.name
+            name = 'Hidrograma Parcial - %s' % self.title.title()
             layout = dict(
                 title = "Hidrograma Série Duração Parcial",
                 xaxis=bandxaxis,
@@ -45,7 +46,7 @@ class HydrogramParcial(HydrogramBiuld):
             fig = dict(data=data, layout=layout)
             py.offline.plot(fig, filename='gráficos/'+ name.replace(' - ', '_') +'.html')
         except AttributeError:
-            name = 'Hidrograma Parcial - %s' % self.data.name
+            name = 'Hidrograma Parcial - %s' % self.title.title()
             layout = dict(
                 title=name,
                 xaxis=bandxaxis,

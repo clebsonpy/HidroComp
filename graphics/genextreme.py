@@ -1,4 +1,5 @@
 import scipy.stats as stat
+import pandas as pd
 
 import plotly as py
 import plotly.graph_objs as go
@@ -15,15 +16,16 @@ class GenExtreme(DistributionBiuld):
         super().__init__(title, forma, localizacao, escala)
 
     def cumulative(self):
-        dados = self._data()
-        data_fig = go.Scatter(x=dados[self.title], y=dados.index,
+        dados = self._data('cumulative')
+        data_fig = go.Scatter(x=dados['Vazao'], y=dados['Probabilidade'],
                               name=self.title.title())
         data_figs = [data_fig]
 
         bandxaxis = go.XAxis(title="Vazão(m³/s)")
         bandyaxis = go.YAxis(title="Probabilidade")
 
-        layout = dict(title="GEV - Acumulada", xaxis=bandxaxis, width=840, height=672,
+        layout = dict(title="GEV - Acumulada",
+                      xaxis=bandxaxis, width=840, height=672,
                       yaxis=bandyaxis,
                       font=dict(family='Courier New, monospace', size=12,
                                 color='#7f7f7f'))
@@ -32,5 +34,46 @@ class GenExtreme(DistributionBiuld):
         name_graphic = 'GEV_Acumulada_%s' % self.title
         py.offline.plot(fig, filename='gráficos/'+ name_graphic +'.html')
 
-        def density(self):
-            pass
+    def density(self):
+        dados = self._data('density')
+        data = go.Scatter(x=dados['Vazao'], y=dados['Densidade'],
+                          name=self.title.title())
+        data_fig = [data]
+
+        bandxaxis = go.XAxis(title="Vazão(m³/s)")
+        bandyaxis = go.YAxis(title="Densidade")
+
+        layout = dict(title="GEV - Densidade: %s" % self.title.title(),
+                      xaxis=bandxaxis, width=840,
+                      height=672, yaxis=bandyaxis,
+                      font=dict(family='Courier New, monospace', size=16,
+                                color='#7f7f7f'))
+
+        fig = dict(data=data_fig, layout=layout)
+        name_graphic = 'GEV_Densidade_%s' % self.title
+        py.offline.plot(fig, filename='gráficos/'+ name_graphic + '.html')
+
+        return data
+
+    def _data_density(self):
+
+        cumulative = self._data_cumulative()
+        density = stat.genextreme.pdf(cumulative['Vazao'].values, self.forma,
+                                 loc=self.localizacao, scale=self.escala)
+
+        dic = {'Vazao': cumulative['Vazao'].values, 'Densidade': density}
+
+        return pd.DataFrame(dic)
+
+    def _data_cumulative(self):
+        probability = []
+        for i in range(1, 1000):
+            probability.append(i/1000)
+
+        quantiles = stat.genextreme.ppf(probability, self.forma,
+                                        loc=self.localizacao,
+                                        scale=self.escala)
+
+        dic = {'Vazao': quantiles, 'Probabilidade': probability}
+
+        return pd.DataFrame(dic)

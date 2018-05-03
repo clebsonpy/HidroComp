@@ -1,5 +1,4 @@
 import scipy.stats as stat
-import pandas as pd
 
 from abc import ABCMeta, abstractmethod
 
@@ -20,33 +19,17 @@ class DistributionBiuld(object, metaclass=ABCMeta):
 
     def _data(self, type_function):
         if type_function == 'density':
-            return self.__data_density()
+            return self._data_density()
         elif type_function == 'cumulative':
-            return self.__data_cumulative()
+            return self._data_cumulative()
 
-    def __data_cumulative(self):
-        probability = []
-        for i in range(1, 1000):
-            probability.append(i/1000)
+    @abstractmethod
+    def _data_cumulative(self):
+        pass
 
-        quantiles = stat.genpareto.ppf(probability, self.forma,
-                                        loc=self.localizacao,
-                                        scale=self.escala)
-
-        dic = {'Vazao': quantiles, 'Probabilidade': probability}
-
-        return pd.DataFrame(dic)
-
-    def __data_density(self):
-
-        cumulative = self.__data_cumulative()
-
-        density = stat.genpareto.pdf(cumulative['Vazao'].values, self.forma,
-                                 loc=self.localizacao, scale=self.escala)
-
-        dic = {'Vazao': cumulative['Vazao'].values, 'Densidade': density}
-
-        return pd.DataFrame(dic)
+    @abstractmethod
+    def _data_density(self):
+        pass
 
     @abstractmethod
     def cumulative(self):
