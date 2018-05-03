@@ -54,11 +54,12 @@ class Parcial(object):
         low_limiar = False
 
         data = {'Data': [], 'Vazao': []}
-        data_min = []
+        data_min = {'Data': [], 'Vazao': []}
 
         for i in events_threshold.index:
-            if not events_threshold.loc[i]:
-                data_min.append(self.data.loc[idx_before, self.station])
+            if not events_threshold.loc[i] and not low_limiar:
+                data_min['Vazao'].append(self.data.loc[idx_before, self.station])
+                data_min['Data'].append(idx_before)
 
             if events_threshold.loc[i]:
                 data['Vazao'].append(self.data.loc[idx_before, self.station])
@@ -199,17 +200,17 @@ class Parcial(object):
                 return data, max_events, data_min
             elif len(max_events['Data']) == 0:
                 data, max_events = self.__add_peaks(data, max_events)
-                data_min = []
+                data_min = {'Data': [], 'Vazao': []}
                 return data, max_events, data_min
             elif len(data_min) == 0:
                 return data, max_events, data_min
             else:
                 if self.__test_xmin_maior_q(data, max_events, data_min):
                     data, max_events = self.__troca_peaks(data, max_events)
-                    data_min = []
+                    data_min = {'Data': [], 'Vazao': []}
                     return data, max_events, data_min
                 data, max_events = self.__add_peaks(data, max_events)
-                data_min = []
+                data_min = {'Data': [], 'Vazao': []}
                 return data, max_events, data_min
         else:
             return data, max_events, data_min
@@ -221,17 +222,17 @@ class Parcial(object):
                 return data, max_events, data_min
             elif len(max_events['Data']) == 0:
                 data, max_events = self.__add_peaks(data, max_events)
-                data_min = []
+                data_min = {'Data': [], 'Vazao': []}
                 return data, max_events, data_min
             elif len(data_min) == 0:
                 return data, max_events, data_min
             else:
                 if self.__test_xmin_maior_dois_terco_x(data, max_events, data_min):
                     data, max_events = self.__troca_peaks(data, max_events)
-                    data_min = []
+                    data_min = {'Data': [], 'Vazao': []}
                     return data, max_events, data_min
                 data, max_events = self.__add_peaks(data, max_events)
-                data_min = []
+                data_min = {'Data': [], 'Vazao': []}
                 return data, max_events, data_min
         else:
             return data, max_events, data_min
@@ -243,7 +244,7 @@ class Parcial(object):
                 return data, max_events, data_min
             elif len(max_events['Data']) == 0:
                 data, max_events = self.__add_peaks(data, max_events)
-                data_min = []
+                data_min = {'Data': [], 'Vazao': []}
                 return data, max_events, data_min
             elif len(data_min) == 0:
                 return data, max_events, data_min
@@ -251,11 +252,11 @@ class Parcial(object):
                 if self.__test_xmin_maior_q(data, max_events, data_min) or \
                    self.__test_duration(data, max_events):
                     data, max_events = self.__troca_peaks(data, max_events)
-                    data_min = []
+                    data_min = {'Data': [], 'Vazao': []}
                     return data, max_events, data_min
 
                 data, max_events = self.__add_peaks(data, max_events)
-                data_min = []
+                data_min = {'Data': [], 'Vazao': []}
                 return data, max_events, data_min
         else:
             return data, max_events, data_min
@@ -269,18 +270,26 @@ class Parcial(object):
 
     def __test_xmin_maior_q(self, data, max_events, data_min):
         q1 = max_events['Vazao'][-1]
+        data_q1 = max_events['Data'][-1]
         q2 = max(data['Vazao'])
+        data_q2 = data['Data'][data['Vazao'].index(q2)]
+        df_data = pd.DataFrame(data_min['Vazao'], index=data_min['Data'])
+        df_data = df_data.loc[data_q1:data_q2]
         menor = min(q1, q2)
-        data_min[-1] = data_min[-2]
-        xmin = min(data_min)
+        xmin = df_data.min().values
         if xmin > (3/4)*menor:
             return True
         return False
 
     def __test_xmin_maior_dois_terco_x(self, data, max_events, data_min):
-        xmin = min(data_min)
-        q = max_events['Vazao'][-1]
-        if xmin > (2/3)*q:
+        q1 = max_events['Vazao'][-1]
+        data_q1 = max_events['Data'][-1]
+        q2 = max(data['Vazao'])
+        data_q2 = data['Data'][data['Vazao'].index(q2)]
+        df_data = pd.DataFrame(data_min['Vazao'], index=data_min['Data'])
+        df_data = df_data.loc[data_q1:data_q2]
+        xmin = df_data.min()
+        if xmin > (2/3)*q1:
             return True
         return False
 
