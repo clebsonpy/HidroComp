@@ -80,15 +80,8 @@ class Parcial(object):
                             columns=['Duracao', 'Inicio', 'Fim', 'Vazao'],
                             index=max_events['Data'])
 
-        if self.type_criterion=='autocorrelação':
-            if self.type_threshold == 'autocorrelação':
-                if not self.__test_autocorrelation(self.peaks)[0]:
-                    print(self.__percentil)
-                    self.__test_threshold_events_by_year()
-                return self.peaks
-            else:
-                if self.__test_autocorrelation(self.peaks)[0]:
-                    self.duration += 1
+        if self.type_criterion=='autocorrelação' and self.__test_autocorrelation(self.peaks)[0]:
+            self.duration += 1
             return self.event_peaks()
         elif self.type_threshold == 'events_by_year' and \
                 self.__test_threshold_events_by_year(self.peaks, self.value):

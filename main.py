@@ -26,15 +26,15 @@ if __name__ == '__main__':
                                   type_criterion='autocorrelação',
                                   duration=0)
 
-    #print(parcial1.mvs())
-    #parcial1.plot_hydrogram("Referência")
-    #parcial1.plot_distribution(title="Referência", type_function='cumulative')
-    #parcial1.plot_distribution(title="Referência", type_function='density')
-    
-    print(maximum.mvs())
-    maximum.plot_hydrogram()
-    maximum.plot_distribution(title='maxima', type_function='cumulative')
-    maximum.plot_distribution(title='maxima', type_function='density')
+    print(parcial1.mvs())
+    parcial1.plot_hydrogram("Referência")
+    parcial1.plot_distribution(title="Referência", type_function='cumulative')
+    parcial1.plot_distribution(title="Referência", type_function='density')
+
+    #print(maximum.mvs())
+    #maximum.plot_hydrogram()
+    #maximum.plot_distribution(title='maxima', type_function='cumulative')
+    #maximum.plot_distribution(title='maxima', type_function='density')
 
     #print(plot)
 
