@@ -1,4 +1,5 @@
 import scipy.stats as stat
+import pandas as pd
 
 import plotly as py
 import plotly.graph_objs as go
@@ -23,7 +24,9 @@ class GenPareto(DistributionBiuld):
         bandxaxis = go.XAxis(title="Vazão(m³/s)")
         bandyaxis = go.YAxis(title="Probabilidade")
 
-        layout = dict(title="GP - Acumulada", xaxis=bandxaxis, width=840, height=672,
+        layout = dict(title="GP - Acumulada: %s" % self.title.title(),
+                      xaxis=bandxaxis,
+                      width=840, height=672,
                       yaxis=bandyaxis,
                       font=dict(family='Courier New, monospace', size=16,
                                 color='#7f7f7f'))
@@ -43,7 +46,8 @@ class GenPareto(DistributionBiuld):
         bandxaxis = go.XAxis(title="Vazão(m³/s)")
         bandyaxis = go.YAxis(title="Densidade")
 
-        layout = dict(title="GP - Densidade", xaxis=bandxaxis, width=840,
+        layout = dict(title="GP - Densidade: %s" % self.title.title(),
+                      xaxis=bandxaxis, width=840,
                       height=672, yaxis=bandyaxis,
                       font=dict(family='Courier New, monospace', size=16,
                                 color='#7f7f7f'))
@@ -53,3 +57,26 @@ class GenPareto(DistributionBiuld):
         py.offline.plot(fig, filename='gráficos/'+ name_graphic + '.html')
 
         return data
+
+    def _data_density(self):
+
+        cumulative = self._data_cumulative()
+        density = stat.genpareto.pdf(cumulative['Vazao'].values, self.forma,
+                                 loc=self.localizacao, scale=self.escala)
+
+        dic = {'Vazao': cumulative['Vazao'].values, 'Densidade': density}
+
+        return pd.DataFrame(dic)
+
+    def _data_cumulative(self):
+        probability = []
+        for i in range(1, 1000):
+            probability.append(i/1000)
+
+        quantiles = stat.genpareto.ppf(probability, self.forma,
+                                        loc=self.localizacao,
+                                        scale=self.escala)
+
+        dic = {'Vazao': quantiles, 'Probabilidade': probability}
+
+        return pd.DataFrame(dic)

@@ -2,6 +2,7 @@ import pandas as pd
 import scipy.stats as stat
 
 from graphics.genextreme import GenExtreme
+from graphics.hydrogram_annual import HydrogramAnnual
 
 
 class Maximum(object):
@@ -27,8 +28,8 @@ class Maximum(object):
             self.para = stat.genextreme.fit(self.peaks['Vazao'].values)
         except AttributeError:
             self.annual()
-            self.para = stat.genextreme.fit(self.peaks['Vazao'].values)
-
+            self.mvs()
+            #self.para = stat.genextreme.fit(self.peaks['Vazao'].values)
         return self.para
 
     def plot_distribution(self, title, type_function):
@@ -37,5 +38,13 @@ class Maximum(object):
             genextreme.plot(type_function)
         except AttributeError:
             self.mvs()
-            genextreme = GenExtreme(title, self.para[0], self.para[1], self.para[2])
-            genextreme.plot(type_function)
+            self.plot_distribution(title, type_function)
+            #genextreme = GenExtreme(title, self.para[0], self.para[1], self.para[2])
+            #genextreme.plot(type_function)
+
+    def plot_hydrogram(self):
+        print('Aqui')
+        self.annual()
+        hydrogrm = HydrogramAnnual(data=self.data[self.station],
+                                   peaks=self.peaks)
+        hydrogrm.plot()

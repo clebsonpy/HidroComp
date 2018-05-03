@@ -47,6 +47,6 @@ class HydrogramClean(HydrogramBiuld):
     def _plot_multi(self):
         fig = []
         for i in self.data:
-            fig.append(self.__plot_one(self.data[i]))
+            fig.append(self._plot_one(self.data[i]))
 
         return fig

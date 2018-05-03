@@ -426,7 +426,8 @@ class Parcial(object):
             hydrogrm = HydrogramParcial(data=self.data[self.station],
                                         peaks=self.peaks,
                                         threshold=self.threshold,
-                                        threshold_criterion=self.threshold_criterion)
+                                        threshold_criterion=self.threshold_criterion,
+                                        title = title)
             hydrogrm.plot(type_criterion=self.type_criterion)
         except AttributeError:
             self.event_peaks()
