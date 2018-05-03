@@ -12,7 +12,7 @@ from graphics.hydrogram_parcial import HydrogramParcial
 class Parcial(object):
 
     distribution = 'GP'
-    __percentil = 0.99
+    __percentil = 0.8
     dic_name = {'stationary': 'Percentil', 'events_by_year': 'Eventos por Ano',
                 'autocorrelação': 'Autocorrelacao'}
 
@@ -80,11 +80,15 @@ class Parcial(object):
                             columns=['Duracao', 'Inicio', 'Fim', 'Vazao'],
                             index=max_events['Data'])
 
-        if self.type_criterion=='autocorrelação' and self.__test_autocorrelation(self.peaks)[0]:
+        if self.type_criterion=='autocorrelação':
             if self.type_threshold == 'autocorrelação':
-                self.__test_threshold_events_by_year()
+                if not self.__test_autocorrelation(self.peaks)[0]:
+                    print(self.__percentil)
+                    self.__test_threshold_events_by_year()
+                return self.peaks
             else:
-                self.duration += 1
+                if self.__test_autocorrelation(self.peaks)[0]:
+                    self.duration += 1
             return self.event_peaks()
         elif self.type_threshold == 'events_by_year' and \
                 self.__test_threshold_events_by_year(self.peaks, self.value):
@@ -117,6 +121,8 @@ class Parcial(object):
         elif value > 1 and self.type_threshold == 'stationary':
             self.threshold = value
         elif self.type_threshold == 'autocorrelação':
+            self.threshold = self.data[self.station].quantile(self.__percentil)
+        else:
             self.threshold = self.data[self.station].quantile(self.__percentil)
         return self.threshold
 
