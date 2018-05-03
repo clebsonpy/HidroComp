@@ -6,22 +6,11 @@ from comparasion.quantify_uncertainty import QuantifyUncertainty
 
 class RMAE(QuantifyUncertainty):
     """
-    Relative Mean Absolute Error - RMAE
+    Relative Mean Absolute Error - RMSE
     RMAE = MAE/mean(Qmax)
     """
-    name = 'RMAE'
     def __init__(self, reference, compared):
-        super().__init__(reference, compared, self.name)
-
-    def formula(self, reference, compared):
-        soma = 0
-        for i in compared:
-            soma += abs(i - reference)
-
-        n = len(compared)
-        mae = (1/n) * soma
-
-        return mae/reference
+        super().__init__(reference, compared)
 
     def calculo_erro(self, compared):
         mae = MAE(self.reference, compared).quantify()

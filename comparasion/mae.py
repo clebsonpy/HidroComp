@@ -5,20 +5,11 @@ from comparasion.quantify_uncertainty import QuantifyUncertainty
 
 class MAE(QuantifyUncertainty):
     """
-    Mean Absolute Error - MAE
+    Mean Absolute Error - RMSE
     MAE = [1/n * soma|(xi - Qmax)|]
     """
-    name = 'MAE'
     def __init__(self, reference, compared):
-        super().__init__(reference, compared, self.name)
-
-    def formula(self, reference, compared):
-        soma = 0
-        for i in compared:
-            soma += abs(i - reference)
-
-        n = len(compared)
-        return (1/n) * soma
+        super().__init__(reference, compared)
 
     def calculo_erro(self, compared):
         mae = []
