@@ -13,7 +13,8 @@ class Parcial(object):
 
     distribution = 'GP'
     __percentil = 0.8
-    dic_name = {'stationary': 'Percentil', 'events_by_year': 'Eventos por Ano'}
+    dic_name = {'stationary': 'Percentil', 'events_by_year': 'Eventos por Ano',
+                'autocorrelação': 'Autocorrelacao'}
 
     def __init__(self, obj, station, type_threshold, value_threshold,
                  type_criterion, type_event, **kwargs):
@@ -79,8 +80,15 @@ class Parcial(object):
                             columns=['Duracao', 'Inicio', 'Fim', 'Vazao'],
                             index=max_events['Data'])
 
-        if self.type_criterion=='autocorrelação' and self.__test_autocorrelation(self.peaks)[0]:
-            self.duration += 1
+        if self.type_criterion=='autocorrelação':
+            if self.type_threshold == 'autocorrelação':
+                if not self.__test_autocorrelation(self.peaks)[0]:
+                    print(self.__percentil)
+                    self.__test_threshold_events_by_year()
+                return self.peaks
+            else:
+                if self.__test_autocorrelation(self.peaks)[0]:
+                    self.duration += 1
             return self.event_peaks()
         elif self.type_threshold == 'events_by_year' and \
                 self.__test_threshold_events_by_year(self.peaks, self.value):
@@ -112,21 +120,27 @@ class Parcial(object):
             self.threshold = self.data[self.station].quantile(self.__percentil)
         elif value > 1 and self.type_threshold == 'stationary':
             self.threshold = value
+        elif self.type_threshold == 'autocorrelação':
+            self.threshold = self.data[self.station].quantile(self.__percentil)
         else:
-            self.threshold = self.data[self.station].quantile(value)
+            self.threshold = self.data[self.station].quantile(self.__percentil)
         return self.threshold
 
-    def __test_threshold_events_by_year(self, peaks, value):
+    def __test_threshold_events_by_year(self, peaks = None, value = None):
         n_year = self.obj.date_end.year - self.obj.date_start.year
-        if len(peaks) < int(value * n_year):
+        if self.type_criterion == 'events_by_year':
+            if len(peaks) < int(value * n_year):
+                self.__percentil -= 0.005
+                self.__threshold(self.__percentil)
+                return True
+            elif len(peaks) > (int(value * n_year)+3):
+                self.__percentil += 0.005
+                self.__threshold(self.__percentil)
+                return True
+            return False
+        if self.type_threshold == 'autocorrelação':
             self.__percentil -= 0.005
             self.__threshold(self.__percentil)
-            return True
-        elif len(peaks) > (int(value * n_year)+3):
-            self.__percentil += 0.005
-            self.__threshold(self.__percentil)
-            return True
-        return False
 
     def __criterion(self, *args, **kwargs):
         if self.type_criterion == 'media':
@@ -366,7 +380,7 @@ class Parcial(object):
                                          self.para[2])
             except AttributeError:
                 self.mvs()
-                return self.magnitude(tempo_de_retorno)
+                self.magnitude(tempo_de_retorno)
         except TypeError:
             mag = self.__magnitudes(tempo_de_retorno)
         return mag
@@ -390,6 +404,7 @@ class Parcial(object):
         df_magn = pd.DataFrame()
         para = self.mvs_resample(quantidade)
         para_origon = self.mvs()
+        print(self.para)
         for i in para.index:
             self.para = para['Parametro'][i]
             serie = self.__magnitudes(tempo_de_retorno, i)

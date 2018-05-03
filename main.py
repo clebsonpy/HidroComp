@@ -30,7 +30,7 @@ if __name__ == '__main__':
     #parcial1.plot_hydrogram("Referência")
     #parcial1.plot_distribution(title="Referência", type_function='cumulative')
     #parcial1.plot_distribution(title="Referência", type_function='density')
-
+    
     print(maximum.mvs())
     maximum.plot_hydrogram()
     maximum.plot_distribution(title='maxima', type_function='cumulative')

@@ -8,17 +8,8 @@ class RMSE(QuantifyUncertainty):
     Root Mean Square Error - RMSE
     RMSE = [1/n * soma(xi - Qmax)²]^1/2
     """
-    name = 'RMSE'
     def __init__(self, reference, compared):
-        super().__init__(reference, compared, self.name)
-
-    def formula(self, reference, compared):
-        soma = 0
-        for i in compared:
-            soma += (i - reference) ** 2
-
-        n = len(compared)
-        return ((1/n) * soma) ** 0.5
+        super().__init__(reference, compared)
 
     def calculo_erro(self, compared):
         rmse = []
