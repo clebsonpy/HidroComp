@@ -32,7 +32,7 @@ class HydrogramParcial(HydrogramBiuld):
 
             name = 'Hidrograma Parcial - %s' % self.title.title()
             layout = dict(
-                title = "Hidrograma Série Duração Parcial",
+                title = name,
                 xaxis=bandxaxis,
                 yaxis=bandyaxis,
                 font=dict(family='Courier New, monospace', size=18, color='#7f7f7f'))

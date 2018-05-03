@@ -65,12 +65,16 @@ class Parcial(object):
                 data['Vazao'].append(self.data.loc[idx_before, self.station])
                 data['Data'].append(idx_before)
                 low_limiar = True
+                data_min['Vazao'].append(self.data.loc[idx_before, self.station])
+                data_min['Data'].append(idx_before)
             elif low_limiar:
                 data['Vazao'].append(self.data.loc[idx_before, self.station])
                 data['Data'].append(idx_before)
                 data['Vazao'].append(self.data.loc[i, self.station])
                 data['Data'].append(i)
                 low_limiar = False
+                data_min['Vazao'].append(self.data.loc[idx_before, self.station])
+                data_min['Data'].append(idx_before)
             else:
                 data, max_events, data_min = self.__criterion(data=data,
                                         max_events=max_events,
@@ -157,7 +161,7 @@ class Parcial(object):
                              events_criterion=kwargs['events_criterion'])
 
         elif self.type_criterion == 'xmin_maior_dois_terco_x':
-            return self.__criterion_xmin_maior_dois_terco(data=kwargs['data'],
+            return self.__criterion_xmin_maior_dois_terco_x(data=kwargs['data'],
                                     max_events=kwargs['max_events'],
                                     data_min=kwargs['data_min'],
                                     events_criterion=kwargs['events_criterion'])
@@ -288,7 +292,7 @@ class Parcial(object):
         data_q2 = data['Data'][data['Vazao'].index(q2)]
         df_data = pd.DataFrame(data_min['Vazao'], index=data_min['Data'])
         df_data = df_data.loc[data_q1:data_q2]
-        xmin = df_data.min()
+        xmin = df_data.min().values
         if xmin > (2/3)*q1:
             return True
         return False

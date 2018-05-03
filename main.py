@@ -22,15 +22,15 @@ if __name__ == '__main__':
     parcial1 = serie_vazao.parcial(station='XINGO',
                                   type_threshold='events_by_year',
                                   type_event='cheia',
-                                  value_threshold=2.3,
-                                  type_criterion='xmin_maior_qmin',
+                                  value_threshold=1.65,
+                                  type_criterion='xmin_maior_dois_terco_x',
                                   duration=0)
-
+    name = "1.65 Xmin_dois_terco"
     print(len(parcial1.event_peaks()))
     print(parcial1.mvs())
-    parcial1.plot_hydrogram("2.3 Area Bacia")
-    parcial1.plot_distribution(title="2.3 Area Bacia", type_function='cumulative')
-    parcial1.plot_distribution(title="2.3 Area Bacia", type_function='density')
+    parcial1.plot_hydrogram(name)
+    parcial1.plot_distribution(title=name, type_function='cumulative')
+    parcial1.plot_distribution(title=name, type_function='density')
 
     #print(maximum.mvs())
     #print(maximum.peaks)
