@@ -17,23 +17,21 @@ if __name__ == '__main__':
     serie_vazao.date(date_start='1/1/1999')
     #print(serie_vazao.plot_hydrogram('XINGO'))
 
-    #maximum = serie_vazao.maximum(station='XINGO')
+    maximum = serie_vazao.maximum(station='XINGO')
 
     parcial1 = serie_vazao.parcial(station='XINGO',
-                                  type_threshold='events_by_year',
+                                  type_threshold='stationary',
                                   type_event='cheia',
-                                  value_threshold=1.65,
-                                  type_criterion='xmin_maior_dois_terco_x',
+                                  value_threshold=0.75,
+                                  type_criterion='mediana',
                                   duration=0)
-    name = "1.65 Xmin_dois_terco"
-    print(len(parcial1.event_peaks()))
-    print(parcial1.mvs())
-    parcial1.plot_hydrogram(name)
-    parcial1.plot_distribution(title=name, type_function='cumulative')
-    parcial1.plot_distribution(title=name, type_function='density')
+    #name = "1.65 Xmin_dois_terco"
+    #print(len(parcial1.event_peaks()))
+    #print(parcial1.mvs())
+    parcial1.plot_hydrogram('TestLinha')
+    #parcial1.plot_distribution(title=name, type_function='cumulative')
+    #parcial1.plot_distribution(title=name, type_function='density')
 
-    #print(maximum.mvs())
-    #print(maximum.peaks)
     #print(maximum.mml())
     #print(maximum.peaks)
     #maximum.plot_hydrogram()

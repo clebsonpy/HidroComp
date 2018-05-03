@@ -66,22 +66,28 @@ class HydrogramParcial(HydrogramBiuld):
                 y=self.data.loc[self.peaks.Inicio],
                 name = "Inicio do Evento",
                 mode='markers',
-                marker=dict(color='blue',
-                             size = 5),
-                opacity = 0.75)
+                marker=dict(color='rgb(0, 0, 0)',
+                            symbol = 'circle-dot',
+                            size = 6),
+                opacity = 1)
+
         point_end = go.Scatter(x=self.peaks.Fim,
             y=self.data.loc[self.peaks.Fim],
             name = "Fim do Evento",
             mode='markers',
-            marker=dict(color='red',
-                         size = 5),
-            opacity = 0.75)
+            marker = dict(color = 'rgb(0, 0, 0)',
+                          size = 6,
+                          symbol = "x-dot"),
+            opacity = 1)
+
         point_vazao = go.Scatter(x=self.peaks.index,
             y=self.data.loc[self.peaks.index],
             name = "Pico",
             mode='markers',
-            marker=dict(color='green',
-                         size = 5),
+            marker=dict(size = 8,
+                        color = 'rgb(128, 128, 128)',
+                        line = dict(width = 1,
+                                    color = 'rgb(0, 0, 0)'),),
             opacity = 1)
 
         return [point_start, point_end, point_vazao]
@@ -90,12 +96,17 @@ class HydrogramParcial(HydrogramBiuld):
         trace_threshold = go.Scatter(x=self.data.index,
             y=[self.threshold]*len(self.data),
             name = "Limiar",
-            line = dict(color = 'rgb(0, 230, 0)', width = 0.75))
+            line =  dict(color = ('rgb(128, 128, 128)'),
+                        width = 1.5,
+                        dash = 'dot'))
+
         return trace_threshold
 
     def _plot_threshold_criterion(self, type_criterion):
         trace_threshold_criterion = go.Scatter(x=self.data.index,
                 y=[self.threshold_criterion]*len(self.data),
                 name = type_criterion.title(),
-                line = dict(color = 'rgb(255, 64, 0)', width = 0.75))
+                line = dict(color = 'rgb(128, 128, 128)',
+                            width = 1.5,
+                            dash = 'dash'))
         return trace_threshold_criterion
