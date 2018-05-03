@@ -1,5 +1,6 @@
 import pandas as pd
 import scipy.stats as stat
+from lmoments3 import distr
 
 from graphics.genextreme import GenExtreme
 from graphics.hydrogram_annual import HydrogramAnnual
@@ -23,24 +24,37 @@ class Maximum(object):
         self.peaks = pd.DataFrame(max_vazao, index=idx_vazao, columns=['Vazao'])
         return self.peaks
 
-    def mvs(self):
+    def mml(self):
         try:
-            self.para = stat.genextreme.fit(self.peaks['Vazao'].values)
+            peaks = self.peaks.copy()
+            mom = distr.gev.lmom_fit(peaks['Vazao'].values)
+            para = [mom['c'], mom['loc'], mom['scale']]
+            return para
         except AttributeError:
             self.annual()
-            self.mvs()
-            #self.para = stat.genextreme.fit(self.peaks['Vazao'].values)
-        return self.para
+            return self.mml()
 
-    def plot_distribution(self, title, type_function):
+    def mvs(self):
         try:
-            genextreme = GenExtreme(title, self.para[0], self.para[1], self.para[2])
-            genextreme.plot(type_function)
+            peaks = self.peaks['Vazao'].values.copy()
+            para = stat.genextreme.fit(sorted(peaks))
+            return para
         except AttributeError:
-            self.mvs()
-            self.plot_distribution(title, type_function)
-            #genextreme = GenExtreme(title, self.para[0], self.para[1], self.para[2])
-            #genextreme.plot(type_function)
+            self.annual()
+            return self.mvs()
+            #self.para = stat.genextreme.fit(self.peaks['Vazao'].values)
+
+    def plot_distribution(self, title, estimador, type_function):
+        if estimador == 'mvs':
+            para = self.mvs()
+        elif estimador == 'mml':
+            para = self.mml()
+        else:
+            raise ValueError
+        genextreme = GenExtreme(title, para[0], para[1], para[2])
+        genextreme.plot(type_function)
+        #genextreme = GenExtreme(title, self.para[0], self.para[1], self.para[2])
+        #genextreme.plot(type_function)
 
     def plot_hydrogram(self):
         print('Aqui')

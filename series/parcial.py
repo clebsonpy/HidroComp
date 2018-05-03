@@ -55,8 +55,9 @@ class Parcial(object):
 
         data = {'Data': [], 'Vazao': []}
         data_min = []
+
         for i in events_threshold.index:
-            if not events_threshold.loc[i] and not low_limiar:
+            if not events_threshold.loc[i]:
                 data_min.append(self.data.loc[idx_before, self.station])
 
             if events_threshold.loc[i]:
@@ -113,27 +114,21 @@ class Parcial(object):
             self.threshold = self.data[self.station].quantile(self.__percentil)
         elif value > 1 and self.type_threshold == 'stationary':
             self.threshold = value
-        elif self.type_threshold == 'autocorrelação':
-            self.threshold = self.data[self.station].quantile(self.__percentil)
         else:
-            self.threshold = self.data[self.station].quantile(self.__percentil)
+            self.threshold = self.data[self.station].quantile(value)
         return self.threshold
 
     def __test_threshold_events_by_year(self, peaks = None, value = None):
         n_year = self.obj.date_end.year - self.obj.date_start.year
-        if self.type_criterion == 'events_by_year':
-            if len(peaks) < int(value * n_year):
-                self.__percentil -= 0.005
-                self.__threshold(self.__percentil)
-                return True
-            elif len(peaks) > (int(value * n_year)+3):
-                self.__percentil += 0.005
-                self.__threshold(self.__percentil)
-                return True
-            return False
-        if self.type_threshold == 'autocorrelação':
+        if len(peaks) < int(value * n_year):
             self.__percentil -= 0.005
             self.__threshold(self.__percentil)
+            return True
+        elif len(peaks) > (int(value * n_year)+3):
+            self.__percentil += 0.005
+            self.__threshold(self.__percentil)
+            return True
+        return False
 
     def __criterion(self, *args, **kwargs):
         if self.type_criterion == 'media':
@@ -276,6 +271,7 @@ class Parcial(object):
         q1 = max_events['Vazao'][-1]
         q2 = max(data['Vazao'])
         menor = min(q1, q2)
+        data_min[-1] = data_min[-2]
         xmin = min(data_min)
         if xmin > (3/4)*menor:
             return True
