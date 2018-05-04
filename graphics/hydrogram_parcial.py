@@ -30,7 +30,7 @@ class HydrogramParcial(HydrogramBiuld):
             if self.threshold_criterion is None:
                 raise AttributeError
 
-            name = 'Hidrograma SDP - %s' % self.title.title()
+            name = 'Hidrograma SDP - %s' % self.title
             layout = dict(
                 title = name,
                 width=1890, height=827,
@@ -44,11 +44,13 @@ class HydrogramParcial(HydrogramBiuld):
             data.append(self._plot_threshold_criterion(type_criterion))
             data += self._plot_event_peaks()
 
+            aux_name = name.replace(' - ', '_')
+            aux_name2 = aux_name.replace(' ', '_')
             fig = dict(data=data, layout=layout)
-            py.offline.plot(fig, filename='gráficos/'+ name.replace(' - ', '_') +'.html')
+            py.offline.plot(fig, filename='gráficos/'+ aux_name2 +'.html')
             return fig
         except AttributeError:
-            name = 'Hidrograma - SDP %s' % self.title.title()
+            name = 'Hidrograma - SDP %s' % self.title
             layout = dict(
                 title=name,
                 width=1890, height=827,
@@ -61,8 +63,10 @@ class HydrogramParcial(HydrogramBiuld):
             data.append(self._plot_threshold())
             data += self._plot_event_peaks()
 
+            aux_name = name.replace(' - ', '_')
+            aux_name2 = aux_name.replace(' ', '_')
             fig = dict(data=data, layout=layout)
-            py.offline.plot(fig, filename='gráficos/'+ name.replace(' - ', '_') +'.html')
+            py.offline.plot(fig, filename='gráficos/'+ aux_name2 +'.html')
             return fig
 
     def _plot_event_peaks(self):

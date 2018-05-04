@@ -35,8 +35,10 @@ class HydrogramAnnual(HydrogramBiuld):
         data.append(self._plot_one(self.data))
         data.append(self._plot_event_peaks())
 
+        aux_name = name.replace(' - ', '_')
+        aux_name2 = aux_name.replace(' ', '_')
         fig = dict(data=data, layout=layout)
-        py.offline.plot(fig, filename='gráficos/'+ name.replace(' - ', '_') +'.html')
+        py.offline.plot(fig, filename='gráficos/'+ aux_name2 +'.html')
 
     def _plot_event_peaks(self):
         point_vazao = go.Scatter(x=self.peaks.index,

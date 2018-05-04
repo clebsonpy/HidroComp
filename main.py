@@ -22,11 +22,11 @@ if __name__ == '__main__':
     parcial1 = serie_vazao.parcial(station='XINGO',
                                   type_threshold='stationary',
                                   type_event='cheia',
-                                  value_threshold=2.3,
-                                  type_criterion='autocorrelação',
+                                  value_threshold=0.75,
+                                  type_criterion='xmin_maior_dois_terco_x',
                                   duration=0)
 
-    name = "Referência"
+    name = "SDP 9"
     print(len(parcial1.event_peaks()))
     print(parcial1.mvs())
     parcial1.plot_hydrogram(name, save=True)

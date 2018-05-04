@@ -126,11 +126,12 @@ class Parcial(object):
 
     def __test_threshold_events_by_year(self, peaks = None, value = None):
         n_year = self.obj.date_end.year - self.obj.date_start.year
-        if len(peaks) < int(value * n_year):
+        print(len(peaks))
+        if len(peaks)+1 < int(value * n_year):
             self.__percentil -= 0.005
             self.__threshold(self.__percentil)
             return True
-        elif len(peaks) > (int(value * n_year)+3):
+        elif len(peaks) > (int(value * n_year)+2):
             self.__percentil += 0.005
             self.__threshold(self.__percentil)
             return True
@@ -433,7 +434,8 @@ class Parcial(object):
                                         title = title)
             fig = hydrogrm.plot(type_criterion=self.type_criterion)
             if save:
-                py.image.save_as(fig, filename='gráficos/'+'%s.png' % title)
+                aux_name = title.replace(' ', '_')
+                py.image.save_as(fig, filename='gráficos/'+'%s.png' % aux_name)
 
         except AttributeError:
             self.event_peaks()
