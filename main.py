@@ -17,15 +17,15 @@ if __name__ == '__main__':
     serie_vazao.date(date_start='1/1/1999')
     #print(serie_vazao.plot_hydrogram('XINGO'))
 
-    #maximum = serie_vazao.maximum(station='XINGO')
-
+    maximum = serie_vazao.maximum(station='XINGO')
+    """
     parcial = serie_vazao.parcial(station='XINGO',
                                   type_threshold='events_by_year',
                                   type_event='cheia',
                                   value_threshold=2.3,
                                   type_criterion='autocorrelação',
                                   duration=0)
-    
+
     parcial1 = serie_vazao.parcial(station='XINGO',
                                   type_threshold='stationary',
                                   type_event='cheia',
@@ -66,16 +66,16 @@ if __name__ == '__main__':
     name = "SDP 9"
     data3, fig3 = parcial3.plot_distribution(title=name, type_function='density', save=True)
     data3.line['dash'] = 'dashdot'
-
-    #print(maximum.mml())
-    #print(maximum.peaks)
-    #maximum.plot_hydrogram()
-    #maximum.plot_distribution(title='maxima', type_function='cumulative', estimador='mml')
-    #maximum.plot_distribution(title='maxima', type_function='density', estimador='mml')
+    """
+    print(maximum.mml())
+    print(maximum.peaks)
+    maximum.plot_hydrogram()
+    maximum.plot_distribution(title='Máximas Anuais', type_function='cumulative', estimador='mml')
+    maximum.plot_distribution(title='Máximas Anuais', type_function='density', estimador='mml')
 
     #print(plot)
 
-    Comparation_Distribution([data]).plot()
+    #Comparation_Distribution([data]).plot()
 
     fim = timeit.default_timer()
     print('Duração: ', fim-ini)

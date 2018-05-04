@@ -39,14 +39,17 @@ class HydrogramAnnual(HydrogramBiuld):
         aux_name2 = aux_name.replace(' ', '_')
         fig = dict(data=data, layout=layout)
         py.offline.plot(fig, filename='gráficos/'+ aux_name2 +'.html')
+        return data, fig
 
     def _plot_event_peaks(self):
         point_vazao = go.Scatter(x=self.peaks.index,
             y=self.data.loc[self.peaks.index],
             name = "Pico",
             mode='markers',
-            marker=dict(color='green',
-                         size = 5),
+            marker=dict(size = 8,
+                        color = 'rgb(128, 128, 128)',
+                        line = dict(width = 1,
+                                    color = 'rgb(0, 0, 0)'),),
             opacity = 1)
 
         return point_vazao

@@ -1,4 +1,5 @@
 import pandas as pd
+import plotly.plotly as py
 import scipy.stats as stat
 from lmoments3 import distr
 
@@ -52,13 +53,12 @@ class Maximum(object):
         else:
             raise ValueError
         genextreme = GenExtreme(title, para[0], para[1], para[2])
-        genextreme.plot(type_function)
-        #genextreme = GenExtreme(title, self.para[0], self.para[1], self.para[2])
-        #genextreme.plot(type_function)
+        data, fig = genextreme.plot(type_function)
+        py.image.save_as(fig, filename='gráficos/GEV_%s.png' % type_function)
 
     def plot_hydrogram(self):
-        print('Aqui')
         self.annual()
         hydrogrm = HydrogramAnnual(data=self.data[self.station],
                                    peaks=self.peaks)
-        hydrogrm.plot()
+        data, fig = hydrogrm.plot()
+        py.image.save_as(fig, filename='gráficos/hidrogama_maximas_anuais.png')

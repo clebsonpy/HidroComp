@@ -17,43 +17,51 @@ class GenExtreme(DistributionBiuld):
 
     def cumulative(self):
         dados = self._data('cumulative')
-        data_fig = go.Scatter(x=dados['Vazao'], y=dados['Probabilidade'],
-                              name=self.title.title())
-        data_figs = [data_fig]
+        data = go.Scatter(x=dados['Vazao'], y=dados['Probabilidade'],
+                              name=self.title,
+                              line = dict(color = 'rgb(128, 128, 128)',
+                                          width = 1.5))
+        data_figs = [data]
 
         bandxaxis = go.XAxis(title="Vazão(m³/s)")
         bandyaxis = go.YAxis(title="Probabilidade")
 
-        layout = dict(title="GEV - Acumulada",
-                      xaxis=bandxaxis, width=840, height=672,
+        layout = dict(title="GEV - Acumulada: %s" % self.title,
+                      showlegend=True,
+                      width=945, height=827,
+                      xaxis=bandxaxis,
                       yaxis=bandyaxis,
-                      font=dict(family='Courier New, monospace', size=12,
-                                color='#7f7f7f'))
+                      font=dict(family='Time New Roman', size=34, color='rgb(0,0,0)'))
 
         fig = dict(data=data_figs, layout=layout)
         name_graphic = 'GEV_Acumulada_%s' % self.title
         py.offline.plot(fig, filename='gráficos/'+ name_graphic +'.html')
 
+        return data, fig
+
     def density(self):
         dados = self._data('density')
         data = go.Scatter(x=dados['Vazao'], y=dados['Densidade'],
-                          name=self.title.title())
+                          name=self.title,
+                          line = dict(color = 'rgb(128, 128, 128)',
+                                      width = 1.5))
         data_fig = [data]
 
         bandxaxis = go.XAxis(title="Vazão(m³/s)")
-        bandyaxis = go.YAxis(title="Densidade")
+        bandyaxis = go.YAxis(title="")
 
-        layout = dict(title="GEV - Densidade: %s" % self.title.title(),
-                      xaxis=bandxaxis, width=840,
-                      height=672, yaxis=bandyaxis,
-                      font=dict(family='Courier New, monospace', size=16,
-                                color='#7f7f7f'))
+        layout = dict(title="GEV - Densidade: %s" % self.title,
+                      showlegend=True,
+                      width=945, height=827,
+                      xaxis=bandxaxis,
+                      yaxis=bandyaxis,
+                      font=dict(family='Time New Roman', size=34, color='rgb(0,0,0)'))
 
         fig = dict(data=data_fig, layout=layout)
         name_graphic = 'GEV_Densidade_%s' % self.title
         py.offline.plot(fig, filename='gráficos/'+ name_graphic + '.html')
 
-        return data
+        return data, fig
 
     def _data_density(self):
 
