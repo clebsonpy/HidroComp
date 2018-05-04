@@ -30,12 +30,13 @@ class HydrogramParcial(HydrogramBiuld):
             if self.threshold_criterion is None:
                 raise AttributeError
 
-            name = 'Hidrograma Parcial - %s' % self.title.title()
+            name = 'Hidrograma SDP - %s' % self.title.title()
             layout = dict(
                 title = name,
+                width=1890, height=827,
                 xaxis=bandxaxis,
                 yaxis=bandyaxis,
-                font=dict(family='Courier New, monospace', size=18, color='#7f7f7f'))
+                font=dict(family='Time New Roman', size=34, color='rgb(0,0,0)'))
 
             data = []
             data.append(self._plot_one(self.data))
@@ -45,13 +46,15 @@ class HydrogramParcial(HydrogramBiuld):
 
             fig = dict(data=data, layout=layout)
             py.offline.plot(fig, filename='gráficos/'+ name.replace(' - ', '_') +'.html')
+            return fig
         except AttributeError:
-            name = 'Hidrograma Parcial - %s' % self.title.title()
+            name = 'Hidrograma - SDP %s' % self.title.title()
             layout = dict(
                 title=name,
+                width=1890, height=827,
                 xaxis=bandxaxis,
                 yaxis=bandyaxis,
-                font=dict(family='Courier New, monospace', size=16, color='#7f7f7f'))
+                font=dict(family='Time New Roman', size=34, color='rgb(0,0,0)'))
 
             data = []
             data.append(self._plot_one(self.data))
@@ -60,6 +63,7 @@ class HydrogramParcial(HydrogramBiuld):
 
             fig = dict(data=data, layout=layout)
             py.offline.plot(fig, filename='gráficos/'+ name.replace(' - ', '_') +'.html')
+            return fig
 
     def _plot_event_peaks(self):
         point_start = go.Scatter(x=self.peaks.Inicio,

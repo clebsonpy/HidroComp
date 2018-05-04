@@ -26,9 +26,10 @@ class HydrogramAnnual(HydrogramBiuld):
         name = 'Hidrograma Máximas Anuais'
         layout = dict(
             title = "Hidrograma Série Máximas Anuais",
+            width=1890, height=827,
             xaxis=bandxaxis,
             yaxis=bandyaxis,
-            font=dict(family='Courier New, monospace', size=18, color='#7f7f7f'))
+            font=dict(family='Time New Roman', size=34, color='rgb(0,0,0)'))
 
         data = []
         data.append(self._plot_one(self.data))

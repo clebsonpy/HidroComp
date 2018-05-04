@@ -1,6 +1,7 @@
 import pandas as pd
 import math
 import scipy.stats as stat
+import plotly.plotly as py
 
 from comparasion.rmse import RMSE
 from comparasion.mae import MAE
@@ -423,14 +424,17 @@ class Parcial(object):
             self.mvs()
             self.plot_distribution(title, type_function)
 
-    def plot_hydrogram(self, title):
+    def plot_hydrogram(self, title, save = False):
         try:
             hydrogrm = HydrogramParcial(data=self.data[self.station],
                                         peaks=self.peaks,
                                         threshold=self.threshold,
                                         threshold_criterion=self.threshold_criterion,
                                         title = title)
-            hydrogrm.plot(type_criterion=self.type_criterion)
+            fig = hydrogrm.plot(type_criterion=self.type_criterion)
+            if save:
+                py.image.save_as(fig, filename='gráficos/'+'%s.png' % title)
+
         except AttributeError:
             self.event_peaks()
             self.plot_hydrogram(title)

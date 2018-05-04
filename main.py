@@ -22,13 +22,14 @@ if __name__ == '__main__':
     parcial1 = serie_vazao.parcial(station='XINGO',
                                   type_threshold='stationary',
                                   type_event='cheia',
-                                  value_threshold=0.75,
-                                  type_criterion='mediana',
+                                  value_threshold=2.3,
+                                  type_criterion='autocorrelação',
                                   duration=0)
-    #name = "1.65 Xmin_dois_terco"
-    #print(len(parcial1.event_peaks()))
-    #print(parcial1.mvs())
-    parcial1.plot_hydrogram('TestLinha')
+
+    name = "Referência"
+    print(len(parcial1.event_peaks()))
+    print(parcial1.mvs())
+    parcial1.plot_hydrogram(name, save=True)
     #parcial1.plot_distribution(title=name, type_function='cumulative')
     #parcial1.plot_distribution(title=name, type_function='density')
 

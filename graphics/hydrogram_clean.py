@@ -26,9 +26,10 @@ class HydrogramClean(HydrogramBiuld):
             name = 'Hidrograma - %s' % self.data.name
             layout = dict(
                 title=name.title(),
+                width=1890, height=827,
                 xaxis=bandxaxis,
                 yaxis=bandyaxis,
-                font=dict(family='Courier New, monospace', size=16, color='#7f7f7f'))
+                font=dict(family='Time New Roman', size=34, color='rgb(0,0,0)'))
 
             data = [self._plot_one(self.data)]
             fig = dict(data=data, layout=layout)
@@ -37,9 +38,10 @@ class HydrogramClean(HydrogramBiuld):
             name = 'Hidrograma'
             layout = dict(
                 title=name,
+                width=1890, height=827,
                 xaxis=bandxaxis,
                 yaxis=bandyaxis,
-                font=dict(family='Courier New, monospace', size=16, color='#7f7f7f'))
+                font=dict(family='Time New Roman', size=34, color='rgb(0,0,0)'))
 
             fig = dict(data=self._plot_multi(), layout=layout)
             py.offline.plot(fig, filename='gráficos/'+ name.replace(' - ', '_') +'.html')
