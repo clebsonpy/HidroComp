@@ -17,22 +17,55 @@ if __name__ == '__main__':
     serie_vazao.date(date_start='1/1/1999')
     #print(serie_vazao.plot_hydrogram('XINGO'))
 
-    maximum = serie_vazao.maximum(station='XINGO')
+    #maximum = serie_vazao.maximum(station='XINGO')
 
-    parcial1 = serie_vazao.parcial(station='XINGO',
+    parcial = serie_vazao.parcial(station='XINGO',
                                   type_threshold='events_by_year',
                                   type_event='cheia',
                                   value_threshold=2.3,
                                   type_criterion='autocorrelação',
                                   duration=0)
+    
+    parcial1 = serie_vazao.parcial(station='XINGO',
+                                  type_threshold='stationary',
+                                  type_event='cheia',
+                                  value_threshold=0.75,
+                                  type_criterion='mediana',
+                                  duration=0)
 
-    name = "Referência"
-    print(len(parcial1.event_peaks()))
-    print(parcial1.mvs())
-    print(parcial1.peaks)
+    parcial2 = serie_vazao.parcial(station='XINGO',
+                                  type_threshold='stationary',
+                                  type_event='cheia',
+                                  value_threshold=0.75,
+                                  type_criterion='xmin_maior_qmin',
+                                  duration=0)
+
+    parcial3 = serie_vazao.parcial(station='XINGO',
+                                  type_threshold='stationary',
+                                  type_event='cheia',
+                                  value_threshold=0.75,
+                                  type_criterion='xmin_maior_dois_terco_x',
+                                  duration=0)
+
+    name = "Referencia"
+    #print(len(parcial1.event_peaks()))
+    #print(parcial1.mvs())
+    #print(parcial1.peaks)
     #parcial1.plot_hydrogram(name, save=True)
-    parcial1.plot_distribution(title=name, type_function='cumulative', save=True)
+    data, fig = parcial.plot_distribution(title=name, type_function='density', save=True)
     #parcial1.plot_distribution(title=name, type_function='density')
+
+    name = "SDP 7"
+    data1, fig1 = parcial1.plot_distribution(title=name, type_function='density', save=True)
+    data1.line['dash'] = 'dot'
+
+    name = "SDP 8"
+    data2, fig2 = parcial2.plot_distribution(title=name, type_function='density', save=True)
+    data2.line['dash'] = 'dash'
+
+    name = "SDP 9"
+    data3, fig3 = parcial3.plot_distribution(title=name, type_function='density', save=True)
+    data3.line['dash'] = 'dashdot'
 
     #print(maximum.mml())
     #print(maximum.peaks)
@@ -42,7 +75,7 @@ if __name__ == '__main__':
 
     #print(plot)
 
-    #Comparation_Distribution([plot]).plot()
+    Comparation_Distribution([data]).plot()
 
     fim = timeit.default_timer()
     print('Duração: ', fim-ini)

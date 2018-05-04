@@ -1,7 +1,10 @@
 import pandas as pd
 import math
 import scipy.stats as stat
+import plotly as plot
 import plotly.plotly as py
+import colorlover as cl
+import cufflinks as cf
 
 from comparasion.rmse import RMSE
 from comparasion.mae import MAE

@@ -18,16 +18,15 @@ class GenPareto(DistributionBiuld):
     def cumulative(self):
         dados = self._data('cumulative')
         data = go.Scatter(x=dados['Vazao'], y=dados['Probabilidade'],
-                          name=self.title.title(),
+                          name=self.title,
                           line = dict(color = 'rgb(128, 128, 128)',
-                                      width = 1.5,
-                                      dash = 'dash'))
+                                      width = 1.5))
         data_fig = [data]
 
         bandxaxis = go.XAxis(title="Vazão(m³/s)")
         bandyaxis = go.YAxis(title="Probabilidade")
 
-        layout = dict(title="GP - Acumulada: %s" % self.title.title(),
+        layout = dict(title="GP - Acumulada: %s" % self.title,
                       showlegend=True,
                       width=945, height=827,
                       xaxis=bandxaxis,
@@ -43,13 +42,15 @@ class GenPareto(DistributionBiuld):
     def density(self):
         dados = self._data('density')
         data = go.Scatter(x=dados['Vazao'], y=dados['Densidade'],
-                          name=self.title.title())
+                          name=self.title,
+                          line = dict(color = 'rgb(128, 128, 128)',
+                                      width = 1.5))
         data_fig = [data]
 
         bandxaxis = go.XAxis(title="Vazão(m³/s)")
-        bandyaxis = go.YAxis(title="Densidade")
+        bandyaxis = go.YAxis(title="")
 
-        layout = dict(title="GP - Densidade: %s" % self.title.title(),
+        layout = dict(title="GP - Densidade: %s" % self.title,
                       showlegend=True,
                       width=945, height=827,
                       xaxis=bandxaxis,
