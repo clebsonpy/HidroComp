@@ -18,24 +18,27 @@ class GenPareto(DistributionBiuld):
     def cumulative(self):
         dados = self._data('cumulative')
         data = go.Scatter(x=dados['Vazao'], y=dados['Probabilidade'],
-                          name=self.title.title())
+                          name=self.title.title(),
+                          line = dict(color = 'rgb(128, 128, 128)',
+                                      width = 1.5,
+                                      dash = 'dash'))
         data_fig = [data]
 
         bandxaxis = go.XAxis(title="Vazão(m³/s)")
         bandyaxis = go.YAxis(title="Probabilidade")
 
         layout = dict(title="GP - Acumulada: %s" % self.title.title(),
+                      showlegend=True,
+                      width=945, height=827,
                       xaxis=bandxaxis,
-                      width=840, height=672,
                       yaxis=bandyaxis,
-                      font=dict(family='Courier New, monospace', size=16,
-                                color='#7f7f7f'))
+                      font=dict(family='Time New Roman', size=34, color='rgb(0,0,0)'))
 
         fig = dict(data=data_fig, layout=layout)
         name_graphic = 'GP_Acumulada_%s' % self.title
         py.offline.plot(fig, filename='gráficos/'+ name_graphic + '.html')
 
-        return data
+        return data, fig
 
     def density(self):
         dados = self._data('density')
@@ -47,16 +50,17 @@ class GenPareto(DistributionBiuld):
         bandyaxis = go.YAxis(title="Densidade")
 
         layout = dict(title="GP - Densidade: %s" % self.title.title(),
-                      xaxis=bandxaxis, width=840,
-                      height=672, yaxis=bandyaxis,
-                      font=dict(family='Courier New, monospace', size=16,
-                                color='#7f7f7f'))
+                      showlegend=True,
+                      width=945, height=827,
+                      xaxis=bandxaxis,
+                      yaxis=bandyaxis,
+                      font=dict(family='Time New Roman', size=34, color='rgb(0,0,0)'))
 
         fig = dict(data=data_fig, layout=layout)
         name_graphic = 'GP_Densidade_%s' % self.title
         py.offline.plot(fig, filename='gráficos/'+ name_graphic + '.html')
 
-        return data
+        return data, fig
 
     def _data_density(self):
 

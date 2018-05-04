@@ -20,18 +20,18 @@ if __name__ == '__main__':
     maximum = serie_vazao.maximum(station='XINGO')
 
     parcial1 = serie_vazao.parcial(station='XINGO',
-                                  type_threshold='stationary',
+                                  type_threshold='events_by_year',
                                   type_event='cheia',
-                                  value_threshold=0.75,
-                                  type_criterion='mediana',
+                                  value_threshold=2.3,
+                                  type_criterion='autocorrelação',
                                   duration=0)
 
-    name = "SDP 7"
+    name = "Referência"
     print(len(parcial1.event_peaks()))
     print(parcial1.mvs())
     print(parcial1.peaks)
-    parcial1.plot_hydrogram(name, save=True)
-    #parcial1.plot_distribution(title=name, type_function='cumulative')
+    #parcial1.plot_hydrogram(name, save=True)
+    parcial1.plot_distribution(title=name, type_function='cumulative', save=True)
     #parcial1.plot_distribution(title=name, type_function='density')
 
     #print(maximum.mml())

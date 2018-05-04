@@ -13,7 +13,7 @@ from graphics.hydrogram_parcial import HydrogramParcial
 class Parcial(object):
 
     distribution = 'GP'
-    __percentil = 0.9
+    __percentil = 0.825
     dic_name = {'stationary': 'Percentil', 'events_by_year': 'Eventos por Ano',
                 'autocorrelação': 'Autocorrelacao'}
 
@@ -90,7 +90,7 @@ class Parcial(object):
         if self.type_criterion=='autocorrelação' and self.__test_autocorrelation(self.peaks)[0]:
             self.duration += 1
             return self.event_peaks()
-        elif self.type_threshold == 'events_by_year' and \
+        if self.type_threshold == 'events_by_year' and \
                 self.__test_threshold_events_by_year(self.peaks, self.value):
             return self.event_peaks()
         return self.peaks
@@ -417,15 +417,19 @@ class Parcial(object):
         self.para = para_origon
         return df_magn.T
 
-    def plot_distribution(self, title, type_function):
+    def plot_distribution(self, title, type_function, save=False):
         try:
             genpareto = GenPareto(title, self.para[0], self.para[1], self.para[2])
-            return genpareto.plot(type_function), self.para
+            data, fig = genpareto.plot(type_function)
+            if save:
+                aux_name = title.replace(' ', '_')
+                py.image.save_as(fig, filename='gráficos/'+'%s.png' % aux_name)
+            return data, fig
         except AttributeError:
             self.mvs()
-            self.plot_distribution(title, type_function)
+            return self.plot_distribution(title, type_function)
 
-    def plot_hydrogram(self, title, save = False):
+    def plot_hydrogram(self, title, save=False):
         try:
             hydrogrm = HydrogramParcial(data=self.data[self.station],
                                         peaks=self.peaks,
