@@ -23,12 +23,13 @@ if __name__ == '__main__':
                                   type_threshold='stationary',
                                   type_event='cheia',
                                   value_threshold=0.75,
-                                  type_criterion='xmin_maior_dois_terco_x',
+                                  type_criterion='mediana',
                                   duration=0)
 
-    name = "SDP 9"
+    name = "SDP 7"
     print(len(parcial1.event_peaks()))
     print(parcial1.mvs())
+    print(parcial1.peaks)
     parcial1.plot_hydrogram(name, save=True)
     #parcial1.plot_distribution(title=name, type_function='cumulative')
     #parcial1.plot_distribution(title=name, type_function='density')

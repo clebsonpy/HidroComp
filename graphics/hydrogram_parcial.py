@@ -30,9 +30,10 @@ class HydrogramParcial(HydrogramBiuld):
             if self.threshold_criterion is None:
                 raise AttributeError
 
-            name = 'Hidrograma SDP - %s' % self.title
+            name = 'Hidrograma Série de Duração Parcial - %s' % self.title
             layout = dict(
                 title = name,
+                showlegend=True,
                 width=1890, height=827,
                 xaxis=bandxaxis,
                 yaxis=bandyaxis,
@@ -50,9 +51,10 @@ class HydrogramParcial(HydrogramBiuld):
             py.offline.plot(fig, filename='gráficos/'+ aux_name2 +'.html')
             return fig
         except AttributeError:
-            name = 'Hidrograma - SDP %s' % self.title
+            name = 'Hidrograma Série de Duração Parcial -  %s' % self.title
             layout = dict(
                 title=name,
+                showlegend=True,
                 width=1890, height=827,
                 xaxis=bandxaxis,
                 yaxis=bandyaxis,

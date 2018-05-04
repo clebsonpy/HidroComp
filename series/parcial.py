@@ -13,7 +13,7 @@ from graphics.hydrogram_parcial import HydrogramParcial
 class Parcial(object):
 
     distribution = 'GP'
-    __percentil = 0.8
+    __percentil = 0.9
     dic_name = {'stationary': 'Percentil', 'events_by_year': 'Eventos por Ano',
                 'autocorrelação': 'Autocorrelacao'}
 
