@@ -16,15 +16,34 @@ if __name__ == '__main__':
     serie_vazao = Vazao(data=dados, path=path, font='ONS')
     serie_vazao.date(date_start='1/1/1999')
     #print(serie_vazao.plot_hydrogram('XINGO'))
-
-    maximum = serie_vazao.maximum(station='XINGO')
     """
+    maximum = serie_vazao.maximum(station='XINGO')
+
+    #print(maximum.mvs())
+    #print(maximum.peaks)
+    #maximum.plot_hydrogram()
+    #maximum.plot_distribution(title='Máximas Anuais', type_function='cumulative', estimador='mml')
+    data1, fig = maximum.plot_distribution(title='Máximas Anuais', type_function='density', estimador='mml')
+    data1.line['dash'] = 'dashdot'
+    data1.name = 'MML'
+    data2, fig = maximum.plot_distribution(title='Máximas Anuais', type_function='density', estimador='mvs')
+    data2.name = 'MVS'
+    function = "density"
+    """
+    function = "density"
     parcial = serie_vazao.parcial(station='XINGO',
                                   type_threshold='events_by_year',
                                   type_event='cheia',
                                   value_threshold=2.3,
                                   type_criterion='autocorrelação',
                                   duration=0)
+
+    name = "Referencia"
+    print(len(parcial.event_peaks()))
+    print(parcial.mvs())
+    print(parcial.peaks)
+    #parcial.plot_hydrogram(name, save=True)
+    data, fig = parcial.plot_distribution(title=name, type_function=function, save=True)
 
     parcial1 = serie_vazao.parcial(station='XINGO',
                                   type_threshold='stationary',
@@ -33,12 +52,26 @@ if __name__ == '__main__':
                                   type_criterion='mediana',
                                   duration=0)
 
+    name = "SDP 7"
+    print(len(parcial1.event_peaks()))
+    print(parcial1.mvs())
+    print(len(parcial1.peaks))
+    print(parcial1.peaks)
+    data1, fig1 = parcial1.plot_distribution(title=name, type_function=function, save=True)
+    data1.line['dash'] = 'dot'
+
+
     parcial2 = serie_vazao.parcial(station='XINGO',
                                   type_threshold='stationary',
                                   type_event='cheia',
                                   value_threshold=0.75,
                                   type_criterion='xmin_maior_qmin',
                                   duration=0)
+
+    name = "SDP 8"
+    data2, fig2 = parcial2.plot_distribution(title=name, type_function=function, save=True)
+    data2.line['dash'] = 'dash'
+
 
     parcial3 = serie_vazao.parcial(station='XINGO',
                                   type_threshold='stationary',
@@ -47,35 +80,11 @@ if __name__ == '__main__':
                                   type_criterion='xmin_maior_dois_terco_x',
                                   duration=0)
 
-    name = "Referencia"
-    #print(len(parcial1.event_peaks()))
-    #print(parcial1.mvs())
-    #print(parcial1.peaks)
-    #parcial1.plot_hydrogram(name, save=True)
-    data, fig = parcial.plot_distribution(title=name, type_function='density', save=True)
-    #parcial1.plot_distribution(title=name, type_function='density')
-
-    name = "SDP 7"
-    data1, fig1 = parcial1.plot_distribution(title=name, type_function='density', save=True)
-    data1.line['dash'] = 'dot'
-
-    name = "SDP 8"
-    data2, fig2 = parcial2.plot_distribution(title=name, type_function='density', save=True)
-    data2.line['dash'] = 'dash'
-
     name = "SDP 9"
-    data3, fig3 = parcial3.plot_distribution(title=name, type_function='density', save=True)
+    data3, fig3 = parcial3.plot_distribution(title=name, type_function=function, save=True)
     data3.line['dash'] = 'dashdot'
-    """
-    print(maximum.mml())
-    print(maximum.peaks)
-    maximum.plot_hydrogram()
-    maximum.plot_distribution(title='Máximas Anuais', type_function='cumulative', estimador='mml')
-    maximum.plot_distribution(title='Máximas Anuais', type_function='density', estimador='mml')
 
-    #print(plot)
-
-    #Comparation_Distribution([data]).plot()
+    Comparation_Distribution([data, data1, data2, data3], function, 'q75').plot()
 
     fim = timeit.default_timer()
     print('Duração: ', fim-ini)

@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import plotly.plotly as py
 import scipy.stats as stat
 from lmoments3 import distr
@@ -38,6 +39,9 @@ class Maximum(object):
     def mvs(self):
         try:
             peaks = self.peaks['Vazao'].values.copy()
+            peaks = np.sort(peaks)
+            peaks = np.delete(peaks, obj=-1)
+            print(peaks)
             para = stat.genextreme.fit(sorted(peaks))
             return para
         except AttributeError:
@@ -54,7 +58,9 @@ class Maximum(object):
             raise ValueError
         genextreme = GenExtreme(title, para[0], para[1], para[2])
         data, fig = genextreme.plot(type_function)
-        py.image.save_as(fig, filename='gráficos/GEV_%s.png' % type_function)
+        py.image.save_as(fig, filename='gráficos/GEV_%s_%s.png' % (type_function, estimador))
+
+        return data, fig
 
     def plot_hydrogram(self):
         self.annual()
@@ -62,3 +68,5 @@ class Maximum(object):
                                    peaks=self.peaks)
         data, fig = hydrogrm.plot()
         py.image.save_as(fig, filename='gráficos/hidrogama_maximas_anuais.png')
+
+        return data, fig

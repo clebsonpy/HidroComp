@@ -20,7 +20,7 @@ class GenPareto(DistributionBiuld):
         data = go.Scatter(x=dados['Vazao'], y=dados['Probabilidade'],
                           name=self.title,
                           line = dict(color = 'rgb(128, 128, 128)',
-                                      width = 1.5))
+                                      width = 2))
         data_fig = [data]
 
         bandxaxis = go.XAxis(title="Vazão(m³/s)")
@@ -44,7 +44,7 @@ class GenPareto(DistributionBiuld):
         data = go.Scatter(x=dados['Vazao'], y=dados['Densidade'],
                           name=self.title,
                           line = dict(color = 'rgb(128, 128, 128)',
-                                      width = 1.5))
+                                      width = 2))
         data_fig = [data]
 
         bandxaxis = go.XAxis(title="Vazão(m³/s)")
