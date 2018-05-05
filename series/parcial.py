@@ -4,13 +4,13 @@ import scipy.stats as stat
 import plotly as plot
 import plotly.plotly as py
 import colorlover as cl
-import cufflinks as cf
 
 from comparasion.rmse import RMSE
 from comparasion.mae import MAE
 from comparasion.genpareto import BootsGenPareto
 from graphics.genpareto import GenPareto
 from graphics.hydrogram_parcial import HydrogramParcial
+from graphics.boxplot import Boxplot
 
 
 class Parcial(object):
@@ -408,17 +408,17 @@ class Parcial(object):
         return pd.Series(magns, index=tempo_de_retorno, name=name)
 
     def magnitude_resample(self, quantidade, tempo_de_retorno):
-        df_magn = pd.DataFrame()
+        magn = pd.DataFrame()
         para = self.mvs_resample(quantidade)
         para_origon = self.mvs()
-        print(self.para)
         for i in para.index:
             self.para = para['Parametro'][i]
             serie = self.__magnitudes(tempo_de_retorno, i)
-            df_magn = df_magn.combine_first(serie.to_frame())
+            magn = magn.combine_first(serie.to_frame())
 
         self.para = para_origon
-        return df_magn.T
+        self.magn_resample = magn.T
+        return self.magn_resample
 
     def plot_distribution(self, title, type_function, save=False):
         try:
@@ -447,3 +447,18 @@ class Parcial(object):
         except AttributeError:
             self.event_peaks()
             self.plot_hydrogram(title)
+
+    def plot_boxplot_resample(self, quantidade, tempo_de_retorno, name, save=False):
+        try:
+
+            data, fig = Boxplot(magn_resample=self.magn_resample, name=name).plot()
+            if save:
+                py.image.save_as(fig, filename='gráficos/boxplot_%s.png' % name)
+
+            return data, fig
+        except AttributeError:
+            self.magnitude_resample(quantidade, tempo_de_retorno)
+            return self.plot_boxplot_resample(quantidade=quantidade,
+                                              tempo_de_retorno=tempo_de_retorno,
+                                              save=save,
+                                              name=name)
