@@ -16,21 +16,13 @@ class QuantifyUncertainty(object, metaclass=ABCMeta):
         self.compared = compared
 
     @abstractmethod
-    def calculo_erro(self, compared):
+    def calculo_erro(self):
         pass
 
     def quantify(self):
         df_comp = pd.DataFrame()
-        try:
-            if type(self.compared) is type(pd.Series()):
-                raise TypeError
+        serie_comp = self.calculo_erro()
 
-            for comp in self.compared:
-                self.compared = comp
-                df_comp = df_comp.combine_first(self.quantify())
-
-        except TypeError:
-            serie_comp = self.calculo_erro(self.compared)
-            df_comp = serie_comp.to_frame()
+        df_comp = serie_comp.to_frame()
 
         return df_comp

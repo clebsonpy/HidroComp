@@ -11,19 +11,18 @@ class MAE(QuantifyUncertainty):
     def __init__(self, reference, compared):
         super().__init__(reference, compared)
 
-    def calculo_erro(self, compared):
-        mae = []
+    def calculo_erro(self):
         prob = []
-        soma = 0
+        mae = []
         for i in self.reference.index:
+            soma = 0
             prob.append(i)
-            aux = abs(compared[i] - self.reference[i])
-            soma += aux
+            for j in self.compared[i].values:
+                aux = abs(j - self.reference[i])
+                soma += aux
 
-            mae.append(aux)
+            mae_value = ((1/len(self.compared))*soma)
+            mae.append(mae_value)
 
-        mae_value = (1/len(compared)*soma)
-        mae.append(mae_value)
-        prob.append('MAE')
-        mae_serie = pd.Series(mae, index=prob, name=compared.name)
+        mae_serie = pd.Series(mae, index=prob, name='MAE')
         return mae_serie

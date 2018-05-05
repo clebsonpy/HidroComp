@@ -11,10 +11,10 @@ class Boxplot(object):
         self.name = name
 
     def plot(self):
-
+        data = []
         for i in self.magn_resample:
-            data = (go.Box(y=self.magn_resample[i].values,
-                                name = self.name,
+            data.append((go.Box(y=self.magn_resample[i].values,
+                                name = '%s Anos' % (i),
                                 boxpoints='suspectedoutliers',
                                 showlegend = False,
                                 #jitter=0.3,
@@ -23,7 +23,7 @@ class Boxplot(object):
                                     color='rgb(0,0,0)'
                                     )
                                 )
-                        )
+                        ))
 
 
         layout = dict(title="Magnitudes",
@@ -31,7 +31,7 @@ class Boxplot(object):
                       width=1890, height=827,
                       font=dict(family='Time New Roman', size=34, color='rgb(0,0,0)'))
 
-        fig = dict(data=[data], layout=layout)
+        fig = dict(data=data, layout=layout)
         py.offline.plot(fig, filename='gráficos/boxplot.html')
         return data, fig
 
@@ -44,4 +44,4 @@ class Boxplot(object):
 
         fig = dict(data=self.figs, layout=layout)
         py.offline.plot(fig, filename='gráficos/boxplot.html')
-        save.image.save_as(fig, filename='gráficos/boxplot_group.png')
+        #save.image.save_as(fig, filename='gráficos/boxplot_group.png')

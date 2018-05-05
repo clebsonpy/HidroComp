@@ -12,20 +12,14 @@ class RMAE(QuantifyUncertainty):
     def __init__(self, reference, compared):
         super().__init__(reference, compared)
 
-    def calculo_erro(self, compared):
-        mae = MAE(self.reference, compared).quantify()
-        rmae = []
+    def calculo_erro(self):
+        mae = MAE(self.reference, self.compared).quantify()
         prob = []
-        soma = 0
+        rmae = []
         for i in self.reference.index:
+            soma = 0
             prob.append(i)
-            aux = mae[compared.name][i] / self.reference[i]
-            soma += aux
+            rmae.append(mae['MAE'][i] / self.reference[i])
 
-            rmae.append(aux)
-
-        rmae_value = (1/len(self.reference)*soma)
-        rmae.append(rmae_value)
-        prob.append('RMAE')
-        rmae_serie = pd.Series(rmae, index=prob, name=compared.name)
+        rmae_serie = pd.Series(rmae, index=prob, name='RMAE')
         return rmae_serie

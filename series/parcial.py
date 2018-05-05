@@ -16,7 +16,7 @@ from graphics.boxplot import Boxplot
 class Parcial(object):
 
     distribution = 'GP'
-    __percentil = 0.825
+    __percentil = 0.775
     dic_name = {'stationary': 'Percentil', 'events_by_year': 'Eventos por Ano',
                 'autocorrelação': 'Autocorrelacao'}
 
@@ -385,12 +385,14 @@ class Parcial(object):
                 prob = 1-(1/tempo_de_retorno)
                 mag = stat.genpareto.ppf(prob, self.para[0], self.para[1],
                                          self.para[2])
+                return mag
+
             except AttributeError:
                 self.mvs()
-                self.magnitude(tempo_de_retorno)
+                return self.magnitude(tempo_de_retorno)
         except TypeError:
             mag = self.__magnitudes(tempo_de_retorno)
-        return mag
+            return mag
 
     def __magnitudes(self, tempo_de_retorno, name=None):
         #dic_magns = {0.001:[], 0.01:[], 0.1:[], 0.5:[], 0.9:[], 0.99:[], 0.999:[]}
@@ -448,17 +450,10 @@ class Parcial(object):
             self.event_peaks()
             self.plot_hydrogram(title)
 
-    def plot_boxplot_resample(self, quantidade, tempo_de_retorno, name, save=False):
-        try:
+    def plot_boxplot_resample(self, magn_resample, name, save=False):
 
-            data, fig = Boxplot(magn_resample=self.magn_resample, name=name).plot()
-            if save:
-                py.image.save_as(fig, filename='gráficos/boxplot_%s.png' % name)
+        data, fig = Boxplot(magn_resample=magn_resample, name=name).plot()
+        #if save:
+            #py.image.save_as(fig, filename='gráficos/boxplot_%s.png' % name)
 
-            return data, fig
-        except AttributeError:
-            self.magnitude_resample(quantidade, tempo_de_retorno)
-            return self.plot_boxplot_resample(quantidade=quantidade,
-                                              tempo_de_retorno=tempo_de_retorno,
-                                              save=save,
-                                              name=name)
+        return data, fig

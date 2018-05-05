@@ -11,19 +11,18 @@ class RMSE(QuantifyUncertainty):
     def __init__(self, reference, compared):
         super().__init__(reference, compared)
 
-    def calculo_erro(self, compared):
-        rmse = []
+    def calculo_erro(self):
         prob = []
-        soma = 0
+        rmse = []
         for i in self.reference.index:
+            soma = 0
             prob.append(i)
-            aux = (compared[i] - self.reference[i]) ** 2
-            soma += aux
+            for j in self.compared[i].values:
+                aux = (j - self.reference[i]) ** 2
+                soma += aux
 
-            rmse.append(aux ** 0.5)
+            rmse_value = (1/len(self.compared)*soma) ** 0.5
+            rmse.append(rmse_value)
 
-        rmse_value = (1/len(compared)*soma) ** 0.5
-        rmse.append(rmse_value)
-        prob.append('RMSE')
-        rmse_serie = pd.Series(rmse, index=prob, name=compared.name)
+        rmse_serie = pd.Series(rmse, index=prob, name='RMSE')
         return rmse_serie
