@@ -65,7 +65,8 @@ if __name__ == '__main__':
                                                tempo_de_retorno=tempo_de_retorno)
 
         if grafico == 'distribution':
-            data, fig = parcial1.plot_distribution(title=name, type_function=function, save=True)
+            data, fig = parcial1.plot_distribution(title=name, type_function=function,
+                                                   save=True)
             data.line['dash'] = 'dot'
 
         elif grafico == 'boxplot':
@@ -305,7 +306,7 @@ if __name__ == '__main__':
                        grafico='boxplot')
     print("SDP3")
     pause()
-    """
+
     data4, fig4 = sdp4(referencia=magn_ref, function=function,
                        grafico='boxplot')
     print("SDP4")
@@ -333,124 +334,124 @@ if __name__ == '__main__':
                        grafico='boxplot')
     print("SDP9")
     pause()
-    """
+
 
     #Tempo2
     data1[0].name = 'SDP 1'
     data2[0].name = 'SDP 2'
     data3[0].name = 'SDP 3'
-    #data4[0].name = 'SDP 4'
-    #data5[0].name = 'SDP 5'
-    #data6[0].name = 'SDP 6'
-    #data7[0].name = 'SDP 7'
-    #data8[0].name = 'SDP 8'
-    #data9[0].name = 'SDP 9'
+    data4[0].name = 'SDP 4'
+    data5[0].name = 'SDP 5'
+    data6[0].name = 'SDP 6'
+    data7[0].name = 'SDP 7'
+    data8[0].name = 'SDP 8'
+    data9[0].name = 'SDP 9'
 
-    #box0 = [data1[0], data2[0], data3[0], data4[0], data5[0],
-    #        data6[0], data7[0], data8[0], data9[0]]
+    box0 = [data1[0], data2[0], data3[0], data4[0], data5[0],
+            data6[0], data7[0], data8[0], data9[0]]
 
-    Boxplot(figs=[data1[0], data2[0], data3[0]]).plot_comparasion()
+    Boxplot(figs=box0).plot_comparasion()
     pause()
 
     #Tempo5
     data1[1].name = 'SDP 1'
     data2[1].name = 'SDP 2'
     data3[1].name = 'SDP 3'
-    #data4[1].name = 'SDP 4'
-    #data5[1].name = 'SDP 5'
-    #data6[1].name = 'SDP 6'
-    #data7[1].name = 'SDP 7'
-    #data8[1].name = 'SDP 8'
-    #data9[1].name = 'SDP 9'
+    data4[1].name = 'SDP 4'
+    data5[1].name = 'SDP 5'
+    data6[1].name = 'SDP 6'
+    data7[1].name = 'SDP 7'
+    data8[1].name = 'SDP 8'
+    data9[1].name = 'SDP 9'
 
-    #box1 = [data1[1], data2[1], data3[1], data4[1], data5[1],
-    #        data6[1], data7[1], data8[1], data9[1]]
+    box1 = [data1[1], data2[1], data3[1], data4[1], data5[1],
+            data6[1], data7[1], data8[1], data9[1]]
 
-    Boxplot(figs=[data1[1], data2[1], data3[1]]).plot_comparasion()
+    Boxplot(figs=box1).plot_comparasion()
     pause()
 
     #Tempo10
     data1[2].name = 'SDP 1'
     data2[2].name = 'SDP 2'
     data3[2].name = 'SDP 3'
-    #data4[2].name = 'SDP 4'
-    #data5[2].name = 'SDP 5'
-    #data6[2].name = 'SDP 6'
-    #data7[2].name = 'SDP 7'
-    #data8[2].name = 'SDP 8'
-    #data9[2].name = 'SDP 9'
+    data4[2].name = 'SDP 4'
+    data5[2].name = 'SDP 5'
+    data6[2].name = 'SDP 6'
+    data7[2].name = 'SDP 7'
+    data8[2].name = 'SDP 8'
+    data9[2].name = 'SDP 9'
 
-    #box2 = [data1[2], data2[2], data3[2], data4[2], data5[2], data6[2],
-    #        data7[2], data8[2], data9[2]]
+    box2 = [data1[2], data2[2], data3[2], data4[2], data5[2], data6[2],
+            data7[2], data8[2], data9[2]]
 
-    Boxplot(figs=[data1[2], data2[2], data3[2]]).plot_comparasion()
+    Boxplot(figs=box2).plot_comparasion()
     pause()
 
     #Tempo25
     data1[3].name = 'SDP 1'
     data2[3].name = 'SDP 2'
     data3[3].name = 'SDP 3'
-    #data4[3].name = 'SDP 4'
-    #data5[3].name = 'SDP 5'
-    #data6[3].name = 'SDP 6'
-    #data7[3].name = 'SDP 7'
-    #data8[3].name = 'SDP 8'
-    #data9[3].name = 'SDP 9'
+    data4[3].name = 'SDP 4'
+    data5[3].name = 'SDP 5'
+    data6[3].name = 'SDP 6'
+    data7[3].name = 'SDP 7'
+    data8[3].name = 'SDP 8'
+    data9[3].name = 'SDP 9'
 
-    #box3 = [data1[3], data2[3], data3[3], data4[3], data5[3], data6[3],
-    #        data7[3], data8[3], data9[3]]
-    Boxplot(figs=[data1[3], data2[3], data3[3]]).plot_comparasion()
+    box3 = [data1[3], data2[3], data3[3], data4[3], data5[3], data6[3],
+            data7[3], data8[3], data9[3]]
+    Boxplot(figs=box3).plot_comparasion()
     pause()
 
     #Tempo50
     data1[4].name = 'SDP 1'
     data2[4].name = 'SDP 2'
     data3[4].name = 'SDP 3'
-    #data4[4].name = 'SDP 4'
-    #data5[4].name = 'SDP 5'
-    #data6[4].name = 'SDP 6'
-    #data7[4].name = 'SDP 7'
-    #data8[4].name = 'SDP 8'
-    #data9[4].name = 'SDP 9'
+    data4[4].name = 'SDP 4'
+    data5[4].name = 'SDP 5'
+    data6[4].name = 'SDP 6'
+    data7[4].name = 'SDP 7'
+    data8[4].name = 'SDP 8'
+    data9[4].name = 'SDP 9'
 
-    #box4 = [data1[4], data2[4], data3[4], data4[4], data5[4],
-    #        data6[4], data7[4], data8[4], data9[4]]
+    box4 = [data1[4], data2[4], data3[4], data4[4], data5[4],
+            data6[4], data7[4], data8[4], data9[4]]
 
-    Boxplot(figs=[data1[4], data2[4], data3[4]]).plot_comparasion()
+    Boxplot(figs=box4).plot_comparasion()
     pause()
 
     #Tempo100
     data1[5].name = 'SDP 1'
     data2[5].name = 'SDP 2'
     data3[5].name = 'SDP 3'
-    #data4[5].name = 'SDP 4'
-    #data5[5].name = 'SDP 5'
-    #data6[5].name = 'SDP 6'
-    #data7[5].name = 'SDP 7'
-    #data8[5].name = 'SDP 8'
-    #data9[5].name = 'SDP 9'
+    data4[5].name = 'SDP 4'
+    data5[5].name = 'SDP 5'
+    data6[5].name = 'SDP 6'
+    data7[5].name = 'SDP 7'
+    data8[5].name = 'SDP 8'
+    data9[5].name = 'SDP 9'
 
-    #box5 = [data1[5], data2[5], data3[5], data4[5], data5[5],
-    #        data6[5], data7[5], data8[5], data9[5]]
-    Boxplot(figs=[data1[5], data2[5], data3[5]]).plot_comparasion()
+    box5 = [data1[5], data2[5], data3[5], data4[5], data5[5],
+            data6[5], data7[5], data8[5], data9[5]]
+    Boxplot(figs=box5).plot_comparasion()
     pause()
 
     #Tempo500
     data1[6].name = 'SDP 1'
     data2[6].name = 'SDP 2'
     data3[6].name = 'SDP 3'
-    #data4[6].name = 'SDP 4'
-    #data5[6].name = 'SDP 5'
-    #data6[6].name = 'SDP 6'
-    #data7[6].name = 'SDP 7'
-    #data8[6].name = 'SDP 8'
-    #data9[6].name = 'SDP 9'
+    data4[6].name = 'SDP 4'
+    data5[6].name = 'SDP 5'
+    data6[6].name = 'SDP 6'
+    data7[6].name = 'SDP 7'
+    data8[6].name = 'SDP 8'
+    data9[6].name = 'SDP 9'
 
-    #box6 = [data1[6], data2[6], data3[6], data4[6], data5[6],
-    #        data6[6], data7[6], data8[6], data9[6]]
-    Boxplot(figs=[data1[6], data2[6], data3[6]]).plot_comparasion()
+    box6 = [data1[6], data2[6], data3[6], data4[6], data5[6],
+            data6[6], data7[6], data8[6], data9[6]]
+    Boxplot(figs=box6).plot_comparasion()
 
     #Comparation_Distribution([data, data1, data2, data3], function, 'q75').plot()
-
+    
     fim = timeit.default_timer()
     print('Duração: ', fim-ini)

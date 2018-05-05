@@ -16,7 +16,7 @@ from graphics.boxplot import Boxplot
 class Parcial(object):
 
     distribution = 'GP'
-    __percentil = 0.775
+    __percentil = 0.8
     dic_name = {'stationary': 'Percentil', 'events_by_year': 'Eventos por Ano',
                 'autocorrelação': 'Autocorrelacao'}
 
@@ -43,6 +43,9 @@ class Parcial(object):
         self.type_event = type_event
         self.value = value_threshold
         self.duration = kwargs['duration']
+        if type_criterion == 'mediana':
+            self.__percentil = 0.65
+
         self.__threshold(self.value)
         self.name = '%s(%s) - %s' % (self.dic_name[self.type_threshold],
                                      self.value, self.type_criterion.title())
