@@ -58,7 +58,7 @@ class Maximum(object):
             raise ValueError
         genextreme = GenExtreme(title, para[0], para[1], para[2])
         data, fig = genextreme.plot(type_function)
-        py.image.save_as(fig, filename='gráficos/GEV_%s_%s.png' % (type_function, estimador))
+        #py.image.save_as(fig, filename='gráficos/GEV_%s_%s.png' % (type_function, estimador))
 
         return data, fig
 

@@ -17,8 +17,8 @@ class Comparation_Distribution(object):
         bandxaxis = go.XAxis(title="Vazão(m³/s)")
         bandyaxis = go.YAxis(title="")
 
-        layout = dict(title="Função de Densidade: GP",
-                      showlegend=False,
+        layout = dict(title="Probabilidade Acumulada",
+                      showlegend=True,
                       width=945, height=827,
                       xaxis=bandxaxis,
                       yaxis=bandyaxis,
