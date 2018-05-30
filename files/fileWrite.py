@@ -9,6 +9,5 @@ from files.files import Files
 
 class FileWrite(Files):
 
-
     def __init__(self, params):
         pass

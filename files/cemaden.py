@@ -4,6 +4,7 @@ Created on 21 de mar de 2018
 @author: clebson
 """
 import os
+import pandas as pd
 
 from files.fileRead import FileRead
 
@@ -19,7 +20,7 @@ class Cemaden(FileRead):
         super().__init__(path)
 
     def list_files(self):
-        super().list_files()
+        return super().list_files()
 
     def read(self, name=None):
         if name is None:
@@ -38,13 +39,15 @@ class Cemaden(FileRead):
 
     def __read_sam(self):
         list_lines = self.__lines_sam()
-        dic = {'dado': [], 'columns': []}
+        dado = []
+        index = []
+        data = self.name.split('_')[1].replace('-', '')
+        dataHora = pd.to_datetime(data)
         cont = 0
         for line in list_lines:
             if cont > 0:
-                dataHora = pd.to_datetime(self.name)
-                dic['dado'].append(float(line[3]))
-                dic['columns'].append((line[1], line[2]))
+                dado.append(float(line[3]))
+                index.append((line[1], line[2]))
             cont +=1
-        pf = pd.DataFrame(dic, index=dataHora, columns=dic['columns'])
-        return pd
+        se = pd.Series(dado, index=index, name=dataHora)
+        return se

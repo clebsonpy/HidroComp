@@ -39,9 +39,13 @@ class FileRead(Files):
             p = mp.Pool(4)
             listaDfs = p.map(self.read, self.name)
             p.close()
-            dataFlow = pd.DataFrame()
-            for df in listaDfs:
-                dataFlow = dataFlow.combine_first(df)
-            return dataFlow.sort_index()
+            if self.font == 'ANA':
+                dataFlow = pd.DataFrame()
+                for df in listaDfs:
+                    dataFlow = dataFlow.combine_first(df)
+                return dataFlow.sort_index()
+            else:
+                dataFlow = pd.DataFrame(listaDfs)
+                return dataFlow.sort_index()
         else:
             return self.read(self.name)
