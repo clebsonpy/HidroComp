@@ -4,3 +4,4 @@ venv/
 *.xls
 Dados_Chuva/
 gráficos/
+output/
