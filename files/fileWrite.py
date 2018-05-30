@@ -28,11 +28,15 @@ class FileWrite(Files):
 
     def txt(self, name_dir):
         bool = self.df.isnull()
+        cont = 1
+        arq2 = open(os.path.join(os.getcwd(), 'interplu'+'.txt'), 'w')
+        arq2.write('{:>20}{:>23}{:>13}\n'.format('codigo', 'long dec', 'lat dec'))
         for i in self.df:
             data = pd.to_datetime('1/1/1977')
-            name_arq = 'log_%s-lat_%s' % i
-            name_arq = name_arq.replace('.','_')
-            arq = open(os.path.join(os.path.join(os.getcwd(),name_dir), name_arq+'.txt'), 'w')
+            name_arq = '{:08}.txt'.format(cont)
+            cont+=1
+            arq2.write('{:>20}{:>23}{:>13}\n'.format(name_arq, i[0], i[1]))
+            arq = open(os.path.join(os.path.join(os.getcwd(),name_dir), name_arq), 'w')
             for j in self.df[i].index:
                 if bool[i][j]:
                     j=-1
@@ -42,3 +46,4 @@ class FileWrite(Files):
                                                            data.year, j))
                 data+=pd.DateOffset(days=1)
             arq.close()
+        arq2.close()
