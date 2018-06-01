@@ -26,7 +26,11 @@ class FileWrite(Files):
     def json(self):
         self.df.to_json('%s.json' % self.name)
 
-    def txt(self, name_dir):
+    def txt(self, name_dir, hour=True):
+        if hour:
+            pass
+        else:
+            self.df = self.df.resample('H').sum()
         bool = self.df.isnull()
         cont = 1
         arq2 = open(os.path.join(os.getcwd(), 'interplu'+'.txt'), 'w')

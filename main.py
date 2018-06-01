@@ -7,10 +7,9 @@ import timeit
 
 if __name__ == '__main__':
     ini = timeit.default_timer()
-    path = "/home/clebson/Documentos/Projetos/201405_output_horário"
+    path = "/home/clebson/Documentos/Projetos/201409_output_10minutos"
     dados = Cemaden(path).read()
-    FileWrite(dados).txt('output')
-    #print(dados.read())
+    FileWrite(dados).txt(name_dir='output', hour=False)
 
     fim = timeit.default_timer()
     print('Duração: ', fim-ini)
