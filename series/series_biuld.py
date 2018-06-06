@@ -8,20 +8,20 @@ from files import *
 
 class Series(object, metaclass=ABCMeta):
 
-    fonts = {
+    sources = {
         "ONS": ons.Ons,
         "ANA": ana.Ana
     }
 
-    def __init__(self, data=None, path=os.getcwd(), font=None, *args, **kwargs):
+    def __init__(self, data=None, path=os.getcwd(), source=None, *args, **kwargs):
         self.path = path
         if data is not None:
             self.data = data
         else:
-            if font in self.fonts:
-                self.data = self.fonts[font](self.path, *args, **kwargs).data
+            if source in self.sources:
+                self.data = self.sources[source](self.path, *args, **kwargs).data
             else:
-                raise KeyError('Font not supported!')
+                raise KeyError('Source not supported!')
 
         self.date_start = self.data.index[0]
         self.date_end = self.data.index[-1]

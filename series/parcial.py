@@ -83,15 +83,16 @@ class Parcial(object):
                 data_min['Vazao'].append(self.data.loc[idx_before, self.station])
                 data_min['Data'].append(idx_before)
             else:
-                data, max_events, data_min = self.__criterion(data=data,
-                                        max_events=max_events,
-                                        data_min=data_min,
-                                        events_criterion=events_criterion.loc[i])
+                data, max_events, data_min = self.__criterion(
+                    data=data, max_events=max_events, data_min=data_min,
+                    events_criterion=events_criterion.loc[i]
+                )
             idx_before = i
 
-        self.peaks = pd.DataFrame(max_events,
-                            columns=['Duracao', 'Inicio', 'Fim', 'Vazao'],
-                            index=max_events['Data'])
+        self.peaks = pd.DataFrame(
+            max_events, columns=['Duracao', 'Inicio', 'Fim', 'Vazao'],
+            index=max_events['Data']
+        )
 
         if self.type_criterion=='autocorrelação' and self.__test_autocorrelation(self.peaks)[0]:
             self.duration += 1
@@ -119,7 +120,7 @@ class Parcial(object):
             return events, threshold
 
         else:
-            return 'Evento erro!'
+            return 'Event error!'
 
     def __threshold(self, value):
         if value > 1 and self.type_threshold == 'events_by_year':
@@ -145,40 +146,43 @@ class Parcial(object):
 
     def __criterion(self, *args, **kwargs):
         if self.type_criterion == 'media':
-            data, max_events = self.__criterion_media(data=kwargs['data'],
-                                    max_events=kwargs['max_events'],
-                                    events_criterion=kwargs['events_criterion'])
+            data, max_events = self.__criterion_media(
+                data=kwargs['data'], max_events=kwargs['max_events'],
+                events_criterion=kwargs['events_criterion']
+            )
             return data, max_events, kwargs['data_min']
 
         elif self.type_criterion == 'mediana':
-            data, max_events = self.__criterion_mediana(data=kwargs['data'],
-                                    max_events=kwargs['max_events'],
-                                    events_criterion=kwargs['events_criterion'])
+            data, max_events = self.__criterion_mediana(
+                data=kwargs['data'], max_events=kwargs['max_events'],
+                events_criterion=kwargs['events_criterion']
+            )
             return data, max_events, kwargs['data_min']
 
         elif self.type_criterion == 'autocorrelação':
-            data, max_events = self.__criterion_duration(data=kwargs['data'],
-                                    max_events=kwargs['max_events'],
-                                    events_criterion=kwargs['events_criterion'])
+            data, max_events = self.__criterion_duration(
+                data=kwargs['data'], max_events=kwargs['max_events'],
+                events_criterion=kwargs['events_criterion']
+            )
             return data, max_events, kwargs['data_min']
 
         elif self.type_criterion == 'xmin_maior_qmin':
-            return self.__criterion_xmin_maior_qmin(data=kwargs['data'],
-                             max_events=kwargs['max_events'],
-                             data_min=kwargs['data_min'],
-                             events_criterion=kwargs['events_criterion'])
+            return self.__criterion_xmin_maior_qmin(
+                data=kwargs['data'], max_events=kwargs['max_events'],
+                data_min=kwargs['data_min'], events_criterion=kwargs['events_criterion']
+            )
 
         elif self.type_criterion == 'xmin_maior_dois_terco_x':
-            return self.__criterion_xmin_maior_dois_terco_x(data=kwargs['data'],
-                                    max_events=kwargs['max_events'],
-                                    data_min=kwargs['data_min'],
-                                    events_criterion=kwargs['events_criterion'])
+            return self.__criterion_xmin_maior_dois_terco_x(
+                data=kwargs['data'], max_events=kwargs['max_events'],
+                data_min=kwargs['data_min'], events_criterion=kwargs['events_criterion']
+            )
 
         elif self.type_criterion == 'duracao_e_xmin':
-            return self.__criterion_duration_and_xmin(data=kwargs['data'],
-                                    max_events=kwargs['max_events'],
-                                    data_min=kwargs['data_min'],
-                                    events_criterion=kwargs['events_criterion'])
+            return self.__criterion_duration_and_xmin(
+                data=kwargs['data'], max_events=kwargs['max_events'],
+                data_min=kwargs['data_min'], events_criterion=kwargs['events_criterion']
+            )
 
     def __criterion_media(self, data, max_events, events_criterion):
         if len(data['Vazao']) > 0 and (not events_criterion):
@@ -398,15 +402,12 @@ class Parcial(object):
             return mag
 
     def __magnitudes(self, tempo_de_retorno, name=None):
-        #dic_magns = {0.001:[], 0.01:[], 0.1:[], 0.5:[], 0.9:[], 0.99:[], 0.999:[]}
         if name is None:
             name = self.name
 
         magns = []
         for tempo in tempo_de_retorno:
             mag = self.magnitude(tempo)
-            #mag = stat.genpareto.ppf(j, self.para[0], self.para[1],
-            #                         self.para[2])
 
             magns.append(mag)
 
