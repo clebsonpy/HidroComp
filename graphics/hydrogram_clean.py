@@ -1,8 +1,4 @@
-import plotly as py
 import plotly.graph_objs as go
-import plotly.figure_factory as FF
-import colorlover as cl
-import cufflinks as cf
 
 from graphics.hydrogram_biuld import HydrogramBiuld
 
@@ -31,11 +27,9 @@ class HydrogramClean(HydrogramBiuld):
                 yaxis=bandyaxis,
                 font=dict(family='Time New Roman', size=34, color='rgb(0,0,0)'))
 
-            aux_name = name.replace(' - ', '_')
-            aux_name2 = aux_name.replace(' ', '_')
             data = [self._plot_one(self.data)]
             fig = dict(data=data, layout=layout)
-            py.offline.plot(fig, filename='gráficos/'+ aux_name2 +'.html')
+            return data, fig
         except AttributeError:
             name = 'Hidrograma'
             layout = dict(
@@ -44,15 +38,12 @@ class HydrogramClean(HydrogramBiuld):
                 xaxis=bandxaxis,
                 yaxis=bandyaxis,
                 font=dict(family='Time New Roman', size=34, color='rgb(0,0,0)'))
-
-            aux_name = name.replace(' - ', '_')
-            aux_name2 = aux_name.replace(' ', '_')
-            fig = dict(data=self._plot_multi(), layout=layout)
-            py.offline.plot(fig, filename='gráficos/'+ aux_name2 +'.html')
+            data = self._plot_multi()
+            fig = dict(data=data, layout=layout)
+            return data, fig
 
     def _plot_multi(self):
-        fig = []
+        data = []
         for i in self.data:
-
-            fig.append(self._plot_one(self.data[i]))
-        return fig
+            data.append(self._plot_one(self.data[i]))
+        return data

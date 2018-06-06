@@ -17,11 +17,10 @@ class GenPareto(DistributionBiuld):
 
     def cumulative(self):
         dados = self._data('cumulative')
-        data = go.Scatter(x=dados['Vazao'], y=dados['Probabilidade'],
+        data = [go.Scatter(x=dados['Vazao'], y=dados['Probabilidade'],
                           name=self.title,
                           line = dict(color = 'rgb(128, 128, 128)',
-                                      width = 2))
-        data_fig = [data]
+                                      width = 2))]
 
         bandxaxis = go.XAxis(title="Vazão(m³/s)")
         bandyaxis = go.YAxis(title="Probabilidade")
@@ -33,19 +32,16 @@ class GenPareto(DistributionBiuld):
                       yaxis=bandyaxis,
                       font=dict(family='Time New Roman', size=34, color='rgb(0,0,0)'))
 
-        fig = dict(data=data_fig, layout=layout)
-        name_graphic = 'GP_Acumulada_%s' % self.title
-        py.offline.plot(fig, filename='gráficos/'+ name_graphic + '.html')
+        fig = dict(data=data, layout=layout)
 
         return data, fig
 
     def density(self):
         dados = self._data('density')
-        data = go.Scatter(x=dados['Vazao'], y=dados['Densidade'],
+        data = [go.Scatter(x=dados['Vazao'], y=dados['Densidade'],
                           name=self.title,
                           line = dict(color = 'rgb(128, 128, 128)',
-                                      width = 2))
-        data_fig = [data]
+                                      width = 2))]
 
         bandxaxis = go.XAxis(title="Vazão(m³/s)")
         bandyaxis = go.YAxis(title="")
@@ -57,10 +53,7 @@ class GenPareto(DistributionBiuld):
                       yaxis=bandyaxis,
                       font=dict(family='Time New Roman', size=34, color='rgb(0,0,0)'))
 
-        fig = dict(data=data_fig, layout=layout)
-        name_graphic = 'GP_Densidade_%s' % self.title
-        py.offline.plot(fig, filename='gráficos/'+ name_graphic + '.html')
-
+        fig = dict(data=data, layout=layout)
         return data, fig
 
     def _data_density(self):

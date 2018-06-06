@@ -1,5 +1,3 @@
-import scipy.stats as stat
-
 from abc import ABCMeta, abstractmethod
 
 

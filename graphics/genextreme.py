@@ -3,9 +3,6 @@ import pandas as pd
 
 import plotly as py
 import plotly.graph_objs as go
-import plotly.figure_factory as FF
-import colorlover as cl
-import cufflinks as cf
 
 from graphics.distribution_biuld import DistributionBiuld
 
@@ -17,11 +14,10 @@ class GenExtreme(DistributionBiuld):
 
     def cumulative(self):
         dados = self._data('cumulative')
-        data = go.Scatter(x=dados['Vazao'], y=dados['Probabilidade'],
+        data = [go.Scatter(x=dados['Vazao'], y=dados['Probabilidade'],
                               name=self.title,
                               line = dict(color = 'rgb(128, 128, 128)',
-                                          width = 1.5))
-        data_figs = [data]
+                                          width = 1.5))]
 
         bandxaxis = go.XAxis(title="Vazão(m³/s)")
         bandyaxis = go.YAxis(title="Probabilidade")
@@ -33,19 +29,15 @@ class GenExtreme(DistributionBiuld):
                       yaxis=bandyaxis,
                       font=dict(family='Time New Roman', size=34, color='rgb(0,0,0)'))
 
-        fig = dict(data=data_figs, layout=layout)
-        name_graphic = 'GEV_Acumulada_%s' % self.title
-        py.offline.plot(fig, filename='gráficos/'+ name_graphic +'.html')
-
+        fig = dict(data=data, layout=layout)
         return data, fig
 
     def density(self):
         dados = self._data('density')
-        data = go.Scatter(x=dados['Vazao'], y=dados['Densidade'],
+        data = [go.Scatter(x=dados['Vazao'], y=dados['Densidade'],
                           name=self.title,
                           line = dict(color = 'rgb(128, 128, 128)',
-                                      width = 1.5))
-        data_fig = [data]
+                                      width = 1.5))]
 
         bandxaxis = go.XAxis(title="Vazão(m³/s)")
         bandyaxis = go.YAxis(title="")
@@ -57,10 +49,7 @@ class GenExtreme(DistributionBiuld):
                       yaxis=bandyaxis,
                       font=dict(family='Time New Roman', size=34, color='rgb(0,0,0)'))
 
-        fig = dict(data=data_fig, layout=layout)
-        name_graphic = 'GEV_Densidade_%s' % self.title
-        py.offline.plot(fig, filename='gráficos/'+ name_graphic + '.html')
-
+        fig = dict(data=data, layout=layout)
         return data, fig
 
     def _data_density(self):

@@ -1,8 +1,4 @@
-import plotly as py
 import plotly.graph_objs as go
-import plotly.figure_factory as FF
-import colorlover as cl
-import cufflinks as cf
 
 from graphics.hydrogram_biuld import HydrogramBiuld
 
@@ -45,11 +41,8 @@ class HydrogramParcial(HydrogramBiuld):
             data.append(self._plot_threshold_criterion(type_criterion))
             data += self._plot_event_peaks()
 
-            aux_name = name.replace(' - ', '_')
-            aux_name2 = aux_name.replace(' ', '_')
             fig = dict(data=data, layout=layout)
-            py.offline.plot(fig, filename='gráficos/'+ aux_name2 +'.html')
-            return fig
+            return data, fig
         except AttributeError:
             name = 'Hidrograma Série de Duração Parcial -  %s' % self.title
             layout = dict(
@@ -65,11 +58,8 @@ class HydrogramParcial(HydrogramBiuld):
             data.append(self._plot_threshold())
             data += self._plot_event_peaks()
 
-            aux_name = name.replace(' - ', '_')
-            aux_name2 = aux_name.replace(' ', '_')
             fig = dict(data=data, layout=layout)
-            py.offline.plot(fig, filename='gráficos/'+ aux_name2 +'.html')
-            return fig
+            return data, fig
 
     def _plot_event_peaks(self):
         point_start = go.Scatter(x=self.peaks.Inicio,

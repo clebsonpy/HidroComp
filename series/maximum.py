@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 import plotly.plotly as py
 import scipy.stats as stat
 from lmoments3 import distr
@@ -30,43 +29,57 @@ class Maximum(object):
         try:
             peaks = self.peaks.copy()
             mom = distr.gev.lmom_fit(peaks['Vazao'].values)
-            para = [mom['c'], mom['loc'], mom['scale']]
-            return para
+            self.para = [mom['c'], mom['loc'], mom['scale']]
+            return self.para
         except AttributeError:
             self.annual()
             return self.mml()
 
     def mvs(self):
         try:
-            peaks = self.peaks['Vazao'].values.copy()
-            peaks = np.sort(peaks)
-            peaks = np.delete(peaks, obj=-1)
-            print(peaks)
-            para = stat.genextreme.fit(sorted(peaks))
-            return para
+            peaks = self.peaks.copy()
+            self.para = stat.genextreme.fit(peaks['Vazao'].values)
+            return self.para
         except AttributeError:
             self.annual()
             return self.mvs()
-            #self.para = stat.genextreme.fit(self.peaks['Vazao'].values)
 
-    def plot_distribution(self, title, estimador, type_function):
+    def magnitude(self, period_return, estimador):
+
+        try:
+            prob = 1-(1 / period_return)
+            mag = stat.genpareto.ppf(prob, self.para[0], self.para[1],
+                                     self.para[2])
+            return mag
+
+        except AttributeError:
+            if estimador == 'mvs':
+                self.mvs()
+            elif estimador == 'mml':
+                self.mml()
+            else:
+                raise ValueError
+            return self.magnitude(period_return)
+
+    def plot_distribution(self, title, estimador, type_function, save=False):
         if estimador == 'mvs':
-            para = self.mvs()
+            self.mvs()
         elif estimador == 'mml':
-            para = self.mml()
+            self.mml()
         else:
             raise ValueError
-        genextreme = GenExtreme(title, para[0], para[1], para[2])
+        genextreme = GenExtreme(title, self.para[0], self.para[1], self.para[2])
         data, fig = genextreme.plot(type_function)
-        #py.image.save_as(fig, filename='gráficos/GEV_%s_%s.png' % (type_function, estimador))
+        if save:
+            py.image.save_as(fig, filename='gráficos/GEV_%s_%s.png' % (type_function, estimador))
 
         return data, fig
 
-    def plot_hydrogram(self):
+    def plot_hydrogram(self, save=False):
         self.annual()
-        hydrogrm = HydrogramAnnual(data=self.data[self.station],
-                                   peaks=self.peaks)
+        hydrogrm = HydrogramAnnual(data=self.data[self.station], peaks=self.peaks)
         data, fig = hydrogrm.plot()
-        py.image.save_as(fig, filename='gráficos/hidrogama_maximas_anuais.png')
+        if save:
+            py.image.save_as(fig, filename='gráficos/hidrogama_maximas_anuais.png')
 
         return data, fig

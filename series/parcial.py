@@ -384,42 +384,42 @@ class Parcial(object):
         self.peaks = peaks
         return pd.DataFrame(dic)
 
-    def magnitude(self, tempo_de_retorno):
+    def magnitude(self, period_return):
         try:
-            if type(tempo_de_retorno) is list:
+            if type(period_return) is list:
                 raise TypeError
             try:
-                prob = 1-(1/tempo_de_retorno)
+                prob = 1-(1 / period_return)
                 mag = stat.genpareto.ppf(prob, self.para[0], self.para[1],
                                          self.para[2])
                 return mag
 
             except AttributeError:
                 self.mvs()
-                return self.magnitude(tempo_de_retorno)
+                return self.magnitude(period_return)
         except TypeError:
-            mag = self.__magnitudes(tempo_de_retorno)
+            mag = self.__magnitudes(period_return)
             return mag
 
-    def __magnitudes(self, tempo_de_retorno, name=None):
+    def __magnitudes(self, period_return, name=None):
         if name is None:
             name = self.name
 
         magns = []
-        for tempo in tempo_de_retorno:
+        for tempo in period_return:
             mag = self.magnitude(tempo)
 
             magns.append(mag)
 
-        return pd.Series(magns, index=tempo_de_retorno, name=name)
+        return pd.Series(magns, index=period_return, name=name)
 
-    def magnitude_resample(self, quantidade, tempo_de_retorno):
+    def magnitude_resample(self, quantidade, period_return):
         magn = pd.DataFrame()
         para = self.mvs_resample(quantidade)
         para_origon = self.mvs()
         for i in para.index:
             self.para = para['Parametro'][i]
-            serie = self.__magnitudes(tempo_de_retorno, i)
+            serie = self.__magnitudes(period_return, i)
             magn = magn.combine_first(serie.to_frame())
 
         self.para = para_origon
@@ -440,24 +440,25 @@ class Parcial(object):
 
     def plot_hydrogram(self, title, save=False):
         try:
-            hydrogrm = HydrogramParcial(data=self.data[self.station],
+            hydrogram = HydrogramParcial(data=self.data[self.station],
                                         peaks=self.peaks,
                                         threshold=self.threshold,
                                         threshold_criterion=self.threshold_criterion,
                                         title = title)
-            fig = hydrogrm.plot(type_criterion=self.type_criterion)
+            data, fig = hydrogram.plot(type_criterion=self.type_criterion)
             if save:
                 aux_name = title.replace(' ', '_')
                 py.image.save_as(fig, filename='gráficos/'+'%s.png' % aux_name)
 
+            return data, fig
         except AttributeError:
             self.event_peaks()
-            self.plot_hydrogram(title)
+            return self.plot_hydrogram(title)
 
     def plot_boxplot_resample(self, magn_resample, name, save=False):
 
         data, fig = Boxplot(magn_resample=magn_resample, name=name).plot()
-        #if save:
-            #py.image.save_as(fig, filename='gráficos/boxplot_%s.png' % name)
+        if save:
+            py.image.save_as(fig, filename='gráficos/boxplot_%s.png' % name)
 
         return data, fig

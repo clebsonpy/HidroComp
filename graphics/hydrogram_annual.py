@@ -1,8 +1,4 @@
-import plotly as py
 import plotly.graph_objs as go
-import plotly.figure_factory as FF
-import colorlover as cl
-import cufflinks as cf
 
 from graphics.hydrogram_biuld import HydrogramBiuld
 
@@ -23,7 +19,6 @@ class HydrogramAnnual(HydrogramBiuld):
             title="Vazão(m³/s)",
         )
 
-        name = 'Hidrograma Máximas Anuais'
         layout = dict(
             title = "Hidrograma Série Máximas Anuais",
             width=1890, height=827,
@@ -35,10 +30,7 @@ class HydrogramAnnual(HydrogramBiuld):
         data.append(self._plot_one(self.data))
         data.append(self._plot_event_peaks())
 
-        aux_name = name.replace(' - ', '_')
-        aux_name2 = aux_name.replace(' ', '_')
         fig = dict(data=data, layout=layout)
-        py.offline.plot(fig, filename='gráficos/'+ aux_name2 +'.html')
         return data, fig
 
     def _plot_event_peaks(self):
