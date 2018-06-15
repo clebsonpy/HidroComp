@@ -14,13 +14,14 @@ class Cemaden(FileRead):
     class files read: Centro Nacional de Monitoramento e
                     Alertas de Desastres Naturais - CEMADEN
     """
-    font = 'Cemaden'
+    source = 'Cemaden'
     extension = 'sam'
+
     def __init__(self, path=os.getcwd()):
         super().__init__(path)
 
     def list_files(self):
-        return super().list_files()
+        pass
 
     def read(self, name=None):
         if name is None:
@@ -32,7 +33,8 @@ class Cemaden(FileRead):
 
     def __lines_sam(self):
         list_lines = []
-        with open(os.path.join(self.path, self.name+'.'+Cemaden.extension), 'r') as arq:
+        with open(os.path.join(self.path, self.name+'.'+Cemaden.extension), 'r') as \
+                arq:
             for line in arq.readlines():
                 list_lines.append(line.split())
         return list_lines
@@ -42,12 +44,12 @@ class Cemaden(FileRead):
         dado = []
         index = []
         data = self.name.split('_')[1].replace('-', '')
-        dataHora = pd.to_datetime(data)
+        date_hour = pd.to_datetime(data)
         cont = 0
         for line in list_lines:
             if cont > 0:
                 dado.append(float(line[3]))
                 index.append((line[1], line[2]))
-            cont +=1
-        se = pd.Series(dado, index=index, name=dataHora)
+            cont += 1
+        se = pd.Series(dado, index=index, name=date_hour)
         return se

@@ -14,10 +14,9 @@ class RMAE(QuantifyUncertainty):
 
     def calculo_erro(self):
         mae = MAE(self.reference, self.compared).quantify()
-        prob = []
-        rmae = []
+        prob = list()
+        rmae = list()
         for i in self.reference.index:
-            soma = 0
             prob.append(i)
             rmae.append(mae['MAE'][i] / self.reference[i])
 

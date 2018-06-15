@@ -12,7 +12,7 @@ import numpy as np
 
 class Ons(FileRead):
 
-    font = "ONS"
+    source = "ONS"
     extension = "xls"
 
     def __init__(self, path=os.getcwd(), type_data='FLUVIOMÉTRICO'):
@@ -35,7 +35,10 @@ class Ons(FileRead):
         data_flow.drop(np.NaN, inplace=True)
 
         aux = []
-        dic = {'jan':'1', 'fev':'2', 'mar':'3', 'abr':'4', 'mai':'5', 'jun':'6', 'jul':'7', 'ago':'8', 'set':'9', 'out':'10', 'nov':'11', 'dez':'12'}
+        dic = {'jan': '1', 'fev': '2', 'mar': '3', 'abr': '4', 'mai': '5',
+               'jun': '6', 'jul': '7', 'ago': '8', 'set': '9', 'out': '10',
+               'nov': '11', 'dez': '12'
+               }
         for i in data_flow.index:
             aux.append(i.replace(i[-8:-5], dic[i[-8:-5]]))
 

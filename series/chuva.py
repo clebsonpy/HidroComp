@@ -1,9 +1,9 @@
 import os
 
-from series.series_biuld import Series
+from series.series_biuld import SeriesBiuld
 
 
-class Chuva(Series):
+class Chuva(SeriesBiuld):
 
     type_data = 'PLUVIOMÉTRICO'
 

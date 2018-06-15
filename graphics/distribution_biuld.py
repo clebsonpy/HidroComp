@@ -3,11 +3,11 @@ from abc import ABCMeta, abstractmethod
 
 class DistributionBiuld(object, metaclass=ABCMeta):
 
-    def __init__(self, title, forma, localizacao, escala):
+    def __init__(self, title, shape, location, scale):
         self.title = title
-        self.forma = forma
-        self.localizacao = localizacao
-        self.escala = escala
+        self.shape = shape
+        self.location = location
+        self.scale = scale
 
     def plot(self, type_function):
         if type_function == 'density':

@@ -6,7 +6,7 @@ from abc import abstractmethod, ABCMeta
 from files import *
 
 
-class Series(object, metaclass=ABCMeta):
+class SeriesBiuld(object, metaclass=ABCMeta):
 
     sources = {
         "ONS": ons.Ons,
@@ -47,9 +47,9 @@ class Series(object, metaclass=ABCMeta):
             self.data = self.data.loc[:self.date_end]
 
     def flawless_period(self, station):
-        aux = []
-        list_start = []
-        list_end = []
+        aux = list()
+        list_start = list()
+        list_end = list()
         gantt_bool = self.data.isnull()[station]
         for i in gantt_bool.index:
             if ~gantt_bool.loc[i]:

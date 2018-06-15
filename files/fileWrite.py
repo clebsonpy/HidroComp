@@ -38,16 +38,17 @@ class FileWrite(Files):
         for i in self.df:
             data = pd.to_datetime('1/1/1977')
             name_arq = '{:08}.txt'.format(cont)
-            cont+=1
+            cont += 1
             arq2.write('{:>20}{:>23}{:>13}\n'.format(name_arq, i[0], i[1]))
-            arq = open(os.path.join(os.path.join(os.getcwd(),name_dir), name_arq), 'w')
+            arq = open(os.path.join(os.path.join(os.getcwd(),
+                                                 name_dir), name_arq), 'w')
             for j in self.df[i].index:
                 if bool[i][j]:
-                    j=-1
+                    j =- 1
                 else:
-                    j=self.df[i][j]
+                    j = self.df[i][j]
                 arq.write('{:>6}{:>6}{:>6}{:>12}\n'.format(data.day, data.month,
                                                            data.year, j))
-                data+=pd.DateOffset(days=1)
+                data += pd.DateOffset(days=1)
             arq.close()
         arq2.close()

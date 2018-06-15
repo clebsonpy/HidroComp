@@ -1,9 +1,7 @@
-import plotly as plot
-import plotly.plotly as py
 import plotly.graph_objs as go
 
 
-class Comparation_Distribution(object):
+class ComparationDistribution(object):
 
     def __init__(self, datas, type_function, name):
         self.datas = datas

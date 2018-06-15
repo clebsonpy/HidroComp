@@ -10,6 +10,7 @@ from files.fileRead import FileRead
 class Chesf(FileRead):
 
     extension = "xls"
+    source = "CHESF"
 
-    def __init__(self, ):
+    def __init__(self):
         pass

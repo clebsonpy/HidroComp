@@ -6,24 +6,26 @@ from comparasion.bootstrap_build import BootstrapBuild
 
 class BootsGenPareto(BootstrapBuild):
 
-    def __init__(self, forma, localizacao, escala, tamanho):
-         super().__init__(forma, localizacao, escala, tamanho)
+    def __init__(self, shape, location, scale, size):
+        super().__init__(shape, location, scale, size)
 
     def fit_resample(self):
-        resample = genpareto.rvs(self.forma, self.localizacao, self.escala,
-                                     self.tamanho)
+        resample = genpareto.rvs(self.shape, self.location, self.scale,
+                                 self.size)
         return genpareto.fit(resample)
 
-    def fits_resamples(self, quantidade):
-        list_fits = []
-        for i in range(quantidade):
+    def fits_resamples(self, quantity):
+        list_fits = list()
+        for i in range(quantity):
             list_fits.append(self.fit_resample())
 
         return list_fits
 
-    def magnitudes_resamples(self, quantidade):
-        dic_magns = {0.001:[], 0.01:[], 0.1:[], 0.5:[], 0.9:[], 0.99:[], 0.999:[]}
-        for i in range(quantidade):
+    def magnitudes_resamples(self, quantity):
+        dic_magns = {0.001: list(), 0.01: list(), 0.1: list(),
+                     0.5: list(), 0.9: list(), 0.99: list(), 0.999: list()
+                     }
+        for i in range(quantity):
             fit = self.fit_resample()
             for j in dic_magns:
                 mag = genpareto.ppf(j, fit[0], fit[1], fit[2])

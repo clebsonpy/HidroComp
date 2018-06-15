@@ -15,6 +15,8 @@ class Maximum(object):
         self.obj = obj
         self.data = self.obj.data
         self.station = station
+        self.peaks = None
+        self.fit = None
 
     def annual(self):
         data_by_year_hydrologic = self.data.groupby(pd.Grouper(
@@ -22,15 +24,15 @@ class Maximum(object):
         max_vazao = data_by_year_hydrologic[self.station].max().values
         idx_vazao = data_by_year_hydrologic[self.station].idxmax().values
 
-        self.peaks = pd.DataFrame(max_vazao, index=idx_vazao, columns=['Vazao'])
+        self.peaks = pd.DataFrame(max_vazao, index=idx_vazao, columns=['Flow'])
         return self.peaks
 
     def mml(self):
         try:
             peaks = self.peaks.copy()
-            mom = distr.gev.lmom_fit(peaks['Vazao'].values)
-            self.para = [mom['c'], mom['loc'], mom['scale']]
-            return self.para
+            mom = distr.gev.lmom_fit(peaks['Flow'].values)
+            self.fit = [mom['c'], mom['loc'], mom['scale']]
+            return self.fit
         except AttributeError:
             self.annual()
             return self.mml()
@@ -38,8 +40,8 @@ class Maximum(object):
     def mvs(self):
         try:
             peaks = self.peaks.copy()
-            self.para = stat.genextreme.fit(peaks['Vazao'].values)
-            return self.para
+            self.fit = stat.genextreme.fit(peaks['Flow'].values)
+            return self.fit
         except AttributeError:
             self.annual()
             return self.mvs()
@@ -48,8 +50,8 @@ class Maximum(object):
 
         try:
             prob = 1-(1 / period_return)
-            mag = stat.genpareto.ppf(prob, self.para[0], self.para[1],
-                                     self.para[2])
+            mag = stat.genpareto.ppf(prob, self.fit[0], self.fit[1],
+                                     self.fit[2])
             return mag
 
         except AttributeError:
@@ -68,10 +70,11 @@ class Maximum(object):
             self.mml()
         else:
             raise ValueError
-        genextreme = GenExtreme(title, self.para[0], self.para[1], self.para[2])
+        genextreme = GenExtreme(title, self.fit[0], self.fit[1], self.fit[2])
         data, fig = genextreme.plot(type_function)
         if save:
-            py.image.save_as(fig, filename='gráficos/GEV_%s_%s.png' % (type_function, estimador))
+            py.image.save_as(fig, filename='gráficos/GEV_%s_%s.png' % (type_function,
+                                                                       estimador))
 
         return data, fig
 
