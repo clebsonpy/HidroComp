@@ -57,7 +57,7 @@ class HydrogramParcial(HydrogramBiuld):
 
     def _plot_event_peaks(self):
         point_start = go.Scatter(
-            x=self.peaks.Inicio, y=self.data.loc[self.peaks.Inicio],
+            x=self.peaks.Start, y=self.data.loc[self.peaks.Start],
             name="Inicio do Evento",
             mode='markers',
             marker=dict(color='rgb(0, 0, 0)',
@@ -66,7 +66,7 @@ class HydrogramParcial(HydrogramBiuld):
             opacity=1)
 
         point_end = go.Scatter(
-            x=self.peaks.Fim, y=self.data.loc[self.peaks.Fim],
+            x=self.peaks.End, y=self.data.loc[self.peaks.End],
             name="Fim do Evento",
             mode='markers',
             marker=dict(color='rgb(0, 0, 0)',

@@ -1,7 +1,7 @@
 import os
 
 import pandas as pd
-
+import plotly as py
 from files.ons import Ons
 
 import timeit
@@ -17,9 +17,11 @@ if __name__ == '__main__':
     maximum = flow.maximum(station='XINGO')
     print(maximum.annual())
     parcial = flow.parcial(station="XINGO", type_criterion="median",
-                           type_threshold="stationary", type_event="flood",
-                           value_threshold=0.75, duration=5)
+                           type_threshold="stationary", type_event="drought",
+                           value_threshold=0.25, duration=5)
     print(parcial.event_peaks())
+    data, fig = parcial.plot_hydrogram('Estiagem')
+    py.offline.plot(fig, filename='gráficos/estiagem.html')
 
     fim = timeit.default_timer()
     print('Duração: ', fim-ini)
