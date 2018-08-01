@@ -28,7 +28,7 @@ class Parcial(object):
                     Para type_threshold = 'events_by_year': quantidade média de
                                                             picos por ano
                 type_criterion: Critério de Independência ('media', 'mediana')
-                type_event: Tipo do evento em estudo ('cheia' ou 'estiagem')
+                type_event: Tipo do evento em estudo ('flood' ou 'drought')
         """
         self.obj = obj
         self.data = self.obj.data
@@ -100,6 +100,14 @@ class Parcial(object):
                 and self.__test_threshold_events_by_year(self.peaks, self.value)):
             return self.event_peaks()
         return self.peaks
+
+    def __peaks_type_event(self, lista):
+        if self.type_event == "flood":
+            return max(lista)
+        elif self.type_event == "drought":
+            return min(lista)
+        else:
+            return "Type Event Erro!"
 
     def __events_over_threshold(self, threshold=None):
         if threshold is None:
@@ -281,7 +289,9 @@ class Parcial(object):
             return data, max_events, data_min
 
     def __test_duration(self, data, max_events):
-        data_max = data['Date'][data['Flow'].index(max(data['Flow']))]
+        data_max = data['Date'][data['Flow'].index(
+            self.__peaks_type_event(data['Flow']))]
+
         distancia_dias = data_max - max_events['Date'][-1]
         if distancia_dias.days < self.duration:
             return True
@@ -290,27 +300,46 @@ class Parcial(object):
     def __test_xmin_bigger_q(self, data, max_events, data_min):
         q1 = max_events['Flow'][-1]
         data_q1 = max_events['Date'][-1]
-        q2 = max(data['Flow'])
+        q2 = self.__peaks_type_event(data['Flow'])
         data_q2 = data['Date'][data['Flow'].index(q2)]
         df_data = pd.DataFrame(data_min['Flow'], index=data_min['Date'])
         df_data = df_data.loc[data_q1:data_q2]
-        menor = min(q1, q2)
-        xmin = df_data.min().values
-        if xmin > (3/4)*menor:
-            return True
-        return False
+        if self.type_event == "flood":
+            menor = min(q1, q2)
+            xmin = df_data.min().values
+
+            if xmin > (3 / 4) * menor:
+                return True
+            return False
+        elif self.type_event == "drought":
+            maior = max(q1, q2)
+            xmax = df_data.max().values
+
+            if xmax < (3 / 4) * maior:
+                return True
+            return False
+        else:
+            return "Type Event Erro!"
 
     def __test_xmin_bigger_dois_terco_x(self, data, max_events, data_min):
         q1 = max_events['Flow'][-1]
         data_q1 = max_events['Date'][-1]
-        q2 = max(data['Flow'])
+        q2 = self.__peaks_type_event(data['Flow'])
         data_q2 = data['Date'][data['Flow'].index(q2)]
         df_data = pd.DataFrame(data_min['Flow'], index=data_min['Date'])
         df_data = df_data.loc[data_q1:data_q2]
-        xmin = df_data.min().values
-        if xmin > (2/3)*q1:
-            return True
-        return False
+        if self.type_event == "flood":
+            xmin = df_data.min().values
+            if xmin > (2 / 3) * q1:
+                return True
+            return False
+        elif self.type_event == "drought":
+            xmax = df_data.max().values
+            if xmax < (2 / 3) * q1:
+                return True
+            return False
+        else:
+            return "Type Event Erro!"
 
     def __test_autocorrelation(self, events_peaks):
         x = events_peaks.index
@@ -330,13 +359,13 @@ class Parcial(object):
 
     def __troca_peaks(self, data, max_events):
 
-        if max_events['Flow'][-1] < max(data['Flow']):
-            max_events['Flow'][-1] = max(data['Flow'])
+        if max_events['Flow'][-1] < self.__peaks_type_event(data['Flow']):
+            max_events['Flow'][-1] = self.__peaks_type_event(data['Flow'])
             max_events['End'][-1] = data['Date'][-1]
             duration = max_events['End'][-1] - max_events['Start'][-1]
             max_events['Duration'][-1] = duration.days
             max_events['Date'][-1] = data['Date'][
-                data['Flow'].index(max(data['Flow']))
+                data['Flow'].index(self.__peaks_type_event(data['Flow']))
             ]
             data = {'Date': list(), 'Flow': list()}
         else:
@@ -348,13 +377,14 @@ class Parcial(object):
         return data, max_events
 
     def __add_peaks(self, data, max_events):
-        max_events['Flow'].append(max(data['Flow']))
+        max_events['Flow'].append(self.__peaks_type_event(data['Flow']))
         max_events['Start'].append(data['Date'][0])
         max_events['End'].append(data['Date'][-1])
         duration = max_events['End'][-1] - max_events['Start'][-1]
         max_events['Duration'].append(duration.days)
         max_events['Date'].append(data['Date'][
-                                      data['Flow'].index(max(data['Flow']))])
+                data['Flow'].index(self.__peaks_type_event(data['Flow']))])
+
         data = {'Date': list(), 'Flow': list()}
         return data, max_events
 

@@ -27,10 +27,10 @@ class HydrogramParcial(HydrogramBiuld):
                 showlegend=True,
                 width=1890, height=827,
                 xaxis=bandxaxis, yaxis=bandyaxis,
-                font=dict(family='Time New Roman', size=34, color='rgb(0,0,0)'))
+                font=dict(family='Time New Roman', size=28, color='rgb(0,0,0)'))
 
             data = list()
-            data.append(self._plot_one(self.data))
+            data += self._plot_one(self.data)
             data.append(self._plot_threshold())
             data.append(self._plot_threshold_criterion(type_criterion))
             data += self._plot_event_peaks()
@@ -45,10 +45,10 @@ class HydrogramParcial(HydrogramBiuld):
                 showlegend=True,
                 width=1890, height=827,
                 xaxis=bandxaxis, yaxis=bandyaxis,
-                font=dict(family='Time New Roman', size=34, color='rgb(0,0,0)'))
+                font=dict(family='Time New Roman', size=28, color='rgb(0,0,0)'))
 
             data = list()
-            data.append(self._plot_one(self.data))
+            data += self._plot_one(self.data)
             data.append(self._plot_threshold())
             data += self._plot_event_peaks()
 
@@ -75,7 +75,8 @@ class HydrogramParcial(HydrogramBiuld):
             opacity=1)
 
         point_vazao = go.Scatter(
-            x=self.peaks.index, y=self.data.loc[self.peaks.index],
+            x=self.peaks.index,
+            y=self.data.loc[self.peaks.index],
             name="Pico",
             mode='markers',
             marker=dict(size=8,
@@ -88,7 +89,8 @@ class HydrogramParcial(HydrogramBiuld):
 
     def _plot_threshold(self):
         trace_threshold = go.Scatter(
-            x=self.data.index, y=[self.threshold]*len(self.data),
+            x=self.data.index,
+            y=[self.threshold]*len(self.data),
             name="Limiar",
             line=dict(color='rgb(128, 128, 128)',
                       width=1.5,
@@ -99,7 +101,8 @@ class HydrogramParcial(HydrogramBiuld):
 
     def _plot_threshold_criterion(self, type_criterion):
         trace_threshold_criterion = go.Scatter(
-            x=self.data.index, y=[self.threshold_criterion]*len(self.data),
+            x=self.data.index,
+            y=[self.threshold_criterion]*len(self.data),
             name=type_criterion.title(),
             line=dict(color='rgb(128, 128, 128)',
                       width=1.5,

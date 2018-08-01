@@ -15,7 +15,6 @@ if __name__ == '__main__':
                         parse_dates=True)
     flow = Flow(data=dados, source='ONS')
     maximum = flow.maximum(station='XINGO')
-    print(maximum.annual())
     parcial = flow.parcial(station="XINGO", type_criterion="median",
                            type_threshold="stationary", type_event="drought",
                            value_threshold=0.25, duration=5)
