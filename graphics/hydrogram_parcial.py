@@ -103,7 +103,8 @@ class HydrogramParcial(HydrogramBiuld):
         trace_threshold_criterion = go.Scatter(
             x=self.data.index,
             y=[self.threshold_criterion]*len(self.data),
-            name=type_criterion.title(),
+            #name=type_criterion.title(),
+            name = "Mediana",
             line=dict(color='rgb(128, 128, 128)',
                       width=1.5,
                       dash='dash')
