@@ -140,7 +140,7 @@ class Parcial(object):
 
     def __test_threshold_events_by_year(self, peaks=None, value=None):
         n_year = self.obj.date_end.year - self.obj.date_start.year
-
+        
         if len(peaks)+1 < int(value * n_year):
             self.__percentil -= 0.005
             self.__threshold(self.__percentil)
