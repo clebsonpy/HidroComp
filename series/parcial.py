@@ -16,7 +16,7 @@ class Parcial(object):
                 'autocorrelation': 'Autocorrelação'}
 
     def __init__(self, obj, station, type_threshold, value_threshold,
-                 type_criterion, type_event, **kwargs):
+                 type_event, type_criterion, **kwargs):
         """
             Parâmetros:
                 obj: Objeto Série;
@@ -93,7 +93,7 @@ class Parcial(object):
         )
 
         if (self.type_criterion == 'autocorrelation'
-                and self.__test_autocorrelation(self.peaks)[0]):
+                and self.test_autocorrelation()[0]):
             self.duration += 1
             return self.event_peaks()
         if (self.type_threshold == 'events_by_year'
@@ -140,7 +140,7 @@ class Parcial(object):
 
     def __test_threshold_events_by_year(self, peaks=None, value=None):
         n_year = self.obj.date_end.year - self.obj.date_start.year
-        
+
         if len(peaks)+1 < int(value * n_year):
             self.__percentil -= 0.005
             self.__threshold(self.__percentil)
@@ -193,6 +193,13 @@ class Parcial(object):
                 data_min=kwargs['data_min'],
                 events_criterion=kwargs['events_criterion']
             )
+
+        elif self.type_criterion == 'duration':
+            data, max_events = self.__criterion_duration(
+                data=kwargs['data'], max_events=kwargs['max_events'],
+                events_criterion=kwargs['events_criterion']
+            )
+            return data, max_events, kwargs['data_min']
 
     def __criterion_mean(self, data, max_events, events_criterion):
         if len(data['Flow']) > 0 and (not events_criterion):
@@ -341,21 +348,22 @@ class Parcial(object):
         else:
             return "Type Event Erro!"
 
-    def __test_autocorrelation(self, events_peaks):
-        x = events_peaks.index
-        y = events_peaks.Vazao
-        n = len(y)
-        serie = pd.Series(y, index=x)
-        r1 = serie.autocorr(lag=1)
-        r2 = serie.autocorr(lag=2)
-        r11_n = (-1 + 1.645 * math.sqrt(n - 1 - 1)) / (n - 1)
-        r12_n = (-1 - 1.645 * math.sqrt(n - 1 - 1)) / (n - 1)
-        r21_n = (-1 + 1.645 * math.sqrt(n - 2 - 1)) / (n - 2)
-        r22_n = (-1 - 1.645 * math.sqrt(n - 2 - 1)) / (n - 2)
-
-        if r11_n > r1 > r12_n and r21_n > r2 > r22_n:
-            return False, r1, r2
-        return True, r1, r2
+    def test_autocorrelation(self):
+        try:
+            n = len(self.peaks.Flow)
+            serie = pd.Series(self.peaks.Flow, index=self.peaks.index)
+            lag1 = serie.autocorr(lag=1)
+            lag2 = serie.autocorr(lag=2)
+            r11_n = (-1 + 1.645 * math.sqrt(n - 1 - 1)) / (n - 1)
+            r12_n = (-1 - 1.645 * math.sqrt(n - 1 - 1)) / (n - 1)
+            r21_n = (-1 + 1.645 * math.sqrt(n - 2 - 1)) / (n - 2)
+            r22_n = (-1 - 1.645 * math.sqrt(n - 2 - 1)) / (n - 2)
+            if r11_n > lag1 > r12_n and r21_n > lag2 > r22_n:
+                return False, lag1, lag2
+            return True, lag1, lag2
+        except ValueError:
+            self.event_peaks()
+            self.test_autocorrelation()
 
     def __troca_peaks(self, data, max_events):
 
