@@ -16,7 +16,7 @@ if __name__ == '__main__':
     flow.date(date_start="01/01/1995", date_end="31/12/2012")
     value_threshold = flow.data.mean()['XINGO'] - flow.data.std()['XINGO']
     print(flow.data.mean()['XINGO'], flow.data.std()['XINGO'])
-#    maximum = flow.maximum(station='XINGO')
+    #maximum = flow.maximum(station='XINGO')
     parcial = flow.parcial(station="XINGO", type_criterion='median',
                            type_threshold="stationary", type_event="drought",
                            value_threshold=0.25, duration=0)
