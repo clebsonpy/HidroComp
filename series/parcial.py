@@ -359,8 +359,8 @@ class Parcial(object):
             r21_n = (-1 + 1.645 * math.sqrt(n - 2 - 1)) / (n - 2)
             r22_n = (-1 - 1.645 * math.sqrt(n - 2 - 1)) / (n - 2)
             if r11_n > lag1 > r12_n and r21_n > lag2 > r22_n:
-                return False, lag1, lag2
-            return True, lag1, lag2
+                return False, (r11_n, lag1, r12_n), (r21_n, lag2, r22_n)
+            return True,  (r11_n, lag1, r12_n), (r21_n, lag2, r22_n)
         except ValueError:
             self.event_peaks()
             self.test_autocorrelation()
