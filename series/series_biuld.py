@@ -43,7 +43,7 @@ class SeriesBiuld(object, metaclass=ABCMeta):
     def __getitem__(self, val):
         """
         """
-        return self.__class__(data=self.data[val].copy(), source=self.source)
+        return self.__class__(data=self.data[val].copy())
 
     def date(self, date_start=None, date_end=None):
         """
@@ -59,7 +59,7 @@ class SeriesBiuld(object, metaclass=ABCMeta):
             date_end = pd.to_datetime(date_end, dayfirst=True)
             return self.__class__(data = self.data.loc[:date_end].copy())
 
-    def flawless_period(self, station):
+    def flowless_period(self, station):
         """
         """
         aux = list()
@@ -94,5 +94,14 @@ class SeriesBiuld(object, metaclass=ABCMeta):
         """
         Selecina todos os dados referente ao mês
         """
-        return self.__class__(data=self.data.groupby(lambda x: x.month).get_group(month),
-        source=self.source)
+        return self.__class__(data=self.data.groupby(lambda x: x.month).get_group(month))
+
+    def mean(self):
+        """
+        """
+        return self.data.mean()
+    
+    def std(self):
+        """
+        """
+        return self.data.std()
