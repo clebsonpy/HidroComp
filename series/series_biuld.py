@@ -19,7 +19,8 @@ class SeriesBiuld(object, metaclass=ABCMeta):
             self.data = data
         else:
             if source in self.sources:
-                self.data = self.sources[source](self.path, *args, **kwargs).data
+                self.source = source
+                self.data = self.sources[self.source](self.path, *args, **kwargs).data
             else:
                 raise KeyError('Source not supported!')
 
@@ -33,20 +34,34 @@ class SeriesBiuld(object, metaclass=ABCMeta):
     @abstractmethod
     def plot_hydrogram(self):
         pass
+    
+    def __str__(self):
+        """
+        """
+        return self.data.__repr__()
+    
+    def __getitem__(self, val):
+        """
+        """
+        return self.__class__(data=self.data[val].copy(), source=self.source)
 
     def date(self, date_start=None, date_end=None):
+        """
+        """
         if date_start is not None and date_end is not None:
-            self.date_start = pd.to_datetime(date_start, dayfirst=True)
-            self.date_end = pd.to_datetime(date_end, dayfirst=True)
-            self.data = self.data.loc[self.date_start:self.date_end]
+            date_start = pd.to_datetime(date_start, dayfirst=True)
+            date_end = pd.to_datetime(date_end, dayfirst=True)
+            return self.__class__(data = self.data.loc[date_start:date_end].copy())
         elif date_start is not None:
-            self.date_start = pd.to_datetime(date_start, dayfirst=True)
-            self.data = self.data.loc[self.date_start:]
+            date_start = pd.to_datetime(date_start, dayfirst=True)
+            return self.__class__(data = self.data.loc[date_start:].copy())
         elif date_end is not None:
-            self.date_end = pd.to_datetime(date_end, dayfirst=True)
-            self.data = self.data.loc[:self.date_end]
+            date_end = pd.to_datetime(date_end, dayfirst=True)
+            return self.__class__(data = self.data.loc[:date_end].copy())
 
     def flawless_period(self, station):
+        """
+        """
         aux = list()
         list_start = list()
         list_end = list()
@@ -63,3 +78,21 @@ class SeriesBiuld(object, metaclass=ABCMeta):
             list_end.append(aux[-1])
         dic = {'Inicio': list_start, 'Fim': list_end}
         return pd.DataFrame(dic)
+
+    def summary(self):
+        """
+        """
+        return self.data.describe()
+
+    def get_year(self, year):
+        """
+        Seleciona todos os dados referente ao ano. 
+        """
+        return self.__getitem__(year)
+
+    def get_month(self, month):
+        """
+        Selecina todos os dados referente ao mês
+        """
+        return self.__class__(data=self.data.groupby(lambda x: x.month).get_group(month),
+        source=self.source)
