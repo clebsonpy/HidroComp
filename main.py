@@ -14,9 +14,10 @@ if __name__ == '__main__':
                         parse_dates=True)
     flow = Flow(data=dados, source='ONS')
     test = flow.date(date_start="01/01/1995", date_end="31/12/2012")
-    value_threshold = test.mean()['XINGO'] + test.std()['XINGO']
-    print(value_threshold)
-#    maximum = flow.maximum(station='XINGO')
+#    value_threshold = test.mean()['XINGO'] + test.std()['XINGO']
+    print(test.mean())
+    maximum = test.maximum(station='XINGO')
+    print(maximum.mean())
 #    parcial = test.parcial(station="XINGO", type_criterion='duration',
 #                           type_threshold="events_by_year", type_event="flood",
 #                           value_threshold=1.65, duration=0)
