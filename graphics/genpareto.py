@@ -25,7 +25,7 @@ class GenPareto(DistributionBiuld):
                       width=945, height=827,
                       xaxis=bandxaxis,
                       yaxis=bandyaxis,
-                      font=dict(family='Time New Roman', size=34, color='rgb(0,0,0)')
+                      font=dict(family='Time New Roman', size=28, color='rgb(0,0,0)')
                       )
 
         fig = dict(data=data, layout=layout)
@@ -46,7 +46,7 @@ class GenPareto(DistributionBiuld):
                       width=945, height=827,
                       xaxis=bandxaxis,
                       yaxis=bandyaxis,
-                      font=dict(family='Time New Roman', size=34, color='rgb(0,0,0)')
+                      font=dict(family='Time New Roman', size=28, color='rgb(0,0,0)')
                       )
 
         fig = dict(data=data, layout=layout)

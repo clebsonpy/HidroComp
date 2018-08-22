@@ -399,7 +399,7 @@ class Parcial(object):
     def mvs(self):
         try:
             self.fit = stat.genpareto.fit(self.peaks['Flow'].values)
-        except AttributeError:
+        except TypeError:
             self.event_peaks()
             self.fit = stat.genpareto.fit(self.peaks['Flow'].values)
 
