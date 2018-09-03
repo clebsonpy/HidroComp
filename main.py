@@ -2,6 +2,7 @@ import os
 
 import pandas as pd
 import plotly as py
+import plotly.graph_objs as go
 import timeit
 
 from files.ons import Ons
@@ -14,20 +15,17 @@ if __name__ == '__main__':
                         parse_dates=True)
     flow = Flow(data=dados, source='ONS')
     test = flow.date(date_start="01/01/1995", date_end="31/12/2012")
+
 #    value_threshold = test.mean()['XINGO'] + test.std()['XINGO']
 #    print(test.mean())
 #    maximum = test.maximum(station='XINGO')
 #   print(maximum.mean())
-    parcial = test.parcial(station="XINGO", type_criterion='median',
-                           type_threshold="stationary", type_event="flood",
-                           value_threshold=0.75, duration=0)
-    print(parcial.event_peaks())
-    print(parcial.mvs())
-    print(parcial.magnitude(return_period=5))
-    data, fig = parcial.plot_distribution(title="Test", type_function="cumulative")
+#    parcial = test.parcial(station="XINGO", type_criterion='median',
+#                           type_threshold="stationary", type_event="flood",
+#                           value_threshold=0.75, duration=0)
 #    print(parcial.test_autocorrelation())
 #    data, fig = parcial.plot_hydrogram('Cheia')
-    py.offline.plot(fig, filename='gráficos/Cheia.html')
+    py.offline.plot(fig3, filename='gráficos/Hidrograma.html')
 
     fim = timeit.default_timer()
     print('Duração: ', fim-ini)

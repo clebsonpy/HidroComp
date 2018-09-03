@@ -47,4 +47,4 @@ class Flow(SeriesBiuld):
             hydrogram = HydrogramClean(self.data)
         else:
             hydrogram = HydrogramClean(self.data[station])
-        hydrogram.plot()
+        return hydrogram.plot()

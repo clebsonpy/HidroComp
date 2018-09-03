@@ -22,7 +22,7 @@ class HydrogramClean(HydrogramBiuld):
                                     color='rgb(0,0,0)')
                           )
 
-            data = [self._plot_one(self.data)]
+            data = self._plot_one(self.data)
             fig = dict(data=data, layout=layout)
             return data, fig
 
@@ -41,5 +41,5 @@ class HydrogramClean(HydrogramBiuld):
     def _plot_multi(self):
         data = list()
         for i in self.data:
-            data.append(self._plot_one(self.data[i]))
+            data += self._plot_one(self.data[i])
         return data
