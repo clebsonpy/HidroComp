@@ -19,9 +19,9 @@ class Ana(FileRead):
     typesData = {'FLUVIOMÉTRICO': 'Vazao01',
                  'PLUVIOMÉTRICO': 'Chuva01'}
     source = "ANA"
-    extension = "TXT"
+    extension = "txt"
 
-    def __init__(self, path=os.getcwd(), type_data='FLUVIOMÉTRICO', consistence=2):
+    def __init__(self, path=os.getcwd(), type_data='FLUVIOMÉTRICO', consistence=1):
         super().__init__(path)
         self.consistence = consistence
         self.type_data = type_data.upper()
@@ -44,10 +44,11 @@ class Ana(FileRead):
         list_lines = []
         with open(os.path.join(self.path, self.name+'.'+Ana.extension),
                   encoding="Latin-1") as file:
+            l = 0
             for line in file.readlines():
-                if (line[:3] != "// " and line[:3] != "//-"
-                        and line != "\n" and line != "//\n"):
-                    list_lines.append(line.strip("//").split(";"))
+                if l >= 13:
+                    list_lines.append(line.split(";"))
+                l += 1
         return list_lines
 
     def __multIndex(self, date, days, consistence):

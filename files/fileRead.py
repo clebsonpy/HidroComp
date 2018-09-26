@@ -32,7 +32,7 @@ class FileRead(Files, metaclass=ABCMeta):
     @abstractmethod
     def read(self):
         self.name = self.list_files()
-        if type(self.name) == list:
+        if type(self.name) == list and len(self.name) > 1:
             p = mp.Pool(4)
             listaDfs = p.map(self.read, self.name)
             p.close()
