@@ -47,6 +47,8 @@ class Parcial(object):
         self.__threshold(self.value)
         self.name = '%s(%s) - %s' % (self.dic_name[self.type_threshold],
                                      self.value, self.type_criterion.title())
+        if self.peaks == None:
+            self.event_peaks()
 
     def event_peaks(self):
         max_events = {'Date': list(), 'Flow': list(), 'Start': list(), 'End': list(),

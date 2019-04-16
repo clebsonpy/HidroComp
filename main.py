@@ -11,24 +11,25 @@ from series.flow import Flow
 
 if __name__ == '__main__':
     ini = timeit.default_timer()
-    file = "/home/clebsonpy/Documentos/Projetos"
-    dados = Flow(path=file, source='ANA')
-    dados = dados.date(date_start="01/01/2010")
-    data, fig = dados.plot_hydrogram()
-    #dados = pd.read_csv(file, index_col=0, names=["Date", "XINGO"],
-    #                    parse_dates=True)
-    #flow = Flow(data=dados, source='ONS')
-    #test = flow.date(date_start="01/01/1995", date_end="31/12/2012")
+    file = "dadosXingo.csv"
+    #dados = Flow(path=file, source='ANA')
+    #dados = dados.date(date_start="01/01/2010")
+    #data, fig = dados.plot_hydrogram()
+    dados = pd.read_csv(file, index_col=0, names=["Date", "XINGO"],
+                        parse_dates=True)
+    flow = Flow(data=dados, source='ONS')
+    test = flow.date(date_start="01/01/1995", date_end="31/12/2012")
 
-#    value_threshold = test.mean()['XINGO'] + test.std()['XINGO']
-#    print(test.mean())
-#    maximum = test.maximum(station='XINGO')
-#   print(maximum.mean())
-#    parcial = test.parcial(station="XINGO", type_criterion='median',
-#                           type_threshold="stationary", type_event="flood",
-#                           value_threshold=0.75, duration=0)
-#    print(parcial.test_autocorrelation())
-#    data, fig = parcial.plot_hydrogram('Cheia')
+    value_threshold = test.mean()['XINGO'] + test.std()['XINGO']
+    print(test.mean())
+    maximum = test.maximum(station='XINGO')
+    #print(maximum.annual())
+    parcial = test.parcial(station="XINGO", type_criterion='median',
+                           type_threshold="stationary", type_event="flood",
+                           value_threshold=0.75, duration=0)
+    print(parcial.peaks)
+    print(parcial.test_autocorrelation())
+    data, fig = parcial.plot_hydrogram('Cheia')
     py.offline.plot(fig, filename='gráficos/Hidrograma.html')
 
     fim = timeit.default_timer()
