@@ -13,7 +13,7 @@ from series.chuva import Chuva
 if __name__ == '__main__':
     ini = timeit.default_timer()
     #file = "dadosXingo.csv"
-    file = "/home/clebsonpy/Documentos/Projetos/HydroComp/Medicoes/"
+    file = "/home/clebsonpy/Documents/Projetos/HydroComp/Medicoes/"
     dados = Chuva(path=file, source='ANA')
     print(dados)
     #dados = dados.date(date_start="01/01/2010")

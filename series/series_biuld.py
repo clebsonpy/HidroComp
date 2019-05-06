@@ -20,7 +20,7 @@ class SeriesBiuld(object, metaclass=ABCMeta):
         else:
             if source in self.sources:
                 self.source = source
-                self.data = self.__class__(data = self.sources[self.source](self.path, *args, **kwargs).data)
+                self.data = self.sources[self.source](self.path, *args, **kwargs).data
             else:
                 raise KeyError('Source not supported!')
         self.date_start = self.data.index[0]

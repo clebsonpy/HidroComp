@@ -16,8 +16,8 @@ class Ana(FileRead):
     """
     class files read: Agência Nacinal de Águas - ANA
     """
-    typesData = {'FLUVIOMÉTRICO': 'Vazao01',
-                 'PLUVIOMÉTRICO': 'Chuva01'}
+    typesData = {'FLUVIOMÉTRICO': ['Vazao01', 'vazoes'],
+                 'PLUVIOMÉTRICO': ['Chuva01', 'chuvas']}
     source = "ANA"
     extension = "txt"
 
@@ -72,7 +72,7 @@ class Ana(FileRead):
             count += 1
             if count == 1:
                 idx_code = line.index("EstacaoCodigo")
-                start_flow = line.index(Ana.typesData[self.type_data])
+                start_flow = line.index(Ana.typesData[self.type_data][0])
                 idx_date = line.index("Data")
                 idx_cons = line.index("NivelConsistencia")
             elif count >= 2:
