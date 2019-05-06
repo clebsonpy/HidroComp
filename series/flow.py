@@ -5,6 +5,7 @@ from series.series_biuld import SeriesBiuld
 from series.parcial import Parcial
 from series.maximum import Maximum
 from graphics.hydrogram_clean import HydrogramClean
+from graphics.gantt import Gantt
 
 
 class Flow(SeriesBiuld):
@@ -48,3 +49,9 @@ class Flow(SeriesBiuld):
         else:
             hydrogram = HydrogramClean(self.data[station])
         return hydrogram.plot()
+
+    def gantt(self, station=None):
+        if station is None:
+            gantt = Gantt(self.data)
+        else:
+            gantt = Gantt(self.data[station])
