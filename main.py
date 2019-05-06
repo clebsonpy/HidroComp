@@ -14,7 +14,9 @@ if __name__ == '__main__':
     ini = timeit.default_timer()
     #file = "dadosXingo.csv"
     file = "/home/clebsonpy/Documents/Projetos/HydroComp/Medicoes/"
-    dados = Chuva(path=file, source='ANA')
+    dados_chuva = Chuva(path=file, source='ANA', consistence=1)
+    dados_vazao = Flow(path=file, source='ANA', consistence=2)
+    dados = dados_chuva.data.combine_first(dados_vazao.data)
     print(dados)
     #dados = dados.date(date_start="01/01/2010")
     #data, fig = dados.plot_hydrogram()

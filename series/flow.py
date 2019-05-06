@@ -12,10 +12,10 @@ class Flow(SeriesBiuld):
 
     type_data = 'FLUVIOMÉTRICO'
 
-    def __init__(self, data=None, path=os.getcwd(), source=None):
+    def __init__(self, data=None, path=os.getcwd(), source=None, *args, **kwargs):
         self.month_num = 1
         self.month_abr = 'jan'
-        super().__init__(data, path, source, type_data=self.type_data)
+        super().__init__(data, path, source, type_data=self.type_data, *args, **kwargs)
 
     def month_start_year_hydrologic(self, station):
         mean_month = [self.data[station].loc[self.data.index.month == i].mean()
