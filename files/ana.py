@@ -46,9 +46,12 @@ class Ana(FileRead):
                   encoding="Latin-1") as file:
             l = 0
             for line in file.readlines():
-                if l >= 13:
+                if line.split(";")[0] == "EstacaoCodigo":
+                    l = 1
                     list_lines.append(line.split(";"))
-                l += 1
+                elif l == 1:
+                    list_lines.append(line.split(";"))
+
         return list_lines
 
     def __multIndex(self, date, days, consistence):

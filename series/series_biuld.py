@@ -23,7 +23,6 @@ class SeriesBiuld(object, metaclass=ABCMeta):
                 self.data = self.sources[self.source](self.path, *args, **kwargs).data
             else:
                 raise KeyError('Source not supported!')
-
         self.date_start = self.data.index[0]
         self.date_end = self.data.index[-1]
 
@@ -34,12 +33,12 @@ class SeriesBiuld(object, metaclass=ABCMeta):
     @abstractmethod
     def plot_hydrogram(self):
         pass
-    
+
     def __str__(self):
         """
         """
         return self.data.__repr__()
-    
+
     def __getitem__(self, val):
         """
         """
@@ -86,7 +85,7 @@ class SeriesBiuld(object, metaclass=ABCMeta):
 
     def get_year(self, year):
         """
-        Seleciona todos os dados referente ao ano. 
+        Seleciona todos os dados referente ao ano.
         """
         return self.__getitem__(year)
 
@@ -100,7 +99,7 @@ class SeriesBiuld(object, metaclass=ABCMeta):
         """
         """
         return self.data.mean()
-    
+
     def std(self):
         """
         """
