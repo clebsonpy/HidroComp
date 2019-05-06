@@ -49,9 +49,3 @@ class Flow(SeriesBiuld):
         else:
             hydrogram = HydrogramClean(self.data[station])
         return hydrogram.plot()
-
-    def gantt(self, station=None):
-        if station is None:
-            gantt = Gantt(self.data)
-        else:
-            gantt = Gantt(self.data[station])

@@ -4,6 +4,7 @@ import pandas as pd
 from abc import abstractmethod, ABCMeta
 
 from files import *
+from graphics.gantt import Gantt
 
 
 class SeriesBiuld(object, metaclass=ABCMeta):
@@ -58,17 +59,17 @@ class SeriesBiuld(object, metaclass=ABCMeta):
             date_end = pd.to_datetime(date_end, dayfirst=True)
             return self.__class__(data = self.data.loc[:date_end].copy())
 
-    def less_period(self, station):
+    def less_period(self):
         """
         """
         aux = list()
         list_start = list()
         list_end = list()
-        gantt_bool = self.data.isnull()[station]
+        gantt_bool = self.data.isnull()
         for i in gantt_bool.index:
-            if ~gantt_bool.loc[i]:
+            if ~gantt_bool.loc[i][0]:
                 aux.append(i)
-            elif len(aux) > 2 and gantt_bool.loc[i]:
+            elif len(aux) > 2 and gantt_bool.loc[i][0]:
                 list_start.append(aux[0])
                 list_end.append(aux[-1])
                 aux = []
@@ -104,3 +105,7 @@ class SeriesBiuld(object, metaclass=ABCMeta):
         """
         """
         return self.data.std()
+
+    def gantt(self):
+        gantt = Gantt(self.data).plot(self.less_period())
+        return gantt
