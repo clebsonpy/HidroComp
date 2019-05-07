@@ -21,8 +21,11 @@ class Files(metaclass=ABCMeta):
             if os.path.isfile(os.path.join(self.path, file)):
                 if file.lower().endswith(self.extension.lower()):
                     name, ext = os.path.splitext(file)
-                    if name.split("_T_")[0] == self.typesData[self.type_data][1]:
+                    if self.source == "ONS":
                         list_file.append(name)
+                    elif self.source == "ANA":
+                        if name.split("_T_")[0] == self.typesData[self.type_data][1]:
+                            list_file.append(name)
         if len(list_file) == 1:
             list_file = list_file[0]
         return list_file

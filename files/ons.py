@@ -15,9 +15,14 @@ class Ons(FileRead):
     source = "ONS"
     extension = "xls"
 
-    def __init__(self, path=os.getcwd(), type_data='FLUVIOMÉTRICO'):
-        super().__init__(path, type_data)
-        self.data = self.read(self.name)
+    def __init__(self, path=os.getcwd(), type_data='FLUVIOMÉTRICO', station=None):
+        super().__init__(path)
+        self.type_data = type_data
+        self.station = station
+        if self.station is None:
+            self.data = self.read(self.name)
+        else:
+            self.data = pd.DataFrame(self.read(self.name)[self.station])
 
     def list_files(self):
         return super().list_files()

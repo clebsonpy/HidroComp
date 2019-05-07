@@ -16,11 +16,14 @@ if __name__ == '__main__':
     #file = "dadosXingo.csv"
     file = "/home/clebsonpy/Documents/Projetos/HydroComp/Medicoes/"
     dados_chuva = Chuva(path=file, source='ANA', consistence=1)
-    dados_vazao = Flow(path=file, source='ANA', consistence=2)
+    dados_vazao_obs = Flow(path=file, source='ANA', consistence=2)
+    dados_vazao_nat = Flow(path=file, source="ONS", station = "MANSO")
     #fig = dados_vazao.gantt()
     dados_chuva = dados_chuva.date(date_start="12/07/1981", date_end="31/12/1989")
-    dados_vazao = dados_vazao.date(date_start="12/07/1981", date_end="31/12/1989")
-    dados = dados_chuva.data.combine_first(dados_vazao.data)
+    dados_vazao_obs = dados_vazao_obs.date(date_start="12/07/1981", date_end="31/12/1989")
+    dados_vazao_nat = dados_vazao_nat.date(date_start="12/07/1981", date_end="31/12/1989")
+    dados = dados_chuva.data.combine_first(dados_vazao_nat.data)
+    dados = dados.combine_first(dados_vazao_obs.data)
     dados.to_csv("manso.csv")
     #print(dados_vazao)
     #data, fig = dados.plot_hydrogram()
