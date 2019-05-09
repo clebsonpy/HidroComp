@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import plotly.figure_factory as FF
 
 from abc import abstractmethod, ABCMeta
 
@@ -59,17 +60,17 @@ class SeriesBiuld(object, metaclass=ABCMeta):
             date_end = pd.to_datetime(date_end, dayfirst=True)
             return self.__class__(data = self.data.loc[:date_end].copy())
 
-    def less_period(self):
+    def less_period(self, data):
         """
         """
         aux = list()
         list_start = list()
         list_end = list()
-        gantt_bool = self.data.isnull()
+        gantt_bool = data.isnull()
         for i in gantt_bool.index:
-            if ~gantt_bool.loc[i][0]:
+            if ~gantt_bool.loc[i]:
                 aux.append(i)
-            elif len(aux) > 2 and gantt_bool.loc[i][0]:
+            elif len(aux) > 2 and gantt_bool.loc[i]:
                 list_start.append(aux[0])
                 list_end.append(aux[-1])
                 aux = []
@@ -107,5 +108,9 @@ class SeriesBiuld(object, metaclass=ABCMeta):
         return self.data.std()
 
     def gantt(self):
-        gantt = Gantt(self.data).plot(self.less_period())
-        return gantt
+        cont = 0
+        df = pd.DataFrame(columns=['Task', 'Start', 'Finish', 'Description', 'IndexCol'])
+        for i in self.data:
+            df, cont = Gantt(self.data[i]).get_gantt(df, self.less_period(self.data[i]), cont)
+        fig = FF.create_gantt(df, colors = '#000000', group_tasks=True, title= "Eventos de Cheias")
+        return fig
