@@ -18,11 +18,11 @@ class SeriesBiuld(object, metaclass=ABCMeta):
     def __init__(self, data=None, path=os.getcwd(), source=None, *args, **kwargs):
         self.path = path
         if data is not None:
-            self.data = data
+            self.data = data.dropna(axis=0, how='all')
         else:
             if source in self.sources:
                 self.source = source
-                self.data = self.sources[self.source](self.path, *args, **kwargs).data
+                self.data = self.sources[self.source](self.path, *args, **kwargs).data.dropna(axis=0, how='all')
             else:
                 raise KeyError('Source not supported!')
         self.date_start = self.data.index[0]
