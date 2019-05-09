@@ -18,9 +18,7 @@ class HydrogramClean(HydrogramBiuld):
             layout = dict(title=name,
                           width=1890, height=827,
                           xaxis=bandxaxis, yaxis=bandyaxis,
-                          font=dict(family='Time New Roman', size=24,
-                                    color='rgb(0,0,0)')
-                          )
+                          font=dict(family='Time New Roman', size=24))
 
             data = self._plot_one(self.data)
             fig = dict(data=data, layout=layout)
@@ -31,9 +29,8 @@ class HydrogramClean(HydrogramBiuld):
             layout = dict(title=name,
                           width=1890, height=827,
                           xaxis=bandxaxis, yaxis=bandyaxis,
-                          font=dict(family='Time New Roman', size=24,
-                                    color='rgb(0,0,0)')
-                          )
+                          font=dict(family='Time New Roman', size=24))
+
             data = self._plot_multi()
             fig = dict(data=data, layout=layout)
             return data, fig

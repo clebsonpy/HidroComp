@@ -15,14 +15,20 @@ class SeriesBiuld(object, metaclass=ABCMeta):
         "ANA": ana.Ana
     }
 
-    def __init__(self, data=None, path=os.getcwd(), source=None, *args, **kwargs):
+    def __init__(self, data=None, path=os.getcwd(), source=None, delete_null=False, *args, **kwargs):
         self.path = path
         if data is not None:
-            self.data = data.dropna(axis=0, how='all')
+            if delete_null is True:
+                self.data = data.dropna(axis=0, how='all')
+            else:
+                self.data = data
         else:
             if source in self.sources:
                 self.source = source
-                self.data = self.sources[self.source](self.path, *args, **kwargs).data.dropna(axis=0, how='all')
+                if delete_null is True:
+                    self.data = self.sources[self.source](self.path, *args, **kwargs).data.dropna(axis=0, how='all')
+                else:
+                    self.data = self.sources[self.source](self.path, *args, **kwargs).data
             else:
                 raise KeyError('Source not supported!')
         self.date_start = self.data.index[0]
@@ -44,7 +50,7 @@ class SeriesBiuld(object, metaclass=ABCMeta):
     def __getitem__(self, val):
         """
         """
-        return self.__class__(data=self.data[val].copy())
+        return self.data[val].copy()
 
     def date(self, date_start=None, date_end=None):
         """
@@ -106,6 +112,9 @@ class SeriesBiuld(object, metaclass=ABCMeta):
         """
         """
         return self.data.std()
+
+    def diferenca(self, data_other):
+        pass
 
     def gantt(self):
         cont = 0

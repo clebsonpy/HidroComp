@@ -14,7 +14,7 @@ class HydrogramBiuld(object, metaclass=ABCMeta):
         data = [go.Scatter(x=data.index,
                            y=data.values,
                            name=data.name,
-                           line=dict(color='rgb(0,0,0)', width=1),
-                           opacity=1)]
+                           line=dict(width=1),
+                           opacity=1, connectgaps=False)]
 
         return data
