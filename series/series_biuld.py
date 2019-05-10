@@ -120,6 +120,8 @@ class SeriesBiuld(object, metaclass=ABCMeta):
         cont = 0
         df = pd.DataFrame(columns=['Task', 'Start', 'Finish', 'Description', 'IndexCol'])
         for i in self.data:
+            print(i)
+            print(self.less_period(self.data[i]))
             df, cont = Gantt(self.data[i]).get_gantt(df, self.less_period(self.data[i]), cont)
         fig = FF.create_gantt(df, colors = '#000000', group_tasks=True, title= "Eventos de Cheias")
         return fig
