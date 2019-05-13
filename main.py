@@ -14,10 +14,11 @@ from series.chuva import Chuva
 if __name__ == '__main__':
     ini = timeit.default_timer()
     #file = "dadosXingo.csv"
-    file = "/home/clebsonpy/Documents/Projetos/HydroComp/Medicoes/"
+    file = "/home/clebsonpy/Documentos/Projetos/HydroComp/Medicoes/"
     dados_chuva = Chuva(path=file, source='ANA', consistence=1)
     dados_vazao_obs = Flow(path=file, source='ANA', consistence=2)
-    dados_vazao_nat = Flow(path=file, source="ONS", station = "BALBINA")
+    #dados_vazao_nat = Flow(path=file, source="ONS", station = "BALBINA")
+
     #fig_nat = dados_vazao_nat.gantt()
     #fig_obs = dados_vazao_obs.gantt()
     #dados_chuva = dados_chuva.date(date_start="12/07/1981", date_end="31/12/1989")
@@ -25,14 +26,14 @@ if __name__ == '__main__':
     #dados_vazao_obs = dados_vazao_obs.date(date_start="12/07/1981", date_end="31/12/1989")
     #dados = dados_chuva.data.combine_first(dados_vazao_nat.data)
     dados = pd.DataFrame()
-    dados = dados.combine_first(dados_vazao_nat.data)
+    #dados = dados.combine_first(dados_vazao_nat.data)
     dados = dados.combine_first(dados_vazao_obs.data)
     dados = dados.combine_first(dados_chuva.data)
 
     dados = Flow(dados)
     fig = dados.gantt()
     #dados.to_csv("manso.csv")
-    print(dados['1993'])
+    #print(dados['1993'])
     #data, fig = dados.plot_hydrogram()
     #dados = pd.read_csv(file, index_col=0, names=["Date", "XINGO"],
     #                    parse_dates=True)
