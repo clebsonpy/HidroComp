@@ -52,7 +52,7 @@ class SeriesBiuld(object, metaclass=ABCMeta):
     def __getitem__(self, val):
         """
         """
-        return self.data[val].copy()
+        return self.__class__(data = self.data[val].copy())
 
     def date(self, date_start=None, date_end=None):
         """
