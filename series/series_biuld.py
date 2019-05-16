@@ -115,9 +115,6 @@ class SeriesBiuld(object, metaclass=ABCMeta):
         """
         return self.data.std()
 
-    def diferenca(self, data_other):
-        pass
-
     def gantt(self):
         cont = 0
         df = pd.DataFrame(columns=['Task', 'Start', 'Finish', 'Description', 'IndexCol'])
