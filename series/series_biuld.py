@@ -31,6 +31,7 @@ class SeriesBiuld(object, metaclass=ABCMeta):
                     self.data = self.sources[self.source](self.path, *args, **kwargs).data
             else:
                 raise KeyError('Source not supported!')
+        print(self.data)
         self.date_start = self.data.index[0]
         self.date_end = self.data.index[-1]
         _data = pd.DataFrame(index=pd.date_range(start=self.date_start, end=self.date_end))
