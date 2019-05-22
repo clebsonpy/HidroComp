@@ -14,10 +14,10 @@ from series.chuva import Chuva
 if __name__ == '__main__':
     ini = timeit.default_timer()
     #file = "dadosXingo.csv"
-    file = "/home/clebsonpy/Documentos/Projetos/HydroComp/Medicoes"
+    file = "/home/clebsonpy/Documents/Projetos/HydroComp/Medicoes"
     #dados_chuva = Chuva(path=file, source='ANA', consistence=1)
-    dados = Flow(path=file, source='ANA', consistence=2)
-    #dados_vazao_nat = Flow(path=file, source="ONS", station = "FUNIL")
+    #dados = Flow(path=file, source='ANA', consistence=2)
+    dados = Flow(path=file, source="ONS", station = "FUNIL")
 
 
     #fig_nat = dados_vazao_nat.gantt()
@@ -34,7 +34,7 @@ if __name__ == '__main__':
     #dados = Flow(dados)
     #print(dados['2013'].get_month(8))
     fig = dados.gantt()
-    dados.data.to_csv("BARRA_GRANDE.csv")
+    dados.data.to_csv("funil.csv")
     #print(dados['1993'])
     #data, fig = dados.plot_hydrogram()
     #dados = pd.read_csv(file, index_col=0, names=["Date", "XINGO"],
