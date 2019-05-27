@@ -14,10 +14,12 @@ from series.chuva import Chuva
 if __name__ == '__main__':
     ini = timeit.default_timer()
     #file = "dadosXingo.csv"
-    file = "/home/clebsonpy/Documents/Projetos/HydroComp/Medicoes"
+    file = "/home/clebsonpy/Documents/Projetos/HydroComp"
     #dados_chuva = Chuva(path=file, source='ANA', consistence=1)
     #dados = Flow(path=file, source='ANA', consistence=2)
-    dados = Flow(path=file, source="ONS", station = "FUNIL")
+    dados = pd.read_csv("manso.csv", index_col=0, parse_dates=True)
+    dados.rename(index=str, columns={"1455008": "COIMBRA_P", "66210000": "MANSO_JUS", "66231000": "COIMBRA_F"}, inplace=True)
+    dados = Flow(data=dados, source="ONS")
 
 
     #fig_nat = dados_vazao_nat.gantt()
@@ -33,8 +35,8 @@ if __name__ == '__main__':
 
     #dados = Flow(dados)
     #print(dados['2013'].get_month(8))
-    fig = dados.gantt()
-    dados.data.to_csv("funil.csv")
+    fig = dados.gantt(name = 'Manso')
+    #dados.data.to_csv("funil.csv")
     #print(dados['1993'])
     #data, fig = dados.plot_hydrogram()
     #dados = pd.read_csv(file, index_col=0, names=["Date", "XINGO"],
@@ -52,7 +54,7 @@ if __name__ == '__main__':
     #print(parcial.peaks)
     #print(parcial.test_autocorrelation())
     #data, fig = parcial.plot_hydrogram('Cheia')
-    py.offline.plot(fig, filename='gráficos/gantt_c.html')
+    py.offline.plot(fig, filename='gráficos/gantt_manso.html')
 
     fim = timeit.default_timer()
     print('Duração: ', fim-ini)
