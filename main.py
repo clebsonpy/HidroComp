@@ -14,13 +14,13 @@ from series.chuva import Chuva
 if __name__ == '__main__':
     ini = timeit.default_timer()
     #file = "dadosXingo.csv"
-    file = "/home/clebsonpy/Documents/Projetos/HydroComp"
-    #dados_chuva = Chuva(path=file, source='ANA', consistence=1)
-    #dados = Flow(path=file, source='ANA', consistence=2)
-    dados = pd.read_csv("manso.csv", index_col=0, parse_dates=True)
-    dados.rename(index=str, columns={"1455008": "COIMBRA_P", "66210000": "MANSO_JUS", "66231000": "COIMBRA_F"}, inplace=True)
-    dados = Flow(data=dados, source="ONS")
+    file = "/home/clebsonpy/Documents/Projetos/HydroComp/Medicoes/Test"
 
+    #dados = Flow(path=file, source='ANA', consistence=2)
+    #dados = pd.read_csv(path=file, index_col=0, parse_dates=True)
+    #dados.rename(index=str, columns={"1455008": "COIMBRA_P", "66210000": "MANSO_JUS", "66231000": "COIMBRA_F"}, inplace=True)
+    dados = Flow(path=file, source="ANA", consistence=2)
+    #dados_chuva = Chuva(path=file, source='ANA', consistence=2)
 
     #fig_nat = dados_vazao_nat.gantt()
     #fig_obs = dados_vazao_obs.gantt()
@@ -30,13 +30,13 @@ if __name__ == '__main__':
     #dados = dados_chuva.data.combine_first(dados_vazao_nat.data)
     #dados = pd.DataFrame()
     #dados = dados.combine_first(dados_vazao_nat.data)
-    #dados = dados.combine_first(dados_vazao_obs.data)
+    #dados = dados.combine_first(dados_obs.data)
     #dados = dados.combine_first(dados_chuva.data)
 
     #dados = Flow(dados)
     #print(dados['2013'].get_month(8))
-    fig = dados.gantt(name = 'Manso')
-    #dados.data.to_csv("funil.csv")
+    fig = dados.gantt(name = 'Barracão')
+    dados.data.to_csv("barracao.csv")
     #print(dados['1993'])
     #data, fig = dados.plot_hydrogram()
     #dados = pd.read_csv(file, index_col=0, names=["Date", "XINGO"],
@@ -54,7 +54,7 @@ if __name__ == '__main__':
     #print(parcial.peaks)
     #print(parcial.test_autocorrelation())
     #data, fig = parcial.plot_hydrogram('Cheia')
-    py.offline.plot(fig, filename='gráficos/gantt_manso.html')
+    py.offline.plot(fig, filename='gráficos/gantt_barrcao.html')
 
     fim = timeit.default_timer()
     print('Duração: ', fim-ini)
