@@ -86,7 +86,7 @@ class SeriesBiuld(pd.DataFrame, metaclass=ABCMeta):
         if len(aux) > 0:
             list_start.append(aux[0])
             list_end.append(aux[-1])
-        dic = {'Inicio': list_start, 'Fim': list_end}
+        dic = {'Start': list_start, 'Finish': list_end}
         return pd.DataFrame(dic)
 
     def summary(self):

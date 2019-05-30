@@ -19,9 +19,9 @@ class Gantt(object):
             df.at[index,'Task'] = self.data.name
             df.at[index,'Description'] = self.data.name + ' - %s' % j
             df.at[index,'IndexCol'] = color
-            df.at[index,'Start'] = less['Inicio'].loc[j]
-            df.at[index,'Finish'] = less['Fim'].loc[j]
-            
+            df.at[index,'Start'] = less['Start'].loc[j]
+            df.at[index,'Finish'] = less['Finish'].loc[j]
+
             color += (100*n)
             n *= -1
             index+=1
