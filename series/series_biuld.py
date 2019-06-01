@@ -8,7 +8,7 @@ from files import *
 from graphics.gantt import Gantt
 
 
-class SeriesBiuld(pd.DataFrame, metaclass=ABCMeta):
+class SeriesBiuld(metaclass=ABCMeta):
 
     sources = {
         "ONS": ons.Ons,
