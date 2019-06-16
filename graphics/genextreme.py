@@ -29,7 +29,7 @@ class GenExtreme(DistributionBiuld):
                       )
 
         fig = dict(data=data, layout=layout)
-        return data, fig
+        return fig, data
 
     def density(self):
         datas = self._data('density')
@@ -49,7 +49,7 @@ class GenExtreme(DistributionBiuld):
                       )
 
         fig = dict(data=data, layout=layout)
-        return data, fig
+        return fig, data
 
     def _data_density(self):
 

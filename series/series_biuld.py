@@ -18,24 +18,17 @@ class SeriesBiuld(metaclass=ABCMeta):
     def __init__(self, data=None, path=os.getcwd(), source=None, delete_null=False, *args, **kwargs):
         self.path = path
         if data is not None:
-            if delete_null is True:
-                self.data = data.dropna(axis=0, how='all')
-            else:
-                self.data = data
+            self.data = data
         else:
             if source in self.sources:
                 self.source = source
-                if delete_null is True:
-                    self.data = self.sources[self.source](self.path, *args, **kwargs).data.dropna(axis=0, how='all')
-                else:
-                    self.data = self.sources[self.source](self.path, *args, **kwargs).data
+                self.data = self.sources[self.source](self.path, *args, **kwargs).data
             else:
                 raise KeyError('Source not supported!')
-        print(self.data)
-        self.date_start = self.data.index[0]
-        self.date_end = self.data.index[-1]
+
+        self.date_start, self.date_end = self.__start_and_end()
         _data = pd.DataFrame(index=pd.date_range(start=self.date_start, end=self.date_end))
-        self.data = _data.combine_first(self.data)
+        self.data = _data.combine_first(self.data[self.date_start:self.date_end])
 
     @abstractmethod
     def month_start_year_hydrologic(self, station):
@@ -44,6 +37,13 @@ class SeriesBiuld(metaclass=ABCMeta):
     @abstractmethod
     def plot_hydrogram(self):
         pass
+
+    def __start_and_end(self):
+        boolean = self.data.isnull()
+        date = boolean.loc[boolean[boolean.columns.values[0]] == False].index
+
+        return date[0], date[-1]
+
 
     def __str__(self):
         """

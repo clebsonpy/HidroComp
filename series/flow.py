@@ -46,6 +46,8 @@ class Flow(SeriesBiuld):
     def plot_hydrogram(self, station=None):
         if station is None:
             hydrogram = HydrogramClean(self.data)
+            fig, data = hydrogram.plot()
         else:
             hydrogram = HydrogramClean(self.data[station])
-        return hydrogram.plot()
+            fig, data = hydrogram.plot()
+        return fig, data

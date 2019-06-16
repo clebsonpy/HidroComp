@@ -25,11 +25,13 @@ class HydrogramAnnual(HydrogramBiuld):
         data.append(self._plot_event_peaks())
 
         fig = dict(data=data, layout=layout)
-        return data, fig
+        return fig, data
 
     def _plot_event_peaks(self):
+
         point_peak = go.Scatter(
-            x=self.peaks.index, y=self.data.loc[self.peaks.index],
+            x=self.peaks.index,
+            y=self.data[self.data.columns.values[0]].loc[self.peaks.index].values,
             name="Pico",
             mode='markers',
             marker=dict(size=8,

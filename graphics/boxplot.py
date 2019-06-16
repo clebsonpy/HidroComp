@@ -28,7 +28,7 @@ class Boxplot(object):
                       )
 
         fig = dict(data=data, layout=layout)
-        return data, fig
+        return fig, data
 
     def plot_comparasion(self):
 
@@ -39,4 +39,4 @@ class Boxplot(object):
                       )
 
         fig = dict(data=self.datas, layout=layout)
-        return self.datas, fig
+        return fig, self.datas

@@ -20,4 +20,4 @@ class ComparationDistribution(object):
                       font=dict(family='Time New Roman', size=28, color='rgb(0,0,0)'))
 
         fig = dict(data=self.datas, layout=layout)
-        return self.datas, fig
+        return fig, self.datas

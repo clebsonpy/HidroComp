@@ -32,28 +32,29 @@ if __name__ == '__main__':
     #dados = dados.combine_first(dados_chuva.data)
     #dados = dados.combine_first(dados_obs.data)
     #dados = dados.combine_first(dados_chuva.data)
-    dados = Flow(dados)
+    dados = Flow(pd.DataFrame(dados["MANSO"]))
     #print(dados['2013'].get_month(8))
-    fig = dados.gantt(name = 'Gantt')
+    #fig = dados.gantt(name = 'Gantt')
     #dados.data.to_csv("barracao.csv")
     #print(dados['1993'])
-    #data, fig = dados.plot_hydrogram()
-    #dados = pd.read_csv(file, index_col=0, names=["Date", "XINGO"],
+    #fig, data = dados.plot_hydrogram()
+    #dados = psd.read_csv(file, index_col=0, names=["Date", "XINGO"],
     #                    parse_dates=True)
     #flow = Flow(data=dados, source='ONS')
     #test = flow.date(date_start="01/01/1995", date_end="31/12/2012")
 
     #value_threshold = test.mean()['XINGO'] + test.std()['XINGO']
     #print(test.mean())
-    #maximum = test.maximum(station='XINGO')
+    maximum = dados.maximum(station='MANSO')
     #print(maximum.annual())
     #parcial = test.parcial(station="XINGO", type_criterion='median',
     #                       type_threshold="stationary", type_event="flood",
     #                       value_threshold=0.75, duration=0)
     #print(parcial.peaks)
     #print(parcial.test_autocorrelation())
-    #data, fig = parcial.plot_hydrogram('Cheia')
-    py.offline.plot(fig, filename='gráficos/gantt_com_evap_manso.html')
+    fig, data = maximum.plot_hydrogram('Cheia')
+    #print(data)
+    py.offline.plot(fig, filename='gráficos/hidromax.html')
 
     fim = timeit.default_timer()
     print('Duração: ', fim-ini)

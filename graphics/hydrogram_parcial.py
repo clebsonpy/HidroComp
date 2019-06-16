@@ -36,7 +36,7 @@ class HydrogramParcial(HydrogramBiuld):
             data += self._plot_event_peaks()
 
             fig = dict(data=data, layout=layout)
-            return data, fig
+            return fig, data
 
         except AttributeError:
             name = 'Hidrograma Série de Duração Parcial -  %s' % self.title
@@ -53,7 +53,7 @@ class HydrogramParcial(HydrogramBiuld):
             data += self._plot_event_peaks()
 
             fig = dict(data=data, layout=layout)
-            return data, fig
+            return fig, data
 
     def _plot_event_peaks(self):
         point_start = go.Scatter(

@@ -15,16 +15,16 @@ class Maximum(object):
         self.obj = obj
         self.data = self.obj.data
         self.station = station
-        self.peaks = None
+        self.peaks = self.__annual()
         self.fit = None
 
-    def annual(self):
+    def __annual(self):
         data_by_year_hydrologic = self.data.groupby(pd.Grouper(
             freq='AS-%s' % self.obj.month_start_year_hydrologic(self.station)[1]))
         max_vazao = data_by_year_hydrologic[self.station].max().values
         idx_vazao = data_by_year_hydrologic[self.station].idxmax().values
 
-        self.peaks = pd.DataFrame(max_vazao, index=idx_vazao, columns=['Flow'])
+        self.peaks = pd.DataFrame(max_vazao, index=idx_vazao, columns=['peaks'])
         return self.peaks
 
     def mml(self):
@@ -76,13 +76,12 @@ class Maximum(object):
             py.image.save_as(fig, filename='gráficos/GEV_%s_%s.png' % (type_function,
                                                                        estimador))
 
-        return data, fig
+        return fig, data
 
     def plot_hydrogram(self, save=False):
-        self.annual()
-        hydrogrm = HydrogramAnnual(data=self.data[self.station], peaks=self.peaks)
-        data, fig = hydrogrm.plot()
+        hydrogrm = HydrogramAnnual(data=self.data, peaks=self.peaks)
+        fig, data = hydrogrm.plot()
         if save:
             py.image.save_as(fig, filename='gráficos/hidrogama_maximas_anuais.png')
 
-        return data, fig
+        return fig, data
