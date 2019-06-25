@@ -30,7 +30,7 @@ class Maximum(object):
     def mml(self):
         try:
             peaks = self.peaks.copy()
-            mom = distr.gev.lmom_fit(peaks['Flow'].values)
+            mom = distr.gev.lmom_fit(peaks['peaks'].values)
             self.fit = [mom['c'], mom['loc'], mom['scale']]
             return self.fit
         except AttributeError:
@@ -40,7 +40,7 @@ class Maximum(object):
     def mvs(self):
         try:
             peaks = self.peaks.copy()
-            self.fit = stat.genextreme.fit(peaks['Flow'].values)
+            self.fit = stat.genextreme.fit(peaks['peaks'].values)
             return self.fit
         except AttributeError:
             self.annual()

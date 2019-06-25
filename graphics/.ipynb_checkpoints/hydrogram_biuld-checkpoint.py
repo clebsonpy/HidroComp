@@ -10,11 +10,11 @@ class HydrogramBiuld(object, metaclass=ABCMeta):
         pass
 
     def _plot_one(self, data):
-
-        data = [go.Scatter(x=data.index,
-                           y=data.values,
-                           name=data.name,
-                           line=dict(width=1),
-                           opacity=1, connectgaps=False)]
+        
+        data = go.Scatter(x=data[data.columns.values[0]].index,
+                          y=data[data.columns.values[0]].values,
+                          name=data[data.columns.values[0]].name,
+                          line=dict(width=1),
+                          opacity=1, connectgaps=False)
 
         return data

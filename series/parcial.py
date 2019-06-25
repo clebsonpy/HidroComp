@@ -20,15 +20,15 @@ class Parcial(object):
         """
             Parâmetros:
                 obj: Objeto Série;
-                station: Ponto de observação dos dados('XINGO')
-                type_threshold: Tipo de calculo do limiar('stationary' ou
+                station: Ponto de observação dos dados
+                type_threshold: Tipo de calculo do limiar('stationary' or
                                                           'events_by_year')
                 value_threshold: Valor do limiar:
                     Para type_threshold = 'stationary': percentil ou valor
                     Para type_threshold = 'events_by_year': quantidade média de
                                                             picos por ano
                 type_criterion: Critério de Independência ('media', 'mediana')
-                type_event: Tipo do evento em estudo ('flood' ou 'drought')
+                type_event: Tipo do evento em estudo ('flood' or 'drought')
         """
         self.obj = obj
         self.data = self.obj.data
@@ -40,9 +40,11 @@ class Parcial(object):
         self.type_criterion = type_criterion
         self.type_event = type_event
         self.value = value_threshold
-        self.duration = kwargs['duration']
+
         if type_criterion == 'median':
             self.__percentil = 0.65
+        elif type_criterion == 'autocorrelation':
+            self.duration = kwargs['duration']
 
         self.__threshold(self.value)
         self.name = '%s(%s) - %s' % (self.dic_name[self.type_threshold],
@@ -51,7 +53,7 @@ class Parcial(object):
             self.event_peaks()
 
     def event_peaks(self):
-        max_events = {'Date': list(), 'Flow': list(), 'Start': list(), 'End': list(),
+        max_events = {'Date': list(), 'peaks': list(), 'Start': list(), 'End': list(),
                       'Duration': list()}
 
         events_criterion, self.threshold_criterion = self.__events_over_threshold()
@@ -60,27 +62,27 @@ class Parcial(object):
         idx_before = events_threshold.index[0]
         low_limiar = False
 
-        data = {'Date': list(), 'Flow': list()}
-        data_min = {'Date': list(), 'Flow': list()}
+        data = {'Date': list(), 'peaks': list()}
+        data_min = {'Date': list(), 'peaks': list()}
 
         for i in events_threshold.index:
             if not events_threshold.loc[i] and not low_limiar:
-                data_min['Flow'].append(self.data.loc[idx_before, self.station])
+                data_min['peaks'].append(self.data.loc[idx_before, self.station])
                 data_min['Date'].append(idx_before)
 
             if events_threshold.loc[i]:
-                data['Flow'].append(self.data.loc[idx_before, self.station])
+                data['peaks'].append(self.data.loc[idx_before, self.station])
                 data['Date'].append(idx_before)
                 low_limiar = True
-                data_min['Flow'].append(self.data.loc[idx_before, self.station])
+                data_min['peaks'].append(self.data.loc[idx_before, self.station])
                 data_min['Date'].append(idx_before)
             elif low_limiar:
-                data['Flow'].append(self.data.loc[idx_before, self.station])
+                data['peaks'].append(self.data.loc[idx_before, self.station])
                 data['Date'].append(idx_before)
-                data['Flow'].append(self.data.loc[i, self.station])
+                data['peaks'].append(self.data.loc[i, self.station])
                 data['Date'].append(i)
                 low_limiar = False
-                data_min['Flow'].append(self.data.loc[idx_before, self.station])
+                data_min['peaks'].append(self.data.loc[idx_before, self.station])
                 data_min['Date'].append(idx_before)
             else:
                 data, max_events, data_min = self.__criterion(
@@ -90,7 +92,7 @@ class Parcial(object):
             idx_before = i
 
         self.peaks = pd.DataFrame(
-            max_events, columns=['Duration', 'Start', 'End', 'Flow'],
+            max_events, columns=['Duration', 'Start', 'End', 'peaks'],
             index=max_events['Date']
         )
 
@@ -204,20 +206,20 @@ class Parcial(object):
             return data, max_events, kwargs['data_min']
 
     def __criterion_mean(self, data, max_events, events_criterion):
-        if len(data['Flow']) > 0 and (not events_criterion):
+        if len(data['peaks']) > 0 and (not events_criterion):
             return self.__add_peaks(data, max_events)
         else:
             return data, max_events
 
     def __criterion_median(self, data, max_events, events_criterion):
-        if len(data['Flow']) > 0 and (not events_criterion):
+        if len(data['peaks']) > 0 and (not events_criterion):
             return self.__add_peaks(data, max_events)
         else:
             return data, max_events
 
     def __criterion_duration(self, data, max_events, events_criterion):
         if not events_criterion:
-            if len(data['Flow']) == 0:
+            if len(data['peaks']) == 0:
                 return data, max_events
             elif len(max_events['Date']) == 0:
                 return self.__add_peaks(data, max_events)
@@ -236,17 +238,17 @@ class Parcial(object):
                 return data, max_events, data_min
             elif len(max_events['Date']) == 0:
                 data, max_events = self.__add_peaks(data, max_events)
-                data_min = {'Date': [], 'Flow': []}
+                data_min = {'Date': [], 'peaks': []}
                 return data, max_events, data_min
             elif len(data_min) == 0:
                 return data, max_events, data_min
             else:
                 if self.__test_xmin_bigger_q(data, max_events, data_min):
                     data, max_events = self.__troca_peaks(data, max_events)
-                    data_min = {'Date': [], 'Flow': []}
+                    data_min = {'Date': [], 'peaks': []}
                     return data, max_events, data_min
                 data, max_events = self.__add_peaks(data, max_events)
-                data_min = {'Date': [], 'Flow': []}
+                data_min = {'Date': [], 'peaks': []}
                 return data, max_events, data_min
         else:
             return data, max_events, data_min
@@ -258,17 +260,17 @@ class Parcial(object):
                 return data, max_events, data_min
             elif len(max_events['Date']) == 0:
                 data, max_events = self.__add_peaks(data, max_events)
-                data_min = {'Date': [], 'Flow': []}
+                data_min = {'Date': [], 'peaks': []}
                 return data, max_events, data_min
             elif len(data_min) == 0:
                 return data, max_events, data_min
             else:
                 if self.__test_xmin_bigger_dois_terco_x(data, max_events, data_min):
                     data, max_events = self.__troca_peaks(data, max_events)
-                    data_min = {'Date': [], 'Flow': []}
+                    data_min = {'Date': [], 'peaks': []}
                     return data, max_events, data_min
                 data, max_events = self.__add_peaks(data, max_events)
-                data_min = {'Date': [], 'Flow': []}
+                data_min = {'Date': [], 'peaks': []}
                 return data, max_events, data_min
         else:
             return data, max_events, data_min
@@ -280,7 +282,7 @@ class Parcial(object):
                 return data, max_events, data_min
             elif len(max_events['Date']) == 0:
                 data, max_events = self.__add_peaks(data, max_events)
-                data_min = {'Date': [], 'Flow': []}
+                data_min = {'Date': [], 'peaks': []}
                 return data, max_events, data_min
             elif len(data_min) == 0:
                 return data, max_events, data_min
@@ -288,18 +290,18 @@ class Parcial(object):
                 if self.__test_xmin_bigger_q(data, max_events, data_min) or \
                    self.__test_duration(data, max_events):
                     data, max_events = self.__troca_peaks(data, max_events)
-                    data_min = {'Date': [], 'Flow': []}
+                    data_min = {'Date': [], 'peaks': []}
                     return data, max_events, data_min
 
                 data, max_events = self.__add_peaks(data, max_events)
-                data_min = {'Date': [], 'Flow': []}
+                data_min = {'Date': [], 'peaks': []}
                 return data, max_events, data_min
         else:
             return data, max_events, data_min
 
     def __test_duration(self, data, max_events):
-        data_max = data['Date'][data['Flow'].index(
-            self.__peaks_type_event(data['Flow']))]
+        data_max = data['Date'][data['peaks'].index(
+            self.__peaks_type_event(data['peaks']))]
 
         distancia_dias = data_max - max_events['Date'][-1]
         if distancia_dias.days < self.duration:
@@ -307,11 +309,11 @@ class Parcial(object):
         return False
 
     def __test_xmin_bigger_q(self, data, max_events, data_min):
-        q1 = max_events['Flow'][-1]
+        q1 = max_events['peaks'][-1]
         data_q1 = max_events['Date'][-1]
-        q2 = self.__peaks_type_event(data['Flow'])
-        data_q2 = data['Date'][data['Flow'].index(q2)]
-        df_data = pd.DataFrame(data_min['Flow'], index=data_min['Date'])
+        q2 = self.__peaks_type_event(data['peaks'])
+        data_q2 = data['Date'][data['peaks'].index(q2)]
+        df_data = pd.DataFrame(data_min['peaks'], index=data_min['Date'])
         df_data = df_data.loc[data_q1:data_q2]
         if self.type_event == "flood":
             menor = min(q1, q2)
@@ -331,11 +333,11 @@ class Parcial(object):
             return "Type Event Erro!"
 
     def __test_xmin_bigger_dois_terco_x(self, data, max_events, data_min):
-        q1 = max_events['Flow'][-1]
+        q1 = max_events['peaks'][-1]
         data_q1 = max_events['Date'][-1]
-        q2 = self.__peaks_type_event(data['Flow'])
-        data_q2 = data['Date'][data['Flow'].index(q2)]
-        df_data = pd.DataFrame(data_min['Flow'], index=data_min['Date'])
+        q2 = self.__peaks_type_event(data['peaks'])
+        data_q2 = data['Date'][data['peaks'].index(q2)]
+        df_data = pd.DataFrame(data_min['peaks'], index=data_min['Date'])
         df_data = df_data.loc[data_q1:data_q2]
         if self.type_event == "flood":
             xmin = df_data.min().values
@@ -352,8 +354,8 @@ class Parcial(object):
 
     def test_autocorrelation(self):
         try:
-            n = len(self.peaks.Flow)
-            serie = pd.Series(self.peaks.Flow, index=self.peaks.index)
+            n = len(self.peaks.peaks)
+            serie = pd.Series(self.peaks.peaks, index=self.peaks.index)
             lag1 = serie.autocorr(lag=1)
             lag2 = serie.autocorr(lag=2)
             r11_n = (-1 + 1.645 * math.sqrt(n - 1 - 1)) / (n - 1)
@@ -369,41 +371,41 @@ class Parcial(object):
 
     def __troca_peaks(self, data, max_events):
 
-        if max_events['Flow'][-1] < self.__peaks_type_event(data['Flow']):
-            max_events['Flow'][-1] = self.__peaks_type_event(data['Flow'])
+        if max_events['peaks'][-1] < self.__peaks_type_event(data['peaks']):
+            max_events['peaks'][-1] = self.__peaks_type_event(data['peaks'])
             max_events['End'][-1] = data['Date'][-1]
             duration = max_events['End'][-1] - max_events['Start'][-1]
             max_events['Duration'][-1] = duration.days
             max_events['Date'][-1] = data['Date'][
-                data['Flow'].index(self.__peaks_type_event(data['Flow']))
+                data['peaks'].index(self.__peaks_type_event(data['peaks']))
             ]
-            data = {'Date': list(), 'Flow': list()}
+            data = {'Date': list(), 'peaks': list()}
         else:
             max_events['End'][-1] = data['Date'][-1]
             duration = max_events['End'][-1] - max_events['Start'][-1]
             max_events['Duration'][-1] = duration.days
-            data = {'Date': list(), 'Flow': list()}
+            data = {'Date': list(), 'peaks': list()}
 
         return data, max_events
 
     def __add_peaks(self, data, max_events):
-        max_events['Flow'].append(self.__peaks_type_event(data['Flow']))
+        max_events['peaks'].append(self.__peaks_type_event(data['peaks']))
         max_events['Start'].append(data['Date'][0])
         max_events['End'].append(data['Date'][-1])
         duration = max_events['End'][-1] - max_events['Start'][-1]
         max_events['Duration'].append(duration.days)
         max_events['Date'].append(data['Date'][
-                data['Flow'].index(self.__peaks_type_event(data['Flow']))])
+                data['peaks'].index(self.__peaks_type_event(data['peaks']))])
 
-        data = {'Date': list(), 'Flow': list()}
+        data = {'Date': list(), 'peaks': list()}
         return data, max_events
 
     def mvs(self):
         try:
-            self.fit = stat.genpareto.fit(self.peaks['Flow'].values)
+            self.fit = stat.genpareto.fit(self.peaks['peaks'].values)
         except TypeError:
             self.event_peaks()
-            self.fit = stat.genpareto.fit(self.peaks['Flow'].values)
+            self.fit = stat.genpareto.fit(self.peaks['peaks'].values)
 
         return self.fit
 
@@ -413,7 +415,7 @@ class Parcial(object):
             df_resample = pd.DataFrame()
             for i in range(quantity):
                 df = pd.DataFrame(
-                    self.peaks['Flow'].sample(n=n, replace=True).values,
+                    self.peaks['peaks'].sample(n=n, replace=True).values,
                     columns=['%s' % i]
                 )
                 df_resample = df_resample.combine_first(df)
@@ -428,7 +430,7 @@ class Parcial(object):
         resample = self.resample(quantity)
         peaks = self.peaks.copy()
         for i in resample:
-            self.peaks['Flow'] = resample[i].values
+            self.peaks['peaks'] = resample[i].values
             dic['Parameter'].append(self.mvs())
         self.peaks = peaks
         return pd.DataFrame(dic)
@@ -489,20 +491,16 @@ class Parcial(object):
             return self.plot_distribution(title, type_function)
 
     def plot_hydrogram(self, title, save=False):
-        try:
-            hydrogram = HydrogramParcial(
-                data=self.data[self.station], peaks=self.peaks,
-                threshold=self.threshold,
-                threshold_criterion=self.threshold_criterion, title=title)
-            data, fig = hydrogram.plot(type_criterion=self.type_criterion)
-            if save:
-                aux_name = title.replace(' ', '_')
-                py.image.save_as(fig, filename='gráficos/'+'%s.png' % aux_name)
+        hydrogram = HydrogramParcial(
+            data=self.data, peaks=self.peaks,
+            threshold=self.threshold,
+            threshold_criterion=self.threshold_criterion, title=title)
+        fig, data = hydrogram.plot(type_criterion=self.type_criterion)
+        if save:
+            aux_name = title.replace(' ', '_')
+            py.image.save_as(fig, filename='gráficos/'+'%s.png' % aux_name)
 
-            return data, fig
-        except AttributeError:
-            self.event_peaks()
-            return self.plot_hydrogram(title)
+        return fig, data
 
     def plot_boxplot_resample(self, magn_resample, name, save=False):
 
@@ -510,4 +508,4 @@ class Parcial(object):
         if save:
             py.image.save_as(fig, filename='gráficos/boxplot_%s.png' % name)
 
-        return data, fig
+        return fig, data

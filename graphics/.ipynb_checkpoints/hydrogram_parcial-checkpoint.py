@@ -30,14 +30,14 @@ class HydrogramParcial(HydrogramBiuld):
                 font=dict(family='Time New Roman', size=28, color='rgb(0,0,0)'))
 
             data = list()
-            data += self._plot_one(self.data)
+            data.append(self._plot_one(self.data))
             data.append(self._plot_threshold())
             data.append(self._plot_threshold_criterion(type_criterion))
             data += self._plot_event_peaks()
 
             fig = dict(data=data, layout=layout)
-            return data, fig
-
+            return fig, data
+        """
         except AttributeError:
             name = 'Hidrograma Série de Duração Parcial -  %s' % self.title
             layout = dict(
@@ -48,12 +48,13 @@ class HydrogramParcial(HydrogramBiuld):
                 font=dict(family='Time New Roman', size=28, color='rgb(0,0,0)'))
 
             data = list()
-            data += self._plot_one(self.data)
+            data.append(self._plot_one(self.data))
             data.append(self._plot_threshold())
             data += self._plot_event_peaks()
 
             fig = dict(data=data, layout=layout)
-            return data, fig
+            return fig, data
+        """
 
     def _plot_event_peaks(self):
         point_start = go.Scatter(

@@ -29,8 +29,8 @@ class HydrogramParcial(HydrogramBiuld):
                 xaxis=bandxaxis, yaxis=bandyaxis,
                 font=dict(family='Time New Roman', size=28, color='rgb(0,0,0)'))
 
-            data = list()
-            data += self._plot_one(self.data)
+            data = []
+            data.append(self._plot_one(self.data))
             data.append(self._plot_threshold())
             data.append(self._plot_threshold_criterion(type_criterion))
             data += self._plot_event_peaks()
@@ -47,17 +47,19 @@ class HydrogramParcial(HydrogramBiuld):
                 xaxis=bandxaxis, yaxis=bandyaxis,
                 font=dict(family='Time New Roman', size=28, color='rgb(0,0,0)'))
 
-            data = list()
-            data += self._plot_one(self.data)
+            data = []
+            data.append(self._plot_one(self.data))
             data.append(self._plot_threshold())
             data += self._plot_event_peaks()
 
             fig = dict(data=data, layout=layout)
             return fig, data
 
+
     def _plot_event_peaks(self):
         point_start = go.Scatter(
-            x=self.peaks.Start, y=self.data.loc[self.peaks.Start],
+            x=list(self.peaks.Start),
+            y=self.data[self.data.columns.values[0]].loc[self.peaks.Start].values,
             name="Inicio do Evento",
             mode='markers',
             marker=dict(color='rgb(0, 0, 0)',
@@ -66,7 +68,8 @@ class HydrogramParcial(HydrogramBiuld):
             opacity=1)
 
         point_end = go.Scatter(
-            x=self.peaks.End, y=self.data.loc[self.peaks.End],
+            x=list(self.peaks.End),
+            y=self.data[self.data.columns.values[0]].loc[self.peaks.End].values,
             name="Fim do Evento",
             mode='markers',
             marker=dict(color='rgb(0, 0, 0)',
@@ -76,7 +79,7 @@ class HydrogramParcial(HydrogramBiuld):
 
         point_vazao = go.Scatter(
             x=self.peaks.index,
-            y=self.data.loc[self.peaks.index],
+            y=self.peaks.peaks.values,
             name="Pico",
             mode='markers',
             marker=dict(size=8,
