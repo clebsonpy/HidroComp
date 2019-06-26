@@ -17,8 +17,8 @@ class GenPareto(DistributionBiuld):
                            name=self.title, line=dict(color='rgb(128, 128, 128)',
                                                       width=2))]
 
-        bandxaxis = go.XAxis(title="Vazão(m³/s)")
-        bandyaxis = go.YAxis(title="Probabilidade")
+        bandxaxis = go.layout.XAxis(title="Vazão(m³/s)")
+        bandyaxis = go.layout.YAxis(title="Probabilidade")
 
         layout = dict(title="GP - Acumulada: %s" % self.title,
                       showlegend=True,
@@ -38,8 +38,8 @@ class GenPareto(DistributionBiuld):
                            name=self.title, line=dict(color='rgb(128, 128, 128)',
                                                       width=2))]
 
-        bandxaxis = go.XAxis(title="Vazão(m³/s)")
-        bandyaxis = go.YAxis(title="")
+        bandxaxis = go.layout.XAxis(title="Vazão(m³/s)")
+        bandyaxis = go.layout.YAxis(title="")
 
         layout = dict(title="GP - Densidade: %s" % self.title,
                       showlegend=True,

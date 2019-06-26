@@ -14,8 +14,8 @@ class HydrogramParcial(HydrogramBiuld):
         self.title = title
 
     def plot(self, type_criterion=None):
-        bandxaxis = go.XAxis(title="Data")
-        bandyaxis = go.YAxis(title="Vazão(m³/s)")
+        bandxaxis = go.layout.XAxis(title="Data")
+        bandyaxis = go.layout.YAxis(title="Vazão(m³/s)")
 
         try:
             if self.threshold_criterion is None:

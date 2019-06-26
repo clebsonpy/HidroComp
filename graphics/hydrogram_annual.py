@@ -11,8 +11,8 @@ class HydrogramAnnual(HydrogramBiuld):
         self.peaks = peaks
 
     def plot(self, ype_criterion=None):
-        bandxaxis = go.XAxis(title="Data")
-        bandyaxis = go.YAxis(title="Vazão(m³/s)")
+        bandxaxis = go.layout.XAxis(title="Data")
+        bandyaxis = go.layout.YAxis(title="Vazão(m³/s)")
 
         layout = dict(title="Hidrograma Série Máximas Anuais",
                       width=1890, height=827,

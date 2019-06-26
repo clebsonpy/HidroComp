@@ -17,8 +17,8 @@ class GenExtreme(DistributionBiuld):
                            name=self.title, line=dict(color='rgb(128, 128, 128)',
                                                       width=1.5))]
 
-        bandxaxis = go.XAxis(title="Vazão(m³/s)")
-        bandyaxis = go.YAxis(title="Probabilidade")
+        bandxaxis = go.layout.XAxis(title="Vazão(m³/s)")
+        bandyaxis = go.layout.YAxis(title="Probabilidade")
 
         layout = dict(title="GEV - Acumulada: %s" % self.title,
                       showlegend=True,
@@ -37,8 +37,8 @@ class GenExtreme(DistributionBiuld):
                            name=self.title, line=dict(color='rgb(128, 128, 128)',
                                                       width=1.5))]
 
-        bandxaxis = go.XAxis(title="Vazão(m³/s)")
-        bandyaxis = go.YAxis(title="")
+        bandxaxis = go.layout.XAxis(title="Vazão(m³/s)")
+        bandyaxis = go.layout.YAxis(title="")
 
         layout = dict(title="GEV - Densidade: %s" % self.title,
                       showlegend=True,

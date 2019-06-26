@@ -9,8 +9,8 @@ class ComparationDistribution(object):
         self.name = name
 
     def plot(self):
-        bandxaxis = go.XAxis(title="Vazão(m³/s)")
-        bandyaxis = go.YAxis(title="")
+        bandxaxis = go.layout.XAxis(title="Vazão(m³/s)")
+        bandyaxis = go.layout.YAxis(title="")
 
         layout = dict(title="Probabilidade Acumulada",
                       showlegend=True,
