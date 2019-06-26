@@ -18,7 +18,7 @@ class HydrogramClean(HydrogramBiuld):
             layout = dict(title="Hidrograma",
                           width=1890, height=827,
                           xaxis=bandxaxis, yaxis=bandyaxis,
-                          font=dict(family='Time New Roman', size=34, color='rgb(0,0,0)')
+                          font=dict(family='Time New Roman', size=25, color='rgb(0,0,0)')
                           )
 
             data = list()
@@ -31,7 +31,7 @@ class HydrogramClean(HydrogramBiuld):
             layout = dict(title=name,
                           width=1890, height=827,
                           xaxis=bandxaxis, yaxis=bandyaxis,
-                          font=dict(family='Time New Roman', size=24))
+                          font=dict(family='Time New Roman', size=25))
 
             data = list()
             data.append(self._plot_multi())

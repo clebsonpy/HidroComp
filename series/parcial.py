@@ -27,7 +27,8 @@ class Parcial(object):
                     Para type_threshold = 'stationary': percentil ou valor
                     Para type_threshold = 'events_by_year': quantidade média de
                                                             picos por ano
-                type_criterion: Critério de Independência ('media', 'mediana')
+                type_criterion: Critério de Independência ('mean', 'median',
+                                'xmin_bigger_dois_terco_x', 'xmin_bigger_qmin')
                 type_event: Tipo do evento em estudo ('flood' or 'drought')
         """
         self.obj = obj

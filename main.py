@@ -45,16 +45,16 @@ if __name__ == '__main__':
 
     #value_threshold = test.mean()['XINGO'] + test.std()['XINGO']
     #print(test.mean())
-    maximum = dados.maximum(station='MANSO')
+    #maximum = dados.maximum(station='MANSO')
     #print(maximum.annual())
-    #parcial = test.parcial(station="XINGO", type_criterion='median',
-    #                       type_threshold="stationary", type_event="flood",
-    #                       value_threshold=0.75, duration=0)
-    #print(parcial.peaks)
+    parcial = dados.parcial(station="MANSO", type_criterion='xmin_bigger_dois_terco_x',
+                           type_threshold="events_by_year", type_event="flood",
+                           value_threshold=2, duration=0)
+    print(parcial.peaks)
     #print(parcial.test_autocorrelation())
-    fig, data = maximum.plot_hydrogram('Cheia')
+    fig, data = parcial.plot_hydrogram('Cheia')
     #print(data)
-    py.offline.plot(fig, filename='gráficos/hidromax.html')
+    py.offline.plot(fig, filename='gráficos/hidrotest.html')
 
     fim = timeit.default_timer()
     print('Duração: ', fim-ini)

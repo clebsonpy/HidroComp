@@ -14,26 +14,29 @@ class HydrogramClean(HydrogramBiuld):
         bandyaxis = go.YAxis(title="Vazão(m³/s)")
 
         try:
-            name = 'Hidrograma - %s' % self.data.name
-            layout = dict(title=name,
+
+            layout = dict(title="Hidrograma",
                           width=1890, height=827,
                           xaxis=bandxaxis, yaxis=bandyaxis,
-                          font=dict(family='Time New Roman', size=24))
+                          font=dict(family='Time New Roman', size=25, color='rgb(0,0,0)')
+                          )
 
-            data = self._plot_one(self.data)
+            data = list()
+            data.append(self._plot_one(self.data))
             fig = dict(data=data, layout=layout)
-            return data, fig
+            return fig, data
 
         except AttributeError:
             name = 'Hidrograma'
             layout = dict(title=name,
                           width=1890, height=827,
                           xaxis=bandxaxis, yaxis=bandyaxis,
-                          font=dict(family='Time New Roman', size=24))
+                          font=dict(family='Time New Roman', size=25))
 
-            data = self._plot_multi()
+            data = list()
+            data.append(self._plot_multi())
             fig = dict(data=data, layout=layout)
-            return data, fig
+            return fig, data
 
     def _plot_multi(self):
         data = list()
