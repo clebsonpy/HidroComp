@@ -46,7 +46,7 @@ if __name__ == '__main__':
     #value_threshold = test.mean()['XINGO'] + test.std()['XINGO']
     #print(test.mean())
     maximum = test.maximum(station='MANSO')
-    print(maximum.dist.mmo())
+    print(maximum.dist.mml())
     #parcial = dados.parcial(station="MANSO", type_criterion='xmin_bigger_dois_terco_x',
     #                       type_threshold="events_by_year", type_event="flood",
     #                       value_threshold=2, duration=0)
