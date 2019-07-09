@@ -27,20 +27,34 @@ class Gev(StatsBuild):
     def mvs(self):
         if self.data is None:
             raise ValueError("Data not's None")
+        mvs = genextreme.fit(self.data)
+        self.shape = mvs[0]
+        self.loc = mvs[1]
+        self.scale = mvs[2]
 
-        self.shape, self.loc, self.scale = genextreme.fit(self.data)
+        return self.shape, self.loc, self.scale
 
     def mom(self):
-        return 'isso'
+        if self.data is None:
+            raise ValueError("Data not's None")
+        mom = genextreme.moment(self.data)
+        self.shape = mom[0]
+        self.loc = mom[1]
+        self.scale = mom[2]
 
+        return self.shape, self.loc, self.scale
+        
     def prob(self, x):
-        pass
+        p = genextreme.cdf(x, c=self.shape, loc=self.loc, scale=self.scale)
+        return p
 
     def value(self, p):
-        pass
+        x = genextreme.ppf(p, c=self.shape, loc=self.loc, scale=self.scale)
+        return x
 
     def interval(self, alpha):
-        pass
+        inteval = genextreme.interval(alpha, loc=self.loc, scale=self.scale)
+        return inteval
 
     def plot_cdf(self):
         pass

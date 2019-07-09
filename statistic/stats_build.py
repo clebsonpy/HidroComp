@@ -26,7 +26,7 @@ class StatsBuild():
         pass
 
     @abstractmethod
-    def fit(self):
+    def fit(self, estimador):
         pass
 
     @abstractmethod
