@@ -32,9 +32,9 @@ if __name__ == '__main__':
     #dados = dados.combine_first(dados_chuva.data)
     #dados = dados.combine_first(dados_obs.data)
     #dados = dados.combine_first(dados_chuva.data)
-    dados = Flow(pd.DataFrame(dados["MANSO"]))
+    dados = Flow(dados)
     #print(dados['2013'].get_month(8))
-    #fig = dados.gantt(name = 'Gantt')
+    fig = dados.gantt(name = 'Gantt')
     #dados.data.to_csv("barracao.csv")
     #print(dados['1993'])
     #fig, data = dados.plot_hydrogram()
@@ -47,14 +47,14 @@ if __name__ == '__main__':
     #print(test.mean())
     #maximum = dados.maximum(station='MANSO')
     #print(maximum.annual())
-    parcial = dados.parcial(station="MANSO", type_criterion='xmin_bigger_dois_terco_x',
-                           type_threshold="events_by_year", type_event="flood",
-                           value_threshold=2, duration=0)
-    print(parcial.peaks)
+    #parcial = dados.parcial(station="MANSO", type_criterion='xmin_bigger_dois_terco_x',
+    #                       type_threshold="events_by_year", type_event="flood",
+    #                       value_threshold=2, duration=0)
+    #print(parcial.peaks)
     #print(parcial.test_autocorrelation())
-    fig, data = parcial.plot_hydrogram('Cheia')
+    #fig, data = parcial.plot_hydrogram('Cheia')
     #print(data)
-    py.offline.plot(fig, filename='gráficos/hidrotest.html')
+    py.offline.plot(fig, filename='gráficos/gantt_manso_evap.html')
 
     fim = timeit.default_timer()
     print('Duração: ', fim-ini)
