@@ -1,1 +1,1 @@
-__all__ = ["flow.py", "chuva", "parcial", "maximum"]
+__all__ = ["flow", "chuva", "parcial", "maximum"]

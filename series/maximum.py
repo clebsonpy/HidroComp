@@ -2,6 +2,7 @@ import pandas as pd
 import plotly.plotly as py
 import scipy.stats as stat
 from lmoments3 import distr
+from statistic.genextre import Gev
 
 from graphics.genextreme import GenExtreme
 from graphics.hydrogram_annual import HydrogramAnnual
@@ -11,12 +12,15 @@ class Maximum(object):
 
     distribution = 'GEV'
 
+
     def __init__(self, obj, station):
         self.obj = obj
         self.data = self.obj.data
         self.station = station
         self.peaks = self.__annual()
-        self.fit = None
+        #self.fit = None
+        self.dist = Gev(self.peaks['peaks'].values)
+
 
     def __annual(self):
         data_by_year_hydrologic = self.data.groupby(pd.Grouper(
@@ -28,6 +32,8 @@ class Maximum(object):
         return self.peaks
 
     def mml(self):
+        return self.dist.mml()
+        """
         try:
             peaks = self.peaks.copy()
             mom = distr.gev.lmom_fit(peaks['peaks'].values)
@@ -36,6 +42,7 @@ class Maximum(object):
         except AttributeError:
             self.annual()
             return self.mml()
+        """
 
     def mvs(self):
         try:
@@ -63,19 +70,20 @@ class Maximum(object):
                 raise ValueError
             return self.magnitude(period_return)
 
+
+
     def plot_distribution(self, title, estimador, type_function, save=False):
         if estimador == 'mvs':
             self.mvs()
         elif estimador == 'mml':
             self.mml()
         else:
-            raise ValueError
+            raise ValueError("Estimador: [mvs or mml]")
         genextreme = GenExtreme(title, self.fit[0], self.fit[1], self.fit[2])
         data, fig = genextreme.plot(type_function)
         if save:
             py.image.save_as(fig, filename='gráficos/GEV_%s_%s.png' % (type_function,
                                                                        estimador))
-
         return fig, data
 
     def plot_hydrogram(self, save=False):
