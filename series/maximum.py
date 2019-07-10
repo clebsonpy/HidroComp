@@ -19,7 +19,7 @@ class Maximum(object):
         self.station = station
         self.peaks = self.__annual()
         #self.fit = None
-        self.dist = Gev(self.peaks['peaks'].values)
+        self.dist_gev = Gev(self.peaks['peaks'].values)
 
 
     def __annual(self):
