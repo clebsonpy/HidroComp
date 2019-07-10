@@ -31,19 +31,6 @@ class Maximum(object):
         self.peaks = pd.DataFrame(max_vazao, index=idx_vazao, columns=['peaks'])
         return self.peaks
 
-    def mml(self):
-        return self.dist.mml()
-        """
-        try:
-            peaks = self.peaks.copy()
-            mom = distr.gev.lmom_fit(peaks['peaks'].values)
-            self.fit = [mom['c'], mom['loc'], mom['scale']]
-            return self.fit
-        except AttributeError:
-            self.annual()
-            return self.mml()
-        """
-
     def mvs(self):
         try:
             peaks = self.peaks.copy()

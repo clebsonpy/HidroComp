@@ -2,9 +2,6 @@ from abc import ABCMeta, abstractmethod
 
 class StatsBuild():
 
-    def __init__(self, data):
-        self.data = data
-
     @abstractmethod
     def prob(self, x):
         pass

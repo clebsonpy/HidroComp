@@ -6,17 +6,22 @@ from lmoments3.distr import gev
 
 class Gev(StatsBuild):
 
+    estimadores = ['mvs', 'mml']
+
     def __init__(self, data=None,  shape=None, loc=None, scale=None):
-        super().__init__(data)
-        self.shape = shape
-        self.loc = loc
-        self.scale = scale
+        if data is None:
+            if shape is None or loc is None or scale is None:
+                raise ValueError("Parâmetros não  informados")
+            else:
+                self.shape = shape
+                self.loc = loc
+                self.scale = scale
+        else:
+            self.data = data
 
     def mml(self):
         if self.data is None:
             raise ValueError("Data not's None")
-
-        print(self.data)
         mml = gev.lmom_fit(self.data)
         self.shape = mml['c']
         self.loc = mml['loc']
@@ -34,26 +39,29 @@ class Gev(StatsBuild):
 
         return self.shape, self.loc, self.scale
 
-    def mom(self):
-        if self.data is None:
-            raise ValueError("Data not's None")
-        mom = genextreme.moment(self.data)
-        self.shape = mom[0]
-        self.loc = mom[1]
-        self.scale = mom[2]
+    def prob(self, x, estimador):
+        try:
+            return genextreme.cdf(x, c=self.shape, loc=self.loc, scale=self.scale)
+        except AttributeError:
+            if estimador not in self.estimadores:
+                raise ValueError('Estimador não existe')
+            else:
+                eval('self.' + estimador)()
+            return self.prob(x, estimador=estimador) 
 
-        return self.shape, self.loc, self.scale
+    def value(self, p, estimador=None):
+        try:
+            return genextreme.ppf(p, c=self.shape, loc=self.loc, scale=self.scale)
+        except AttributeError:
+            if estimador not in self.estimadores:
+                raise ValueError('Estimador não existe')
+            else:
+                eval('self.' + estimador)()
+            return self.value(p, estimador=estimador)
         
-    def prob(self, x):
-        p = genextreme.cdf(x, c=self.shape, loc=self.loc, scale=self.scale)
-        return p
-
-    def value(self, p):
-        x = genextreme.ppf(p, c=self.shape, loc=self.loc, scale=self.scale)
-        return x
 
     def interval(self, alpha):
-        inteval = genextreme.interval(alpha, loc=self.loc, scale=self.scale)
+        inteval = genextreme.interval(alpha, c=self.shape, loc=self.loc, scale=self.scale)
         return inteval
 
     def plot_cdf(self):
