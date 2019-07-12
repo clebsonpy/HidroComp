@@ -39,7 +39,7 @@ class Gev(StatsBuild):
 
         return self.shape, self.loc, self.scale
 
-    def prob(self, x, estimador):
+    def prob(self, x, estimador=None):
         try:
             return genextreme.cdf(x, c=self.shape, loc=self.loc, scale=self.scale)
         except AttributeError:
@@ -47,7 +47,7 @@ class Gev(StatsBuild):
                 raise ValueError('Estimador não existe')
             else:
                 eval('self.' + estimador)()
-            return self.prob(x, estimador=estimador) 
+            return self.prob(x) 
 
     def value(self, p, estimador=None):
         try:
@@ -57,7 +57,7 @@ class Gev(StatsBuild):
                 raise ValueError('Estimador não existe')
             else:
                 eval('self.' + estimador)()
-            return self.value(p, estimador=estimador)
+            return self.value(p)
         
 
     def interval(self, alpha):
@@ -69,3 +69,9 @@ class Gev(StatsBuild):
 
     def plot_pdf(self):
         pass
+
+if __name__ == '__main__':
+
+    data = [1347,  857, 1626,  977, 1065,  997,  502, 1663,  992, 1487, 1041, 2251, 1110, 1553, 1090, 1268, 1113, 1358,  402]
+    dist_gev = Gev(data=data)
+    print(dist_gev.value(0.75))

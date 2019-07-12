@@ -15,10 +15,19 @@ class TestGev(TestCase):
         self.assertEquals(Gev(data=self.data).mvs(), mvs, 'Fit_MVS: %s, %s, %s' % mvs)
 
     def test_prob(self):
-        pass
+        prob_mml = 0.7781690064347855
+        prob_mvs = 0.7287813740394129
+
+        self.assertEquals(Gev(data=self.data).prob(1500, estimador='mml'), prob_mml, 'Prob: %s' % prob_mml)
+        self.assertEquals(Gev(data=self.data).prob(1500, estimador='mvs'), prob_mvs, 'Prob: %s' % prob_mvs)
 
     def test_value(self):
-        pass
+        value_mml = 1456.9948303470273
+        value_mvs = 2314.9143444142505
+
+        self.assertEquals(Gev(data=self.data).value(0.75, estimador='mml'), value_mml, 'Value: %s' % value_mml)
+        self.assertEquals(Gev(data=self.data).value(0.75, estimador='mvs'), value_mvs, 'Value: %s' % value_mvs)
+         
 
 if __name__ == "__main__":
     main()
