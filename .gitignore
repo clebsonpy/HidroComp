@@ -2,9 +2,9 @@
 *.pyc
 .idea/
 venv/
+*.txt
 *.xls
 *.xlsx
 gráficos/
 output/
-Medicoes/
 *.vscode/
