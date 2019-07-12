@@ -4,7 +4,7 @@
 venv/
 *.xls
 *.xlsx
-Dados_Chuva/
 gráficos/
 output/
 Medicoes/
+*.vscode/
