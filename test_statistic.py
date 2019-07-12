@@ -1,6 +1,8 @@
 from unittest import TestCase, main
 from statistic.genextre import Gev
 
+from statistic.exceptions import DataNotExist
+
 class TestGev(TestCase):
 
     data = [1347,  857, 1626,  977, 1065,  997,  502, 1663,  992, 
@@ -24,10 +26,12 @@ class TestGev(TestCase):
     def test_value(self):
         value_mml = 1456.9948303470273
         value_mvs = 2314.9143444142505
-
+        
         self.assertEquals(Gev(data=self.data).value(0.75, estimador='mml'), value_mml, 'Value: %s' % value_mml)
         self.assertEquals(Gev(data=self.data).value(0.75, estimador='mvs'), value_mvs, 'Value: %s' % value_mvs)
-         
+    
+    def test_interval(self):
+        pass
 
 if __name__ == "__main__":
     main()
