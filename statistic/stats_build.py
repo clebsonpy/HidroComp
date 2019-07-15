@@ -3,11 +3,11 @@ from abc import ABCMeta, abstractmethod
 class StatsBuild():
 
     @abstractmethod
-    def prob(self, x):
+    def probs(self, x):
         pass
 
     @abstractmethod
-    def value(self, p):
+    def values(self, p):
         pass
 
     @abstractmethod
@@ -23,13 +23,9 @@ class StatsBuild():
         pass
 
     @abstractmethod
-    def fit(self, estimador):
+    def mvs(self):
         pass
 
     @abstractmethod
     def mml(self):
-        pass
-
-    @abstractmethod
-    def mom(self):
         pass

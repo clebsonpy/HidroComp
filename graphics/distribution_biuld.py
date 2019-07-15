@@ -1,6 +1,5 @@
 from abc import ABCMeta, abstractmethod
 
-
 class DistributionBiuld(object, metaclass=ABCMeta):
 
     def __init__(self, title, shape, location, scale):

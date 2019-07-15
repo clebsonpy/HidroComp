@@ -4,10 +4,12 @@ import statistic.exceptions as e
 from statistic.stats_build import StatsBuild
 from scipy.stats import genextreme
 from lmoments3.distr import gev
+from graphics.genextreme import GenExtreme
 
 class Gev(StatsBuild):
 
-    estimadores = ['mvs', 'mml']
+    name = 'GEV'
+    estimador = None
 
     def __init__(self, data=None,  shape=None, loc=None, scale=None):
         if data is None:
@@ -17,64 +19,56 @@ class Gev(StatsBuild):
                 self.shape = shape
                 self.loc = loc
                 self.scale = scale
+                self.dist = genextreme(c=self.shape, loc=self.loc, scale=self.scale)
         else:
             self.data = data
-
+            self.dist = None
+            
     def mml(self):
         if self.data is None:
             raise e.DataNotExist("Data not's None", 25)
         mml = gev.lmom_fit(self.data)
+        self.estimador = 'MML'
         self.shape = mml['c']
         self.loc = mml['loc']
         self.scale = mml['scale']
+        self.dist = genextreme(c=self.shape, loc=self.loc, scale=self.scale)
 
         return self.shape, self.loc, self.scale
 
     def mvs(self):
         if self.data is None:
             raise e.DataNotExist("Data not's None", 35)
-        mvs = genextreme.fit(self.data)
+        mvs = genextreme.fit(data=self.data)
+        self.estimador = 'MVS'
         self.shape = mvs[0]
         self.loc = mvs[1]
         self.scale = mvs[2]
+        self.dist = genextreme(c=self.shape, loc=self.loc, scale=self.scale)
 
         return self.shape, self.loc, self.scale
 
-    def prob(self, x, estimador=None):
-        try:
-            return genextreme.cdf(x, c=self.shape, loc=self.loc, scale=self.scale)
-        except AttributeError:
-            if estimador not in self.estimadores:
-                raise e.EstimadorNotExist('Estimador não existe')
-            else:
-                eval('self.' + estimador)()
-            return self.prob(x) 
+    def probs(self, x):
+        if self.dist is None:
+            raise e.DistributionNotExist('Distribuição não existe', 51)
+        else:
+            if type(x) is list:
+                return [self.probs(i) for i in x]
+            return self.dist.cdf(x)
 
-    def value(self, p, estimador=None):
-        try:
-            return genextreme.ppf(p, c=self.shape, loc=self.loc, scale=self.scale)
-        except AttributeError:
-            if estimador not in self.estimadores:
-                raise e.EstimadorNotExist('Estimador não existe')
-            else:
-                eval('self.' + estimador)()
-            return self.value(p)
-        
-    def interval(self, alpha, estimador=None):
-        try:
-            return genextreme.interval(alpha, c=self.shape, loc=self.loc, scale=self.scale)
-        except AttributeError:
-            if estimador not in self.estimadores:
-                raise e.EstimadorNotExist('Estimador não existe')
-            else:
-                pass
-            return "Olá"
+    def values(self, p):
+        if self.dist is None:
+            raise e.DistributionNotExist('Distribuição não existe', 51)
+        else:
+            if type(p) is list:
+                return [self.values(i) for i in p]
+            return self.dist.ppf(p)
 
-    def plot_cdf(self):
-        pass
-
-    def plot_pdf(self):
-        pass
+    def interval(self, alpha):
+        if self.dist is None:
+            raise e.DistributionNotExist('Distribuição não existe', 51)
+        else:
+            return self.dist.interval(alpha)
 
 
 if __name__ == '__main__':

@@ -100,3 +100,25 @@ class ParameterError(Exception):
         return "ParameterError: {}".format(self.mensagem) + \
             (" na linha {}!".format(self.linha) \
             if self.linha > 0 else "!")
+
+
+class DistributionNotExist(Exception):
+    def __init__(self, mensagem, linha=0):
+        self.mensagem = mensagem
+        self.linha = linha
+
+    def __str__(self):
+        return "ParameterError: {}".format(self.mensagem) + \
+            (" na linha {}!".format(self.linha) \
+            if self.linha > 0 else "!")
+
+
+class DistributionError(Exception):
+    def __init__(self, mensagem, linha=0):
+        self.mensagem = mensagem
+        self.linha = linha
+
+    def __str__(self):
+        return "ParameterError: {}".format(self.mensagem) + \
+            (" na linha {}!".format(self.linha) \
+            if self.linha > 0 else "!")
