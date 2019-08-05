@@ -40,10 +40,9 @@ class SeriesBiuld(metaclass=ABCMeta):
 
     def __start_and_end(self):
         boolean = self.data.isnull()
-        date = boolean.loc[boolean[boolean.columns.values[0]] == False].index
+        date = boolean.loc[boolean[boolean.columns.values[0]] is False].index
 
         return date[0], date[-1]
-
 
     def __str__(self):
         """
@@ -53,7 +52,7 @@ class SeriesBiuld(metaclass=ABCMeta):
     def __getitem__(self, val):
         """
         """
-        return self.__class__(data = self.data[val].copy())
+        return self.__class__(data=self.data[val].copy())
 
     def date(self, date_start=None, date_end=None):
         """
@@ -61,13 +60,13 @@ class SeriesBiuld(metaclass=ABCMeta):
         if date_start is not None and date_end is not None:
             date_start = pd.to_datetime(date_start, dayfirst=True)
             date_end = pd.to_datetime(date_end, dayfirst=True)
-            return self.__class__(data = self.data.loc[date_start:date_end].copy())
+            return self.__class__(data=self.data.loc[date_start:date_end].copy())
         elif date_start is not None:
             date_start = pd.to_datetime(date_start, dayfirst=True)
-            return self.__class__(data = self.data.loc[date_start:].copy())
+            return self.__class__(data=self.data.loc[date_start:].copy())
         elif date_end is not None:
             date_end = pd.to_datetime(date_end, dayfirst=True)
-            return self.__class__(data = self.data.loc[:date_end].copy())
+            return self.__class__(data=self.data.loc[:date_end].copy())
 
     def less_period(self, data):
         """
@@ -121,5 +120,5 @@ class SeriesBiuld(metaclass=ABCMeta):
         df = pd.DataFrame(columns=['Task', 'Start', 'Finish', 'Description', 'IndexCol'])
         for i in self.data:
             df, cont = Gantt(self.data[i]).get_gantt(df, self.less_period(self.data[i]), cont)
-        fig = FF.create_gantt(df, colors = '#000000', group_tasks=True, title=name)
+        fig = FF.create_gantt(df, colors='#000000', group_tasks=True, title=name)
         return fig
