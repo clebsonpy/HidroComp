@@ -11,15 +11,14 @@ from files.ana import Ana
 from series.flow import Flow
 from series.chuva import Chuva
 from series.series_biuld import SeriesBiuld
-from statistic.genextre_test import TestGev
+from test_statistic import TestGev
 
 if __name__ == '__main__':
     ini = timeit.default_timer()
-    file = "/home/clebsonpy/Documents/Projetos/HydroComp/Medicoes/dados_com_evap_manso.csv"
+    file = "/home/clebsonpy/Documents/Projetos/HydroComp/Medicoes/dadosXingo.csv"
     #file2 = "/home/clebsonpy/Documentos/Projetos/HydroComp/Medicoes"
     #dados = Flow(path=file, source='ANA', consistence=2)
-    print(TestGev())
-    dados = pd.read_csv(file, index_col=0, parse_dates=True)
+    dados = pd.read_csv(file, index_col=0, names=["Date", "XINGO"], parse_dates=True)
 
     #dados = Flow(path=file, source="ONS")
     #dados_chuva = Chuva(path=file2, source='ANA', consistence=1)
@@ -35,6 +34,7 @@ if __name__ == '__main__':
     #dados = dados.combine_first(dados_obs.data)
     #dados = dados.combine_first(dados_chuva.data)
     dados = Flow(dados)
+    #print(dados)
     #print(dados['2013'].get_month(8))
     #fig = dados.gantt(name = 'Gantt')
     #dados.data.to_csv("barracao.csv")
@@ -47,16 +47,16 @@ if __name__ == '__main__':
 
     #value_threshold = test.mean()['XINGO'] + test.std()['XINGO']
     #print(test.mean())
-    maximum = test.maximum(station='MANSO')
-    print(maximum.dist_gev.mvs())
-    #parcial = dados.parcial(station="MANSO", type_criterion='xmin_bigger_dois_terco_x',
-    #                       type_threshold="events_by_year", type_event="flood",
-    #                       value_threshold=2, duration=0)
+    #maximum = test.maximum(station='MANSO')
+    #print(maximum.dist_gev.mvs())
+    parcial = dados.parcial(station="XINGO", type_criterion=None, type_threshold="stationary", type_event="flood",
+                            value_threshold=4813, duration=0)
     #print(parcial.peaks)
+    print(parcial.threshold)
     #print(parcial.test_autocorrelation())
-    #fig, data = parcial.plot_hydrogram('Cheia')
+    fig, data = parcial.plot_hydrogram('Cheia')
     #print(data)
-    #py.offline.plot(fig, filename='gráficos/gantt_manso_evap.html')
+    py.offline.plot(fig, filename='gráficos/hidroParcial.html')
 
     fim = timeit.default_timer()
     print('Duração: ', fim-ini)

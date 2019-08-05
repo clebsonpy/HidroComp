@@ -32,7 +32,8 @@ class HydrogramParcial(HydrogramBiuld):
             data = []
             data.append(self._plot_one(self.data))
             data.append(self._plot_threshold())
-            data.append(self._plot_threshold_criterion(type_criterion))
+            if type_criterion is not None:
+                data.append(self._plot_threshold_criterion(type_criterion))
             data += self._plot_event_peaks()
 
             fig = dict(data=data, layout=layout)
@@ -106,8 +107,7 @@ class HydrogramParcial(HydrogramBiuld):
         trace_threshold_criterion = go.Scatter(
             x=self.data.index,
             y=[self.threshold_criterion]*len(self.data),
-            #name=type_criterion.title(),
-            name = "Mediana",
+            name="Criterion",
             line=dict(color='rgb(128, 128, 128)',
                       width=1.5,
                       dash='dash')

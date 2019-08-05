@@ -42,15 +42,18 @@ class Parcial(object):
         self.type_event = type_event
         self.value = value_threshold
 
-        if type_criterion == 'median':
+        if self.type_criterion == 'median':
             self.__percentil = 0.65
-        elif type_criterion == 'autocorrelation':
+        elif self.type_criterion == 'autocorrelation':
             self.duration = kwargs['duration']
 
         self.__threshold(self.value)
-        self.name = '%s(%s) - %s' % (self.dic_name[self.type_threshold],
-                                     self.value, self.type_criterion.title())
-        if self.peaks == None:
+        if self.type_criterion is not None:
+            self.name = '%s(%s) - %s' % (self.dic_name[self.type_threshold], self.value, self.type_criterion.title())
+        else:
+            self.name = '%s(%s)' % (self.dic_name[self.type_threshold], self.value)
+
+        if self.peaks is None:
             self.event_peaks()
 
     def event_peaks(self):
@@ -86,10 +89,8 @@ class Parcial(object):
                 data_min['peaks'].append(self.data.loc[idx_before, self.station])
                 data_min['Date'].append(idx_before)
             else:
-                data, max_events, data_min = self.__criterion(
-                    data=data, max_events=max_events, data_min=data_min,
-                    events_criterion=events_criterion.loc[i]
-                )
+                data, max_events, data_min = self.__criterion(data=data, max_events=max_events, data_min=data_min,
+                                                              events_criterion=events_criterion.loc[i])
             idx_before = i
 
         self.peaks = pd.DataFrame(
@@ -120,6 +121,8 @@ class Parcial(object):
                 threshold = self.data[self.station].mean()
             elif self.type_criterion == 'median':
                 threshold = self.data[self.station].median()
+            elif self.type_criterion is None:
+                threshold = self.threshold
 
         if self.type_event == 'flood':
             events = self.data[self.station].isin(self.data.loc[self.data[
@@ -201,6 +204,13 @@ class Parcial(object):
 
         elif self.type_criterion == 'duration':
             data, max_events = self.__criterion_duration(
+                data=kwargs['data'], max_events=kwargs['max_events'],
+                events_criterion=kwargs['events_criterion']
+            )
+            return data, max_events, kwargs['data_min']
+
+        elif self.type_criterion is None:
+            data, max_events = self.__criterion_mean(
                 data=kwargs['data'], max_events=kwargs['max_events'],
                 events_criterion=kwargs['events_criterion']
             )
