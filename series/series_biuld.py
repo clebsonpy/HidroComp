@@ -15,7 +15,7 @@ class SeriesBiuld(metaclass=ABCMeta):
         "ANA": ana.Ana
     }
 
-    def __init__(self, data=None, path=os.getcwd(), source=None, delete_null=False, *args, **kwargs):
+    def __init__(self, data=None, path=os.getcwd(), source=None, *args, **kwargs):
         self.path = path
         if data is not None:
             self.data = data
@@ -40,7 +40,7 @@ class SeriesBiuld(metaclass=ABCMeta):
 
     def __start_and_end(self):
         boolean = self.data.isnull()
-        date = boolean.loc[boolean[boolean.columns.values[0]] is False].index
+        date = boolean.loc[boolean[boolean.columns.values[0]] == False].index
 
         return date[0], date[-1]
 

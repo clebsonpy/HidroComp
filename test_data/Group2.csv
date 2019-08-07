@@ -1,0 +1,13 @@
+;Means;Coeff. of Var.
+1-day minimum;881.6;0.3347
+3-day minimum;887.5;0.3333
+7-day minimum;901;0.3301
+30-day minimum;953.8;0.3179
+90-day minimum;1057;0.2998
+1-day maximum;7790;0.3854
+3-day maximum;7681;0.3794
+7-day maximum;7450;0.3724
+30-day maximum;6506;0.3723
+90-day maximum;5160;0.3627
+Number of zero days;0;0
+Base flow index;0.3355;0.1561
