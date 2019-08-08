@@ -30,8 +30,6 @@ class Test_IHA(TestCase):
     def test_moving_averages(self):
         data = self.read_iha('Group2.csv')
         data2 = self.read().magnitude_and_duration()
-        print(data2)
-        print(data)
         for i in data.index:
             self.assertEqual('{:=4.0f}'.format(data.Means[i]), '{:=4.0f}'.format(data2.Means[i]))
             self.assertEqual('{:=4.0f}'.format(data['Coeff. of Var.'][i]), '{:=4.0f}'.format(data2['Coeff. of Var.'][i]))
@@ -48,10 +46,9 @@ class Test_IHA(TestCase):
             self.assertEqual(data['Coeff. of Var.'][i], data2['Coeff. of Var.'][i])
 
     def test_pulse(self):
-        picos, eventos_por_ano, dM, dCv, pM, pCv, limiar = self.read().pulsosDuracao(tipoEvento='cheia')
+        self.read().frequency_and_duration(station="XINGO", type_criterion=None, type_threshold="stationary",
+                                           type_event="flood", value_threshold=4813, duration=0)
         data = self.read_iha('Group4.csv')
-        print(limiar)
-        print(eventos_por_ano)
 
     def test_rise_fall(self):
         data = self.read_iha('Group5.csv')

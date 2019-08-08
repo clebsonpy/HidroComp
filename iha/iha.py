@@ -41,7 +41,7 @@ class IHA:
         else:
             return cal.month_abbr[month_water].upper()
 
-    #Group 1: Magnitude of monthly water conditions
+    # Group 1: Magnitude of monthly water conditions
     def magnitude(self):
         years = self.flow.data.groupby(pd.Grouper(freq='A'))
         data = pd.DataFrame()
@@ -57,7 +57,7 @@ class IHA:
         iha_mean_month = mean.combine_first(std)
         return iha_mean_month
 
-    #Group 2: Magnitude and Duration of annual extreme water conditions
+    # Group 2: Magnitude and Duration of annual extreme water conditions
     def magnitude_and_duration(self):
         aver_data = pd.DataFrame()
         for i in [1, 3, 7, 30, 90]:
@@ -70,7 +70,7 @@ class IHA:
             aver_data = aver_data.combine_first(df2)
             if i == 7:
                 mean_year = self.flow.data[self.station].groupby(pd.Grouper(freq='A')).mean().values
-                base_flow = pd.DataFrame(pd.Series(data=ave_min[self.station].values/mean_year,
+                base_flow = pd.DataFrame(pd.Series(data=ave_min[self.station].values / mean_year,
                                                    name='Base flow index', index=years))
                 aver_data = aver_data.combine_first(base_flow)
 
@@ -85,7 +85,7 @@ class IHA:
         iha_moving_aver = mean.combine_first(cv)
         return iha_moving_aver
 
-    #Group 3: Timing of annual extreme water conditions
+    # Group 3: Timing of annual extreme water conditions
     def timing_extreme(self):
 
         day_julian_max = pd.DatetimeIndex(self.flow.data[self.station].groupby(pd.Grouper(freq='A')).idxmax().values)
@@ -96,7 +96,7 @@ class IHA:
         df_day_julian_min = pd.DataFrame(list(map(int, day_julian_min.strftime("%j"))), index=day_julian_min.year,
                                          columns=["Date of minimum"])
 
-        #combine the dfs of days julians
+        # combine the dfs of days julians
         df_day_julian = df_day_julian_max.combine_first(df_day_julian_min)
 
         mean = pd.DataFrame(df_day_julian.mean(), columns=['Means'])
@@ -104,3 +104,36 @@ class IHA:
         iha_day_julian = mean.combine_first(cv)
 
         return iha_day_julian
+
+    # Group 4: Frequency and duration of high and low pulses
+    def frequency_and_duration(self, station, type_threshold, type_event, type_criterion, value_threshold, **kwargs):
+        events = self.flow.parcial(station=self.station, type_threshold=type_threshold, type_criterion=type_criterion,
+                                   type_event=type_event, value_threshold=value_threshold)
+
+        duration_pulse_high = pd.DataFrame(events.peaks.groupby(pd.Grouper(freq='A')).Duration.mean()).rename(
+            columns={"Duration": 'High pulse duration'})
+        print(duration_pulse_high)
+        """
+        # eventosPicos, limiar = self.parcialPorAno(2.3, tipoEvento)
+        eventosPicos = self.eventos_picos(eventosL, tipoEvento)
+
+        # print(self.test_autocorrelacao(eventosPicos)[0])
+
+        grupoEventos = self.dataFlow[self.nPosto].groupby(pd.Grouper(freq='A'))
+        dic = {'Ano': [], 'Duracao': [], 'nPulsos': []}
+        for i, serie in grupoEventos:
+            dic['Ano'].append(i.year)
+            dic['Duracao'].append(eventosPicos.Duracao.loc[eventosPicos.Ano == i.year].mean())
+            dic['nPulsos'].append(len(eventosPicos.loc[eventosPicos.Ano == i.year]))
+        evento_por_ano = pd.DataFrame(dic)
+        evento_por_ano.set_value(evento_por_ano.loc[evento_por_ano.Duracao.isnull()].index, 'Duracao', 0)
+        durMedia = evento_por_ano.Duracao.mean()
+        durCv = evento_por_ano.Duracao.std() / durMedia
+        nPulsoMedio = evento_por_ano.nPulsos.mean()
+        nPulsoCv = evento_por_ano.nPulsos.std() / nPulsoMedio
+        return eventosPicos, evento_por_ano, durMedia, durCv, nPulsoMedio, nPulsoCv, limiar
+        """
+
+    # Group 5: Rate and frequency of water condition changes
+    def rate_and_frequency(self):
+        pass
