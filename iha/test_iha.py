@@ -21,7 +21,7 @@ class Test_IHA(TestCase):
 
     def test_mean_month(self):
         data = self.read_iha('Group1.csv')
-        data2 = self.read().mean_month()
+        data2 = self.read().magnitude()
 
         for i in data.index:
             self.assertEqual('{:=4.0f}'.format(data.Means[i]), '{:=4.0f}'.format(data2.Means[i]))
@@ -29,7 +29,9 @@ class Test_IHA(TestCase):
 
     def test_moving_averages(self):
         data = self.read_iha('Group2.csv')
-        data2 = self.read().moving_averages()
+        data2 = self.read().magnitude_and_duration()
+        print(data2)
+        print(data)
         for i in data.index:
             self.assertEqual('{:=4.0f}'.format(data.Means[i]), '{:=4.0f}'.format(data2.Means[i]))
             self.assertEqual('{:=4.0f}'.format(data['Coeff. of Var.'][i]), '{:=4.0f}'.format(data2['Coeff. of Var.'][i]))
@@ -39,7 +41,7 @@ class Test_IHA(TestCase):
         self.assertEqual((9, 'SEP'), year_water, 'Year Water: %s, %s' % (9, 'SEP'))
 
     def test_days_julian(self):
-        data2 = self.read().days_julian()
+        data2 = self.read().timing_extreme()
         data = self.read_iha('Group3.csv')
         for i in data.index:
             self.assertEqual(data.Means[i], data2.Means[i])

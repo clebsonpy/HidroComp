@@ -41,7 +41,8 @@ class IHA:
         else:
             return cal.month_abbr[month_water].upper()
 
-    def mean_month(self):
+    #Group 1: Magnitude of monthly water conditions
+    def magnitude(self):
         years = self.flow.data.groupby(pd.Grouper(freq='A'))
         data = pd.DataFrame()
         for year in years:
@@ -56,7 +57,8 @@ class IHA:
         iha_mean_month = mean.combine_first(std)
         return iha_mean_month
 
-    def moving_averages(self):
+    #Group 2: Magnitude and Duration of annual extreme water conditions
+    def magnitude_and_duration(self):
         aver_data = pd.DataFrame()
         for i in [1, 3, 7, 30, 90]:
             ave_max = self.flow.data.rolling(window=i).mean().groupby(pd.Grouper(freq='A')).max()
@@ -66,6 +68,16 @@ class IHA:
             df2 = pd.DataFrame(pd.Series(data=ave_max[self.station].values, name='%s-day maximum' % i, index=years))
             aver_data = aver_data.combine_first(df1)
             aver_data = aver_data.combine_first(df2)
+            if i == 7:
+                mean_year = self.flow.data[self.station].groupby(pd.Grouper(freq='A')).mean().values
+                base_flow = pd.DataFrame(pd.Series(data=ave_min[self.station].values/mean_year,
+                                                   name='Base flow index', index=years))
+                aver_data = aver_data.combine_first(base_flow)
+
+        dic_zero = {i[0].year: i[1].loc[i[1][self.station].values == 0].sum()
+                    for i in self.flow.data.groupby(pd.Grouper(freq='A'))}
+
+        aver_data = aver_data.combine_first(pd.DataFrame(pd.Series(data=dic_zero, name='Number of zero days')))
 
         mean = pd.DataFrame(aver_data.mean(), columns=['Means'])
         cv = pd.DataFrame(aver_data.std() / aver_data.mean(), columns=['Coeff. of Var.'])
@@ -73,7 +85,8 @@ class IHA:
         iha_moving_aver = mean.combine_first(cv)
         return iha_moving_aver
 
-    def days_julian(self):
+    #Group 3: Timing of annual extreme water conditions
+    def timing_extreme(self):
 
         day_julian_max = pd.DatetimeIndex(self.flow.data[self.station].groupby(pd.Grouper(freq='A')).idxmax().values)
         day_julian_min = pd.DatetimeIndex(self.flow.data[self.station].groupby(pd.Grouper(freq='A')).idxmin().values)
