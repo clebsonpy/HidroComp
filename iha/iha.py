@@ -15,8 +15,11 @@ class IHA:
     def rva(self):
         pass
 
-    def metric_stats(self):
-        pass
+    def metric_stats(self, group):
+        mean = pd.DataFrame(group.mean(), columns=['Means'])
+        cv = pd.DataFrame(group.std() / group.mean(), columns=['Coeff. of Var.'])
+        stats = mean.combine_first(cv)
+        return stats
 
     def get_station(self, station):
         if len(self.flow.data.columns.values) != 1:
@@ -51,10 +54,7 @@ class IHA:
             data = data.combine_first(df)
         mean_months = data.T
 
-        mean = pd.DataFrame(mean_months.mean(), columns=['Means'])
-        std = pd.DataFrame(mean_months.std() / mean_months.mean(), columns=['Coeff. of Var.'])
-        iha_mean_month = mean.combine_first(std)
-        return iha_mean_month
+        return self.metric_stats(mean_months)
     # </editor-fold">
 
     # <editor-fold desc="Group 2">
@@ -78,13 +78,9 @@ class IHA:
         dic_zero = {i[0].year: i[1].loc[i[1][self.station].values == 0].sum()
                     for i in self.flow.data.groupby(pd.Grouper(freq='A'))}
 
-        aver_data = aver_data.combine_first(pd.DataFrame(pd.Series(data=dic_zero, name='Number of zero days')))
+        magn_and_duration = aver_data.combine_first(pd.DataFrame(pd.Series(data=dic_zero, name='Number of zero days')))
 
-        mean = pd.DataFrame(aver_data.mean(), columns=['Means'])
-        cv = pd.DataFrame(aver_data.std() / aver_data.mean(), columns=['Coeff. of Var.'])
-
-        iha_moving_aver = mean.combine_first(cv)
-        return iha_moving_aver
+        return self.metric_stats(magn_and_duration)
     # </editor-fold>
 
     # <editor-fold desc="Group 3">
@@ -99,14 +95,9 @@ class IHA:
         df_day_julian_min = pd.DataFrame(list(map(int, day_julian_min.strftime("%j"))), index=day_julian_min.year,
                                          columns=["Date of minimum"])
 
-        # combine the dfs of days julians
-        df_day_julian = df_day_julian_max.combine_first(df_day_julian_min)
-
-        mean = pd.DataFrame(df_day_julian.mean(), columns=['Means'])
-        cv = pd.DataFrame(df_day_julian.std() / df_day_julian.mean(), columns=['Coeff. of Var.'])
-        iha_day_julian = mean.combine_first(cv)
-
-        return iha_day_julian
+        # combine the dfs of days julian
+        timing_extreme = df_day_julian_max.combine_first(df_day_julian_min)
+        return self.metric_stats(timing_extreme)
     # </editor-fold>
 
     # <editor-fold desc="Group 4">
@@ -129,18 +120,16 @@ class IHA:
     def frequency_and_duration(self, type_threshold, type_criterion, threshold_high, threshold_low, **kwargs):
         events_high = self.flow.parcial(station=self.station, type_threshold=type_threshold, type_event="flood",
                                         type_criterion=type_criterion, value_threshold=threshold_high)
-        group_high = self.__aux_frequency_and_duration(events_high)
+        frequency_and_duration_high = self.__aux_frequency_and_duration(events_high)
 
         events_low = self.flow.parcial(station=self.station, type_event='drought', type_threshold=type_threshold,
                                        type_criterion=type_criterion, value_threshold=threshold_low)
-        group_low = self.__aux_frequency_and_duration(events_low)
+        frequency_and_duration_low = self.__aux_frequency_and_duration(events_low)
 
-        group = group_high.combine_first(group_low)
+        frequency_and_duration = frequency_and_duration_high.combine_first(frequency_and_duration_low)
 
-        mean = pd.DataFrame(group.mean(), columns=['Means'])
-        cv = pd.DataFrame(group.std() / group.mean(), columns=['Coeff. of Var.'])
-        iha_frequency_and_duration = mean.combine_first(cv)
-        return iha_frequency_and_duration
+        return self.metric_stats(frequency_and_duration)
+
     # </editor-fold>
 
     # <editor-fold desc="Group 5">
