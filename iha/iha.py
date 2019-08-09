@@ -1,6 +1,7 @@
 from iha.exceptions import NotStation
 import pandas as pd
 import calendar as cal
+import plotly as py
 from series.flow import Flow
 
 
@@ -41,6 +42,7 @@ class IHA:
         else:
             return cal.month_abbr[month_water].upper()
 
+    # <editor-fold desc="Group 1">
     # Group 1: Magnitude of monthly water conditions
     def magnitude(self):
         years = self.flow.data.groupby(pd.Grouper(freq='A'))
@@ -56,7 +58,9 @@ class IHA:
         std = pd.DataFrame(mean_months.std() / mean_months.mean(), columns=['Coeff. of Var.'])
         iha_mean_month = mean.combine_first(std)
         return iha_mean_month
+    # </editor-fold">
 
+    # <editor-fold desc="Group 2">
     # Group 2: Magnitude and Duration of annual extreme water conditions
     def magnitude_and_duration(self):
         aver_data = pd.DataFrame()
@@ -84,7 +88,9 @@ class IHA:
 
         iha_moving_aver = mean.combine_first(cv)
         return iha_moving_aver
+    # </editor-fold>
 
+    # <editor-fold desc="Group 3">
     # Group 3: Timing of annual extreme water conditions
     def timing_extreme(self):
 
@@ -104,36 +110,43 @@ class IHA:
         iha_day_julian = mean.combine_first(cv)
 
         return iha_day_julian
+    # </editor-fold>
 
+    # <editor-fold desc="Group 4">
     # Group 4: Frequency and duration of high and low pulses
-    def frequency_and_duration(self, station, type_threshold, type_event, type_criterion, value_threshold, **kwargs):
-        events = self.flow.parcial(station=self.station, type_threshold=type_threshold, type_criterion=type_criterion,
-                                   type_event=type_event, value_threshold=value_threshold)
+    # Obs.: Ver se pode ser usado ano hidrológico
+    def frequency_and_duration(self, type_threshold, type_criterion, threshold_high, threshold_low, **kwargs):
+        events_high = self.flow.parcial(station=self.station, type_threshold=type_threshold, type_event="flood",
+                                        type_criterion=type_criterion, value_threshold=threshold_high)
 
-        duration_pulse_high = pd.DataFrame(events.peaks.groupby(pd.Grouper(freq='A')).Duration.mean()).rename(
+        duration_pulse_high = pd.DataFrame(events_high.peaks.groupby(pd.Grouper(freq='A')).Duration.mean()).rename(
             columns={"Duration": 'High pulse duration'})
-        print(duration_pulse_high)
-        """
-        # eventosPicos, limiar = self.parcialPorAno(2.3, tipoEvento)
-        eventosPicos = self.eventos_picos(eventosL, tipoEvento)
+        pulse_high = pd.DataFrame(events_high.peaks.groupby(pd.Grouper(freq='A')).Duration.count()).rename(
+            columns={"Duration": 'High pulse count'})
+        group = duration_pulse_high.combine_first(pulse_high)
+        df_threshold_high = pd.DataFrame(pd.Series(events_high.threshold, name="High Pulse Threshold"))
+        group = group.combine_first(df_threshold_high)
 
-        # print(self.test_autocorrelacao(eventosPicos)[0])
+        events_low = self.flow.parcial(station=self.station, type_event='drought', type_threshold=type_threshold,
+                                       type_criterion=type_criterion, value_threshold=threshold_low)
+        df_threshold_low = pd.DataFrame(pd.Series(events_low.threshold, name="Low Pulse Threshold"))
+        group = group.combine_first(df_threshold_low)
+        duration_pulse_low = pd.DataFrame(events_low.peaks.groupby(pd.Grouper(freq='A')).Duration.mean()).rename(
+            columns={"Duration": 'Low pulse duration'})
+        group = group.combine_first(duration_pulse_low)
+        pulse_low = pd.DataFrame(events_low.peaks.groupby(pd.Grouper(freq='A')).Duration.count()).rename(
+            columns={"Duration": 'Low pulse count'})
+        group = group.combine_first(pulse_low)
 
-        grupoEventos = self.dataFlow[self.nPosto].groupby(pd.Grouper(freq='A'))
-        dic = {'Ano': [], 'Duracao': [], 'nPulsos': []}
-        for i, serie in grupoEventos:
-            dic['Ano'].append(i.year)
-            dic['Duracao'].append(eventosPicos.Duracao.loc[eventosPicos.Ano == i.year].mean())
-            dic['nPulsos'].append(len(eventosPicos.loc[eventosPicos.Ano == i.year]))
-        evento_por_ano = pd.DataFrame(dic)
-        evento_por_ano.set_value(evento_por_ano.loc[evento_por_ano.Duracao.isnull()].index, 'Duracao', 0)
-        durMedia = evento_por_ano.Duracao.mean()
-        durCv = evento_por_ano.Duracao.std() / durMedia
-        nPulsoMedio = evento_por_ano.nPulsos.mean()
-        nPulsoCv = evento_por_ano.nPulsos.std() / nPulsoMedio
-        return eventosPicos, evento_por_ano, durMedia, durCv, nPulsoMedio, nPulsoCv, limiar
-        """
+        mean = pd.DataFrame(group.mean(), columns=['Means'])
+        cv = pd.DataFrame(group.std() / group.mean(), columns=['Coeff. of Var.'])
+        iha_frequency_and_duration = mean.combine_first(cv)
 
+        return iha_frequency_and_duration
+    # </editor-fold>
+
+    # <editor-fold desc="Group 5">
     # Group 5: Rate and frequency of water condition changes
     def rate_and_frequency(self):
         pass
+    # </editor-fold>
