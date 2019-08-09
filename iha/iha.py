@@ -42,8 +42,7 @@ class IHA:
         else:
             return cal.month_abbr[month_water].upper()
 
-    # <editor-fold desc="Group 1">
-    # Group 1: Magnitude of monthly water conditions
+    # <editor-fold desc="Group 1: Magnitude of monthly water conditions">
     def magnitude(self):
         years = self.flow.data.groupby(pd.Grouper(freq='A'))
         data = pd.DataFrame()
@@ -57,8 +56,7 @@ class IHA:
         return self.metric_stats(mean_months)
     # </editor-fold">
 
-    # <editor-fold desc="Group 2">
-    # Group 2: Magnitude and Duration of annual extreme water conditions
+    # <editor-fold desc="Group 2: Magnitude and Duration of annual extreme water conditions">
     def magnitude_and_duration(self):
         aver_data = pd.DataFrame()
         for i in [1, 3, 7, 30, 90]:
@@ -83,8 +81,8 @@ class IHA:
         return self.metric_stats(magn_and_duration)
     # </editor-fold>
 
-    # <editor-fold desc="Group 3">
-    # Group 3: Timing of annual extreme water conditions
+    # <editor-fold desc="Group 3: Timing of annual extreme water conditions">
+
     def timing_extreme(self):
 
         day_julian_max = pd.DatetimeIndex(self.flow.data[self.station].groupby(pd.Grouper(freq='A')).idxmax().values)
@@ -100,8 +98,7 @@ class IHA:
         return self.metric_stats(timing_extreme)
     # </editor-fold>
 
-    # <editor-fold desc="Group 4">
-    # Group 4: Frequency and duration of high and low pulses
+    # <editor-fold desc="Group 4: Frequency and duration of high and low pulses">
     # Obs.: Ver se pode ser usado ano hidrológico
     def __aux_frequency_and_duration(self, events):
         name = {'flood': 'High', 'drought': 'Low'}
@@ -132,8 +129,7 @@ class IHA:
 
     # </editor-fold>
 
-    # <editor-fold desc="Group 5">
-    # Group 5: Rate and frequency of water condition changes
+    # <editor-fold desc="Group 5: Rate and frequency of water condition changes">
     def rate_and_frequency(self):
         pass
     # </editor-fold>
