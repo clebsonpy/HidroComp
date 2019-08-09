@@ -147,7 +147,7 @@ class IHA:
 
         :return:
         """
-        self.get_month_start()
+
         """
         data_water = self.data.groupby(pd.Grouper(freq='AS-%s' % self.mesInicioAnoHidrologico()[1]))
         rate = {'Data1': [], 'Vazao1': [],
