@@ -15,10 +15,7 @@ class IHA:
     def rva(self):
         pass
 
-    def mean(self):
-        pass
-
-    def std(self):
+    def metric_stats(self):
         pass
 
     def get_station(self, station):
@@ -115,33 +112,34 @@ class IHA:
     # <editor-fold desc="Group 4">
     # Group 4: Frequency and duration of high and low pulses
     # Obs.: Ver se pode ser usado ano hidrológico
+    def __aux_frequency_and_duration(self, events):
+        name = {'flood': 'High', 'drought': 'Low'}
+        type_event = events.type_event
+        duration_pulse = pd.DataFrame(events.peaks.groupby(pd.Grouper(freq='A')).Duration.mean()).rename(
+            columns={"Duration": '{} pulse duration'.format(name[type_event])})
+
+        pulse = pd.DataFrame(events.peaks.groupby(pd.Grouper(freq='A')).Duration.count()).rename(
+            columns={"Duration": '{} pulse count'.format(name[type_event])})
+
+        group = duration_pulse.combine_first(pulse)
+        threshold = pd.DataFrame(pd.Series(events.threshold, name="{} Pulse Threshold".format(name[type_event])))
+        group = group.combine_first(threshold)
+        return group
+
     def frequency_and_duration(self, type_threshold, type_criterion, threshold_high, threshold_low, **kwargs):
         events_high = self.flow.parcial(station=self.station, type_threshold=type_threshold, type_event="flood",
                                         type_criterion=type_criterion, value_threshold=threshold_high)
-
-        duration_pulse_high = pd.DataFrame(events_high.peaks.groupby(pd.Grouper(freq='A')).Duration.mean()).rename(
-            columns={"Duration": 'High pulse duration'})
-        pulse_high = pd.DataFrame(events_high.peaks.groupby(pd.Grouper(freq='A')).Duration.count()).rename(
-            columns={"Duration": 'High pulse count'})
-        group = duration_pulse_high.combine_first(pulse_high)
-        df_threshold_high = pd.DataFrame(pd.Series(events_high.threshold, name="High Pulse Threshold"))
-        group = group.combine_first(df_threshold_high)
+        group_high = self.__aux_frequency_and_duration(events_high)
 
         events_low = self.flow.parcial(station=self.station, type_event='drought', type_threshold=type_threshold,
                                        type_criterion=type_criterion, value_threshold=threshold_low)
-        df_threshold_low = pd.DataFrame(pd.Series(events_low.threshold, name="Low Pulse Threshold"))
-        group = group.combine_first(df_threshold_low)
-        duration_pulse_low = pd.DataFrame(events_low.peaks.groupby(pd.Grouper(freq='A')).Duration.mean()).rename(
-            columns={"Duration": 'Low pulse duration'})
-        group = group.combine_first(duration_pulse_low)
-        pulse_low = pd.DataFrame(events_low.peaks.groupby(pd.Grouper(freq='A')).Duration.count()).rename(
-            columns={"Duration": 'Low pulse count'})
-        group = group.combine_first(pulse_low)
+        group_low = self.__aux_frequency_and_duration(events_low)
+
+        group = group_high.combine_first(group_low)
 
         mean = pd.DataFrame(group.mean(), columns=['Means'])
         cv = pd.DataFrame(group.std() / group.mean(), columns=['Coeff. of Var.'])
         iha_frequency_and_duration = mean.combine_first(cv)
-
         return iha_frequency_and_duration
     # </editor-fold>
 
