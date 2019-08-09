@@ -35,7 +35,7 @@ class Test_IHA(TestCase):
         self.test(data, data2)
 
     def test_year_water(self):
-        year_water = self.read().flow.month_start_year_hydrologic("XINGO")
+        year_water = self.read().get_month_start()
         self.assertEqual((9, 'SEP'), year_water, 'Year Water: %s, %s' % (9, 'SEP'))
 
     def test_days_julian(self):
@@ -47,6 +47,7 @@ class Test_IHA(TestCase):
         data2 = self.read().frequency_and_duration(type_criterion=None, type_threshold="stationary", duration=0,
                                                    threshold_high=4813, threshold_low=569.5)
         data = self.read_iha('Group4.csv')
+        print(data2)
         self.test(data, data2)
 
     def test_rise_fall(self):

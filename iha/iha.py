@@ -1,8 +1,21 @@
 from iha.exceptions import NotStation
 import pandas as pd
 import calendar as cal
-import plotly as py
 from series.flow import Flow
+
+
+def metric_stats(group):
+    mean = pd.DataFrame(group.mean(), columns=['Means'])
+    cv = pd.DataFrame(group.std() / group.mean(), columns=['Coeff. of Var.'])
+    stats = mean.combine_first(cv)
+    return stats
+
+
+def check_rate(value1, value2, type_rate):
+    if type_rate == 'rise':
+        return value1 < value2
+    elif type_rate == 'fall':
+        return value1 > value2
 
 
 class IHA:
@@ -14,12 +27,6 @@ class IHA:
 
     def rva(self):
         pass
-
-    def metric_stats(self, group):
-        mean = pd.DataFrame(group.mean(), columns=['Means'])
-        cv = pd.DataFrame(group.std() / group.mean(), columns=['Coeff. of Var.'])
-        stats = mean.combine_first(cv)
-        return stats
 
     def get_station(self, station):
         if len(self.flow.data.columns.values) != 1:
@@ -36,11 +43,15 @@ class IHA:
 
             return get_station
 
-    def get_month_start(self, month_water):
+    def get_month_start(self, month_water=None):
+        """
+        :param month_water:
+        :return self.month_water:
+        """
         if month_water is None:
             return self.flow.month_start_year_hydrologic(station=self.station)
         else:
-            return cal.month_abbr[month_water].upper()
+            return month_water, cal.month_abbr[month_water].upper()
 
     # <editor-fold desc="Group 1: Magnitude of monthly water conditions">
     def magnitude(self):
@@ -53,7 +64,7 @@ class IHA:
             data = data.combine_first(df)
         mean_months = data.T
 
-        return self.metric_stats(mean_months)
+        return metric_stats(mean_months)
     # </editor-fold">
 
     # <editor-fold desc="Group 2: Magnitude and Duration of annual extreme water conditions">
@@ -78,7 +89,7 @@ class IHA:
 
         magn_and_duration = aver_data.combine_first(pd.DataFrame(pd.Series(data=dic_zero, name='Number of zero days')))
 
-        return self.metric_stats(magn_and_duration)
+        return metric_stats(magn_and_duration)
     # </editor-fold>
 
     # <editor-fold desc="Group 3: Timing of annual extreme water conditions">
@@ -95,41 +106,95 @@ class IHA:
 
         # combine the dfs of days julian
         timing_extreme = df_day_julian_max.combine_first(df_day_julian_min)
-        return self.metric_stats(timing_extreme)
+        return metric_stats(timing_extreme)
     # </editor-fold>
 
     # <editor-fold desc="Group 4: Frequency and duration of high and low pulses">
     # Obs.: Ver se pode ser usado ano hidrológico
-    def __aux_frequency_and_duration(self, events):
-        name = {'flood': 'High', 'drought': 'Low'}
-        type_event = events.type_event
-        duration_pulse = pd.DataFrame(events.peaks.groupby(pd.Grouper(freq='A')).Duration.mean()).rename(
-            columns={"Duration": '{} pulse duration'.format(name[type_event])})
-
-        pulse = pd.DataFrame(events.peaks.groupby(pd.Grouper(freq='A')).Duration.count()).rename(
-            columns={"Duration": '{} pulse count'.format(name[type_event])})
-
-        group = duration_pulse.combine_first(pulse)
-        threshold = pd.DataFrame(pd.Series(events.threshold, name="{} Pulse Threshold".format(name[type_event])))
-        group = group.combine_first(threshold)
-        return group
-
     def frequency_and_duration(self, type_threshold, type_criterion, threshold_high, threshold_low, **kwargs):
+
+        def aux_frequency_and_duration(events):
+            name = {'flood': 'High', 'drought': 'Low'}
+            type_event = events.type_event
+            duration_pulse = pd.DataFrame(events.peaks.groupby(pd.Grouper(freq='A')).Duration.mean()).rename(
+                columns={"Duration": '{} pulse duration'.format(name[type_event])})
+
+            pulse = pd.DataFrame(events.peaks.groupby(pd.Grouper(freq='A')).Duration.count()).rename(
+                columns={"Duration": '{} pulse count'.format(name[type_event])})
+
+            group = duration_pulse.combine_first(pulse)
+            threshold = pd.DataFrame(pd.Series(events.threshold, name="{} Pulse Threshold".format(name[type_event])))
+            group = group.combine_first(threshold)
+            return group
+
         events_high = self.flow.parcial(station=self.station, type_threshold=type_threshold, type_event="flood",
                                         type_criterion=type_criterion, value_threshold=threshold_high)
-        frequency_and_duration_high = self.__aux_frequency_and_duration(events_high)
+        frequency_and_duration_high = aux_frequency_and_duration(events_high)
 
         events_low = self.flow.parcial(station=self.station, type_event='drought', type_threshold=type_threshold,
                                        type_criterion=type_criterion, value_threshold=threshold_low)
-        frequency_and_duration_low = self.__aux_frequency_and_duration(events_low)
+        frequency_and_duration_low = aux_frequency_and_duration(events_low)
 
         frequency_and_duration = frequency_and_duration_high.combine_first(frequency_and_duration_low)
 
-        return self.metric_stats(frequency_and_duration)
+        return metric_stats(frequency_and_duration)
 
     # </editor-fold>
 
     # <editor-fold desc="Group 5: Rate and frequency of water condition changes">
     def rate_and_frequency(self):
-        pass
+        """
+
+        :return:
+        """
+        self.get_month_start()
+        """
+        data_water = self.data.groupby(pd.Grouper(freq='AS-%s' % self.mesInicioAnoHidrologico()[1]))
+        rate = {'Data1': [], 'Vazao1': [],
+                'Data2': [], 'Vazao2': [], 'Taxa': []}
+        rise = {'Ano': [], 'Soma': [], 'Media': []}
+        boo = False
+        for key, serie in grupoEventos:
+            d1 = None
+            cont = 0
+            values = []
+            for i in serie.loc[serie.values == True].index:
+                if d1 != None:
+                    if self.ChecksTypeRate(self.dataFlow.loc[d1, self.nPosto],
+                                           self.dataFlow.loc[i, self.nPosto], tipo):
+                        boo = True
+                        rate['Data1'].append(d1)
+                        rate['Data2'].append(i)
+                        rate['Vazao1'].append(
+                            self.dataFlow.loc[d1, self.nPosto])
+                        rate['Vazao2'].append(
+                            self.dataFlow.loc[i, self.nPosto])
+                        rate['Taxa'].append(
+                            self.dataFlow.loc[i, self.nPosto] - self.dataFlow.loc[d1, self.nPosto])
+                        values.append(
+                            self.dataFlow.loc[i, self.nPosto] - self.dataFlow.loc[d1, self.nPosto])
+                    else:
+                        if boo:
+                            mean = np.mean(values)
+                            cont += 1
+                            boo = False
+
+                d1 = i
+            if boo:
+                mean = np.mean(values)
+                cont += 1
+                boo = False
+
+            rise['Ano'].append(key.year)
+            rise['Soma'].append(cont)
+            rise['Media'].append(mean)
+
+        ratesDf = pd.DataFrame(rate)
+        riseDf = pd.DataFrame(rise)
+        riseMed = riseDf.Media.mean()
+        riseCv = riseDf.Media.std()/riseMed
+        nMedia = riseDf.Soma.mean()
+        nCv = riseDf.Soma.std()/nMedia
+        return ratesDf, riseDf, riseMed, riseCv, nMedia, nCv 
+        """
     # </editor-fold>
