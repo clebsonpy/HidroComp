@@ -1,6 +1,7 @@
 from iha.exceptions import NotStation
 import pandas as pd
 import calendar as cal
+import numpy as np
 from series.flow import Flow
 
 
@@ -150,32 +151,24 @@ class IHA:
 
         :return:
         """
-
-        """
-        data_water = self.data.groupby(pd.Grouper(freq='AS-%s' % self.mesInicioAnoHidrologico()[1]))
-        rate = {'Data1': [], 'Vazao1': [],
-                'Data2': [], 'Vazao2': [], 'Taxa': []}
+        data_water = self.flow.data.groupby(pd.Grouper(freq=self.month_start[1]))
+        rate = {'Data1': [], 'Vazao1': [], 'Data2': [], 'Vazao2': [], 'Taxa': []}
         rise = {'Ano': [], 'Soma': [], 'Media': []}
         boo = False
-        for key, serie in grupoEventos:
+        for key, serie in data_water:
             d1 = None
             cont = 0
             values = []
-            for i in serie.loc[serie.values == True].index:
+            for i in serie.index:
                 if d1 != None:
-                    if self.ChecksTypeRate(self.dataFlow.loc[d1, self.nPosto],
-                                           self.dataFlow.loc[i, self.nPosto], tipo):
+                    if check_rate(self.flow.data.loc[d1, self.station], self.flow.data.loc[i, self.station], tipo):
                         boo = True
                         rate['Data1'].append(d1)
                         rate['Data2'].append(i)
-                        rate['Vazao1'].append(
-                            self.dataFlow.loc[d1, self.nPosto])
-                        rate['Vazao2'].append(
-                            self.dataFlow.loc[i, self.nPosto])
-                        rate['Taxa'].append(
-                            self.dataFlow.loc[i, self.nPosto] - self.dataFlow.loc[d1, self.nPosto])
-                        values.append(
-                            self.dataFlow.loc[i, self.nPosto] - self.dataFlow.loc[d1, self.nPosto])
+                        rate['Vazao1'].append(self.flow.data.loc[d1, self.station])
+                        rate['Vazao2'].append(self.flow.data.loc[i, self.station])
+                        rate['Taxa'].append(self.flow.data.loc[i, self.station] - self.flow.data.loc[d1, self.station])
+                        values.append(self.flow.data.loc[i, self.station] - self.flow.data.loc[d1, self.station])
                     else:
                         if boo:
                             mean = np.mean(values)
@@ -199,5 +192,5 @@ class IHA:
         nMedia = riseDf.Soma.mean()
         nCv = riseDf.Soma.std()/nMedia
         return ratesDf, riseDf, riseMed, riseCv, nMedia, nCv 
-        """
+
     # </editor-fold>
