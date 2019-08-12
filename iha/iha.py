@@ -51,7 +51,7 @@ class IHA:
         if month_water is None:
             return self.flow.month_start_year_hydrologic(station=self.station)
         else:
-            return month_water, cal.month_abbr[month_water].upper()
+            return month_water, 'AS-%s' % cal.month_abbr[month_water].upper()
 
     # <editor-fold desc="Group 1: Magnitude of monthly water conditions">
     def magnitude(self):
@@ -71,21 +71,21 @@ class IHA:
     def magnitude_and_duration(self):
         aver_data = pd.DataFrame()
         for i in [1, 3, 7, 30, 90]:
-            ave_max = self.flow.data.rolling(window=i).mean().groupby(pd.Grouper(freq='A')).max()
-            ave_min = self.flow.data.rolling(window=i).mean().groupby(pd.Grouper(freq='A')).min()
+            ave_max = self.flow.data.rolling(window=i).mean().groupby(pd.Grouper(freq=self.month_start[1])).max()
+            ave_min = self.flow.data.rolling(window=i).mean().groupby(pd.Grouper(freq=self.month_start[1])).min()
             years = ave_max.index.year
             df1 = pd.DataFrame(pd.Series(data=ave_min[self.station].values, name='%s-day minimum' % i, index=years))
             df2 = pd.DataFrame(pd.Series(data=ave_max[self.station].values, name='%s-day maximum' % i, index=years))
             aver_data = aver_data.combine_first(df1)
             aver_data = aver_data.combine_first(df2)
             if i == 7:
-                mean_year = self.flow.data[self.station].groupby(pd.Grouper(freq='A')).mean().values
+                mean_year = self.flow.data[self.station].groupby(pd.Grouper(freq=self.month_start[1])).mean().values
                 base_flow = pd.DataFrame(pd.Series(data=ave_min[self.station].values / mean_year,
                                                    name='Base flow index', index=years))
                 aver_data = aver_data.combine_first(base_flow)
 
         dic_zero = {i[0].year: i[1].loc[i[1][self.station].values == 0].sum()
-                    for i in self.flow.data.groupby(pd.Grouper(freq='A'))}
+                    for i in self.flow.data.groupby(pd.Grouper(freq=self.month_start[1]))}
 
         magn_and_duration = aver_data.combine_first(pd.DataFrame(pd.Series(data=dic_zero, name='Number of zero days')))
 
@@ -96,8 +96,10 @@ class IHA:
 
     def timing_extreme(self):
 
-        day_julian_max = pd.DatetimeIndex(self.flow.data[self.station].groupby(pd.Grouper(freq='A')).idxmax().values)
-        day_julian_min = pd.DatetimeIndex(self.flow.data[self.station].groupby(pd.Grouper(freq='A')).idxmin().values)
+        day_julian_max = pd.DatetimeIndex(self.flow.data[self.station].groupby(
+            pd.Grouper(freq=self.month_start[1])).idxmax().values)
+        day_julian_min = pd.DatetimeIndex(self.flow.data[self.station].groupby(
+            pd.Grouper(freq=self.month_start[1])).idxmin().values)
 
         df_day_julian_max = pd.DataFrame(list(map(int, day_julian_max.strftime("%j"))), index=day_julian_max.year,
                                          columns=["Date of maximum"])
@@ -116,10 +118,11 @@ class IHA:
         def aux_frequency_and_duration(events):
             name = {'flood': 'High', 'drought': 'Low'}
             type_event = events.type_event
-            duration_pulse = pd.DataFrame(events.peaks.groupby(pd.Grouper(freq='A')).Duration.mean()).rename(
+            duration_pulse = pd.DataFrame(events.peaks.groupby(
+                pd.Grouper(freq=self.month_start[1])).Duration.mean()).rename(
                 columns={"Duration": '{} pulse duration'.format(name[type_event])})
 
-            pulse = pd.DataFrame(events.peaks.groupby(pd.Grouper(freq='A')).Duration.count()).rename(
+            pulse = pd.DataFrame(events.peaks.groupby(pd.Grouper(freq=self.month_start[1])).Duration.count()).rename(
                 columns={"Duration": '{} pulse count'.format(name[type_event])})
 
             group = duration_pulse.combine_first(pulse)

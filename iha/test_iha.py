@@ -36,7 +36,7 @@ class Test_IHA(TestCase):
 
     def test_year_water(self):
         year_water = self.read().get_month_start()
-        self.assertEqual((9, 'SEP'), year_water, 'Year Water: %s, %s' % (9, 'SEP'))
+        self.assertEqual((9, 'AS-SEP'), year_water, 'Year Water: %s, %s' % (9, 'SEP'))
 
     def test_days_julian(self):
         data2 = self.read().timing_extreme()
