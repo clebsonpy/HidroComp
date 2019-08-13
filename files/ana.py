@@ -17,7 +17,8 @@ class Ana(FileRead):
     class files read: Agência Nacinal de Águas - ANA
     """
     typesData = {'FLUVIOMÉTRICO': ['Vazao01', 'vazoes'],
-                 'PLUVIOMÉTRICO': ['Chuva01', 'chuvas']}
+                 'PLUVIOMÉTRICO': ['Chuva01', 'chuvas'],
+                 'COTA': ['Cota01', 'cotas']}
     source = "ANA"
     extension = "txt"
 
@@ -85,6 +86,6 @@ class Ana(FileRead):
                 list_flow = [np.NaN if line[i] == "" else float(
                     line[i].replace(",", ".")) for i in idx_flow]
                 data_flow.append(
-                    pd.Series(list_flow, index=index, name=code))
+                    pd.Series(list_flow, index=index, name="{}_{}".format(code, self.type_data[:3])))
         data_flow = pd.DataFrame(pd.concat(data_flow))
         return data_flow
