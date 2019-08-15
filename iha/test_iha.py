@@ -47,6 +47,7 @@ class Test_IHA(TestCase):
         data2 = self.read().frequency_and_duration(type_criterion=None, type_threshold="stationary", duration=0,
                                                    threshold_high=4813, threshold_low=569.5)
         data = self.read_iha('Group4.csv')
+        print(data)
         print(data2)
         self.test(data, data2)
 

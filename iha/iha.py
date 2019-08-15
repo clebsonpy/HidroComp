@@ -126,21 +126,24 @@ class IHA:
             pulse = pd.DataFrame(events.peaks.groupby(pd.Grouper(freq=self.month_start[1])).Duration.count()).rename(
                 columns={"Duration": '{} pulse count'.format(name[type_event])})
 
+            pulse = pulse.fillna(0)
+
             group = duration_pulse.combine_first(pulse)
+            print(group)
             threshold = pd.DataFrame(pd.Series(events.threshold, name="{} Pulse Threshold".format(name[type_event])))
             group = group.combine_first(threshold)
             return group
 
         events_high = self.flow.parcial(station=self.station, type_threshold=type_threshold, type_event="flood",
-                                        type_criterion=type_criterion, value_threshold=threshold_high)
+                                        type_criterion=type_criterion, value_threshold=threshold_high, duration=0)
+        print(events_high.peaks)
         frequency_and_duration_high = aux_frequency_and_duration(events_high)
 
         events_low = self.flow.parcial(station=self.station, type_event='drought', type_threshold=type_threshold,
-                                       type_criterion=type_criterion, value_threshold=threshold_low)
+                                       type_criterion=type_criterion, value_threshold=threshold_low, duration=0)
         frequency_and_duration_low = aux_frequency_and_duration(events_low)
 
         frequency_and_duration = frequency_and_duration_high.combine_first(frequency_and_duration_low)
-
         return metric_stats(frequency_and_duration)
 
     # </editor-fold>

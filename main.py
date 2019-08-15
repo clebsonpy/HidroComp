@@ -16,17 +16,17 @@ from statistic.genextre import Gev
 
 if __name__ == '__main__':
     ini = timeit.default_timer()
-    gev = Gev(shape=-0.168462, loc=6286.926278, scale=1819.961392)
-    x = gev.rvs(1000)
-    serie = pd.Series(x)
-    serie.to_csv('simulada.csv')
+    #gev = Gev(shape=-0.168462, loc=6286.926278, scale=1819.961392)
+    #x = gev.rvs(1000)
+    #serie = pd.Series(x)
+    #serie.to_csv('simulada.csv')
 
     #file = os.path.abspath(os.path.join('Medicoes', 'Ana'))
-    #file2 = os.path.abspath(os.path.join('Medicoes', 'dadosXingo.csv'))
+    file2 = os.path.abspath(os.path.join('Medicoes', 'dadosXingo.csv'))
     #dados_flow = Flow(path=file, source='ANA', consistence=2)
     #dados_chuva = Chuva(path=file, source='ANA', consistence=2)
     #dados_cota = Cota(path=file, source='ANA', consistence=2)
-    #dados_nat = pd.read_csv(file2, index_col=0, names=["Flu_nat"], parse_dates=True)
+    dados_nat = pd.read_csv(file2, index_col=0, parse_dates=True)
 
     #dados = Flow(path=file, source="ONS")
 
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     #dados = dados.combine_first(dados_cota.data)
     #dados = dados.combine_first(dados_nat)
     #dados.rename(index=str, columns={"49330000_COT": "Cota", "49330000_FLU": "Flu_obs", "937023_PLU": "Precipitacao"}, inplace=True)
-    #dados = Flow(dados)
+    #dados = Flow(dados_nat)
     #print(dados)
     #print(dados['2013'].get_month(8))
     #fig = dados.gantt(name = 'Gantt')
@@ -52,21 +52,21 @@ if __name__ == '__main__':
     #fig, data = dados.plot_hydrogram()
     #dados = psd.read_csv(file, index_col=0, names=["Date", "XINGO"],
     #                    parse_dates=True)
-    #flow = Flow(data=dados, source='ONS')
+    flow = Flow(data=dados_nat, source='ONS')
     #test = dados.date(date_start="01/01/1995", date_end="31/12/2012")
 
     #value_threshold = test.mean()['XINGO'] + test.std()['XINGO']
     #print(test.mean())
     #maximum = test.maximum(station='MANSO')
     #print(maximum.dist_gev.mvs())
-    #parcial = dados.parcial(station="XINGO", type_criterion=None, type_threshold="stationary", type_event="flood",
-    #                        value_threshold=4813, duration=0)
+    parcial = flow.parcial(station="XINGO", type_criterion=None, type_threshold="stationary", type_event="flood",
+                            value_threshold=4813, duration=0)
     #print(parcial.peaks)
     #print(parcial.threshold)
     #print(parcial.test_autocorrelation())
     #fig = dados.gantt("Xingó")
-    #print(data)
-    py.offline.plot(fig, filename='gráficos/gantt_xingo.html')
+    fig, data = parcial.plot_hydrogram('Parcial')
+    py.offline.plot(fig, filename='gráficos/parcial.html')
 
     fim = timeit.default_timer()
     print('Duração: ', fim-ini)
