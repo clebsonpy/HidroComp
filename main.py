@@ -59,14 +59,14 @@ if __name__ == '__main__':
     #print(test.mean())
     #maximum = test.maximum(station='MANSO')
     #print(maximum.dist_gev.mvs())
-    parcial = flow.parcial(station="XINGO", type_criterion=None, type_threshold="stationary", type_event="flood",
-                            value_threshold=4813, duration=0)
+    parcial = flow.parcial(station="XINGO", type_criterion='autocorrelation', type_threshold="stationary", type_event="flood",
+                            value_threshold=0.75, duration=6)
     #print(parcial.peaks)
     #print(parcial.threshold)
     #print(parcial.test_autocorrelation())
     #fig = dados.gantt("Xingó")
     fig, data = parcial.plot_hydrogram('Parcial')
-    py.offline.plot(fig, filename='gráficos/parcial.html')
+    py.offline.plot(fig, filename='gráficos/parcial2.html')
 
     fim = timeit.default_timer()
     print('Duração: ', fim-ini)

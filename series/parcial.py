@@ -68,17 +68,19 @@ class Parcial(object):
 
         data = {'Date': list(), 'peaks': list()}
         data_min = {'Date': list(), 'peaks': list()}
-
+        start = False
         for i in events_threshold.index:
-            #if not events_threshold.loc[i] and not low_limiar:
-            #    data_min['peaks'].append(self.data.loc[i, self.station])
-            #    data_min['Date'].append(i)
-            if events_threshold.loc[i]:
-                data['peaks'].append(self.data.loc[i, self.station])
-                data['Date'].append(i)
-                low_limiar = True
-                data_min['peaks'].append(self.data.loc[i, self.station])
-                data_min['Date'].append(i)
+            if not start:
+                if events_threshold.loc[i]:
+                    start = False
+                else:
+                    start = True
+            if events_threshold.loc[i] and start:
+                    data['peaks'].append(self.data.loc[i, self.station])
+                    data['Date'].append(i)
+                    low_limiar = True
+                    data_min['peaks'].append(self.data.loc[i, self.station])
+                    data_min['Date'].append(i)
             else:
                 if low_limiar:
                     data['peaks'].append(self.data.loc[idx_before, self.station])
