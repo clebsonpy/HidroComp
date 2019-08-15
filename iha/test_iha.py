@@ -10,7 +10,7 @@ class Test_IHA(TestCase):
     def read():
         path = os.path.abspath(os.path.join('Medicoes', 'dadosXingo.csv'))
         data = pd.read_csv(path, ',', index_col=0, parse_dates=True)
-        iha = IHA(data)
+        iha = IHA(data, month_water=1)
         return iha
 
     @staticmethod
@@ -52,3 +52,6 @@ class Test_IHA(TestCase):
 
     def test_rise_fall(self):
         data = self.read_iha('Group5.csv')
+        data2 = self.read().rate_and_frequency()
+        print(data)
+        print(data2)

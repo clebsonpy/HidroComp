@@ -13,9 +13,9 @@ def metric_stats(group):
 
 
 def check_rate(value1, value2, type_rate):
-    if type_rate == 'rise':
+    if type_rate == 'Rise rate':
         return value1 < value2
-    elif type_rate == 'fall':
+    elif type_rate == 'Fall rate':
         return value1 > value2
 
 
@@ -152,45 +152,32 @@ class IHA:
         :return:
         """
         data_water = self.flow.data.groupby(pd.Grouper(freq=self.month_start[1]))
-        rate = {'Data1': [], 'Vazao1': [], 'Data2': [], 'Vazao2': [], 'Taxa': []}
-        rise = {'Ano': [], 'Soma': [], 'Media': []}
+        rate_df = pd.DataFrame(columns=['Rise rate', 'Fall rate', 'Number of reversals'])
         boo = False
-        for key, serie in data_water:
-            d1 = None
-            cont = 0
-            values = []
-            for i in serie.index:
-                if d1 != None:
-                    if check_rate(self.flow.data.loc[d1, self.station], self.flow.data.loc[i, self.station], tipo):
-                        boo = True
-                        rate['Data1'].append(d1)
-                        rate['Data2'].append(i)
-                        rate['Vazao1'].append(self.flow.data.loc[d1, self.station])
-                        rate['Vazao2'].append(self.flow.data.loc[i, self.station])
-                        rate['Taxa'].append(self.flow.data.loc[i, self.station] - self.flow.data.loc[d1, self.station])
-                        values.append(self.flow.data.loc[i, self.station] - self.flow.data.loc[d1, self.station])
-                    else:
-                        if boo:
-                            mean = np.mean(values)
-                            cont += 1
-                            boo = False
+        for tipo in ['Rise rate', 'Fall rate']:
+            for key, serie in data_water:
+                d1 = None
+                values = []
+                cont = 0
+                for i in serie.index:
+                    if d1 != None:
+                        if check_rate(self.flow.data.loc[d1, self.station], self.flow.data.loc[i, self.station], tipo):
+                            boo = True
+                            values.append(self.flow.data.loc[i, self.station] - self.flow.data.loc[d1, self.station])
+                        else:
+                            if boo:
+                                mean = np.mean(values)
+                                cont += 1
+                                boo = False
+                    d1 = i
+                if boo:
+                    mean = np.mean(values)
+                    boo = False
 
-                d1 = i
-            if boo:
-                mean = np.mean(values)
-                cont += 1
-                boo = False
-
-            rise['Ano'].append(key.year)
-            rise['Soma'].append(cont)
-            rise['Media'].append(mean)
-
-        ratesDf = pd.DataFrame(rate)
-        riseDf = pd.DataFrame(rise)
-        riseMed = riseDf.Media.mean()
-        riseCv = riseDf.Media.std()/riseMed
-        nMedia = riseDf.Soma.mean()
-        nCv = riseDf.Soma.std()/nMedia
-        return ratesDf, riseDf, riseMed, riseCv, nMedia, nCv 
-
+                rate_df.at[key.year, tipo] = mean
+                if rate_df['Number of reversals'][key.year] > 0:
+                    rate_df.at[key.year, 'Number of reversals'] = cont + rate_df['Number of reversals'][key.year]
+                else:
+                    rate_df.at[key.year, 'Number of reversals'] = cont
+        return metric_stats(rate_df)
     # </editor-fold>
