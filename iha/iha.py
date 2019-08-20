@@ -39,7 +39,7 @@ class IHA:
             pass
     # </editor-fold>
 
-    # <editor-fold desc="Return station">
+    # <editor-fold desc="Return Station">
     def get_station(self, station):
         if len(self.flow.data.columns.values) != 1:
             if station is None:
