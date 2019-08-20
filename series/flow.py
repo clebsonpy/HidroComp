@@ -24,7 +24,7 @@ class Flow(SeriesBiuld):
         self.month_num = month_start_year_hydrologic
         self.month_abr = month_start_year_hydrologic_abr
 
-        return self.month_num, self.month_abr
+        return self.month_num, 'AS-%s' % self.month_abr
 
     def maximum(self, station):
         maximum = Maximum(obj=self, station=station)

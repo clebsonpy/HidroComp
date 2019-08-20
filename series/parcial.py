@@ -68,27 +68,29 @@ class Parcial(object):
 
         data = {'Date': list(), 'peaks': list()}
         data_min = {'Date': list(), 'peaks': list()}
-
+        start = False
         for i in events_threshold.index:
-            if not events_threshold.loc[i] and not low_limiar:
-                data_min['peaks'].append(self.data.loc[idx_before, self.station])
-                data_min['Date'].append(idx_before)
-
-            if events_threshold.loc[i]:
-                data['peaks'].append(self.data.loc[idx_before, self.station])
-                data['Date'].append(idx_before)
-                low_limiar = True
-                data_min['peaks'].append(self.data.loc[idx_before, self.station])
-                data_min['Date'].append(idx_before)
-            elif low_limiar:
-                data['peaks'].append(self.data.loc[idx_before, self.station])
-                data['Date'].append(idx_before)
-                data['peaks'].append(self.data.loc[i, self.station])
-                data['Date'].append(i)
-                low_limiar = False
-                data_min['peaks'].append(self.data.loc[idx_before, self.station])
-                data_min['Date'].append(idx_before)
+            if not start:
+                if events_threshold.loc[i]:
+                    start = False
+                else:
+                    start = True
+            if events_threshold.loc[i] and start:
+                    data['peaks'].append(self.data.loc[i, self.station])
+                    data['Date'].append(i)
+                    low_limiar = True
+                    data_min['peaks'].append(self.data.loc[i, self.station])
+                    data_min['Date'].append(i)
             else:
+                if low_limiar:
+                    data['peaks'].append(self.data.loc[idx_before, self.station])
+                    data['Date'].append(i)
+                    data['peaks'].append(self.data.loc[i, self.station])
+                    data['Date'].append(i)
+                    low_limiar = False
+                    data_min['peaks'].append(self.data.loc[i, self.station])
+                    data_min['Date'].append(i)
+            #else:
                 data, max_events, data_min = self.__criterion(data=data, max_events=max_events, data_min=data_min,
                                                               events_criterion=events_criterion.loc[i])
             idx_before = i
@@ -210,10 +212,7 @@ class Parcial(object):
             return data, max_events, kwargs['data_min']
 
         elif self.type_criterion is None:
-            data, max_events = self.__criterion_mean(
-                data=kwargs['data'], max_events=kwargs['max_events'],
-                events_criterion=kwargs['events_criterion']
-            )
+            data, max_events = self.__criterion_none(data=kwargs['data'], max_events=kwargs['max_events'])
             return data, max_events, kwargs['data_min']
 
     def __criterion_mean(self, data, max_events, events_criterion):
@@ -224,6 +223,12 @@ class Parcial(object):
 
     def __criterion_median(self, data, max_events, events_criterion):
         if len(data['peaks']) > 0 and (not events_criterion):
+            return self.__add_peaks(data, max_events)
+        else:
+            return data, max_events
+
+    def __criterion_none(self, data, max_events):
+        if len(data['peaks']) > 0:
             return self.__add_peaks(data, max_events)
         else:
             return data, max_events

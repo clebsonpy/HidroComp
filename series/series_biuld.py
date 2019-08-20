@@ -4,7 +4,7 @@ import plotly.figure_factory as FF
 
 from abc import abstractmethod, ABCMeta
 
-from files import *
+from files import ons, ana
 from graphics.gantt import Gantt
 
 

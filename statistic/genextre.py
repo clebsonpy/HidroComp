@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 
 import statistic.exceptions as e
 from statistic.stats_build import StatsBuild
@@ -51,7 +51,7 @@ class Gev(StatsBuild):
         if self.dist is None:
             raise e.DistributionNotExist('Distribuição não existe', 51)
         else:
-            if type(p) is list:
+            if type(p) is list or type(p) is np.ndarray:
                 return [self.values(i) for i in p]
             return self.dist.ppf(p)
 
@@ -60,3 +60,6 @@ class Gev(StatsBuild):
             raise e.DistributionNotExist('Distribuição não existe', 51)
         else:
             return self.dist.interval(alpha)
+
+    def rvs(self, n):
+        return self.values(np.random.random(n))
