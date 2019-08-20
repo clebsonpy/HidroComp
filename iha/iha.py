@@ -21,14 +21,25 @@ def check_rate(value1, value2, type_rate):
 
 class IHA:
 
-    def __init__(self, data, month_water=None, station=None):
+    def __init__(self, data, month_water=None, station=None, status=None):
+        """
+        :param data: pandas Series
+        :param month_water: initial month water
+        :param station: station of data
+        :param status: 'pre' or 'pos'
+        """
         self.flow = Flow(data)
+        self.status = status
         self.station = self.get_station(station)
         self.month_start = self.get_month_start(month_water)
 
+    # <editor-fold desc="Range of Variability Approach">
     def rva(self):
-        pass
+        if self.status == 'pre':
+            pass
+    # </editor-fold>
 
+    # <editor-fold desc="Return station">
     def get_station(self, station):
         if len(self.flow.data.columns.values) != 1:
             if station is None:
@@ -43,7 +54,9 @@ class IHA:
             self.flow.data = pd.DataFrame(self.flow.data[get_station])
 
             return get_station
+    # </editor-fold>
 
+    # <editor-fold desc= "Return Month Water">
     def get_month_start(self, month_water=None):
         """
         :param month_water:
@@ -53,6 +66,7 @@ class IHA:
             return self.flow.month_start_year_hydrologic(station=self.station)
         else:
             return month_water, 'AS-%s' % cal.month_abbr[month_water].upper()
+    # </editor-fold>
 
     # <editor-fold desc="Group 1: Magnitude of monthly water conditions">
     def magnitude(self):
@@ -66,7 +80,7 @@ class IHA:
         mean_months = data.T
 
         return metric_stats(mean_months)
-    # </editor-fold">
+    # </editor-fold>
 
     # <editor-fold desc="Group 2: Magnitude and Duration of annual extreme water conditions">
     def magnitude_and_duration(self):
@@ -157,14 +171,16 @@ class IHA:
         data_water = self.flow.data.groupby(pd.Grouper(freq=self.month_start[1]))
         rate_df = pd.DataFrame(columns=['Rise rate', 'Fall rate', 'Number of reversals'])
         boo = False
-        for tipo in ['Rise rate', 'Fall rate']:
-            for key, serie in data_water:
+        mean = 0
+        for type_rate in ['Rise rate', 'Fall rate']:
+            for key, series in data_water:
                 d1 = None
                 values = []
                 cont = 0
-                for i in serie.index:
+                for i in series.index:
                     if d1 != None:
-                        if check_rate(self.flow.data.loc[d1, self.station], self.flow.data.loc[i, self.station], tipo):
+                        if check_rate(self.flow.data.loc[d1, self.station], self.flow.data.loc[i, self.station],
+                                      type_rate):
                             boo = True
                             values.append(self.flow.data.loc[i, self.station] - self.flow.data.loc[d1, self.station])
                         else:
@@ -177,7 +193,7 @@ class IHA:
                     mean = np.mean(values)
                     boo = False
 
-                rate_df.at[key.year, tipo] = mean
+                rate_df.at[key.year, type_rate] = mean
                 if rate_df['Number of reversals'][key.year] > 0:
                     rate_df.at[key.year, 'Number of reversals'] = cont + rate_df['Number of reversals'][key.year]
                 else:
