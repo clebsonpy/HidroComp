@@ -29,6 +29,17 @@ def check_rate(value1, value2, type_rate):
     elif type_rate == 'Fall rate':
         return value1 > value2
 
+# <editor-fold desc="Range of Variability Approach Count">
+def rva_count(data_group, lower_line, upper_line):
+    count = pd.DataFrame(columns=['Lower', 'Median', 'Upper'])
+    for i in data_group:
+        boolean_lower = data_group[i].isin(data_group.loc[data_group[i] < lower_line[i], i])
+        boolean_upper = data_group[i].isin(data_group.loc[data_group[i] > upper_line[i], i])
+        count.at[i, 'Lower'] = boolean_lower.loc[boolean_lower == True].count()
+        count.at[i, 'Upper'] = boolean_upper.loc[boolean_upper == True].count()
+        count.at[i, 'Median'] = data_group[i].count() - (count['Lower'][i] + count['Upper'][i])
+    return count
+# </editor-fold>
 
 class IHA:
 
@@ -56,20 +67,20 @@ class IHA:
         self.variation_metric = variation_metric
 
     # <editor-fold desc="Range of Variability Approach Line">
-    def rva_line(self, data_year, boundaries):
-        if (type(data_year) == type(pd.DataFrame())) or (type(data_year) == type(pd.Series())):
+    def rva_line(self, data_group, boundaries):
+        if (type(data_group) == type(pd.DataFrame())) or (type(data_group) == type(pd.Series())):
             if self.status == 'pre':
                 lower_line = pd.Series(name='lower_line')
                 upper_line = pd.Series(name='upper_line')
                 if self.statistic == 'non-parametric':
-                    for i in data_year:
-                        lower_line.at[i] = data_year[i].quantile((50 - boundaries)/100)
-                        upper_line.at[i] = data_year[i].quantile((50 + boundaries)/100)
+                    for i in data_group:
+                        lower_line.at[i] = data_group[i].quantile((50 - boundaries) / 100)
+                        upper_line.at[i] = data_group[i].quantile((50 + boundaries) / 100)
                     return lower_line, upper_line
                 elif self.statistic == 'parametric':
-                    for i in data_year:
-                        lower_line.at[i] = data_year[i].mean() - data_year[i].std()
-                        upper_line.at[i] = data_year[i].mean() + data_year[i].std()
+                    for i in data_group:
+                        lower_line.at[i] = data_group[i].mean() - data_group[i].std()
+                        upper_line.at[i] = data_group[i].mean() + data_group[i].std()
                     return lower_line, upper_line
                 else:
                     raise NotStatistic('Not exist statistic {}: use {} or {}'.format(
@@ -77,26 +88,18 @@ class IHA:
             else:
                 raise NotRva('Use RVA in data pre-impact', line=74)
         else:
-            raise NotTypePandas('Not use type data {}: Use {} or {}'.format(type(data_year), type(pd.DataFrame()),
+            raise NotTypePandas('Not use type data {}: Use {} or {}'.format(type(data_group), type(pd.DataFrame()),
                                                                             type(pd.Series())), line=76)
 
-    # </editor-fold>
 
-    # <editor-fold desc="Range of Variability Approach Count">
-    def rva_count(self, data_group_iha, lower_line, upper_line):
-        count = pd.DataFrame(columns=['Lower', 'Median', 'Upper'])
-        for i in data_group_iha:
-            boolean_lower = data_group_iha[i].isin(data_group_iha.loc[data_group_iha[i] < lower_line[i], i])
-            boolean_upper = data_group_iha[i].isin(data_group_iha.loc[data_group_iha[i] > upper_line[i], i])
-            count.at[i, 'Lower'] = boolean_lower.loc[boolean_lower == True].count()
-            count.at[i, 'Upper'] = boolean_upper.loc[boolean_upper == True].count()
-            count.at[i, 'Median'] = data_group_iha[i].count() - (count['Lower'][i] + count['Upper'][i])
-        return count
     # </editor-fold>
 
     # <editor-fold desc="Range of variability Approach Frequency">
-    def rva_frequency(self):
-        pass
+    def rva_frequency(self, data_group, rva_count_pre, lower_line, upper_line):
+        if self.status == 'pos':
+            rva_count_pos = rva_count()
+        else:
+            raise NotRva('Use RVA in data pos-impact', line=74)
     # </editor-fold>
 
     # <editor-fold desc="Return Station">

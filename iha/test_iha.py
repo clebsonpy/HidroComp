@@ -28,15 +28,15 @@ class TestIHA(TestCase):
     def test_mean_month(self):
         data = self.read_iha('Group1.csv')
         data_group, data2 = self.read().magnitude()
-        lower_line, upper_line = self.read().rva_line(data_year=data_group, boundaries=17)
-        print(self.read().rva_count(data_group_iha=data_group, lower_line=lower_line, upper_line=upper_line))
+        lower_line, upper_line = self.read().rva_line(data_group=data_group, boundaries=17)
+        print(self.rva_count(data_group=data_group, lower_line=lower_line, upper_line=upper_line))
         self.test(data, data2)
 
     def test_moving_averages(self):
         data = self.read_iha('Group2.csv')
         data_group, data2 = self.read().magnitude_and_duration()
-        lower_line, upper_line = self.read().rva_line(data_year=data_group, boundaries=17)
-        print(self.read().rva_count(data_group_iha=data_group, lower_line=lower_line, upper_line=upper_line))
+        lower_line, upper_line = self.read().rva_line(data_group=data_group, boundaries=17)
+        print(self.rva_count(data_group=data_group, lower_line=lower_line, upper_line=upper_line))
         self.test(data, data2)
 
     def test_year_water(self):
@@ -46,21 +46,21 @@ class TestIHA(TestCase):
     def test_days_julian(self):
         data_group, data2 = self.read().timing_extreme()
         data = self.read_iha('Group3.csv')
-        lower_line, upper_line = self.read().rva_line(data_year=data_group, boundaries=17)
-        print(self.read().rva_count(data_group_iha=data_group, lower_line=lower_line, upper_line=upper_line))
+        lower_line, upper_line = self.read().rva_line(data_group=data_group, boundaries=17)
+        print(self.rva_count(data_group=data_group, lower_line=lower_line, upper_line=upper_line))
         self.test(data, data2)
 
     def test_pulse(self):
         data_group, data2 = self.read().frequency_and_duration(type_criterion=None, type_threshold="stationary",
                                                                duration=0, threshold_high=4813, threshold_low=569.5)
         data = self.read_iha('Group4.csv')
-        lower_line, upper_line = self.read().rva_line(data_year=data_group, boundaries=17)
-        print(self.read().rva_count(data_group_iha=data_group, lower_line=lower_line, upper_line=upper_line))
+        lower_line, upper_line = self.read().rva_line(data_group=data_group, boundaries=17)
+        print(self.rva_count(data_group=data_group, lower_line=lower_line, upper_line=upper_line))
         self.test(data, data2)
 
     def test_rise_fall(self):
         data = self.read_iha('Group5.csv')
         data_group, data2 = self.read().rate_and_frequency()
-        lower_line, upper_line = self.read().rva_line(data_year=data_group, boundaries=17)
-        print(self.read().rva_count(data_group_iha=data_group, lower_line=lower_line, upper_line=upper_line))
+        lower_line, upper_line = self.read().rva_line(data_group=data_group, boundaries=17)
+        print(self.rva_count(data_group=data_group, lower_line=lower_line, upper_line=upper_line))
         self.test(data, data2)
