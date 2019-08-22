@@ -59,13 +59,17 @@ class IHA:
     def rva_line(self, data_year, boundaries):
         if (type(data_year) == type(pd.DataFrame())) or (type(data_year) == type(pd.Series())):
             if self.status == 'pre':
+                lower_line = pd.Series(name='lower_line')
+                upper_line = pd.Series(name='upper_line')
                 if self.statistic == 'non-parametric':
-                    lower_line = data_year.percentil((50 - boundaries)/100)
-                    upper_line = data_year.percentil((50 + boundaries)/100)
+                    for i in data_year:
+                        lower_line.at[i] = data_year[i].quantile((50 - boundaries)/100)
+                        upper_line.at[i] = data_year[i].quantile((50 + boundaries)/100)
                     return lower_line, upper_line
                 elif self.statistic == 'parametric':
-                    lower_line = data_year.mean() - data_year.std()
-                    upper_line = data_year.mean() + data_year.std()
+                    for i in data_year:
+                        lower_line.at[i] = data_year[i].mean() - data_year[i].std()
+                        upper_line.at[i] = data_year[i].mean() + data_year[i].std()
                     return lower_line, upper_line
                 else:
                     raise NotStatistic('Not exist statistic {}: use {} or {}'.format(
@@ -73,12 +77,24 @@ class IHA:
             else:
                 raise NotRva('Use RVA in data pre-impact', line=74)
         else:
-            raise NotTypePandas('Not use type data {}: Use {} or {}'.format(type(data_year), type(pd.DataFrame),
-                                                                            type(pd.Series)), line=76)
+            raise NotTypePandas('Not use type data {}: Use {} or {}'.format(type(data_year), type(pd.DataFrame()),
+                                                                            type(pd.Series())), line=76)
 
     # </editor-fold>
 
-    # <editor-fold desc="Range of Variability Approach Frequency">
+    # <editor-fold desc="Range of Variability Approach Count">
+    def rva_count(self, data_group_iha, lower_line, upper_line):
+        count = pd.DataFrame(columns=['Lower', 'Median', 'Upper'])
+        for i in data_group_iha:
+            boolean_lower = data_group_iha[i].isin(data_group_iha.loc[data_group_iha[i] < lower_line[i], i])
+            boolean_upper = data_group_iha[i].isin(data_group_iha.loc[data_group_iha[i] > upper_line[i], i])
+            count.at[i, 'Lower'] = boolean_lower.loc[boolean_lower == True].count()
+            count.at[i, 'Upper'] = boolean_upper.loc[boolean_upper == True].count()
+            count.at[i, 'Median'] = data_group_iha[i].count() - (count['Lower'][i] + count['Upper'][i])
+        return count
+    # </editor-fold>
+
+    # <editor-fold desc="Range of variability Approach Frequency">
     def rva_frequency(self):
         pass
     # </editor-fold>
@@ -149,8 +165,8 @@ class IHA:
 
         magn_and_duration = aver_data.combine_first(pd.DataFrame(pd.Series(data=dic_zero, name='Number of zero days')))
 
-        return metric_stats(magn_and_duration, central_metric=self.central_metric,
-                            variation_metric=self.variation_metric)
+        return magn_and_duration, metric_stats(magn_and_duration, central_metric=self.central_metric,
+                                               variation_metric=self.variation_metric)
     # </editor-fold>
 
     # <editor-fold desc="Group 3: Timing of annual extreme water conditions">
@@ -169,7 +185,8 @@ class IHA:
 
         # combine the dfs of days julian
         timing_extreme = df_day_julian_max.combine_first(df_day_julian_min)
-        return metric_stats(timing_extreme, central_metric=self.central_metric, variation_metric=self.variation_metric)
+        return timing_extreme, metric_stats(timing_extreme, central_metric=self.central_metric,
+                                            variation_metric=self.variation_metric)
     # </editor-fold>
 
     # <editor-fold desc="Group 4: Frequency and duration of high and low pulses">
@@ -196,7 +213,7 @@ class IHA:
 
         events_high = self.flow.parcial(station=self.station, type_threshold=type_threshold, type_event="flood",
                                         type_criterion=type_criterion, value_threshold=threshold_high, duration=0)
-        print(events_high.peaks)
+
         frequency_and_duration_high = aux_frequency_and_duration(events_high)
 
         events_low = self.flow.parcial(station=self.station, type_event='drought', type_threshold=type_threshold,
@@ -204,8 +221,8 @@ class IHA:
         frequency_and_duration_low = aux_frequency_and_duration(events_low)
 
         frequency_and_duration = frequency_and_duration_high.combine_first(frequency_and_duration_low)
-        return metric_stats(frequency_and_duration, central_metric=self.central_metric,
-                            variation_metric=self.variation_metric)
+        return frequency_and_duration, metric_stats(frequency_and_duration, central_metric=self.central_metric,
+                                                    variation_metric=self.variation_metric)
 
     # </editor-fold>
 
@@ -245,5 +262,6 @@ class IHA:
                     rate_df.at[key.year, 'Number of reversals'] = cont + rate_df['Number of reversals'][key.year]
                 else:
                     rate_df.at[key.year, 'Number of reversals'] = cont
-        return metric_stats(rate_df, central_metric=self.central_metric, variation_metric=self.variation_metric)
+        return rate_df, metric_stats(rate_df, central_metric=self.central_metric,
+                                     variation_metric=self.variation_metric)
     # </editor-fold>

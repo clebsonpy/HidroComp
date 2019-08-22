@@ -9,7 +9,7 @@ import timeit
 from files.ons import Ons
 from files.ana import Ana
 from series.flow import Flow
-from series.chuva import Chuva
+from series.rainfall import Chuva
 from series.cota import Cota
 from series.series_biuld import SeriesBiuld
 from statistic.genextre import Gev

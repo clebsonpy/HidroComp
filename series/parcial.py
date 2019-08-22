@@ -18,9 +18,9 @@ class Parcial(object):
     def __init__(self, obj, station, type_threshold, value_threshold,
                  type_event, type_criterion, **kwargs):
         """
-            Parâmetros:
-                obj: Objeto Série;
-                station: Ponto de observação dos dados
+            Parameter:
+                obj: Object Series;
+                station: Point observation of date
                 type_threshold: Tipo de calculo do limiar('stationary' or
                                                           'events_by_year')
                 value_threshold: Valor do limiar:
