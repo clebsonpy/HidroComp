@@ -1,4 +1,4 @@
-from iha.exceptions import NotStation, NotStatistic
+from iha.exceptions import NotStation, NotStatistic, NotRva, NotTypePandas
 import pandas as pd
 import calendar as cal
 import numpy as np
@@ -17,7 +17,7 @@ def metric_stats(group, central_metric, variation_metric):
     elif variation_metric == 'std':
         cv = pd.DataFrame(group.std(), columns=['Coeff. of Var.'])
     else:
-        raise NotStatistic('Not exist statistic {}: use {} or {}'.format(variation_metric, 'cv', 'std'), line=14)
+        raise NotStatistic('Not exist statistic {}: use {} or {}'.format(variation_metric, 'cv', 'std'), line=20)
 
     stats = mean.combine_first(cv)
     return stats
@@ -43,7 +43,7 @@ class IHA:
         :param date_end: Date of end application ('dd/mm/aaaa')
         :param statistic: 'non-parametric or parametric'
         :param central_metric: 'mean or median'
-        :param variation_metric: 'str or cv'
+        :param variation_metric: 'str' or 'cv'
         """
         self.flow = Flow(data)
         self.status = status
@@ -55,11 +55,32 @@ class IHA:
         self.central_metric = central_metric
         self.variation_metric = variation_metric
 
-    # <editor-fold desc="Range of Variability Approach">
-    def rva(self):
-        if self.status == 'pre':
-            pass
+    # <editor-fold desc="Range of Variability Approach Line">
+    def rva_line(self, data_year, boundaries):
+        if (type(data_year) == type(pd.DataFrame())) or (type(data_year) == type(pd.Series())):
+            if self.status == 'pre':
+                if self.statistic == 'non-parametric':
+                    lower_line = data_year.percentil((50 - boundaries)/100)
+                    upper_line = data_year.percentil((50 + boundaries)/100)
+                    return lower_line, upper_line
+                elif self.statistic == 'parametric':
+                    lower_line = data_year.mean() - data_year.std()
+                    upper_line = data_year.mean() + data_year.std()
+                    return lower_line, upper_line
+                else:
+                    raise NotStatistic('Not exist statistic {}: use {} or {}'.format(
+                        self.statistic, 'non-parametric', 'parametric'), line=68)
+            else:
+                raise NotRva('Use RVA in data pre-impact', line=74)
+        else:
+            raise NotTypePandas('Not use type data {}: Use {} or {}'.format(type(data_year), type(pd.DataFrame),
+                                                                            type(pd.Series)), line=76)
 
+    # </editor-fold>
+
+    # <editor-fold desc="Range of Variability Approach Frequency">
+    def rva_frequency(self):
+        pass
     # </editor-fold>
 
     # <editor-fold desc="Return Station">
@@ -93,7 +114,7 @@ class IHA:
 
     # <editor-fold desc="Group 1: Magnitude of monthly water conditions">
     def magnitude(self):
-        years = self.flow.data.groupby(pd.Grouper(freq='A'))
+        years = self.flow.data.groupby(pd.Grouper(freq=self.month_start[1]))
         data = pd.DataFrame()
         for year in years:
             aux = year[1].groupby(pd.Grouper(freq='M')).mean()
@@ -102,7 +123,8 @@ class IHA:
             data = data.combine_first(df)
         mean_months = data.T
 
-        return metric_stats(mean_months, central_metric=self.central_metric, variation_metric=self.variation_metric)
+        return mean_months, metric_stats(mean_months, central_metric=self.central_metric,
+                                         variation_metric=self.variation_metric)
     # </editor-fold>
 
     # <editor-fold desc="Group 2: Magnitude and Duration of annual extreme water conditions">
@@ -167,7 +189,7 @@ class IHA:
             pulse = pulse.fillna(0)
 
             group = duration_pulse.combine_first(pulse)
-            print(group)
+
             threshold = pd.DataFrame(pd.Series(events.threshold, name="{} Pulse Threshold".format(name[type_event])))
             group = group.combine_first(threshold)
             return group

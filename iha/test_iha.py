@@ -26,7 +26,7 @@ class Test_IHA(TestCase):
 
     def test_mean_month(self):
         data = self.read_iha('Group1.csv')
-        data2 = self.read().magnitude()
+        _, data2 = self.read().magnitude()
         self.test(data, data2)
 
     def test_moving_averages(self):
