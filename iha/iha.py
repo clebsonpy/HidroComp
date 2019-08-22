@@ -1,13 +1,24 @@
-from iha.exceptions import NotStation
+from iha.exceptions import NotStation, NotStatistic
 import pandas as pd
 import calendar as cal
 import numpy as np
 from series.flow import Flow
 
 
-def metric_stats(group):
-    mean = pd.DataFrame(group.mean(), columns=['Means'])
-    cv = pd.DataFrame(group.std() / group.mean(), columns=['Coeff. of Var.'])
+def metric_stats(group, central_metric, variation_metric):
+    if central_metric == 'mean':
+        mean = pd.DataFrame(group.mean(), columns=['Means'])
+    elif central_metric == 'median':
+        mean = pd.DataFrame(group.median(), columns=['Means'])
+    else:
+        raise NotStatistic('Not exist statistic {}: use {} or {}'.format(central_metric, 'mean', 'median'), line=14)
+    if variation_metric == 'cv':
+        cv = pd.DataFrame(group.std() / group.mean(), columns=['Coeff. of Var.'])
+    elif variation_metric == 'std':
+        cv = pd.DataFrame(group.std(), columns=['Coeff. of Var.'])
+    else:
+        raise NotStatistic('Not exist statistic {}: use {} or {}'.format(variation_metric, 'cv', 'std'), line=14)
+
     stats = mean.combine_first(cv)
     return stats
 
@@ -21,22 +32,34 @@ def check_rate(value1, value2, type_rate):
 
 class IHA:
 
-    def __init__(self, data, month_water=None, station=None, status=None):
+    def __init__(self, data, month_water=None, station=None, status=None, date_start=None, date_end=None,
+                 statistic=None, central_metric=None, variation_metric=None):
         """
         :param data: pandas Series
-        :param month_water: initial month water
+        :param month_water: initial month water (int: referent the month, ex.: 1 for Jan, 2 for Fev)
         :param station: station of data
         :param status: 'pre' or 'pos'
+        :param date_start: Date of start application ('dd/mm/aaaa')
+        :param date_end: Date of end application ('dd/mm/aaaa')
+        :param statistic: 'non-parametric or parametric'
+        :param central_metric: 'mean or median'
+        :param variation_metric: 'str or cv'
         """
         self.flow = Flow(data)
         self.status = status
         self.station = self.get_station(station)
         self.month_start = self.get_month_start(month_water)
+        self.date_start = pd.to_datetime(date_start, dayfirst=True)
+        self.date_end = pd.to_datetime(date_end, dayfirst=True)
+        self.statistic = statistic
+        self.central_metric = central_metric
+        self.variation_metric = variation_metric
 
     # <editor-fold desc="Range of Variability Approach">
     def rva(self):
         if self.status == 'pre':
             pass
+
     # </editor-fold>
 
     # <editor-fold desc="Return Station">
@@ -79,7 +102,7 @@ class IHA:
             data = data.combine_first(df)
         mean_months = data.T
 
-        return metric_stats(mean_months)
+        return metric_stats(mean_months, central_metric=self.central_metric, variation_metric=self.variation_metric)
     # </editor-fold>
 
     # <editor-fold desc="Group 2: Magnitude and Duration of annual extreme water conditions">
@@ -104,7 +127,8 @@ class IHA:
 
         magn_and_duration = aver_data.combine_first(pd.DataFrame(pd.Series(data=dic_zero, name='Number of zero days')))
 
-        return metric_stats(magn_and_duration)
+        return metric_stats(magn_and_duration, central_metric=self.central_metric,
+                            variation_metric=self.variation_metric)
     # </editor-fold>
 
     # <editor-fold desc="Group 3: Timing of annual extreme water conditions">
@@ -123,7 +147,7 @@ class IHA:
 
         # combine the dfs of days julian
         timing_extreme = df_day_julian_max.combine_first(df_day_julian_min)
-        return metric_stats(timing_extreme)
+        return metric_stats(timing_extreme, central_metric=self.central_metric, variation_metric=self.variation_metric)
     # </editor-fold>
 
     # <editor-fold desc="Group 4: Frequency and duration of high and low pulses">
@@ -158,7 +182,8 @@ class IHA:
         frequency_and_duration_low = aux_frequency_and_duration(events_low)
 
         frequency_and_duration = frequency_and_duration_high.combine_first(frequency_and_duration_low)
-        return metric_stats(frequency_and_duration)
+        return metric_stats(frequency_and_duration, central_metric=self.central_metric,
+                            variation_metric=self.variation_metric)
 
     # </editor-fold>
 
@@ -198,5 +223,5 @@ class IHA:
                     rate_df.at[key.year, 'Number of reversals'] = cont + rate_df['Number of reversals'][key.year]
                 else:
                     rate_df.at[key.year, 'Number of reversals'] = cont
-        return metric_stats(rate_df)
+        return metric_stats(rate_df, central_metric=self.central_metric, variation_metric=self.variation_metric)
     # </editor-fold>
