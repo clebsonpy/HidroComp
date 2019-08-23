@@ -5,42 +5,6 @@ import numpy as np
 from series.flow import Flow
 
 
-def metric_stats(group, central_metric, variation_metric):
-    if central_metric == 'mean':
-        mean = pd.DataFrame(group.mean(), columns=['Means'])
-    elif central_metric == 'median':
-        mean = pd.DataFrame(group.median(), columns=['Means'])
-    else:
-        raise NotStatistic('Not exist statistic {}: use {} or {}'.format(central_metric, 'mean', 'median'), line=14)
-    if variation_metric == 'cv':
-        cv = pd.DataFrame(group.std() / group.mean(), columns=['Coeff. of Var.'])
-    elif variation_metric == 'std':
-        cv = pd.DataFrame(group.std(), columns=['Coeff. of Var.'])
-    else:
-        raise NotStatistic('Not exist statistic {}: use {} or {}'.format(variation_metric, 'cv', 'std'), line=20)
-
-    stats = mean.combine_first(cv)
-    return stats
-
-
-def check_rate(value1, value2, type_rate):
-    if type_rate == 'Rise rate':
-        return value1 < value2
-    elif type_rate == 'Fall rate':
-        return value1 > value2
-
-# <editor-fold desc="Range of Variability Approach Count">
-def rva_count(data_group, lower_line, upper_line):
-    count = pd.DataFrame(columns=['Lower', 'Median', 'Upper'])
-    for i in data_group:
-        boolean_lower = data_group[i].isin(data_group.loc[data_group[i] < lower_line[i], i])
-        boolean_upper = data_group[i].isin(data_group.loc[data_group[i] > upper_line[i], i])
-        count.at[i, 'Lower'] = boolean_lower.loc[boolean_lower == True].count()
-        count.at[i, 'Upper'] = boolean_upper.loc[boolean_upper == True].count()
-        count.at[i, 'Median'] = data_group[i].count() - (count['Lower'][i] + count['Upper'][i])
-    return count
-# </editor-fold>
-
 class IHA:
 
     def __init__(self, data, month_water=None, station=None, status=None, date_start=None, date_end=None,
@@ -66,6 +30,57 @@ class IHA:
         self.central_metric = central_metric
         self.variation_metric = variation_metric
 
+    # <editor-fold desc="Calculation of statistical metrics">
+    @staticmethod
+    def metric_stats(group, central_metric, variation_metric):
+        if central_metric == 'mean':
+            mean = pd.DataFrame(group.mean(), columns=['Means'])
+        elif central_metric == 'median':
+            mean = pd.DataFrame(group.median(), columns=['Means'])
+        else:
+            raise NotStatistic('Not exist statistic {}: use {} or {}'.format(central_metric, 'mean', 'median'), line=40)
+        if variation_metric == 'cv':
+            cv = pd.DataFrame(group.std() / group.mean(), columns=['Coeff. of Var.'])
+        elif variation_metric == 'std':
+            cv = pd.DataFrame(group.std(), columns=['Coeff. of Var.'])
+        else:
+            raise NotStatistic('Not exist statistic {}: use {} or {}'.format(variation_metric, 'cv', 'std'), line=46)
+
+        stats = mean.combine_first(cv)
+        return stats
+    # </editor-fold>
+
+    # <editor-fold desc="Check type rate"
+    @staticmethod
+    def check_rate(value1, value2, type_rate):
+        if type_rate == 'Rise rate':
+            return value1 < value2
+        elif type_rate == 'Fall rate':
+            return value1 > value2
+    # </editor-fold>
+
+    # <editor-fold desc="Range of Variability Approach Frequency">
+    @staticmethod
+    def rva_frequency(data_group, lower_line, upper_line):
+        count = pd.DataFrame(columns=['Lower', 'Median', 'Upper'])
+        full = pd.DataFrame(columns=['Sum'])
+        for i in data_group:
+            if upper_line[i] == 0 or lower_line[i] == 0:
+                count.at[i, 'Lower'] = 0
+                count.at[i, 'Upper'] = 0
+                count.at[i, 'Median'] = 0
+            else:
+                boolean_lower = pd.DataFrame(data_group[i].isin(data_group.loc[data_group[i] < lower_line[i], i]))
+                boolean_upper = pd.DataFrame(data_group[i].isin(data_group.loc[data_group[i] > upper_line[i], i]))
+                boolean_median = pd.DataFrame(data_group[i].isin(data_group.loc[
+                                                                     boolean_lower[i] == boolean_upper[i], i]))
+                full.at[i, 'Sum'] = data_group[i].count()
+                count.at[i, 'Lower'] = boolean_lower[i].loc[boolean_lower[i] == True].count()/full['Sum'][i]
+                count.at[i, 'Upper'] = boolean_upper[i].loc[boolean_upper[i] == True].count()/full['Sum'][i]
+                count.at[i, 'Median'] = boolean_median[i].loc[boolean_median[i] == True].count()/full['Sum'][i]
+        return count
+    # </editor-fold>
+
     # <editor-fold desc="Range of Variability Approach Line">
     def rva_line(self, data_group, boundaries):
         if (type(data_group) == type(pd.DataFrame())) or (type(data_group) == type(pd.Series())):
@@ -84,22 +99,13 @@ class IHA:
                     return lower_line, upper_line
                 else:
                     raise NotStatistic('Not exist statistic {}: use {} or {}'.format(
-                        self.statistic, 'non-parametric', 'parametric'), line=68)
+                        self.statistic, 'non-parametric', 'parametric'), line=91)
             else:
-                raise NotRva('Use RVA in data pre-impact', line=74)
+                raise NotRva('Use RVA in data pre-impact', line=93)
         else:
             raise NotTypePandas('Not use type data {}: Use {} or {}'.format(type(data_group), type(pd.DataFrame()),
-                                                                            type(pd.Series())), line=76)
+                                                                            type(pd.Series())), line=96)
 
-
-    # </editor-fold>
-
-    # <editor-fold desc="Range of variability Approach Frequency">
-    def rva_frequency(self, data_group, rva_count_pre, lower_line, upper_line):
-        if self.status == 'pos':
-            rva_count_pos = rva_count()
-        else:
-            raise NotRva('Use RVA in data pos-impact', line=74)
     # </editor-fold>
 
     # <editor-fold desc="Return Station">
@@ -117,6 +123,7 @@ class IHA:
             self.flow.data = pd.DataFrame(self.flow.data[get_station])
 
             return get_station
+
     # </editor-fold>
 
     # <editor-fold desc= "Return Month Water">
@@ -129,6 +136,7 @@ class IHA:
             return self.flow.month_start_year_hydrologic(station=self.station)
         else:
             return month_water, 'AS-%s' % cal.month_abbr[month_water].upper()
+
     # </editor-fold>
 
     # <editor-fold desc="Group 1: Magnitude of monthly water conditions">
@@ -142,8 +150,9 @@ class IHA:
             data = data.combine_first(df)
         mean_months = data.T
 
-        return mean_months, metric_stats(mean_months, central_metric=self.central_metric,
-                                         variation_metric=self.variation_metric)
+        return mean_months, self.metric_stats(mean_months, central_metric=self.central_metric,
+                                              variation_metric=self.variation_metric)
+
     # </editor-fold>
 
     # <editor-fold desc="Group 2: Magnitude and Duration of annual extreme water conditions">
@@ -168,8 +177,9 @@ class IHA:
 
         magn_and_duration = aver_data.combine_first(pd.DataFrame(pd.Series(data=dic_zero, name='Number of zero days')))
 
-        return magn_and_duration, metric_stats(magn_and_duration, central_metric=self.central_metric,
-                                               variation_metric=self.variation_metric)
+        return magn_and_duration, self.metric_stats(magn_and_duration, central_metric=self.central_metric,
+                                                    variation_metric=self.variation_metric)
+
     # </editor-fold>
 
     # <editor-fold desc="Group 3: Timing of annual extreme water conditions">
@@ -188,12 +198,12 @@ class IHA:
 
         # combine the dfs of days julian
         timing_extreme = df_day_julian_max.combine_first(df_day_julian_min)
-        return timing_extreme, metric_stats(timing_extreme, central_metric=self.central_metric,
-                                            variation_metric=self.variation_metric)
+        return timing_extreme, self.metric_stats(timing_extreme, central_metric=self.central_metric,
+                                                 variation_metric=self.variation_metric)
+
     # </editor-fold>
 
     # <editor-fold desc="Group 4: Frequency and duration of high and low pulses">
-    # Obs.: Ver se pode ser usado ano hidrológico
     def frequency_and_duration(self, type_threshold, type_criterion, threshold_high, threshold_low, **kwargs):
 
         def aux_frequency_and_duration(events):
@@ -211,21 +221,21 @@ class IHA:
             group = duration_pulse.combine_first(pulse)
 
             threshold = pd.DataFrame(pd.Series(events.threshold, name="{} Pulse Threshold".format(name[type_event])))
-            group = group.combine_first(threshold)
-            return group
+            return group, threshold
 
         events_high = self.flow.parcial(station=self.station, type_threshold=type_threshold, type_event="flood",
-                                        type_criterion=type_criterion, value_threshold=threshold_high, duration=0)
+                                        type_criterion=type_criterion, value_threshold=threshold_high, **kwargs)
 
-        frequency_and_duration_high = aux_frequency_and_duration(events_high)
+        frequency_and_duration_high, threshold_high_mag = aux_frequency_and_duration(events_high)
 
         events_low = self.flow.parcial(station=self.station, type_event='drought', type_threshold=type_threshold,
-                                       type_criterion=type_criterion, value_threshold=threshold_low, duration=0)
-        frequency_and_duration_low = aux_frequency_and_duration(events_low)
+                                       type_criterion=type_criterion, value_threshold=threshold_low, **kwargs)
+        frequency_and_duration_low, threshold_low_mag = aux_frequency_and_duration(events_low)
 
         frequency_and_duration = frequency_and_duration_high.combine_first(frequency_and_duration_low)
-        return frequency_and_duration, metric_stats(frequency_and_duration, central_metric=self.central_metric,
-                                                    variation_metric=self.variation_metric)
+        metric_stats = self.metric_stats(frequency_and_duration, central_metric=self.central_metric,
+                                         variation_metric=self.variation_metric)
+        return frequency_and_duration, metric_stats, threshold_low_mag, threshold_low_mag
 
     # </editor-fold>
 
@@ -245,9 +255,9 @@ class IHA:
                 values = []
                 cont = 0
                 for i in series.index:
-                    if d1 != None:
-                        if check_rate(self.flow.data.loc[d1, self.station], self.flow.data.loc[i, self.station],
-                                      type_rate):
+                    if d1 is not None:
+                        if self.check_rate(self.flow.data.loc[d1, self.station], self.flow.data.loc[i, self.station],
+                                           type_rate):
                             boo = True
                             values.append(self.flow.data.loc[i, self.station] - self.flow.data.loc[d1, self.station])
                         else:
@@ -265,6 +275,6 @@ class IHA:
                     rate_df.at[key.year, 'Number of reversals'] = cont + rate_df['Number of reversals'][key.year]
                 else:
                     rate_df.at[key.year, 'Number of reversals'] = cont
-        return rate_df, metric_stats(rate_df, central_metric=self.central_metric,
-                                     variation_metric=self.variation_metric)
+        return rate_df, self.metric_stats(rate_df, central_metric=self.central_metric,
+                                          variation_metric=self.variation_metric)
     # </editor-fold>
