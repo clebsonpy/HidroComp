@@ -4,8 +4,7 @@ class NotStation(Exception):
         self.line = line
 
     def __str__(self):
-        return "FitError: {}".format(self.message) + \
-            (" the line {}!".format(self.line) if self.line > 0 else "!")
+        return "FitError: {}".format(self.message) + (" the line {}!".format(self.line) if self.line > 0 else "!")
 
 
 class FitNotExist(Exception):
@@ -14,8 +13,7 @@ class FitNotExist(Exception):
         self.line = line
 
     def __str__(self):
-        return "FitNotExist: {}".format(self.message) + \
-               (" the line {}!".format(self.line) if self.line > 0 else "!")
+        return "FitNotExist: {}".format(self.message) + (" the line {}!".format(self.line) if self.line > 0 else "!")
 
 
 class NotStatistic(Exception):
@@ -24,8 +22,7 @@ class NotStatistic(Exception):
         self.line = line
 
     def __str__(self):
-        return "NotStatistic: {}".format(self.message) + \
-               (" the line {}!".format(self.line) if self.line > 0 else "!")
+        return "NotStatistic: {}".format(self.message) + (" the line {}!".format(self.line) if self.line > 0 else "!")
 
 
 class NotRva(Exception):
@@ -34,8 +31,7 @@ class NotRva(Exception):
         self.line = line
 
     def __str__(self):
-        return "NotRva: {}".format(self.message) + \
-               (" the line {}!".format(self.line) if self.line > 0 else "!")
+        return "NotRva: {}".format(self.message) + (" the line {}!".format(self.line) if self.line > 0 else "!")
 
 
 class NotTypePandas(Exception):
@@ -44,5 +40,13 @@ class NotTypePandas(Exception):
         self.line = line
 
     def __str__(self):
-        return "NotRva: {}".format(self.message) + \
-               (" the line {}!".format(self.line) if self.line > 0 else "!")
+        return "NotRva: {}".format(self.message) + (" the line {}!".format(self.line) if self.line > 0 else "!")
+
+
+class ObjectErro(Exception):
+    def __int__(self, message, line=0):
+        self.message = message
+        self.line = line
+
+    def __str__(self):
+        return "ObjectErro: {}".format(self.message) + (" the line {}!".format(self.line) if self.line > 0 else "!")

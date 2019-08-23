@@ -1,4 +1,4 @@
-from iha.exceptions import NotStation, NotStatistic, NotRva, NotTypePandas
+from iha.exceptions import *
 import pandas as pd
 import calendar as cal
 import numpy as np
@@ -7,8 +7,17 @@ from series.flow import Flow
 
 class IHA:
 
+    group = {
+        'group1': 'self.magnitude',
+        'group2': 'self.magnitude_and_duration',
+        'group3': 'self.timing_extreme',
+        'group4': 'self.frequency_and_duration',
+        'group5': 'self.rate_and_frequency'
+    }
+
     def __init__(self, data, month_water=None, station=None, status=None, date_start=None, date_end=None,
-                 statistic=None, central_metric=None, variation_metric=None):
+                 statistic=None, central_metric=None, variation_metric=None, type_threshold=None, type_criterion=None,
+                 threshold_high=None, threshold_low=None, **kwargs):
         """
         :param data: pandas Series
         :param month_water: initial month water (int: referent the month, ex.: 1 for Jan, 2 for Fev)
@@ -29,6 +38,47 @@ class IHA:
         self.statistic = statistic
         self.central_metric = central_metric
         self.variation_metric = variation_metric
+        self.type_threshold = type_threshold
+        self.type_criterion = type_criterion
+        self.threshold_high = threshold_high
+        self.threshold_low = threshold_low
+        self.kwargs = kwargs
+
+    # <editor-fold desc="Range of Variability Approach"
+    def rva(self, iha_other, group_iha=None, boundaries=17):
+
+        def rva_very(rva):
+            for i in rva:
+                for j in rva[i].index:
+                    if rva[i][j] < -1:
+                        rva.iat[i, j] = -1
+            return rva
+
+        if group_iha is None:
+            for i in self.group:
+                print(i)
+                return self.rva(iha_other=iha_other, group_iha=i)
+        else:
+            data_group, _ = eval(self.group[group_iha])()
+            data_group_other, _ = eval(iha_other.group[group_iha])()
+            if iha_other.status != self.status:
+                if iha_other.status is 'pos':
+                    lower_line, median_line, upper_line = self.rva_line(data_group, boundaries=boundaries)
+                    group_iha = self.rva_frequency(lower_line=lower_line, upper_line=upper_line, data_group=data_group)
+                    group_iha_other = self.rva_frequency(lower_line=lower_line, upper_line=upper_line,
+                                                         data_group=data_group_other)
+                    rva = (group_iha_other - group_iha) / group_iha
+                    return rva_very(rva)
+                elif iha_other.status is 'pre':
+                    lower_line, median_line, upper_line = iha_other.rva_line(data_group)
+                    group_iha = self.rva_frequency(lower_line=lower_line, upper_line=upper_line, data_group=data_group)
+                    group_iha_other = self.rva_frequency(lower_line=lower_line, upper_line=upper_line,
+                                                         data_group=data_group_other)
+                    rva = (group_iha - group_iha_other) / group_iha_other
+                    return rva_very(rva)
+            else:
+                raise ObjectErro("Status equals")
+    # </editor-fold>
 
     # <editor-fold desc="Calculation of statistical metrics">
     @staticmethod
@@ -87,16 +137,19 @@ class IHA:
             if self.status == 'pre':
                 lower_line = pd.Series(name='lower_line')
                 upper_line = pd.Series(name='upper_line')
+                median_line = pd.Series(name='median_line')
                 if self.statistic == 'non-parametric':
                     for i in data_group:
                         lower_line.at[i] = data_group[i].quantile((50 - boundaries) / 100)
                         upper_line.at[i] = data_group[i].quantile((50 + boundaries) / 100)
-                    return lower_line, upper_line
+                        median_line.at[i] = data_group[i].median()
+                    return lower_line, median_line, upper_line
                 elif self.statistic == 'parametric':
                     for i in data_group:
                         lower_line.at[i] = data_group[i].mean() - data_group[i].std()
                         upper_line.at[i] = data_group[i].mean() + data_group[i].std()
-                    return lower_line, upper_line
+                        median_line.at[i] = data_group[i].median()
+                    return lower_line, median_line, upper_line
                 else:
                     raise NotStatistic('Not exist statistic {}: use {} or {}'.format(
                         self.statistic, 'non-parametric', 'parametric'), line=91)
@@ -204,7 +257,7 @@ class IHA:
     # </editor-fold>
 
     # <editor-fold desc="Group 4: Frequency and duration of high and low pulses">
-    def frequency_and_duration(self, type_threshold, type_criterion, threshold_high, threshold_low, **kwargs):
+    def frequency_and_duration(self):
 
         def aux_frequency_and_duration(events):
             name = {'flood': 'High', 'drought': 'Low'}
@@ -223,13 +276,13 @@ class IHA:
             threshold = pd.DataFrame(pd.Series(events.threshold, name="{} Pulse Threshold".format(name[type_event])))
             return group, threshold
 
-        events_high = self.flow.parcial(station=self.station, type_threshold=type_threshold, type_event="flood",
-                                        type_criterion=type_criterion, value_threshold=threshold_high, **kwargs)
+        events_high = self.flow.parcial(station=self.station, type_threshold=self.type_threshold, type_event="flood",
+                                        type_criterion=self.type_criterion, value_threshold=self.threshold_high)
 
         frequency_and_duration_high, threshold_high_mag = aux_frequency_and_duration(events_high)
 
-        events_low = self.flow.parcial(station=self.station, type_event='drought', type_threshold=type_threshold,
-                                       type_criterion=type_criterion, value_threshold=threshold_low, **kwargs)
+        events_low = self.flow.parcial(station=self.station, type_event='drought', type_threshold=self.type_threshold,
+                                       type_criterion=self.type_criterion, value_threshold=self.threshold_low)
         frequency_and_duration_low, threshold_low_mag = aux_frequency_and_duration(events_low)
 
         frequency_and_duration = frequency_and_duration_high.combine_first(frequency_and_duration_low)
