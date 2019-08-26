@@ -8,11 +8,11 @@ from series.flow import Flow
 class IHA:
 
     group = {
-        'group1': 'self.magnitude',
-        'group2': 'self.magnitude_and_duration',
-        'group3': 'self.timing_extreme',
-        'group4': 'self.frequency_and_duration',
-        'group5': 'self.rate_and_frequency'
+        'group1': 'magnitude',
+        'group2': 'magnitude_and_duration',
+        'group3': 'timing_extreme',
+        'group4': 'frequency_and_duration',
+        'group5': 'rate_and_frequency'
     }
 
     def __init__(self, data, month_water=None, station=None, status=None, date_start=None, date_end=None,
@@ -29,7 +29,8 @@ class IHA:
         :param central_metric: 'mean or median'
         :param variation_metric: 'str' or 'cv'
         """
-        self.flow = Flow(data)
+        self.source = kwargs['source']
+        self.flow = Flow(data, source=self.source, station=station)
         self.status = status
         self.station = self.get_station(station)
         self.month_start = self.get_month_start(month_water)
@@ -46,7 +47,6 @@ class IHA:
 
     # <editor-fold desc="Range of Variability Approach"
     def rva(self, iha_other, group_iha=None, boundaries=17):
-
         def rva_very(rva):
             for i in rva:
                 for j in rva[i].index:
@@ -56,11 +56,10 @@ class IHA:
 
         if group_iha is None:
             for i in self.group:
-                print(i)
                 return self.rva(iha_other=iha_other, group_iha=i)
         else:
-            data_group, _ = eval(self.group[group_iha])()
-            data_group_other, _ = eval(iha_other.group[group_iha])()
+            data_group, _ = eval('self.'+self.group[group_iha])()
+            data_group_other, _ = eval('iha_other.'+iha_other.group[group_iha])()
             if iha_other.status != self.status:
                 if iha_other.status is 'pos':
                     lower_line, median_line, upper_line = self.rva_line(data_group, boundaries=boundaries)
@@ -69,6 +68,7 @@ class IHA:
                                                          data_group=data_group_other)
                     rva = (group_iha_other - group_iha) / group_iha
                     return rva_very(rva)
+
                 elif iha_other.status is 'pre':
                     lower_line, median_line, upper_line = iha_other.rva_line(data_group)
                     group_iha = self.rva_frequency(lower_line=lower_line, upper_line=upper_line, data_group=data_group)
@@ -76,6 +76,8 @@ class IHA:
                                                          data_group=data_group_other)
                     rva = (group_iha - group_iha_other) / group_iha_other
                     return rva_very(rva)
+                else:
+                    raise ObjectErro('Status Erro')
             else:
                 raise ObjectErro("Status equals")
     # </editor-fold>
@@ -186,7 +188,7 @@ class IHA:
         :return self.month_water:
         """
         if month_water is None:
-            return self.flow.month_start_year_hydrologic(station=self.station)
+            return self.flow.month_start_year_hydrologic()
         else:
             return month_water, 'AS-%s' % cal.month_abbr[month_water].upper()
 
@@ -288,7 +290,8 @@ class IHA:
         frequency_and_duration = frequency_and_duration_high.combine_first(frequency_and_duration_low)
         metric_stats = self.metric_stats(frequency_and_duration, central_metric=self.central_metric,
                                          variation_metric=self.variation_metric)
-        return frequency_and_duration, metric_stats, threshold_low_mag, threshold_low_mag
+
+        return frequency_and_duration, metric_stats
 
     # </editor-fold>
 

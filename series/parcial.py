@@ -15,8 +15,7 @@ class Parcial(object):
     dic_name = {'stationary': 'Percentil', 'events_by_year': 'Eventos por Ano',
                 'autocorrelation': 'Autocorrelação'}
 
-    def __init__(self, obj, station, type_threshold, value_threshold,
-                 type_event, type_criterion, **kwargs):
+    def __init__(self, obj, station, type_threshold, value_threshold, type_event, type_criterion, **kwargs):
         """
             Parameter:
                 obj: Object Series;
