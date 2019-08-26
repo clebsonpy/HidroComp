@@ -264,6 +264,7 @@ class IHA:
         def aux_frequency_and_duration(events):
             name = {'flood': 'High', 'drought': 'Low'}
             type_event = events.type_event
+            print(events.peaks)
             duration_pulse = pd.DataFrame(events.peaks.groupby(
                 pd.Grouper(freq=self.month_start[1])).Duration.mean()).rename(
                 columns={"Duration": '{} pulse duration'.format(name[type_event])})
