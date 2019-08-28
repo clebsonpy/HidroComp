@@ -12,8 +12,7 @@ class Parcial(object):
 
     distribution = 'GP'
     __percentil = 0.8
-    dic_name = {'stationary': 'Percentil', 'events_by_year': 'Eventos por Ano',
-                'autocorrelation': 'Autocorrelação'}
+    dic_name = {'stationary': 'Percentil', 'events_by_year': 'Eventos por Ano', 'autocorrelation': 'Autocorrelação'}
 
     def __init__(self, obj, station, type_threshold, value_threshold, type_event, type_criterion, **kwargs):
         """
@@ -162,52 +161,37 @@ class Parcial(object):
 
     def __criterion(self, **kwargs):
         if self.type_criterion == 'mean':
-            data, max_events = self.__criterion_mean(
-                data=kwargs['data'], max_events=kwargs['max_events'],
-                events_criterion=kwargs['events_criterion']
-            )
+            data, max_events = self.__criterion_mean(data=kwargs['data'], max_events=kwargs['max_events'],
+                                                     events_criterion=kwargs['events_criterion'])
             return data, max_events, kwargs['data_min']
 
         elif self.type_criterion == 'median':
-            data, max_events = self.__criterion_median(
-                data=kwargs['data'], max_events=kwargs['max_events'],
-                events_criterion=kwargs['events_criterion']
-            )
+            data, max_events = self.__criterion_median(data=kwargs['data'], max_events=kwargs['max_events'],
+                                                       events_criterion=kwargs['events_criterion'])
             return data, max_events, kwargs['data_min']
 
         elif self.type_criterion == 'autocorrelation':
-            data, max_events = self.__criterion_duration(
-                data=kwargs['data'], max_events=kwargs['max_events'],
-                events_criterion=kwargs['events_criterion']
-            )
+            data, max_events = self.__criterion_duration(data=kwargs['data'], max_events=kwargs['max_events'],
+                                                         events_criterion=kwargs['events_criterion'])
             return data, max_events, kwargs['data_min']
 
         elif self.type_criterion == 'xmin_bigger_qmin':
-            return self.__criterion_xmin_bigger_qmin(
-                data=kwargs['data'], max_events=kwargs['max_events'],
-                data_min=kwargs['data_min'],
-                events_criterion=kwargs['events_criterion']
-            )
+            return self.__criterion_xmin_bigger_qmin(max_events=kwargs['max_events'], data_min=kwargs['data_min'],
+                                                     data=kwargs['data'], events_criterion=kwargs['events_criterion'])
 
         elif self.type_criterion == 'xmin_bigger_dois_terco_x':
-            return self.__criterion_xmin_bigger_dois_terco_x(
-                data=kwargs['data'], max_events=kwargs['max_events'],
-                data_min=kwargs['data_min'],
-                events_criterion=kwargs['events_criterion']
-            )
+            return self.__criterion_xmin_bigger_dois_terco_x(data=kwargs['data'], max_events=kwargs['max_events'],
+                                                             data_min=kwargs['data_min'],
+                                                             events_criterion=kwargs['events_criterion'])
 
         elif self.type_criterion == 'duration_e_xmin':
-            return self.__criterion_duration_and_xmin(
-                data=kwargs['data'], max_events=kwargs['max_events'],
-                data_min=kwargs['data_min'],
-                events_criterion=kwargs['events_criterion']
-            )
+            return self.__criterion_duration_and_xmin(data=kwargs['data'], max_events=kwargs['max_events'],
+                                                      data_min=kwargs['data_min'],
+                                                      events_criterion=kwargs['events_criterion'])
 
         elif self.type_criterion == 'duration':
-            data, max_events = self.__criterion_duration(
-                data=kwargs['data'], max_events=kwargs['max_events'],
-                events_criterion=kwargs['events_criterion']
-            )
+            data, max_events = self.__criterion_duration(data=kwargs['data'], max_events=kwargs['max_events'],
+                                                         events_criterion=kwargs['events_criterion'])
             return data, max_events, kwargs['data_min']
 
         elif self.type_criterion is None:
@@ -246,8 +230,7 @@ class Parcial(object):
         else:
             return data, max_events
 
-    def __criterion_xmin_bigger_qmin(self, data, max_events, data_min,
-                                     events_criterion):
+    def __criterion_xmin_bigger_qmin(self, data, max_events, data_min, events_criterion):
         if not events_criterion:
             if len(data['Date']) == 0:
                 return data, max_events, data_min
@@ -268,8 +251,7 @@ class Parcial(object):
         else:
             return data, max_events, data_min
 
-    def __criterion_xmin_bigger_dois_terco_x(self, data, max_events, data_min,
-                                             events_criterion):
+    def __criterion_xmin_bigger_dois_terco_x(self, data, max_events, data_min, events_criterion):
         if not events_criterion:
             if len(data['Date']) == 0:
                 return data, max_events, data_min
@@ -290,8 +272,7 @@ class Parcial(object):
         else:
             return data, max_events, data_min
 
-    def __criterion_duration_and_xmin(self, data, max_events, events_criterion,
-                                      data_min):
+    def __criterion_duration_and_xmin(self, data, max_events, events_criterion, data_min):
         if not events_criterion:
             if len(data['Date']) == 0:
                 return data, max_events, data_min
@@ -391,16 +372,13 @@ class Parcial(object):
             max_events['End'][-1] = data['Date'][-1]
             duration = max_events['End'][-1] - max_events['Start'][-1]
             max_events['Duration'][-1] = duration.days
-            max_events['Date'][-1] = data['Date'][
-                data['peaks'].index(self.__peaks_type_event(data['peaks']))
-            ]
+            max_events['Date'][-1] = data['Date'][data['peaks'].index(self.__peaks_type_event(data['peaks']))]
             data = {'Date': list(), 'peaks': list()}
         else:
             max_events['End'][-1] = data['Date'][-1]
             duration = max_events['End'][-1] - max_events['Start'][-1]
             max_events['Duration'][-1] = duration.days
             data = {'Date': list(), 'peaks': list()}
-
         return data, max_events
 
     def __add_peaks(self, data, max_events):
@@ -409,9 +387,7 @@ class Parcial(object):
         max_events['End'].append(data['Date'][-1])
         duration = max_events['End'][-1] - max_events['Start'][-1]
         max_events['Duration'].append(duration.days)
-        max_events['Date'].append(data['Date'][
-                data['peaks'].index(self.__peaks_type_event(data['peaks']))])
-
+        max_events['Date'].append(data['Date'][data['peaks'].index(self.__peaks_type_event(data['peaks']))])
         data = {'Date': list(), 'peaks': list()}
         return data, max_events
 
@@ -429,10 +405,7 @@ class Parcial(object):
             n = len(self.peaks)
             df_resample = pd.DataFrame()
             for i in range(quantity):
-                df = pd.DataFrame(
-                    self.peaks['peaks'].sample(n=n, replace=True).values,
-                    columns=['%s' % i]
-                )
+                df = pd.DataFrame(self.peaks['peaks'].sample(n=n, replace=True).values, columns=['%s' % i])
                 df_resample = df_resample.combine_first(df)
             return df_resample
 

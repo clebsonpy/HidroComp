@@ -27,11 +27,15 @@ class TestIHA(TestCase):
     def test_mean_month(self):
         data = self.read_iha('Group1.csv')
         data_group, data2 = self.iha_obj_nat.magnitude()
+        print(data)
+        print(data2)
         self.test(data, data2)
 
     def test_moving_averages(self):
         data = self.read_iha('Group2.csv')
         data_group, data2 = self.iha_obj_nat.magnitude_and_duration()
+        print(data)
+        print(data2)
         self.test(data, data2)
 
     def test_year_water(self):
@@ -41,6 +45,8 @@ class TestIHA(TestCase):
     def test_days_julian(self):
         data = self.read_iha('Group3.csv')
         data_group, data2 = self.iha_obj_nat.timing_extreme()
+        print(data)
+        print(data2)
         self.test(data, data2)
 
     def test_pulse(self):

@@ -66,6 +66,8 @@ class IHA:
                     group_iha = self.rva_frequency(lower_line=lower_line, upper_line=upper_line, data_group=data_group)
                     group_iha_other = self.rva_frequency(lower_line=lower_line, upper_line=upper_line,
                                                          data_group=data_group_other)
+                    print(group_iha)
+                    print(group_iha_other)
                     rva = (group_iha_other - group_iha) / group_iha
                     return rva_very(rva)
 
@@ -74,6 +76,8 @@ class IHA:
                     group_iha = self.rva_frequency(lower_line=lower_line, upper_line=upper_line, data_group=data_group)
                     group_iha_other = self.rva_frequency(lower_line=lower_line, upper_line=upper_line,
                                                          data_group=data_group_other)
+                    print(group_iha)
+                    print(group_iha_other)
                     rva = (group_iha - group_iha_other) / group_iha_other
                     return rva_very(rva)
                 else:
@@ -115,21 +119,20 @@ class IHA:
     @staticmethod
     def rva_frequency(data_group, lower_line, upper_line):
         count = pd.DataFrame(columns=['Lower', 'Median', 'Upper'])
-        full = pd.DataFrame(columns=['Sum'])
         for i in data_group:
-            if upper_line[i] == 0 or lower_line[i] == 0:
+            if upper_line[i] == 0 and lower_line[i] == 0:
                 count.at[i, 'Lower'] = 0
                 count.at[i, 'Upper'] = 0
                 count.at[i, 'Median'] = 0
             else:
-                boolean_lower = pd.DataFrame(data_group[i].isin(data_group.loc[data_group[i] < lower_line[i], i]))
-                boolean_upper = pd.DataFrame(data_group[i].isin(data_group.loc[data_group[i] > upper_line[i], i]))
+                boolean_lower = pd.DataFrame(data_group[i].isin(data_group.loc[data_group[i] <= lower_line[i], i]))
+                boolean_upper = pd.DataFrame(data_group[i].isin(data_group.loc[data_group[i] >= upper_line[i], i]))
                 boolean_median = pd.DataFrame(data_group[i].isin(data_group.loc[
                                                                      boolean_lower[i] == boolean_upper[i], i]))
-                full.at[i, 'Sum'] = data_group[i].count()
-                count.at[i, 'Lower'] = boolean_lower[i].loc[boolean_lower[i] == True].count()/full['Sum'][i]
-                count.at[i, 'Upper'] = boolean_upper[i].loc[boolean_upper[i] == True].count()/full['Sum'][i]
-                count.at[i, 'Median'] = boolean_median[i].loc[boolean_median[i] == True].count()/full['Sum'][i]
+
+                count.at[i, 'Lower'] = boolean_lower[i].loc[boolean_lower[i] == True].count()
+                count.at[i, 'Upper'] = boolean_upper[i].loc[boolean_upper[i] == True].count()
+                count.at[i, 'Median'] = boolean_median[i].loc[boolean_median[i] == True].count()
         return count
     # </editor-fold>
 
@@ -264,18 +267,23 @@ class IHA:
         def aux_frequency_and_duration(events):
             name = {'flood': 'High', 'drought': 'Low'}
             type_event = events.type_event
-            print(events.peaks)
-            duration_pulse = pd.DataFrame(events.peaks.groupby(
-                pd.Grouper(freq=self.month_start[1])).Duration.mean()).rename(
-                columns={"Duration": '{} pulse duration'.format(name[type_event])})
 
-            pulse = pd.DataFrame(events.peaks.groupby(pd.Grouper(freq=self.month_start[1])).Duration.count()).rename(
-                columns={"Duration": '{} pulse count'.format(name[type_event])})
+            group = pd.DataFrame(index=pd.date_range(events.obj.date_start, events.obj.date_end, freq='YS'),
+                                 columns=["{} pulse duration".format(name[type_event]),
+                                          '{} pulse count'.format(name[type_event])])
 
-            pulse = pulse.fillna(0)
+            if len(events.peaks) != 0:
+                duration_pulse = pd.DataFrame(events.peaks.groupby(
+                    pd.Grouper(freq=self.month_start[1])).Duration.mean()).rename(
+                    columns={"Duration": '{} pulse duration'.format(name[type_event])})
 
-            group = duration_pulse.combine_first(pulse)
+                pulse = pd.DataFrame(events.peaks.groupby(pd.Grouper(freq=self.month_start[1])).Duration.count()).rename(
+                    columns={"Duration": '{} pulse count'.format(name[type_event])})
 
+                group = group.combine_first(duration_pulse)
+                group = group.combine_first(pulse)
+
+            group = group.fillna(value={'{} pulse count'.format(name[type_event]): 0})
             threshold = pd.DataFrame(pd.Series(events.threshold, name="{} Pulse Threshold".format(name[type_event])))
             return group, threshold
 
