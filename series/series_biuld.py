@@ -17,8 +17,12 @@ class SeriesBiuld(metaclass=ABCMeta):
 
     def __init__(self, data=None, path=os.getcwd(), source=None, *args, **kwargs):
         self.path = path
+        self.station = kwargs['station']
         if data is not None:
-            self.data = data
+            if self.station is None:
+                self.data = data
+            else:
+                self.data = pd.DataFrame(data[self.station])
         else:
             if source in self.sources:
                 self.source = source
@@ -31,7 +35,7 @@ class SeriesBiuld(metaclass=ABCMeta):
         self.data = _data.combine_first(self.data[self.date_start:self.date_end])
 
     @abstractmethod
-    def month_start_year_hydrologic(self, station):
+    def month_start_year_hydrologic(self):
         pass
 
     @abstractmethod

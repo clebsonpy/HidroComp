@@ -1,34 +1,172 @@
-from iha.exceptions import NotStation
+from iha.exceptions import *
 import pandas as pd
 import calendar as cal
 import numpy as np
 from series.flow import Flow
 
 
-def metric_stats(group):
-    mean = pd.DataFrame(group.mean(), columns=['Means'])
-    cv = pd.DataFrame(group.std() / group.mean(), columns=['Coeff. of Var.'])
-    stats = mean.combine_first(cv)
-    return stats
-
-
-def check_rate(value1, value2, type_rate):
-    if type_rate == 'Rise rate':
-        return value1 < value2
-    elif type_rate == 'Fall rate':
-        return value1 > value2
-
-
 class IHA:
 
-    def __init__(self, data, month_water=None, station=None):
-        self.flow = Flow(data)
+    group = {
+        'group1': 'magnitude',
+        'group2': 'magnitude_and_duration',
+        'group3': 'timing_extreme',
+        'group4': 'frequency_and_duration',
+        'group5': 'rate_and_frequency'
+    }
+
+    def __init__(self, data, month_water=None, station=None, status=None, date_start=None, date_end=None,
+                 statistic=None, central_metric=None, variation_metric=None, type_threshold=None, type_criterion=None,
+                 threshold_high=None, threshold_low=None, **kwargs):
+        """
+        :param data: pandas Series
+        :param month_water: initial month water (int: referent the month, ex.: 1 for Jan, 2 for Fev)
+        :param station: station of data
+        :param status: 'pre' or 'pos'
+        :param date_start: Date of start application ('dd/mm/aaaa')
+        :param date_end: Date of end application ('dd/mm/aaaa')
+        :param statistic: 'non-parametric or parametric'
+        :param central_metric: 'mean or median'
+        :param variation_metric: 'str' or 'cv'
+        """
+        self.source = kwargs['source']
+        self.flow = Flow(data, source=self.source, station=station)
+        self.status = status
         self.station = self.get_station(station)
         self.month_start = self.get_month_start(month_water)
+        self.date_start = pd.to_datetime(date_start, dayfirst=True)
+        self.date_end = pd.to_datetime(date_end, dayfirst=True)
+        self.statistic = statistic
+        self.central_metric = central_metric
+        self.variation_metric = variation_metric
+        self.type_threshold = type_threshold
+        self.type_criterion = type_criterion
+        self.threshold_high = threshold_high
+        self.threshold_low = threshold_low
+        self.kwargs = kwargs
 
-    def rva(self):
-        pass
+    # <editor-fold desc="Range of Variability Approach"
+    def rva(self, iha_other, group_iha=None, boundaries=17):
+        def rva_very(rva):
+            for i in rva:
+                for j in rva[i].index:
+                    if rva[i][j] < -1:
+                        rva.iat[i, j] = -1
+            return rva
 
+        if group_iha is None:
+            for i in self.group:
+                return self.rva(iha_other=iha_other, group_iha=i)
+        else:
+            data_group, _ = eval('self.'+self.group[group_iha])()
+            data_group_other, _ = eval('iha_other.'+iha_other.group[group_iha])()
+            if iha_other.status != self.status:
+                if iha_other.status is 'pos':
+                    lower_line, median_line, upper_line = self.rva_line(data_group, boundaries=boundaries)
+                    group_iha = self.rva_frequency(lower_line=lower_line, upper_line=upper_line, data_group=data_group)
+                    group_iha_other = self.rva_frequency(lower_line=lower_line, upper_line=upper_line,
+                                                         data_group=data_group_other)
+                    print(group_iha)
+                    print(group_iha_other)
+                    rva = (group_iha_other - group_iha) / group_iha
+                    return rva_very(rva)
+
+                elif iha_other.status is 'pre':
+                    lower_line, median_line, upper_line = iha_other.rva_line(data_group)
+                    group_iha = self.rva_frequency(lower_line=lower_line, upper_line=upper_line, data_group=data_group)
+                    group_iha_other = self.rva_frequency(lower_line=lower_line, upper_line=upper_line,
+                                                         data_group=data_group_other)
+                    print(group_iha)
+                    print(group_iha_other)
+                    rva = (group_iha - group_iha_other) / group_iha_other
+                    return rva_very(rva)
+                else:
+                    raise ObjectErro('Status Erro')
+            else:
+                raise ObjectErro("Status equals")
+    # </editor-fold>
+
+    # <editor-fold desc="Calculation of statistical metrics">
+    @staticmethod
+    def metric_stats(group, central_metric, variation_metric):
+        if central_metric == 'mean':
+            mean = pd.DataFrame(group.mean(), columns=['Means'])
+        elif central_metric == 'median':
+            mean = pd.DataFrame(group.median(), columns=['Means'])
+        else:
+            raise NotStatistic('Not exist statistic {}: use {} or {}'.format(central_metric, 'mean', 'median'), line=40)
+        if variation_metric == 'cv':
+            cv = pd.DataFrame(group.std() / group.mean(), columns=['Coeff. of Var.'])
+        elif variation_metric == 'std':
+            cv = pd.DataFrame(group.std(), columns=['Coeff. of Var.'])
+        else:
+            raise NotStatistic('Not exist statistic {}: use {} or {}'.format(variation_metric, 'cv', 'std'), line=46)
+
+        stats = mean.combine_first(cv)
+        return stats
+    # </editor-fold>
+
+    # <editor-fold desc="Check type rate"
+    @staticmethod
+    def check_rate(value1, value2, type_rate):
+        if type_rate == 'Rise rate':
+            return value1 < value2
+        elif type_rate == 'Fall rate':
+            return value1 > value2
+    # </editor-fold>
+
+    # <editor-fold desc="Range of Variability Approach Frequency">
+    @staticmethod
+    def rva_frequency(data_group, lower_line, upper_line):
+        count = pd.DataFrame(columns=['Lower', 'Median', 'Upper'])
+        for i in data_group:
+            if upper_line[i] == 0 and lower_line[i] == 0:
+                count.at[i, 'Lower'] = 0
+                count.at[i, 'Upper'] = 0
+                count.at[i, 'Median'] = 0
+            else:
+                boolean_lower = pd.DataFrame(data_group[i].isin(data_group.loc[data_group[i] <= lower_line[i], i]))
+                boolean_upper = pd.DataFrame(data_group[i].isin(data_group.loc[data_group[i] >= upper_line[i], i]))
+                boolean_median = pd.DataFrame(data_group[i].isin(data_group.loc[
+                                                                     boolean_lower[i] == boolean_upper[i], i]))
+
+                count.at[i, 'Lower'] = boolean_lower[i].loc[boolean_lower[i] == True].count()
+                count.at[i, 'Upper'] = boolean_upper[i].loc[boolean_upper[i] == True].count()
+                count.at[i, 'Median'] = boolean_median[i].loc[boolean_median[i] == True].count()
+        return count
+    # </editor-fold>
+
+    # <editor-fold desc="Range of Variability Approach Line">
+    def rva_line(self, data_group, boundaries):
+        if (type(data_group) == type(pd.DataFrame())) or (type(data_group) == type(pd.Series())):
+            if self.status == 'pre':
+                lower_line = pd.Series(name='lower_line')
+                upper_line = pd.Series(name='upper_line')
+                median_line = pd.Series(name='median_line')
+                if self.statistic == 'non-parametric':
+                    for i in data_group:
+                        lower_line.at[i] = data_group[i].quantile((50 - boundaries) / 100)
+                        upper_line.at[i] = data_group[i].quantile((50 + boundaries) / 100)
+                        median_line.at[i] = data_group[i].median()
+                    return lower_line, median_line, upper_line
+                elif self.statistic == 'parametric':
+                    for i in data_group:
+                        lower_line.at[i] = data_group[i].mean() - data_group[i].std()
+                        upper_line.at[i] = data_group[i].mean() + data_group[i].std()
+                        median_line.at[i] = data_group[i].median()
+                    return lower_line, median_line, upper_line
+                else:
+                    raise NotStatistic('Not exist statistic {}: use {} or {}'.format(
+                        self.statistic, 'non-parametric', 'parametric'), line=91)
+            else:
+                raise NotRva('Use RVA in data pre-impact', line=93)
+        else:
+            raise NotTypePandas('Not use type data {}: Use {} or {}'.format(type(data_group), type(pd.DataFrame()),
+                                                                            type(pd.Series())), line=96)
+
+    # </editor-fold>
+
+    # <editor-fold desc="Return Station">
     def get_station(self, station):
         if len(self.flow.data.columns.values) != 1:
             if station is None:
@@ -44,19 +182,24 @@ class IHA:
 
             return get_station
 
+    # </editor-fold>
+
+    # <editor-fold desc= "Return Month Water">
     def get_month_start(self, month_water=None):
         """
         :param month_water:
         :return self.month_water:
         """
         if month_water is None:
-            return self.flow.month_start_year_hydrologic(station=self.station)
+            return self.flow.month_start_year_hydrologic()
         else:
             return month_water, 'AS-%s' % cal.month_abbr[month_water].upper()
 
+    # </editor-fold>
+
     # <editor-fold desc="Group 1: Magnitude of monthly water conditions">
     def magnitude(self):
-        years = self.flow.data.groupby(pd.Grouper(freq='A'))
+        years = self.flow.data.groupby(pd.Grouper(freq=self.month_start[1]))
         data = pd.DataFrame()
         for year in years:
             aux = year[1].groupby(pd.Grouper(freq='M')).mean()
@@ -65,8 +208,10 @@ class IHA:
             data = data.combine_first(df)
         mean_months = data.T
 
-        return metric_stats(mean_months)
-    # </editor-fold">
+        return mean_months, self.metric_stats(mean_months, central_metric=self.central_metric,
+                                              variation_metric=self.variation_metric)
+
+    # </editor-fold>
 
     # <editor-fold desc="Group 2: Magnitude and Duration of annual extreme water conditions">
     def magnitude_and_duration(self):
@@ -90,7 +235,9 @@ class IHA:
 
         magn_and_duration = aver_data.combine_first(pd.DataFrame(pd.Series(data=dic_zero, name='Number of zero days')))
 
-        return metric_stats(magn_and_duration)
+        return magn_and_duration, self.metric_stats(magn_and_duration, central_metric=self.central_metric,
+                                                    variation_metric=self.variation_metric)
+
     # </editor-fold>
 
     # <editor-fold desc="Group 3: Timing of annual extreme water conditions">
@@ -109,42 +256,51 @@ class IHA:
 
         # combine the dfs of days julian
         timing_extreme = df_day_julian_max.combine_first(df_day_julian_min)
-        return metric_stats(timing_extreme)
+        return timing_extreme, self.metric_stats(timing_extreme, central_metric=self.central_metric,
+                                                 variation_metric=self.variation_metric)
+
     # </editor-fold>
 
     # <editor-fold desc="Group 4: Frequency and duration of high and low pulses">
-    # Obs.: Ver se pode ser usado ano hidrológico
-    def frequency_and_duration(self, type_threshold, type_criterion, threshold_high, threshold_low, **kwargs):
+    def frequency_and_duration(self):
 
         def aux_frequency_and_duration(events):
             name = {'flood': 'High', 'drought': 'Low'}
             type_event = events.type_event
-            duration_pulse = pd.DataFrame(events.peaks.groupby(
-                pd.Grouper(freq=self.month_start[1])).Duration.mean()).rename(
-                columns={"Duration": '{} pulse duration'.format(name[type_event])})
 
-            pulse = pd.DataFrame(events.peaks.groupby(pd.Grouper(freq=self.month_start[1])).Duration.count()).rename(
-                columns={"Duration": '{} pulse count'.format(name[type_event])})
+            group = pd.DataFrame(index=pd.date_range(events.obj.date_start, events.obj.date_end, freq='YS'),
+                                 columns=["{} pulse duration".format(name[type_event]),
+                                          '{} pulse count'.format(name[type_event])])
 
-            pulse = pulse.fillna(0)
+            if len(events.peaks) != 0:
+                duration_pulse = pd.DataFrame(events.peaks.groupby(
+                    pd.Grouper(freq=self.month_start[1])).Duration.mean()).rename(
+                    columns={"Duration": '{} pulse duration'.format(name[type_event])})
 
-            group = duration_pulse.combine_first(pulse)
-            print(group)
+                pulse = pd.DataFrame(events.peaks.groupby(pd.Grouper(freq=self.month_start[1])).Duration.count()).rename(
+                    columns={"Duration": '{} pulse count'.format(name[type_event])})
+
+                group = group.combine_first(duration_pulse)
+                group = group.combine_first(pulse)
+
+            group = group.fillna(value={'{} pulse count'.format(name[type_event]): 0})
             threshold = pd.DataFrame(pd.Series(events.threshold, name="{} Pulse Threshold".format(name[type_event])))
-            group = group.combine_first(threshold)
-            return group
+            return group, threshold
 
-        events_high = self.flow.parcial(station=self.station, type_threshold=type_threshold, type_event="flood",
-                                        type_criterion=type_criterion, value_threshold=threshold_high, duration=0)
-        print(events_high.peaks)
-        frequency_and_duration_high = aux_frequency_and_duration(events_high)
+        events_high = self.flow.parcial(station=self.station, type_threshold=self.type_threshold, type_event="flood",
+                                        type_criterion=self.type_criterion, value_threshold=self.threshold_high)
 
-        events_low = self.flow.parcial(station=self.station, type_event='drought', type_threshold=type_threshold,
-                                       type_criterion=type_criterion, value_threshold=threshold_low, duration=0)
-        frequency_and_duration_low = aux_frequency_and_duration(events_low)
+        frequency_and_duration_high, threshold_high_mag = aux_frequency_and_duration(events_high)
+
+        events_low = self.flow.parcial(station=self.station, type_event='drought', type_threshold=self.type_threshold,
+                                       type_criterion=self.type_criterion, value_threshold=self.threshold_low)
+        frequency_and_duration_low, threshold_low_mag = aux_frequency_and_duration(events_low)
 
         frequency_and_duration = frequency_and_duration_high.combine_first(frequency_and_duration_low)
-        return metric_stats(frequency_and_duration)
+        metric_stats = self.metric_stats(frequency_and_duration, central_metric=self.central_metric,
+                                         variation_metric=self.variation_metric)
+
+        return frequency_and_duration, metric_stats
 
     # </editor-fold>
 
@@ -157,14 +313,16 @@ class IHA:
         data_water = self.flow.data.groupby(pd.Grouper(freq=self.month_start[1]))
         rate_df = pd.DataFrame(columns=['Rise rate', 'Fall rate', 'Number of reversals'])
         boo = False
-        for tipo in ['Rise rate', 'Fall rate']:
-            for key, serie in data_water:
+        mean = 0
+        for type_rate in ['Rise rate', 'Fall rate']:
+            for key, series in data_water:
                 d1 = None
                 values = []
                 cont = 0
-                for i in serie.index:
-                    if d1 != None:
-                        if check_rate(self.flow.data.loc[d1, self.station], self.flow.data.loc[i, self.station], tipo):
+                for i in series.index:
+                    if d1 is not None:
+                        if self.check_rate(self.flow.data.loc[d1, self.station], self.flow.data.loc[i, self.station],
+                                           type_rate):
                             boo = True
                             values.append(self.flow.data.loc[i, self.station] - self.flow.data.loc[d1, self.station])
                         else:
@@ -177,10 +335,11 @@ class IHA:
                     mean = np.mean(values)
                     boo = False
 
-                rate_df.at[key.year, tipo] = mean
+                rate_df.at[key.year, type_rate] = mean
                 if rate_df['Number of reversals'][key.year] > 0:
                     rate_df.at[key.year, 'Number of reversals'] = cont + rate_df['Number of reversals'][key.year]
                 else:
                     rate_df.at[key.year, 'Number of reversals'] = cont
-        return metric_stats(rate_df)
+        return rate_df, self.metric_stats(rate_df, central_metric=self.central_metric,
+                                          variation_metric=self.variation_metric)
     # </editor-fold>

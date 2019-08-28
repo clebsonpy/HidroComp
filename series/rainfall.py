@@ -3,7 +3,7 @@ import os
 from series.series_biuld import SeriesBiuld
 
 
-class Chuva(SeriesBiuld):
+class Rainfall(SeriesBiuld):
 
     type_data = 'PLUVIOMÉTRICO'
 
