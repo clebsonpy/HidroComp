@@ -17,11 +17,12 @@ class SeriesBiuld(metaclass=ABCMeta):
 
     def __init__(self, data=None, path=os.getcwd(), source=None, *args, **kwargs):
         self.path = path
-        self.station = kwargs['station']
+
         if data is not None:
             if self.station is None:
                 self.data = data
             else:
+                self.station = kwargs['station']
                 self.data = pd.DataFrame(data[self.station])
         else:
             if source in self.sources:
