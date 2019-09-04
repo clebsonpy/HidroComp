@@ -1,9 +1,9 @@
 import os
 
-from series.series_biuld import SeriesBiuld
+from series.series_biuld import SeriesBuild
 
 
-class Rainfall(SeriesBiuld):
+class Rainfall(SeriesBuild):
 
     type_data = 'PLUVIOMÉTRICO'
 

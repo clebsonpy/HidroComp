@@ -1,9 +1,9 @@
 import os
 
-from series.series_biuld import SeriesBiuld
+from series.series_biuld import SeriesBuild
 
 
-class Cota(SeriesBiuld):
+class Cota(SeriesBuild):
 
     type_data = 'COTA'
 

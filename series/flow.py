@@ -1,14 +1,14 @@
 import os
 import calendar as cal
 
-from series.series_biuld import SeriesBiuld
+from series.series_biuld import SeriesBuild
 from series.parcial import Parcial
 from series.maximum import Maximum
 from graphics.hydrogram_clean import HydrogramClean
 from graphics.gantt import Gantt
 
 
-class Flow(SeriesBiuld):
+class Flow(SeriesBuild):
 
     type_data = 'FLUVIOMÉTRICO'
 

@@ -11,7 +11,7 @@ from files.ana import Ana
 from series.flow import Flow
 from series.rainfall import Rainfall
 from series.cota import Cota
-from series.series_biuld import SeriesBiuld
+from series.series_biuld import SeriesBuild
 from statistic.genextre import Gev
 
 if __name__ == '__main__':
@@ -21,7 +21,7 @@ if __name__ == '__main__':
     #serie = pd.Series(x)
     #serie.to_csv('simulada.csv')
     #file = os.path.abspath(os.path.join('Medicoes', 'Ana'))
-    file2 = os.path.abspath(os.path.join('/home/clebsonpy/Dados/Vazão'))
+    file2 = os.path.abspath(os.path.join('/home/clebsonpy/Dados/Rio Ibicuí/Vazão'))
     flow = Flow(path=file2, source='ANA', consistence=2)
     #dados_chuva = Chuva(path=file, source='ANA', consistence=2)
     #dados_cota = Cota(path=file, source='ANA', consistence=2)
@@ -29,7 +29,7 @@ if __name__ == '__main__':
 
     #dados = Flow(path=file, source="ONS")
 
-    fig, data = boxplot.Boxplot(magn_resample=flow.data, name='Rio Pardo').plot()
+    #fig, data = boxplot.Boxplot(magn_resample=flow.data, name='Rio Pardo').plot()
     #fig_nat = dados_vazao_nat.gantt()
     #fig_obs = dados_vazao_obs.gantt()
     #dados_chuva = dados_chuva.date(date_start="12/07/1981", date_end="31/12/1989")
@@ -43,10 +43,10 @@ if __name__ == '__main__':
     #dados = dados.combine_first(dados_nat)
     #dados.rename(index=str, columns={"49330000_COT": "Cota", "49330000_FLU": "Flu_obs", "937023_PLU": "Precipitacao"}, inplace=True)
     #dados = Flow(dados_nat)
-    #print(dados)
-    #print(dados['2013'].get_month(8))
+    print(flow.data)
+    #print(flow['2009'].get_month(8))
     #fig = dados.gantt(name = 'Gantt')
-    #flow.data.to_csv("rio_pardo.csv")
+    #flow.data.to_csv("rio_ibicui_bruto.csv")
     #print(dados['1993'])
     #fig, data = flow.plot_hydrogram()
     #dados = psd.read_csv(file, index_col=0, names=["Date", "XINGO"],
@@ -63,9 +63,9 @@ if __name__ == '__main__':
     #print(parcial.peaks)
     #print(parcial.threshold)
     #print(parcial.test_autocorrelation())
-    #fig = flow.gantt("Rio Pardo")
+    fig = flow.gantt("Rio Ibicuí")
     #fig, data = parcial.plot_hydrogram('Parcial')
-    py.offline.plot(fig, filename='gráficos/boxplot.html')
+    py.offline.plot(fig, filename='gráficos/gantt_Ibicuí.html')
 
     fim = timeit.default_timer()
     print('Duração: ', fim-ini)

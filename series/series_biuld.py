@@ -8,7 +8,7 @@ from files import ons, ana
 from graphics.gantt import Gantt
 
 
-class SeriesBiuld(metaclass=ABCMeta):
+class SeriesBuild(metaclass=ABCMeta):
 
     sources = {
         "ONS": ons.Ons,
@@ -19,11 +19,11 @@ class SeriesBiuld(metaclass=ABCMeta):
         self.path = path
 
         if data is not None:
-            if self.station is None:
-                self.data = data
-            else:
+            try:
                 self.station = kwargs['station']
                 self.data = pd.DataFrame(data[self.station])
+            except KeyError:
+                self.data = data
         else:
             if source in self.sources:
                 self.source = source
@@ -44,9 +44,9 @@ class SeriesBiuld(metaclass=ABCMeta):
         pass
 
     def __start_and_end(self):
-        boolean = self.data.isnull()
-        date = boolean.loc[boolean[boolean.columns.values[0]] == False].index
-
+        boolean = self.data.dropna(axis=0, how='all')
+        date = boolean.index
+        print(date[0])
         return date[0], date[-1]
 
     def __str__(self):
@@ -108,7 +108,7 @@ class SeriesBiuld(metaclass=ABCMeta):
         """
         Selecina todos os dados referente ao mês
         """
-        return self.__class__(data=self.data.groupby(lambda x: x.month).get_group(month))
+        return self.data.groupby(lambda x: x.month).get_group(month)
 
     def mean(self):
         """
