@@ -1,18 +1,8 @@
 import os
 
-import pandas as pd
 import plotly as py
-import plotly.graph_objs as go
-import plotly.figure_factory as FF
 import timeit
-from graphics import boxplot
-from files.ons import Ons
-from files.ana import Ana
-from series.flow import Flow
-from series.rainfall import Rainfall
-from series.cota import Cota
-from series.series_biuld import SeriesBuild
-from statistic.genextre import Gev
+from hydrocomp.series.flow import Flow
 
 if __name__ == '__main__':
     ini = timeit.default_timer()

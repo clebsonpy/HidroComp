@@ -1,8 +1,7 @@
-from unittest import TestCase, main
-from statistic.genextre import Gev
-from statistic.genpareto import Gpa
+from unittest import TestCase
+from hydrocomp.statistic import Gev
+from hydrocomp.statistic.genpareto import Gpa
 
-from statistic.exceptions import DataNotExist
 
 class TestGev(TestCase):
 
