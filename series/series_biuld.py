@@ -46,7 +46,6 @@ class SeriesBuild(metaclass=ABCMeta):
     def __start_and_end(self):
         boolean = self.data.dropna(axis=0, how='all')
         date = boolean.index
-        print(date[0])
         return date[0], date[-1]
 
     def __str__(self):
