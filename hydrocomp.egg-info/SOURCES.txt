@@ -1,4 +1,6 @@
+MANIFEST.in
 README.md
+requirements.txt
 setup.cfg
 setup.py
 comparasion/__init__.py
