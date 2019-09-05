@@ -23,6 +23,7 @@ class SeriesBuild(metaclass=ABCMeta):
                 self.station = kwargs['station']
                 self.data = pd.DataFrame(data[self.station])
             except KeyError:
+                self.station = None
                 self.data = data
         else:
             if source in self.sources:
@@ -44,7 +45,10 @@ class SeriesBuild(metaclass=ABCMeta):
         pass
 
     def __start_and_end(self):
-        boolean = self.data.dropna(axis=0, how='all')
+        try:
+            boolean = self.data.dropna(axis=0, how='all')
+        except AttributeError:
+            boolean = self.data
         date = boolean.index
         return date[0], date[-1]
 
