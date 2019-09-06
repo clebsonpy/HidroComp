@@ -1,10 +1,12 @@
 import os
 import calendar as cal
+import pandas as pd
 
 from hydrocomp.series.series_biuld import SeriesBuild
 from hydrocomp.series.parcial import Parcial
 from hydrocomp.series.maximum import Maximum
 from hydrocomp.graphics.hydrogram_clean import HydrogramClean
+from hydrocomp.graphics.hydrogram_by_year import HydrogramYear
 
 
 class Flow(SeriesBuild):
@@ -13,17 +15,25 @@ class Flow(SeriesBuild):
 
     def __init__(self, data=None, path=os.getcwd(), source=None, *args, **kwargs):
         self.month_num = 1
-        self.month_abr = 'jan'
+        self.month_abr = 'AS-JAN'
         super().__init__(data, path, source, type_data=self.type_data, *args, **kwargs)
 
     def month_start_year_hydrologic(self):
-        mean_month = [self.data[self.station].loc[self.data.index.month == i].mean() for i in range(1, 13)]
-        month_start_year_hydrologic = 1 + mean_month.index(min(mean_month))
-        month_start_year_hydrologic_abr = cal.month_abbr[month_start_year_hydrologic].upper()
-        self.month_num = month_start_year_hydrologic
-        self.month_abr = month_start_year_hydrologic_abr
+        if self.station is None:
+            mean_month = [self.data.loc[self.data.index.month == i].mean() for i in range(1, 13)]
+            print(mean_month)
+            month_start_year_hydrologic = 1 + mean_month.index(min(mean_month))
+            month_start_year_hydrologic_abr = cal.month_abbr[month_start_year_hydrologic].upper()
+            self.month_num = month_start_year_hydrologic
+            self.month_abr = month_start_year_hydrologic_abr
+        else:
+            mean_month = [self.data[self.station].loc[self.data.index.month == i].mean() for i in range(1, 13)]
+            month_start_year_hydrologic = 1 + mean_month.index(min(mean_month))
+            month_start_year_hydrologic_abr = cal.month_abbr[month_start_year_hydrologic].upper()
+            self.month_num = month_start_year_hydrologic
+            self.month_abr = 'AS-%s' % month_start_year_hydrologic_abr
 
-        return self.month_num, 'AS-%s' % self.month_abr
+        return self.month_num, self.month_abr
 
     def maximum(self):
         maximum = Maximum(obj=self, station=self.station)
@@ -36,11 +46,19 @@ class Flow(SeriesBuild):
 
         return parcial
 
-    def plot_hydrogram(self, width=None, height=None, size_text=None):
+    def hydrogram(self, width=None, height=None, size_text=None, title=None):
         if self.station is None:
-            hydrogram = HydrogramClean(self.data)
-            fig, data = hydrogram.plot(width=width, height=height, size_text=size_text)
+            hydrogram = HydrogramClean(self.data, width=width, height=height, size_text=size_text, title=title)
+            fig, data = hydrogram.plot()
         else:
-            hydrogram = HydrogramClean(self.data[self.station])
-            fig, data = hydrogram.plot(width=width, height=height, size_text=size_text)
+            hydrogram = HydrogramClean(self.data[self.station], width=width, height=height, size_text=size_text,
+                                       title=title)
+            fig, data = hydrogram.plot()
+        return fig, data
+
+    def hydrogram_year(self, width=None, height=None, size_text=None, title=None):
+        self.month_start_year_hydrologic()
+        data = self.data.groupby(pd.Grouper(freq=self.month_abr))
+        hydrogram = HydrogramYear(data, width=width, height=height, title=title, size_text=size_text)
+        fig, data = hydrogram.plot()
         return fig, data

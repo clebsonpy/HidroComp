@@ -2,6 +2,7 @@ import os
 
 import plotly as py
 import timeit
+import pandas as pd
 from hydrocomp.series.flow import Flow
 
 if __name__ == '__main__':
@@ -10,12 +11,12 @@ if __name__ == '__main__':
     #x = gev.rvs(1000)
     #serie = pd.Series(x)
     #serie.to_csv('simulada.csv')
-    #file = os.path.abspath(os.path.join('Medicoes', 'Ana'))
-    file2 = os.path.abspath(os.path.join('/home/clebsonpy/Dados/Rio Ibicuí/Vazão'))
-    flow = Flow(path=file2, source='ANA', consistence=2)
+    file = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_nat.csv'))
+    #file2 = os.path.abspath(os.path.join('/home/clebsonpy/Dados/Rio Ibicuí/Vazão'))
+    #flow = Flow(path=file2, source='ANA', consistence=2)
     #dados_chuva = Chuva(path=file, source='ANA', consistence=2)
     #dados_cota = Cota(path=file, source='ANA', consistence=2)
-    #dados_nat = pd.read_csv(file2, index_col=0, parse_dates=True)
+    dados_nat = pd.read_csv(file, index_col=0, parse_dates=True)
 
     #dados = Flow(path=file, source="ONS")
 
@@ -32,7 +33,7 @@ if __name__ == '__main__':
     #dados = dados.combine_first(dados_cota.data)
     #dados = dados.combine_first(dados_nat)
     #dados.rename(index=str, columns={"49330000_COT": "Cota", "49330000_FLU": "Flu_obs", "937023_PLU": "Precipitacao"}, inplace=True)
-    #dados = Flow(dados_nat)
+    flow = Flow(dados_nat, station=dados_nat.columns.values[0])
     print(flow.data)
     #print(flow['2009'].get_month(8))
     #fig = dados.gantt(name = 'Gantt')
@@ -53,9 +54,9 @@ if __name__ == '__main__':
     #print(parcial.peaks)
     #print(parcial.threshold)
     #print(parcial.test_autocorrelation())
-    fig = flow.gantt("Rio Ibicuí")
+    fig, data = flow.hydrogram_year()
     #fig, data = parcial.plot_hydrogram('Parcial')
-    py.offline.plot(fig, filename='gráficos/gantt_Ibicuí.html')
+    py.offline.plot(fig, filename='gráficos/test.html')
 
     fim = timeit.default_timer()
     print('Duração: ', fim-ini)

@@ -5,15 +5,16 @@ from hydrocomp.graphics.hydrogram_biuld import HydrogramBiuld
 
 class HydrogramParcial(HydrogramBiuld):
 
-    def __init__(self, data, peaks, threshold, title, threshold_criterion=None):
-        super().__init__()
+    def __init__(self, data, peaks, threshold, threshold_criterion=None, type_criterion=None, width=None,
+                 height=None, size_text=None, title=None):
+        super().__init__(width=width, height=height, size_text=size_text, title=title)
         self.data = data
         self.peaks = peaks
         self.threshold = threshold
+        self.type_criterion = type_criterion
         self.threshold_criterion = threshold_criterion
-        self.title = title
 
-    def plot(self, type_criterion=None, width=None, height=None, size_text=None):
+    def plot(self):
         bandxaxis = go.layout.XAxis(title="Data")
         bandyaxis = go.layout.YAxis(title="Vazão(m³/s)")
 
@@ -25,15 +26,15 @@ class HydrogramParcial(HydrogramBiuld):
             layout = dict(
                 title=name,
                 showlegend=True,
-                width=width, height=height,
+                width=self.width, height=self.height,
                 xaxis=bandxaxis, yaxis=bandyaxis,
-                font=dict(family='Time New Roman', size=size_text, color='rgb(0,0,0)'))
+                font=dict(family='Time New Roman', size=self.size_text, color='rgb(0,0,0)'))
 
             data = []
             data.append(self._plot_one(self.data))
             data.append(self._plot_threshold())
-            if type_criterion is not None:
-                data.append(self._plot_threshold_criterion(type_criterion))
+            if self.type_criterion is not None:
+                data.append(self._plot_threshold_criterion())
             data += self._plot_event_peaks()
 
             fig = dict(data=data, layout=layout)
@@ -44,9 +45,9 @@ class HydrogramParcial(HydrogramBiuld):
             layout = dict(
                 title=name,
                 showlegend=True,
-                width=width, height=height,
+                width=self.width, height=self.height,
                 xaxis=bandxaxis, yaxis=bandyaxis,
-                font=dict(family='Time New Roman', size=size_text, color='rgb(0,0,0)'))
+                font=dict(family='Time New Roman', size=self.size_text, color='rgb(0,0,0)'))
 
             data = []
             data.append(self._plot_one(self.data))
@@ -103,11 +104,11 @@ class HydrogramParcial(HydrogramBiuld):
 
         return trace_threshold
 
-    def _plot_threshold_criterion(self, type_criterion):
+    def _plot_threshold_criterion(self):
         trace_threshold_criterion = go.Scatter(
             x=self.data.index,
             y=[self.threshold_criterion]*len(self.data),
-            name="Criterion",
+            name=self.type_criterion,
             line=dict(color='rgb(128, 128, 128)',
                       width=1.5,
                       dash='dash')
