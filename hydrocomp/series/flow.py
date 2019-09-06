@@ -36,11 +36,11 @@ class Flow(SeriesBuild):
 
         return parcial
 
-    def plot_hydrogram(self):
+    def plot_hydrogram(self, width=None, height=None, size_text=None):
         if self.station is None:
             hydrogram = HydrogramClean(self.data)
-            fig, data = hydrogram.plot()
+            fig, data = hydrogram.plot(width=width, height=height, size_text=size_text)
         else:
             hydrogram = HydrogramClean(self.data[self.station])
-            fig, data = hydrogram.plot()
+            fig, data = hydrogram.plot(width=width, height=height, size_text=size_text)
         return fig, data

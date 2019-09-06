@@ -13,7 +13,7 @@ class HydrogramParcial(HydrogramBiuld):
         self.threshold_criterion = threshold_criterion
         self.title = title
 
-    def plot(self, type_criterion=None):
+    def plot(self, type_criterion=None, width=None, height=None, size_text=None):
         bandxaxis = go.layout.XAxis(title="Data")
         bandyaxis = go.layout.YAxis(title="Vazão(m³/s)")
 
@@ -25,9 +25,9 @@ class HydrogramParcial(HydrogramBiuld):
             layout = dict(
                 title=name,
                 showlegend=True,
-                width=1890, height=827,
+                width=width, height=height,
                 xaxis=bandxaxis, yaxis=bandyaxis,
-                font=dict(family='Time New Roman', size=28, color='rgb(0,0,0)'))
+                font=dict(family='Time New Roman', size=size_text, color='rgb(0,0,0)'))
 
             data = []
             data.append(self._plot_one(self.data))
@@ -44,9 +44,9 @@ class HydrogramParcial(HydrogramBiuld):
             layout = dict(
                 title=name,
                 showlegend=True,
-                width=1890, height=827,
+                width=width, height=height,
                 xaxis=bandxaxis, yaxis=bandyaxis,
-                font=dict(family='Time New Roman', size=28, color='rgb(0,0,0)'))
+                font=dict(family='Time New Roman', size=size_text, color='rgb(0,0,0)'))
 
             data = []
             data.append(self._plot_one(self.data))

@@ -6,7 +6,7 @@ from abc import ABCMeta, abstractmethod
 class HydrogramBiuld(object, metaclass=ABCMeta):
 
     @abstractmethod
-    def plot(self, type_criterion=None):
+    def plot(self, type_criterion=None, width=None, height=None):
         pass
 
     def _plot_one(self, data):

@@ -9,16 +9,15 @@ class HydrogramClean(HydrogramBiuld):
         super().__init__()
         self.data = data
 
-    def plot(self, type_criterion=None):
+    def plot(self, type_criterion=None, width=None, height=None, size_text=None):
         bandxaxis = go.layout.XAxis(title="Data")
         bandyaxis = go.layout.YAxis(title="Vazão(m³/s)")
 
         try:
-
             layout = dict(title="Hidrograma",
-                          width=1890, height=827,
+                          width=width, height=height,
                           xaxis=bandxaxis, yaxis=bandyaxis,
-                          font=dict(family='Time New Roman', size=25, color='rgb(0,0,0)')
+                          font=dict(family='Time New Roman', size=size_text, color='rgb(0,0,0)')
                           )
 
             data = list()
@@ -29,9 +28,9 @@ class HydrogramClean(HydrogramBiuld):
         except AttributeError:
             name = 'Hidrograma'
             layout = dict(title=name,
-                          width=1890, height=827,
+                          width=width, height=height,
                           xaxis=bandxaxis, yaxis=bandyaxis,
-                          font=dict(family='Time New Roman', size=25))
+                          font=dict(family='Time New Roman', size=size_text))
 
             data = list()
             data.append(self._plot_multi())

@@ -10,14 +10,14 @@ class HydrogramAnnual(HydrogramBiuld):
         self.data = data
         self.peaks = peaks
 
-    def plot(self, ype_criterion=None):
+    def plot(self, ype_criterion=None, width=None, height=None, size_text=None):
         bandxaxis = go.layout.XAxis(title="Data")
         bandyaxis = go.layout.YAxis(title="Vazão(m³/s)")
 
         layout = dict(title="Hidrograma Série Máximas Anuais",
-                      width=1890, height=827,
+                      width=width, height=height,
                       xaxis=bandxaxis, yaxis=bandyaxis,
-                      font=dict(family='Time New Roman', size=34, color='rgb(0,0,0)')
+                      font=dict(family='Time New Roman', size=size_text, color='rgb(0,0,0)')
                       )
 
         data = list()
