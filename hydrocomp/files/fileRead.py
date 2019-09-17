@@ -16,14 +16,14 @@ class FileRead(Files, metaclass=ABCMeta):
         if os.path.isfile(path):
             self.path = os.path.dirname(path)
             self.name, ext = os.path.splitext(os.path.basename(path))
-            if ext != self.extension:
+            if ext != ".{}".format(self.extension):
                 raise Exception('Formato invalido')
         elif os.path.isdir(path):
             self.path = path
             self.name = None
         else:
             raise Exception('Arquivo ou diretório não existe')
-        super().__init__(path)
+        super().__init__(self.path)
 
     @abstractmethod
     def list_files(self):

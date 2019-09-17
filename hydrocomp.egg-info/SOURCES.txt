@@ -37,6 +37,7 @@ hydrocomp/graphics/genextreme.py
 hydrocomp/graphics/genpareto.py
 hydrocomp/graphics/hydrogram_annual.py
 hydrocomp/graphics/hydrogram_biuld.py
+hydrocomp/graphics/hydrogram_by_year.py
 hydrocomp/graphics/hydrogram_clean.py
 hydrocomp/graphics/hydrogram_parcial.py
 hydrocomp/graphics/.ipynb_checkpoints/__init__.py

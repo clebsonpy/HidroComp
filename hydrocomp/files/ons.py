@@ -15,7 +15,7 @@ class Ons(FileRead):
     source = "ONS"
     extension = "xls"
 
-    def __init__(self, path=os.getcwd(), type_data='FLUVIOMÉTRICO', station=None):
+    def __init__(self, path=os.getcwd(), type_data='FLUVIOMÉTRICO', station=None, *args, **kwargs):
         super().__init__(path)
         self.type_data = type_data
         self.station = station
@@ -32,10 +32,10 @@ class Ons(FileRead):
             return super().read()
         else:
             self.name = name
-            return self.__read_lxs()
+            return self.__read_xls()
 
-    def __read_lxs(self):
-        file_ons = os.path.join(self.path, self.name+'.xls')
+    def __read_xls(self):
+        file_ons = os.path.join(self.path, self.name+'.'+Ons.extension)
         data_flow = pd.read_excel(file_ons, shettname='Total', header=0, skiprows=5, index_col=0)
         data_flow.drop(np.NaN, inplace=True)
 

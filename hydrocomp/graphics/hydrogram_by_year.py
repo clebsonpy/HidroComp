@@ -20,7 +20,7 @@ class HydrogramYear(HydrogramBiuld):
                 z.append(int(i))
                 x.append(j)
 
-        trace1 = go.Scatter(
+        trace = go.Scatter(
             x=x,
             y=y,
             mode="markers",
@@ -34,7 +34,7 @@ class HydrogramYear(HydrogramBiuld):
                 )
             ), )
 
-        data = [trace1]
+        data = [trace]
         bandxaxis = go.layout.XAxis(
             title="Mês",
             tickformat="%b",
