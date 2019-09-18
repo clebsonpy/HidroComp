@@ -26,6 +26,10 @@ class SeriesBuild(metaclass=ABCMeta):
                 self.station = None
                 self.data = data
         else:
+            try:
+                self.station = kwargs['station']
+            except KeyError:
+                self.station = None
             if source in self.sources:
                 self.source = source
                 self.data = self.sources[self.source](self.path, *args, **kwargs).data
