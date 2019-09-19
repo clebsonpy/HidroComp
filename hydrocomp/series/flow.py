@@ -45,20 +45,16 @@ class Flow(SeriesBuild):
 
         return parcial
 
-    def month_flood(self):
-        pass
-
-    def month_drought(self):
-        pass
-
-    def simulation_withdraw(self, criterion, rate, period=None):
+    def simulation_withdraw(self, criterion, rate, month_start=None, month_end=None):
         if criterion == 'q90':
-            if period == 'flood':
-                return self.data
-            elif period == 'drought':
-                return self.data
+            if month_start is None or month_end is None:
+                return self.data - (self.quantile(percentile=0.1) * (rate / 100))
             else:
-                return self.data - (self.quantile(percentile=0.1)*(rate/100))
+                data = None
+                for i in pd.date_range(month_start, month_end, freq="M"):
+                    print(i)
+                    data = self.data[self.station].loc[self.data.index.month == i] - (self.quantile(percentile=0.1) * (rate / 100))
+                return data
         else:
             return self.data
 

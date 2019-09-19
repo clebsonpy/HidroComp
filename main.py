@@ -16,7 +16,7 @@ if __name__ == '__main__':
     flow = Flow(path=file, source='ANA', consistence=2, station='14710000_FLU')
     flow.date(date_start='01/02/1994', date_end='31/12/2007')
     flow.data.to_csv('caracarai.csv')
-    print(flow.simulation_withdraw(criterion='q90', rate=50))
+    print(flow.simulation_withdraw(criterion='q90', rate=50, month_start=8, month_end=2))
     #file2 = os.path.abspath()
 
     #print(dados)
