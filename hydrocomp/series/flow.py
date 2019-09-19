@@ -14,14 +14,13 @@ class Flow(SeriesBuild):
     type_data = 'FLUVIOMÉTRICO'
 
     def __init__(self, data=None, path=os.getcwd(), source=None, *args, **kwargs):
+        super().__init__(data, path, source, type_data=self.type_data, *args, **kwargs)
         self.month_num = 1
         self.month_abr = 'AS-JAN'
-        super().__init__(data, path, source, type_data=self.type_data, *args, **kwargs)
 
     def month_start_year_hydrologic(self):
         if self.station is None:
             mean_month = [self.data.loc[self.data.index.month == i].mean() for i in range(1, 13)]
-            print(mean_month)
             month_start_year_hydrologic = 1 + mean_month.index(min(mean_month))
             month_start_year_hydrologic_abr = cal.month_abbr[month_start_year_hydrologic].upper()
             self.month_num = month_start_year_hydrologic
@@ -45,6 +44,23 @@ class Flow(SeriesBuild):
                           value_threshold=value_threshold, **kwargs)
 
         return parcial
+
+    def month_flood(self):
+        pass
+
+    def month_drought(self):
+        pass
+
+    def simulation_withdraw(self, criterion, rate, period=None):
+        if criterion == 'q90':
+            if period == 'flood':
+                return self.data
+            elif period == 'drought':
+                return self.data
+            else:
+                return self.data - (self.quantile(percentile=0.1)*(rate/100))
+        else:
+            return self.data
 
     def hydrogram(self, width=None, height=None, size_text=None, title=None):
         if self.station is None:

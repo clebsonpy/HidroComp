@@ -12,7 +12,7 @@ from abc import abstractmethod, ABCMeta
 
 class FileRead(Files, metaclass=ABCMeta):
 
-    def __init__(self, path=os.getcwd()):
+    def __init__(self, path=os.getcwd(), *args, **kwargs):
         if os.path.isfile(path):
             self.path = os.path.dirname(path)
             self.name, ext = os.path.splitext(os.path.basename(path))

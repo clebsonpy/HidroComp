@@ -17,11 +17,10 @@ class SeriesBuild(metaclass=ABCMeta):
 
     def __init__(self, data=None, path=os.getcwd(), source=None, *args, **kwargs):
         self.path = path
-
         if data is not None:
             try:
                 self.station = kwargs['station']
-                self.data = pd.DataFrame(data[self.station])
+                self.data = pd.DataFrame(data[self.station]).sort_index()
             except KeyError:
                 self.station = None
                 self.data = data
@@ -32,7 +31,7 @@ class SeriesBuild(metaclass=ABCMeta):
                 self.station = None
             if source in self.sources:
                 self.source = source
-                self.data = self.sources[self.source](self.path, *args, **kwargs).data
+                self.data = self.sources[self.source](self.path, *args, **kwargs).data.sort_index()
             else:
                 raise KeyError('Source not supported!')
 
@@ -72,13 +71,13 @@ class SeriesBuild(metaclass=ABCMeta):
         if date_start is not None and date_end is not None:
             date_start = pd.to_datetime(date_start, dayfirst=True)
             date_end = pd.to_datetime(date_end, dayfirst=True)
-            return self.__class__(data=self.data.loc[date_start:date_end].copy())
+            self.data = self.data.loc[date_start:date_end]
         elif date_start is not None:
             date_start = pd.to_datetime(date_start, dayfirst=True)
-            return self.__class__(data=self.data.loc[date_start:].copy())
+            self.data = self.data.loc[date_start:]
         elif date_end is not None:
             date_end = pd.to_datetime(date_end, dayfirst=True)
-            return self.__class__(data=self.data.loc[:date_end].copy())
+            self.data = self.data.loc[:date_end].copy()
 
     def less_period(self, data):
         """
@@ -126,6 +125,9 @@ class SeriesBuild(metaclass=ABCMeta):
         """
         """
         return self.data.std()
+
+    def quantile(self, percentile):
+        return self.data.quantile(percentile)
 
     def gantt(self, name):
         cont = 0
