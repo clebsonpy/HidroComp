@@ -1,12 +1,14 @@
 import os
 import calendar as cal
 import pandas as pd
+from hydrocomp.series.exceptions import StationError
 
 from hydrocomp.series.series_biuld import SeriesBuild
 from hydrocomp.series.parcial import Parcial
 from hydrocomp.series.maximum import Maximum
 from hydrocomp.graphics.hydrogram_clean import HydrogramClean
 from hydrocomp.graphics.hydrogram_by_year import HydrogramYear
+from hydrocomp.graphics.permanence_curve import PermanenceCurve
 
 
 class Flow(SeriesBuild):
@@ -45,23 +47,30 @@ class Flow(SeriesBuild):
 
         return parcial
 
-    def simulation_withdraw(self, criterion, rate, months=None):
+    def simulation_withdraw(self, criterion, rate, months=None, value=None):
         if type(months) is not list and months is not None:
             raise TypeError
 
         if criterion == 'q90':
             data = self.data.copy()
-            data.rename(columns={self.station: "withdraw"}, inplace=True)
-            withdraw = (self.quantile(percentile=0.1) * (rate / 100)).values[0]
+            if value is None:
+                withdraw = (self.quantile(percentile=0.1) * (rate / 100)).values[0]
+            else:
+                withdraw = (value * (rate / 100)).values[0]
+
             if months is None:
+                name = "withdraw_{}_{}_{}".format(rate, criterion, 'all')
+                data.rename(columns={self.station: name}, inplace=True)
                 data = data - withdraw
-                data.loc[data["withdraw"] < 0, "withdraw"] = 0
+                data.loc[data[name] < 0, name] = 0
                 return data
             else:
+                name = "withdraw_{}_{}_{}".format(rate, criterion, 'months')
+                data.rename(columns={self.station: name}, inplace=True)
                 for i in self.data[self.station].index:
                     if i.month in months:
-                        data.at[i, "withdraw"] = self.data[self.station][i] - withdraw
-                        data.loc[data["withdraw"] < 0, "withdraw"] = 0
+                        data.at[i, name] = self.data[self.station][i] - withdraw
+                        data.loc[data[name] < 0, name] = 0
                 return data
         else:
             return None
@@ -83,4 +92,12 @@ class Flow(SeriesBuild):
         data = data.groupby(pd.Grouper(freq=self.month_abr))
         hydrogram = HydrogramYear(data, width=width, height=height, title=title, size_text=size_text)
         fig, data = hydrogram.plot()
+        return fig, data
+
+    def permanence_curve(self, width=None, height=None, size_text=None, title=None):
+        if self.station is None:
+            raise StationError
+        permanence = PermanenceCurve(self.data[self.station], width=width, height=height, size_text=size_text,
+                                     title=title)
+        fig, data = permanence.plot()
         return fig, data

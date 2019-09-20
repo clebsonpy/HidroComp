@@ -60,7 +60,6 @@ class HydrogramYear(HydrogramBiuld):
         for key, data in self.data:
             aux = data.values.T
             index = data.index
-            print(index)
             indexN = [pd.to_datetime('%s/%s/%s' % (i.month, i.day, 1998)) if i.month >= key.month else pd.to_datetime(
                 '%s/%s/%s' % (i.month, i.day, 1999)) for i in index]
             serie = pd.Series(aux[0], index=indexN, name=key.year)
