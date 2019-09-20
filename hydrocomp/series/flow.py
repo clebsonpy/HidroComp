@@ -45,18 +45,26 @@ class Flow(SeriesBuild):
 
         return parcial
 
-    def simulation_withdraw(self, criterion, rate, month_start=None, month_end=None):
+    def simulation_withdraw(self, criterion, rate, months=None):
+        if type(months) is not list and months is not None:
+            raise TypeError
+
         if criterion == 'q90':
-            if month_start is None or month_end is None:
-                return self.data - (self.quantile(percentile=0.1) * (rate / 100))
+            data = self.data.copy()
+            data.rename(columns={self.station: "withdraw"}, inplace=True)
+            withdraw = (self.quantile(percentile=0.1) * (rate / 100)).values[0]
+            if months is None:
+                data = data - withdraw
+                data.loc[data["withdraw"] < 0, "withdraw"] = 0
+                return data
             else:
-                data = None
-                for i in pd.date_range(month_start, month_end, freq="M"):
-                    print(i)
-                    data = self.data[self.station].loc[self.data.index.month == i] - (self.quantile(percentile=0.1) * (rate / 100))
+                for i in self.data[self.station].index:
+                    if i.month in months:
+                        data.at[i, "withdraw"] = self.data[self.station][i] - withdraw
+                        data.loc[data["withdraw"] < 0, "withdraw"] = 0
                 return data
         else:
-            return self.data
+            return None
 
     def hydrogram(self, width=None, height=None, size_text=None, title=None):
         if self.station is None:
@@ -70,7 +78,9 @@ class Flow(SeriesBuild):
 
     def hydrogram_year(self, width=None, height=None, size_text=None, title=None):
         self.month_start_year_hydrologic()
-        data = self.data.groupby(pd.Grouper(freq=self.month_abr))
+        idx = [i for i in self.data.index if i.month == 2 and i.day == 29]
+        data = self.data.drop(index=idx)
+        data = data.groupby(pd.Grouper(freq=self.month_abr))
         hydrogram = HydrogramYear(data, width=width, height=height, title=title, size_text=size_text)
         fig, data = hydrogram.plot()
         return fig, data
