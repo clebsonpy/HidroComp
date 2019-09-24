@@ -40,6 +40,7 @@ hydrocomp/graphics/hydrogram_biuld.py
 hydrocomp/graphics/hydrogram_by_year.py
 hydrocomp/graphics/hydrogram_clean.py
 hydrocomp/graphics/hydrogram_parcial.py
+hydrocomp/graphics/permanence_curve.py
 hydrocomp/graphics/.ipynb_checkpoints/__init__.py
 hydrocomp/graphics/.ipynb_checkpoints/gantt-checkpoint.py
 hydrocomp/graphics/.ipynb_checkpoints/hydrogram_annual-checkpoint.py
@@ -53,6 +54,7 @@ hydrocomp/iha/test_iha.py
 hydrocomp/iha/test_rva.py
 hydrocomp/series/__init__.py
 hydrocomp/series/cota.py
+hydrocomp/series/exceptions.py
 hydrocomp/series/flow.py
 hydrocomp/series/maximum.py
 hydrocomp/series/parcial.py

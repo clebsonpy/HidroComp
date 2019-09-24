@@ -158,41 +158,20 @@ if __name__ == '__main__':
     figh, data = flow.hydrogram()
     """
 
-    #flow.data.to_csv('/home/clebsonpy/Desktop/Dados/Porto Primavera/porto_primavera_nat.csv')
+    path = ''
+    file = os.path.abspath(os.path.join(path, 'rio_ibicui_consistido.csv'))
 
-    #flow_withd.to_csv('/home/clebsonpy/Desktop/Dados/Boa Fortuna/boa_fortuna_withdraw_months_all.csv')
-    #flow = Flow(data=flow.data.combine_first(flow_withd))
-    #file2 = os.path.abspath()
+    for name in ['76077000', '76085000', '76100000', '76120000', '76251000', '76260000', '76300000', '76310000',
+                 '76360001', '76370000', '76380000', '76395000', '76431000', '76440000', '76460000', '76490000',
+                 '76500000', '76550000', '76560000', '76600000', '76630000', '76650000', '76700000', '76742000',
+                 '76745000', '76750000', '76800000', '76081000']:
+        data = pd.read_csv(file, parse_dates=True, index_col=0)
+        print(name)
+        station = '{}_FLU'.format(name)
 
-    #print(dados)
-    #dados.data.to_csv('cachoeira_morena.csv')
-    #dados_chuva = Chuva(path=file, source='ANA', consistence=2)
-    #dados_cota = Cota(path=file, source='ANA', consistence=2)
-    #dados = pd.read_csv('rio_ibicui_consistido.csv', index_col=0, parse_dates=True)
-    #dados_estacao = pd.DataFrame(pd.read_csv(file, index_col=0, parse_dates=True)['Área'].add_suffix('_FLU')).T
-    #dados_admen = pd.DataFrame()
-    #for i in dados:
-    #    print(type(dados_estacao[i]['Área']))
-    #    print(dados[i])
-    #    dados_admen = dados_admen.combine_first(pd.DataFrame(dados[i]/dados_estacao[i]['Área']))
-    #print(dados_admen)
-    #dados_flow = Flow(data=dados_admen)
-    #dados = Flow(path=file, source="ONS",  station='XINGO', consistence=2)
-
-    #fig, data = boxplot.Boxplot(magn_resample=flow.data, name='Rio Pardo').plot()
-    #fig_nat = dados_vazao_nat.gantt()
-    #fig_obs = dados_vazao_obs.gantt()
-    #dados_chuva = dados_chuva.date(date_start="12/07/1981", date_end="31/12/1989")
-    #dados_vazao_nat = dados_vazao_nat.date(date_start="12/07/1981", date_end="31/12/1989")
-    #dados_vazao_obs = dados_vazao_obs.date(date_start="12/07/1981", date_end="31/12/1989")
-    #dados = dados_chuva.data.combine_first(dados_vazao_nat.data)
-    #dados = pd.DataFrame()
-    #dados = dados.combine_first(dados_chuva.data)
-    #dados = dados.combine_first(dados_flow.data)
-    #dados = dados.combine_first(dados_cota.data)
-    #dados = dados.combine_first(dados_nat)
-    #dados.rename(index=str, columns={"49330000_COT": "Cota", "49330000_FLU": "Flu_obs", "937023_PLU": "Precipitacao"}, inplace=True)
-    #print(dados)
+        flow = Flow(data=data,  station=station)
+        fig_year, data = flow.hydrogram_year(title=station)
+        py.offline.plot(fig_year, filename=os.path.join(path, 'gráficos/hidrograma_year_{}.html'.format(name)))
 
     #dados.data.to_csv("rio_ibicui_consistido.csv")
     #print(dados['1993'])
@@ -215,8 +194,8 @@ if __name__ == '__main__':
     #flow.data.to_csv('caracarai.csv')
     #fig, data = parcial.plot_hydrogram('Parcial')
     #py.offline.plot(figg, filename=os.path.join(path, 'gráficos/gantt.html'))
-    py.offline.plot(fig_year, filename=os.path.join(path, 'gráficos/hidrograma_year.html'))
-    py.offline.plot(figh, filename=os.path.join(path, 'gráficos/hidrograma.html'))
+
+    #py.offline.plot(figh, filename=os.path.join(path, 'gráficos/hidrograma.html'))
     #py.offline.plot(figp, filename=os.path.join(path, 'gráficos/permanência.html'))
 
     fim = timeit.default_timer()
