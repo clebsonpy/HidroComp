@@ -10,10 +10,17 @@ class Gev(StatsBuild):
 
     name = 'GEV'
     estimador = None
-    dist = genextreme
+    parameter = {'shape': None, 'loc': None, 'scale': None}
 
     def __init__(self, data=None,  shape=None, loc=None, scale=None):
+        self.shape = shape
+        self.loc = loc
+        self.scale = scale
+        self.parameter['shape'] = self.shape
+        self.parameter['loc'] = self.loc
+        self.parameter['scale'] = self.scale
         super().__init__(data,  shape, loc, scale)
+        self.dist = genextreme(c=self.shape, loc=self.loc, scale=self.scale)
             
     def mml(self):
         if self.data is None:
@@ -38,28 +45,3 @@ class Gev(StatsBuild):
         self.dist = genextreme(c=self.shape, loc=self.loc, scale=self.scale)
 
         return self.shape, self.loc, self.scale
-
-    def probs(self, x):
-        if self.dist is None:
-            raise e.DistributionNotExist('Distribuição não existe', 51)
-        else:
-            if type(x) is list:
-                return [self.probs(i) for i in x]
-            return self.dist.cdf(x)
-
-    def values(self, p):
-        if self.dist is None:
-            raise e.DistributionNotExist('Distribuição não existe', 51)
-        else:
-            if type(p) is list or type(p) is np.ndarray:
-                return [self.values(i) for i in p]
-            return self.dist.ppf(p)
-
-    def interval(self, alpha):
-        if self.dist is None:
-            raise e.DistributionNotExist('Distribuição não existe', 51)
-        else:
-            return self.dist.interval(alpha)
-
-    def rvs(self, n):
-        return self.values(np.random.random(n))

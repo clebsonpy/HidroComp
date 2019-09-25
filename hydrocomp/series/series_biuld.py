@@ -119,7 +119,7 @@ class SeriesBuild(metaclass=ABCMeta):
     def mean(self):
         """
         """
-        return self.data.mean()
+        return self.data.mean().values
 
     def std(self):
         """
@@ -127,7 +127,7 @@ class SeriesBuild(metaclass=ABCMeta):
         return self.data.std()
 
     def quantile(self, percentile):
-        return self.data.quantile(percentile)
+        return self.data.quantile(percentile).values
 
     def gantt(self, name):
         cont = 0

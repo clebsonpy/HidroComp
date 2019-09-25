@@ -64,4 +64,5 @@ hydrocomp/statistic/__init__.py
 hydrocomp/statistic/exceptions.py
 hydrocomp/statistic/genextre.py
 hydrocomp/statistic/genpareto.py
+hydrocomp/statistic/pearson3.py
 hydrocomp/statistic/stats_build.py

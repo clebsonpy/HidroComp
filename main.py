@@ -157,7 +157,7 @@ if __name__ == '__main__':
     flow = Flow(data=flow_nat.data.combine_first(flow_obs.data))
     figh, data = flow.hydrogram()
     """
-
+    """
     path = ''
     file = os.path.abspath(os.path.join(path, 'rio_ibicui_consistido.csv'))
 
@@ -172,13 +172,14 @@ if __name__ == '__main__':
         flow = Flow(data=data,  station=station)
         fig_year, data = flow.hydrogram_year(title=station)
         py.offline.plot(fig_year, filename=os.path.join(path, 'gráficos/hidrograma_year_{}.html'.format(name)))
-
+    """
     #dados.data.to_csv("rio_ibicui_consistido.csv")
     #print(dados['1993'])
-
-    #dados = psd.read_csv(file, index_col=0, names=["Date", "XINGO"],
-    #                    parse_dates=True)
-    #flow = Flow(data=dados_nat, source='ONS')
+    file = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_nat.csv'))
+    dados = pd.read_csv(file, index_col=0, parse_dates=True)
+    print(dados)
+    flow = Flow(data=dados, source='ONS', station='XINGO')
+    print(flow.flow_min('q710'))
     #test = dados.date(date_start="01/01/1995", date_end="31/12/2012")
 
     #value_threshold = test.mean()['XINGO'] + test.std()['XINGO']

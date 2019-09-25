@@ -3,6 +3,7 @@ import calendar as cal
 import pandas as pd
 from hydrocomp.series.exceptions import StationError
 
+from hydrocomp.statistic.pearson3 import Pearson3
 from hydrocomp.series.series_biuld import SeriesBuild
 from hydrocomp.series.parcial import Parcial
 from hydrocomp.series.maximum import Maximum
@@ -101,3 +102,20 @@ class Flow(SeriesBuild):
                                      title=title)
         fig, data = permanence.plot()
         return fig, data
+
+    def get_month_name(self):
+        months = {1: 'Janeiro', 2: 'Fevereiro', 3: 'Março', 4: 'Abril', 5: 'Maio', 6: 'Junho', 7: 'Julho', 8: 'Agosto',
+                  9: 'Setembro', 10: 'Outubro', 11: 'Novembro', 12: 'Dezembro'}
+        return months[self.month_num]
+
+    def flow_min(self, method):
+        if method == 'q90':
+            return self.quantile(0.1)
+        elif method == 'q95':
+            return self.quantile(0.05)
+        elif method == 'q710':
+            qmin = self.data.rolling(7).mean().groupby(pd.Grouper(freq='AS-JAN')).min()
+            prop = 1 / 10
+            dist = Pearson3(qmin[self.station].values)
+            dist.mml()
+            return dist.values(prop)
