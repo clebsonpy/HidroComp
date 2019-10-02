@@ -4,6 +4,8 @@ import plotly as py
 import timeit
 import pandas as pd
 from hydrocomp.series.flow import Flow
+from hydrocomp.series.cota import Cota
+from hydrocomp.series.rainfall import Rainfall
 
 if __name__ == '__main__':
     ini = timeit.default_timer()
@@ -175,11 +177,11 @@ if __name__ == '__main__':
     """
     #dados.data.to_csv("rio_ibicui_consistido.csv")
     #print(dados['1993'])
-    file = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_nat.csv'))
-    dados = pd.read_csv(file, index_col=0, parse_dates=True)
-    print(dados)
-    flow = Flow(data=dados, source='ONS', station='XINGO')
-    print(flow.flow_min('q710'))
+    #file = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_nat.csv'))
+    #dados = pd.read_csv(file, index_col=0, parse_dates=True)
+    #print(dados)
+    flow = Rainfall(path='01162003', source='ANA')
+    print(flow)
     #test = dados.date(date_start="01/01/1995", date_end="31/12/2012")
 
     #value_threshold = test.mean()['XINGO'] + test.std()['XINGO']

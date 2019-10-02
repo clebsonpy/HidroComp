@@ -13,5 +13,5 @@ class Rainfall(SeriesBuild):
     def month_start_year_hydrologic(self, station):
         pass
 
-    def plot_hydrogram(self):
+    def hydrogram(self):
         pass

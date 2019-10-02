@@ -31,13 +31,17 @@ class SeriesBuild(metaclass=ABCMeta):
                 self.station = None
             if source in self.sources:
                 self.source = source
-                self.data = self.sources[self.source](self.path, *args, **kwargs).data.sort_index()
+                read = self.sources[self.source](self.path, *args, **kwargs)
+                self.station = read.name
+                self.data = read.data.sort_index()
             else:
                 raise KeyError('Source not supported!')
-
-        self.date_start, self.date_end = self.__start_and_end()
-        _data = pd.DataFrame(index=pd.date_range(start=self.date_start, end=self.date_end))
-        self.data = _data.combine_first(self.data[self.date_start:self.date_end])
+        if self.data.size == 0:
+            self.date_start, self.date_end = None, None
+        else:
+            self.date_start, self.date_end = self.__start_and_end()
+            _data = pd.DataFrame(index=pd.date_range(start=self.date_start, end=self.date_end))
+            self.data = _data.combine_first(self.data[self.date_start:self.date_end])
 
     @abstractmethod
     def month_start_year_hydrologic(self):
