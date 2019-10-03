@@ -12,22 +12,27 @@ from abc import abstractmethod, ABCMeta
 
 class FileRead(Files, metaclass=ABCMeta):
 
-    def __init__(self, path=os.getcwd(), *args, **kwargs):
-        if os.path.isfile(path):
-            self.path = os.path.dirname(path)
-            self.name, ext = os.path.splitext(os.path.basename(path))
-            self.api = False
-            if ext != ".{}".format(self.extension):
-                raise Exception('Formato invalido')
-        elif os.path.isdir(path):
-            self.path = path
+    def __init__(self, path_file=os.getcwd(), *args, **kwargs):
+        try:
+            if os.path.isfile(path_file):
+                self.path = os.path.dirname(path_file)
+                self.name, ext = os.path.splitext(os.path.basename(path_file))
+                self.api = False
+                if ext != ".{}".format(self.extension):
+                    raise Exception('Formato invalido')
+            elif os.path.isdir(path_file):
+                self.path = path_file
+                self.name = None
+                self.api = False
+            else:
+                self.path = path_file
+                self.name = None
+                self.api = True
+        except TypeError:
+            self.path = path_file
             self.name = None
-            self.api = False
-        else:
-            self.path = None
-            self.name = path
             self.api = True
-        super().__init__(self.path)
+        super().__init__(path_file=self.path)
 
     @abstractmethod
     def list_files(self):
@@ -35,10 +40,11 @@ class FileRead(Files, metaclass=ABCMeta):
 
     @abstractmethod
     def read(self):
-        self.name = self.list_files()
         if type(self.name) == list and len(self.name) > 1:
             p = mp.Pool(4)
+            print(len(self.name))
             listaDfs = p.map(self.read, self.name)
+            print(listaDfs)
             p.close()
             if self.source == 'ANA':
                 dataFlow = pd.DataFrame()

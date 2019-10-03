@@ -15,8 +15,8 @@ class Ons(FileRead):
     source = "ONS"
     extension = "xls"
 
-    def __init__(self, path=os.getcwd(), type_data='FLUVIOMÉTRICO', station=None, *args, **kwargs):
-        super().__init__(path)
+    def __init__(self, path_file=os.getcwd(), type_data='FLUVIOMÉTRICO', station=None, *args, **kwargs):
+        super().__init__(path_file)
         self.type_data = type_data
         self.station = station
         if self.station is None:

@@ -17,8 +17,8 @@ class Cemaden(FileRead):
     source = 'Cemaden'
     extension = 'sam'
 
-    def __init__(self, path=os.getcwd()):
-        super().__init__(path)
+    def __init__(self, path_file=os.getcwd()):
+        super().__init__(path_file)
 
     def list_files(self):
         pass

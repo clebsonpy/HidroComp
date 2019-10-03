@@ -139,4 +139,4 @@ class SeriesBuild(metaclass=ABCMeta):
         for i in self.data:
             df, cont = Gantt(self.data[i]).get_gantt(df, self.less_period(self.data[i]), cont)
         fig = FF.create_gantt(df, colors='#000000', group_tasks=True, title=name)
-        return fig
+        return fig, df

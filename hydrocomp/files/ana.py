@@ -5,13 +5,12 @@ Created on 21 de mar de 2018
 """
 
 import os
-import requests
 import calendar as ca
 
-import xml.etree.ElementTree as ET
 import numpy as np
 import pandas as pd
 from hydrocomp.files.fileRead import FileRead
+from hydrocomp.api_ana.serie_temporal import SerieTemporal
 
 
 class Ana(FileRead):
@@ -24,34 +23,38 @@ class Ana(FileRead):
     source = "ANA"
     extension = "txt"
 
-    def __init__(self, path=os.getcwd(), type_data='FLUVIOMÉTRICO', consistence='', date_start='',
+    def __init__(self, path_file=os.getcwd(), type_data='FLUVIOMÉTRICO', consistence='', date_start='',
                  date_end='', *args, **kwargs):
-        super().__init__(path, *args, **kwargs)
+        super().__init__(path_file, *args, **kwargs)
         self.consistence = consistence
         self.date_start = date_start
         self.date_end = date_end
         self.type_data = type_data.upper()
-        if self.api:
-            self.data = self.api_hidro_serie_historica()
-        else:
-            self.data = self.read(self.name)
+        self.data = self.read(self.name)
 
     def list_files(self):
         return super().list_files()
 
     def read(self, name=None):
-        if name is None:
-            return super().read()
+        if self.api:
+            if name is None:
+                self.name = self.path
+                return super().read()
+            else:
+                self.name = name
+                data = self.__excludes_duplicates(self.hidro_serie_historica())
         else:
-            self.name = name
-            data = self.__readTxt()
-            data = data.iloc[data.index.isin([self.consistence], level=1)]
-            data.reset_index(level=1, drop=True, inplace=True)
-            return data
+            if name is None or name is not list:
+                self.name = self.list_files()
+                return super().read()
+            else:
+                self.name = name
+                data = self.__excludes_duplicates(self.__readTxt())
+        return data
 
     def __lines(self):
         list_lines = []
-        with open(os.path.join(self.path, self.name+'.'+Ana.extension),
+        with open(os.path.join(self.path, self.name + '.' + Ana.extension),
                   encoding="Latin-1") as file:
             l = 0
             for line in file.readlines():
@@ -98,35 +101,21 @@ class Ana(FileRead):
         data_flow = pd.DataFrame(pd.concat(data_flow))
         return data_flow
 
-    def api_hidro_serie_historica(self):
-        response = requests.get('http://telemetriaws1.ana.gov.br/ServiceANA.asmx/HidroSerieHistorica',
-                                params={
-                                    'codEstacao': self.name, 'dataInicio': self.date_start, 'dataFim': self.date_end,
-                                    'tipoDados': Ana.typesData[self.type_data][2],
-                                    'nivelConsistencia': self.consistence})
+    def hidro_serie_historica(self):
+        print(self.name)
+        serie_temporal = SerieTemporal(codEstacao=self.name, dataInicio=self.date_start, dataFim=self.date_end,
+                                       tipoDados=Ana.typesData[self.type_data][2], nivelConsistencia=self.consistence)
+        data = serie_temporal.get()
+        return data
 
-        tree = ET.ElementTree(ET.fromstring(response.content))
-        root = tree.getroot()
-
-        series = []
-        for month in root.iter('SerieHistorica'):
-            vazao = []
-            codigo = month.find('EstacaoCodigo').text
-            date_str = month.find('DataHora').text
-            date = pd.to_datetime(date_str, dayfirst=True)
-            days = ca.monthrange(date.year, date.month)[1]
-            date_idx = pd.date_range(start=date_str, periods=days)
-            for i in range(1, days + 1):
-                value = Ana.typesData[self.type_data][0].format(i)
-                try:
-                    vazao.append(float(month.find(value).text))
-                except TypeError:
-                    vazao.append(month.find(value).text)
-                except AttributeError:
-                    vazao.append(None)
-            series.append(pd.Series(vazao, index=date_idx, name=codigo))
-        try:
-            data_flow = pd.DataFrame(pd.concat(series))
-        except ValueError:
-            data_flow = pd.DataFrame(pd.Series(name=self.name))
-        return data_flow
+    def __excludes_duplicates(self, data):
+        if self.consistence == 1:  # bruto_e_consistido
+            ordem = data.copy(deep=True)
+            eh_duplicata = ordem.reset_index(level=1, drop=True).index.duplicated(keep='last')
+            saida = data[~eh_duplicata]
+        elif self.consistence == 2:  # somente consistidos
+            try:
+                saida = data.iloc[data.index.isin([self.consistence], level=1)]
+            except KeyError:
+                return
+        return saida.reset_index(level=1, drop=True)

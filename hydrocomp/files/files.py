@@ -10,8 +10,8 @@ from abc import ABCMeta, abstractmethod
 
 class Files(metaclass=ABCMeta):
 
-    def __init__(self, path=os.getcwd()):
-        self.path = path
+    def __init__(self, path_file=os.getcwd()):
+        self.path = path_file
 
     @abstractmethod
     def list_files(self):

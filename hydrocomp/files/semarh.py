@@ -13,5 +13,5 @@ class Semarh(FileRead):
     source = "  SEMARH"
     extension = None
 
-    def __init__(self, path, name):
+    def __init__(self, path_file, name):
         pass

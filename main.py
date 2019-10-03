@@ -180,8 +180,14 @@ if __name__ == '__main__':
     #file = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_nat.csv'))
     #dados = pd.read_csv(file, index_col=0, parse_dates=True)
     #print(dados)
-    flow = Rainfall(path='01162003', source='ANA')
+    path = ''
+    stations = ['76077000', '76085000', '76100000', '76120000', '76251000', '76260000', '76300000', '76310000',
+     '76360001', '76370000', '76380000', '76395000', '76431000', '76440000', '76460000', '76490000',
+     '76500000', '76550000', '76560000', '76600000', '76630000', '76650000', '76700000', '76742000',
+     '76745000', '76750000', '76800000', '76081000']
+    flow = Flow(path_file=stations, source='ANA', consistence=1)
     print(flow)
+    figg, data = flow.gantt(name='gantt')
     #test = dados.date(date_start="01/01/1995", date_end="31/12/2012")
 
     #value_threshold = test.mean()['XINGO'] + test.std()['XINGO']
@@ -196,9 +202,9 @@ if __name__ == '__main__':
 
     #flow.data.to_csv('caracarai.csv')
     #fig, data = parcial.plot_hydrogram('Parcial')
-    #py.offline.plot(figg, filename=os.path.join(path, 'gráficos/gantt.html'))
+    py.offline.plot(figg, filename=os.path.join(path, 'gráficos/gantt.html'))
 
-    #py.offline.plot(figh, filename=os.path.join(path, 'gráficos/hidrograma.html'))
+    #py.offline.plot(figh, filename=os.path.join(path, 'gráficos/hidrograma_test.html'))
     #py.offline.plot(figp, filename=os.path.join(path, 'gráficos/permanência.html'))
 
     fim = timeit.default_timer()
