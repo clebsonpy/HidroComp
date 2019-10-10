@@ -11,7 +11,7 @@ class Graphics:
 
     def plot(self, metric, line=None):
         bandxaxis = go.layout.XAxis(title="Ano")
-        bandyaxis = go.layout.YAxis(title="Vazão(m³/s)")
+        bandyaxis = go.layout.YAxis(title="")
 
         layout = dict(title=metric.title(),
                       width=self.width, height=self.height,
@@ -22,7 +22,6 @@ class Graphics:
         data = list()
         data.append(self._plot_iha(metric))
         try:
-            print(line)
             for i in line:
                 data.append(self._plot_rva(line=line[i], metric=metric))
         except:
