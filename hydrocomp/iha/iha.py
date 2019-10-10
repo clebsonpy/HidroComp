@@ -47,6 +47,7 @@ class IHA:
 
     # <editor-fold desc="Range of Variability Approach"
     def rva(self, iha_other, group_iha=None, boundaries=17):
+
         def rva_very(rva):
             for i in rva:
                 for j in rva[i].index:
@@ -62,24 +63,22 @@ class IHA:
             data_group_other, _ = eval('iha_other.'+iha_other.group[group_iha])()
             if iha_other.status != self.status:
                 if iha_other.status is 'pos':
-                    lower_line, median_line, upper_line = self.rva_line(data_group, boundaries=boundaries)
-                    group_iha = self.rva_frequency(lower_line=lower_line, upper_line=upper_line, data_group=data_group)
-                    group_iha_other = self.rva_frequency(lower_line=lower_line, upper_line=upper_line,
-                                                         data_group=data_group_other)
+                    line = self.rva_line(data_group, boundaries=boundaries)
+                    group_iha = self.rva_frequency(line=line, data_group=data_group)
+                    group_iha_other = self.rva_frequency(line=line, data_group=data_group_other)
                     print(group_iha)
                     print(group_iha_other)
                     rva = (group_iha_other - group_iha) / group_iha
-                    return rva_very(rva)
+                    return rva_very(rva), line
 
                 elif iha_other.status is 'pre':
-                    lower_line, median_line, upper_line = iha_other.rva_line(data_group)
-                    group_iha = self.rva_frequency(lower_line=lower_line, upper_line=upper_line, data_group=data_group)
-                    group_iha_other = self.rva_frequency(lower_line=lower_line, upper_line=upper_line,
-                                                         data_group=data_group_other)
+                    line = iha_other.rva_line(data_group)
+                    group_iha = self.rva_frequency(line=line, data_group=data_group)
+                    group_iha_other = self.rva_frequency(line=line, data_group=data_group_other)
                     print(group_iha)
                     print(group_iha_other)
                     rva = (group_iha - group_iha_other) / group_iha_other
-                    return rva_very(rva)
+                    return rva_very(rva), line
                 else:
                     raise ObjectErro('Status Erro')
             else:
@@ -117,8 +116,9 @@ class IHA:
 
     # <editor-fold desc="Range of Variability Approach Frequency">
     @staticmethod
-    def rva_frequency(data_group, lower_line, upper_line):
+    def rva_frequency(data_group, line):
         count = pd.DataFrame(columns=['Lower', 'Median', 'Upper'])
+        upper_line, lower_line = line['upper_line'], line['lower_line']
         for i in data_group:
             if upper_line[i] == 0 and lower_line[i] == 0:
                 count.at[i, 'Lower'] = 0
@@ -140,21 +140,20 @@ class IHA:
     def rva_line(self, data_group, boundaries):
         if (type(data_group) == type(pd.DataFrame())) or (type(data_group) == type(pd.Series())):
             if self.status == 'pre':
-                lower_line = pd.Series(name='lower_line')
-                upper_line = pd.Series(name='upper_line')
-                median_line = pd.Series(name='median_line')
+                line = pd.DataFrame(columns=['lower_line', 'upper_line', 'median_line'])
+
                 if self.statistic == 'non-parametric':
                     for i in data_group:
-                        lower_line.at[i] = data_group[i].quantile((50 - boundaries) / 100)
-                        upper_line.at[i] = data_group[i].quantile((50 + boundaries) / 100)
-                        median_line.at[i] = data_group[i].median()
-                    return lower_line, median_line, upper_line
+                        line.at[i, 'lower_line'] = data_group[i].quantile((50 - boundaries) / 100)
+                        line.at[i, 'upper_line'] = data_group[i].quantile((50 + boundaries) / 100)
+                        line.at[i, 'median_line'] = data_group[i].median()
+                    return line
                 elif self.statistic == 'parametric':
                     for i in data_group:
-                        lower_line.at[i] = data_group[i].mean() - data_group[i].std()
-                        upper_line.at[i] = data_group[i].mean() + data_group[i].std()
-                        median_line.at[i] = data_group[i].median()
-                    return lower_line, median_line, upper_line
+                        line.at[i, 'lower_line'] = data_group[i].mean() - data_group[i].std()
+                        line.at[i, 'lower_line'] = data_group[i].mean() + data_group[i].std()
+                        line.at[i, 'lower_line'] = data_group[i].median()
+                    return line
                 else:
                     raise NotStatistic('Not exist statistic {}: use {} or {}'.format(
                         self.statistic, 'non-parametric', 'parametric'), line=91)

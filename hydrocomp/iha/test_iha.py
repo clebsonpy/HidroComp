@@ -27,7 +27,7 @@ class TestIHA(TestCase):
     def test_mean_month(self):
         data = self.read_iha('Group1.csv')
         data_group, data2 = self.iha_obj_nat.magnitude()
-        print(data)
+        print(data_group)
         print(data2)
         self.test(data, data2)
 

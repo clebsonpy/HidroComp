@@ -33,7 +33,7 @@ class TestRVA(TestCase):
         data_group_obs, data_obs = self.iha_obj_obs.magnitude()
         print(data_nat)
         print(data_obs)
-        print(self.iha_obj_nat.rva(self.iha_obj_obs, group_iha='group1'))
+        print(self.iha_obj_nat.rva(self.iha_obj_obs, group_iha='group1')[1])
 
     def test_moving_averages(self):
         data_group_nat, data_nat = self.iha_obj_nat.magnitude_and_duration()

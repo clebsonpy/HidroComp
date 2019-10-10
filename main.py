@@ -3,6 +3,10 @@ import os
 import plotly as py
 import timeit
 import pandas as pd
+
+from hydrocomp.iha import iha
+from hydrocomp.iha.iha import IHA
+from hydrocomp.iha.graphics import Graphics
 from hydrocomp.series.flow import Flow
 from hydrocomp.series.cota import Cota
 from hydrocomp.series.rainfall import Rainfall
@@ -39,7 +43,7 @@ if __name__ == '__main__':
     figh, data = flow.hydrogram()
     """
 
-    #Cachoeira Morena
+    # Cachoeira Morena
     """
     path = '/home/clebsonpy/Dropbox/IHA_Dados/Dados/Cach. Morena'
     file = os.path.abspath(os.path.join(path, "vazoes_T_16100000.txt"))
@@ -63,7 +67,7 @@ if __name__ == '__main__':
     figh, data = flow.hydrogram()
     """
 
-    #Raizama
+    # Raizama
     """
     path = '/home/clebsonpy/Dropbox/IHA_Dados/Dados/Raizama'
     file = os.path.abspath(os.path.join(path, "vazoes_T_66231000.txt"))
@@ -89,7 +93,7 @@ if __name__ == '__main__':
     figh, data = flow.hydrogram()
     """
 
-    #Rosário Oeste
+    # Rosário Oeste
     """
     path = '/home/clebsonpy/Dropbox/IHA_Dados/Dados/Rosário Oeste'
     file = os.path.abspath(os.path.join(path, "vazoes_T_66250001.txt"))
@@ -113,7 +117,7 @@ if __name__ == '__main__':
     figh, data = flow.hydrogram()
     """
 
-    #Xingó
+    # Xingó
     """
     path = '/home/clebsonpy/Dropbox/IHA_Dados/Dados/Xingó'
 
@@ -159,6 +163,7 @@ if __name__ == '__main__':
     flow = Flow(data=flow_nat.data.combine_first(flow_obs.data))
     figh, data = flow.hydrogram()
     """
+
     """
     path = ''
     file = os.path.abspath(os.path.join(path, 'rio_ibicui_consistido.csv'))
@@ -175,11 +180,13 @@ if __name__ == '__main__':
         fig_year, data = flow.hydrogram_year(title=station)
         py.offline.plot(fig_year, filename=os.path.join(path, 'gráficos/hidrograma_year_{}.html'.format(name)))
     """
-    #dados.data.to_csv("rio_ibicui_consistido.csv")
-    #print(dados['1993'])
-    #file = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_nat.csv'))
-    #dados = pd.read_csv(file, index_col=0, parse_dates=True)
-    #print(dados)
+
+    # dados.data.to_csv("rio_ibicui_consistido.csv")
+    # print(dados['1993'])
+    # file = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_nat.csv'))
+    # dados = pd.read_csv(file, index_col=0, parse_dates=True)
+    # print(dados)
+    """
     path = ''
     stations = ['76077000', '76085000', '76100000', '76120000', '76251000', '76260000', '76300000', '76310000',
      '76360001', '76370000', '76380000', '76395000', '76431000', '76440000', '76460000', '76490000',
@@ -188,24 +195,48 @@ if __name__ == '__main__':
     flow = Flow(path_file=stations, source='ANA', consistence=1)
     print(flow)
     figg, data = flow.gantt(name='gantt')
-    #test = dados.date(date_start="01/01/1995", date_end="31/12/2012")
+    """
+    path = ''
+    path2 = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_obs.csv'))
+    print(path2)
+    data = pd.read_csv(path2, ',', index_col=0, parse_dates=True)
+    print(data)
 
-    #value_threshold = test.mean()['XINGO'] + test.std()['XINGO']
-    #print(test.mean())
-    #maximum = test.maximum(station='MANSO')
-    #print(maximum.dist_gev.mvs())
-    #parcial = flow.parcial(station="XINGO", type_criterion='autocorrelation', type_threshold="stationary", type_event="flood",
+    iha_obj_nat = IHA(data, month_water=1, status='pre', statistic='non-parametric', central_metric='mean',
+                      variation_metric='cv', type_criterion=None, type_threshold="stationary", duration=0,
+                      threshold_high=4813, threshold_low=569.5, source='ONS', station='NAT')
+
+    iha_obj_obs = IHA(data, month_water=1, status='pos', statistic='non-parametric', central_metric='mean',
+                      variation_metric='cv', type_criterion=None, type_threshold="stationary", duration=0,
+                      threshold_high=4813, threshold_low=569.5, source='CHESF', station='OBS')
+
+    data_group_nat = iha_obj_nat.magnitude()[0]
+    data_group_obs = iha_obj_obs.magnitude()[0]
+    line = iha_obj_nat.rva_line(data_group_nat, boundaries=17)
+
+    fig_obs, data_obs = Graphics(data_group_obs, status=iha_obj_obs.status).plot(metric='August',
+                                                                                 line=line)
+    fig_nat, data_nat = Graphics(data_group_nat, status=iha_obj_nat.status).plot(metric='August',
+                                                                                 line=line)
+    fig = dict(data=data_obs + [data_nat[0]], layout=fig_nat['layout'])
+    # test = dados.date(date_start="01/01/1995", date_end="31/12/2012")
+
+    # value_threshold = test.mean()['XINGO'] + test.std()['XINGO']
+    # print(test.mean())
+    # maximum = test.maximum(station='MANSO')
+    # print(maximum.dist_gev.mvs())
+    # parcial = flow.parcial(station="XINGO", type_criterion='autocorrelation', type_threshold="stationary", type_event="flood",
     #                        value_threshold=0.75, duration=6)
-    #print(parcial.peaks)
-    #print(parcial.threshold)
-    #print(parcial.test_autocorrelation())
+    # print(parcial.peaks)
+    # print(parcial.threshold)
+    # print(parcial.test_autocorrelation())
 
-    #flow.data.to_csv('caracarai.csv')
-    #fig, data = parcial.plot_hydrogram('Parcial')
-    py.offline.plot(figg, filename=os.path.join(path, 'gráficos/gantt.html'))
+    # flow.data.to_csv('caracarai.csv')
+    # fig, data = parcial.plot_hydrogram('Parcial')
+    py.offline.plot(fig, filename=os.path.join(path, 'gráficos/rva.html'))
 
-    #py.offline.plot(figh, filename=os.path.join(path, 'gráficos/hidrograma_test.html'))
-    #py.offline.plot(figp, filename=os.path.join(path, 'gráficos/permanência.html'))
+    # py.offline.plot(figh, filename=os.path.join(path, 'gráficos/hidrograma_test.html'))
+    # py.offline.plot(figp, filename=os.path.join(path, 'gráficos/permanência.html'))
 
     fim = timeit.default_timer()
-    print('Duração: ', fim-ini)
+    print('Duração: ', fim - ini)
