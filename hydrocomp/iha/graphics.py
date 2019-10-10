@@ -48,3 +48,6 @@ class Graphics:
                            marker=dict(size=8, color='rgb(128, 128, 128)', line=dict(width=1, color='rgb(0, 0, 0)')))
 
         return point
+
+    def spells(self):
+        pass
