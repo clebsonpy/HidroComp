@@ -276,7 +276,7 @@ class IHA:
                     pd.Grouper(freq=self.month_start[1])).Duration.mean()).rename(
                     columns={"Duration": '{} pulse duration'.format(name[type_event])})
 
-                pulse = pd.DataFrame(events.peaks.groupby(pd.Grouper(freq=self.month_start[1])).Duration.count()).rename(
+                pulse = pd.DataFrame(events.peaks.resample(self.month_start[1]).count().Duration).rename(
                     columns={"Duration": '{} pulse count'.format(name[type_event])})
 
                 group = group.combine_first(duration_pulse)

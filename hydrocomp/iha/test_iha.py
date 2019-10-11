@@ -51,7 +51,7 @@ class TestIHA(TestCase):
 
     def test_pulse(self):
         data = self.read_iha('Group4.csv')
-        data_group, data2 = self.iha_obj_nat.frequency_and_duration()
+        data_group, data2, partial_high_nat, partial_low_nat = self.iha_obj_nat.frequency_and_duration()
         print(data)
         print(data2)
         self.test(data, data2)

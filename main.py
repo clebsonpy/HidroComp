@@ -201,7 +201,6 @@ if __name__ == '__main__':
 
     data = pd.read_csv(path2, ',', index_col=0, parse_dates=True)
 
-
     iha_obj_nat = IHA(data, month_water=1, status='pre', statistic='non-parametric', central_metric='mean',
                       variation_metric='cv', type_criterion=None, type_threshold="stationary", duration=0,
                       threshold_high=4813, threshold_low=569.5, source='ONS', station='NAT')
@@ -220,7 +219,7 @@ if __name__ == '__main__':
                                                                                  line=line, color='blue')
     fig2 = dict(data=data_obs + [data_nat[0]], layout=fig_nat['layout'])
     fig_spells_nat, df = partial_high_nat.plot_spells("Natural")
-    #fig_spells_obs = partial_high_obs.plot_spells("Obs")
+    # fig_spells_obs = partial_high_obs.plot_spells("Obs")
     # test = dados.date(date_start="01/01/1995", date_end="31/12/2012")
 
     # value_threshold = test.mean()['XINGO'] + test.std()['XINGO']
@@ -238,7 +237,7 @@ if __name__ == '__main__':
     py.offline.plot(fig2, filename=os.path.join(path, 'gráficos/rva.html'))
 
     py.offline.plot(fig_spells_nat, filename=os.path.join(path, 'gráficos/spells_nat.html'))
-    #py.offline.plot(fig_spells_obs, filename=os.path.join(path, 'gráficos/spells_obs.html'))
+    # py.offline.plot(fig_spells_obs, filename=os.path.join(path, 'gráficos/spells_obs.html'))
     # py.offline.plot(figp, filename=os.path.join(path, 'gráficos/permanência.html'))
 
     fim = timeit.default_timer()
