@@ -192,7 +192,9 @@ class IHA:
         if month_water is None:
             return self.flow.month_start_year_hydrologic()
         else:
-            return month_water, 'AS-%s' % cal.month_abbr[month_water].upper()
+            self.flow.month_abr = 'AS-%s' % cal.month_abbr[month_water].upper()
+            self.flow.month_num = month_water
+            return self.flow.month_num, self.flow.month_abr
 
     # </editor-fold>
 
@@ -288,6 +290,7 @@ class IHA:
 
         events_high = self.flow.parcial(station=self.station, type_threshold=self.type_threshold, type_event="flood",
                                         type_criterion=self.type_criterion, value_threshold=self.threshold_high)
+        print(self.flow.month_abr)
 
         frequency_and_duration_high, threshold_high_mag = aux_frequency_and_duration(events_high)
 

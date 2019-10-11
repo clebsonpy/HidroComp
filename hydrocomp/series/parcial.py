@@ -501,7 +501,7 @@ class Parcial(object):
         return fig, data
 
     def plot_spells(self, title):
-        df_spells, df = Gantt.get_spells(data_peaks=self.peaks)
+        df_spells, df = Gantt.get_spells(data_peaks=self.peaks, month_water=[self.obj.month_num, self.obj.month_abr])
         print(df_spells)
         fig = FF.create_gantt(df_spells, colors='#000000', group_tasks=True, title=title)
         return fig, df
