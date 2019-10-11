@@ -198,9 +198,9 @@ if __name__ == '__main__':
     """
     path = ''
     path2 = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_obs.csv'))
-    print(path2)
+
     data = pd.read_csv(path2, ',', index_col=0, parse_dates=True)
-    print(data)
+
 
     iha_obj_nat = IHA(data, month_water=1, status='pre', statistic='non-parametric', central_metric='mean',
                       variation_metric='cv', type_criterion=None, type_threshold="stationary", duration=0,
@@ -210,15 +210,17 @@ if __name__ == '__main__':
                       variation_metric='cv', type_criterion=None, type_threshold="stationary", duration=0,
                       threshold_high=4813, threshold_low=569.5, source='CHESF', station='OBS')
 
-    data_group_nat = iha_obj_nat.magnitude()[0]
-    data_group_obs = iha_obj_obs.magnitude()[0]
+    data_group_nat, id_metric_nat, partial_high_nat, partial_low_nat = iha_obj_nat.frequency_and_duration()
+    data_group_obs, id_metric_obs, partial_high_obs, partial_low_obs = iha_obj_obs.frequency_and_duration()
     line = iha_obj_nat.rva_line(data_group_nat, boundaries=17)
 
-    fig_obs, data_obs = Graphics(data_group_obs, status=iha_obj_obs.status).plot(metric='August',
-                                                                                 line=line)
-    fig_nat, data_nat = Graphics(data_group_nat, status=iha_obj_nat.status).plot(metric='August',
-                                                                                 line=line)
-    fig = dict(data=data_obs + [data_nat[0]], layout=fig_nat['layout'])
+    fig_obs, data_obs = Graphics(data_group_obs, status=iha_obj_obs.status).plot(metric='High pulse duration',
+                                                                                 line=line, color='red')
+    fig_nat, data_nat = Graphics(data_group_nat, status=iha_obj_nat.status).plot(metric='High pulse duration',
+                                                                                 line=line, color='blue')
+    fig2 = dict(data=data_obs + [data_nat[0]], layout=fig_nat['layout'])
+    fig_spells_nat, df = partial_high_nat.plot_spells("Natural")
+    #fig_spells_obs = partial_high_obs.plot_spells("Obs")
     # test = dados.date(date_start="01/01/1995", date_end="31/12/2012")
 
     # value_threshold = test.mean()['XINGO'] + test.std()['XINGO']
@@ -233,9 +235,10 @@ if __name__ == '__main__':
 
     # flow.data.to_csv('caracarai.csv')
     # fig, data = parcial.plot_hydrogram('Parcial')
-    py.offline.plot(fig, filename=os.path.join(path, 'gráficos/rva.html'))
+    py.offline.plot(fig2, filename=os.path.join(path, 'gráficos/rva.html'))
 
-    # py.offline.plot(figh, filename=os.path.join(path, 'gráficos/hidrograma_test.html'))
+    py.offline.plot(fig_spells_nat, filename=os.path.join(path, 'gráficos/spells_nat.html'))
+    #py.offline.plot(fig_spells_obs, filename=os.path.join(path, 'gráficos/spells_obs.html'))
     # py.offline.plot(figp, filename=os.path.join(path, 'gráficos/permanência.html'))
 
     fim = timeit.default_timer()

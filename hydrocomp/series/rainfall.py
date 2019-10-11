@@ -1,6 +1,6 @@
 import os
 
-from hydrocomp.series.series_biuld import SeriesBuild
+from hydrocomp.series.series_build import SeriesBuild
 
 
 class Rainfall(SeriesBuild):

@@ -50,8 +50,8 @@ class TestRVA(TestCase):
         print(self.iha_obj_nat.rva(self.iha_obj_obs, group_iha='group3'))
 
     def test_pulse(self):
-        data_group_nat, data_nat = self.iha_obj_nat.frequency_and_duration()
-        data_group_obs, data_obs = self.iha_obj_obs.frequency_and_duration()
+        data_group_nat, data_nat,  partial_high_nat, partial_low_nat = self.iha_obj_nat.frequency_and_duration()
+        data_group_obs, data_obs,  partial_high_obs, partial_low_obs = self.iha_obj_obs.frequency_and_duration()
         print(data_nat)
         print(data_obs)
         print(self.iha_obj_nat.rva(self.iha_obj_obs, group_iha='group4'))

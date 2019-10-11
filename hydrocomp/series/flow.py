@@ -4,7 +4,7 @@ import pandas as pd
 from hydrocomp.series.exceptions import StationError
 
 from hydrocomp.statistic.pearson3 import Pearson3
-from hydrocomp.series.series_biuld import SeriesBuild
+from hydrocomp.series.series_build import SeriesBuild
 from hydrocomp.series.parcial import Parcial
 from hydrocomp.series.maximum import Maximum
 from hydrocomp.graphics.hydrogram_clean import HydrogramClean

@@ -267,7 +267,7 @@ class IHA:
             name = {'flood': 'High', 'drought': 'Low'}
             type_event = events.type_event
 
-            group = pd.DataFrame(index=pd.date_range(events.obj.date_start, events.obj.date_end, freq='YS'),
+            group = pd.DataFrame(index=pd.date_range(events.obj.date_start, events.obj.date_end, freq=self.month_start[1]),
                                  columns=["{} pulse duration".format(name[type_event]),
                                           '{} pulse count'.format(name[type_event])])
 
@@ -299,7 +299,7 @@ class IHA:
         metric_stats = self.metric_stats(frequency_and_duration, central_metric=self.central_metric,
                                          variation_metric=self.variation_metric)
 
-        return frequency_and_duration, metric_stats
+        return frequency_and_duration, metric_stats, events_high, events_low
 
     # </editor-fold>
 

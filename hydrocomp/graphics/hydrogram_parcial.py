@@ -1,9 +1,9 @@
 import plotly.graph_objs as go
 
-from hydrocomp.graphics.hydrogram_biuld import HydrogramBiuld
+from hydrocomp.graphics.hydrogram_build import HydrogramBuild
 
 
-class HydrogramParcial(HydrogramBiuld):
+class HydrogramParcial(HydrogramBuild):
 
     def __init__(self, data, peaks, threshold, threshold_criterion=None, type_criterion=None, width=None,
                  height=None, size_text=None, title=None):

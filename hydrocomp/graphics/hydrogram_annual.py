@@ -1,9 +1,9 @@
 import plotly.graph_objs as go
 
-from hydrocomp.graphics.hydrogram_biuld import HydrogramBiuld
+from hydrocomp.graphics.hydrogram_build import HydrogramBuild
 
 
-class HydrogramAnnual(HydrogramBiuld):
+class HydrogramAnnual(HydrogramBuild):
 
     def __init__(self, data, peaks, width=None, height=None, size_text=None, title=None):
         self.data = data
@@ -21,7 +21,7 @@ class HydrogramAnnual(HydrogramBiuld):
                       )
 
         data = list()
-        data.append(self._plot_one(self.data))
+        data.append(self._plot_one(self.data, name='Pico'))
         data.append(self._plot_event_peaks())
 
         fig = dict(data=data, layout=layout)

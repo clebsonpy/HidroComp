@@ -1,8 +1,8 @@
 import plotly.graph_objs as go
-from hydrocomp.graphics.hydrogram_biuld import HydrogramBiuld
+from hydrocomp.graphics.hydrogram_build import HydrogramBuild
 
 
-class HydrogramClean(HydrogramBiuld):
+class HydrogramClean(HydrogramBuild):
 
     def __init__(self, data, width=None, height=None, size_text=None, title=None):
         super().__init__(width=width, height=height, size_text=size_text, title=title)

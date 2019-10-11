@@ -1,9 +1,9 @@
-from .hydrogram_biuld import HydrogramBiuld
+from .hydrogram_build import HydrogramBuild
 import plotly.graph_objs as go
 import pandas as pd
 
 
-class HydrogramYear(HydrogramBiuld):
+class HydrogramYear(HydrogramBuild):
 
     def __init__(self, data, width=None, height=None, size_text=None, title=None):
         self.data = data

@@ -3,7 +3,7 @@ import plotly.graph_objs as go
 from abc import ABCMeta, abstractmethod
 
 
-class HydrogramBiuld(metaclass=ABCMeta):
+class HydrogramBuild(metaclass=ABCMeta):
 
     def __init__(self, width=None, height=None, title=None, size_text=None):
         self.width = width

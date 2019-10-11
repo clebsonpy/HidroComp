@@ -2,14 +2,15 @@ import pandas as pd
 import math
 import scipy.stats as stat
 import plotly.plotly as py
+import plotly.figure_factory as FF
 
+from hydrocomp.graphics.gantt import Gantt
 from hydrocomp.graphics.genpareto import GenPareto
 from hydrocomp.graphics.hydrogram_parcial import HydrogramParcial
 from hydrocomp.graphics.boxplot import Boxplot
 
 
 class Parcial(object):
-
     distribution = 'GP'
     __percentil = 0.8
     dic_name = {'stationary': 'Percentil', 'events_by_year': 'Eventos por Ano', 'autocorrelation': 'Autocorrelação'}
@@ -74,11 +75,11 @@ class Parcial(object):
                 else:
                     start = True
             if events_threshold.loc[i] and start:
-                    data['peaks'].append(self.data.loc[i, self.station])
-                    data['Date'].append(i)
-                    low_limiar = True
-                    data_min['peaks'].append(self.data.loc[i, self.station])
-                    data_min['Date'].append(i)
+                data['peaks'].append(self.data.loc[i, self.station])
+                data['Date'].append(i)
+                low_limiar = True
+                data_min['peaks'].append(self.data.loc[i, self.station])
+                data_min['Date'].append(i)
             else:
                 if low_limiar:
                     data['peaks'].append(self.data.loc[idx_before, self.station])
@@ -88,7 +89,7 @@ class Parcial(object):
                     low_limiar = False
                     data_min['peaks'].append(self.data.loc[i, self.station])
                     data_min['Date'].append(i)
-            #else:
+                # else:
                 data, max_events, data_min = self.__criterion(data=data, max_events=max_events, data_min=data_min,
                                                               events_criterion=events_criterion.loc[i])
             idx_before = i
@@ -126,12 +127,12 @@ class Parcial(object):
 
         if self.type_event == 'flood':
             events = self.data[self.station].isin(self.data.loc[self.data[
-                self.station] >= threshold, self.station])
+                                                                    self.station] >= threshold, self.station])
             return events, threshold
 
         elif self.type_event == 'drought':
             events = self.data[self.station].isin(self.data.loc[self.data[
-                self.station] <= threshold, self.station])
+                                                                    self.station] <= threshold, self.station])
             return events, threshold
 
         else:
@@ -149,11 +150,11 @@ class Parcial(object):
     def __test_threshold_events_by_year(self, peaks=None, value=None):
         n_year = self.obj.date_end.year - self.obj.date_start.year
 
-        if len(peaks)+1 < int(value * n_year):
+        if len(peaks) + 1 < int(value * n_year):
             self.__percentil -= 0.005
             self.__threshold(self.__percentil)
             return True
-        elif len(peaks) > (int(value * n_year)+2):
+        elif len(peaks) > (int(value * n_year) + 2):
             self.__percentil += 0.005
             self.__threshold(self.__percentil)
             return True
@@ -284,7 +285,7 @@ class Parcial(object):
                 return data, max_events, data_min
             else:
                 if self.__test_xmin_bigger_q(data, max_events, data_min) or \
-                   self.__test_duration(data, max_events):
+                        self.__test_duration(data, max_events):
                     data, max_events = self.__troca_peaks(data, max_events)
                     data_min = {'Date': [], 'peaks': []}
                     return data, max_events, data_min
@@ -360,7 +361,7 @@ class Parcial(object):
             r22_n = (-1 - 1.645 * math.sqrt(n - 2 - 1)) / (n - 2)
             if r11_n > lag1 > r12_n and r21_n > lag2 > r22_n:
                 return False, (r11_n, lag1, r12_n), (r21_n, lag2, r22_n)
-            return True,  (r11_n, lag1, r12_n), (r21_n, lag2, r22_n)
+            return True, (r11_n, lag1, r12_n), (r21_n, lag2, r22_n)
         except ValueError:
             self.event_peaks()
             self.test_autocorrelation()
@@ -428,7 +429,7 @@ class Parcial(object):
             if type(return_period) is list:
                 raise TypeError
             try:
-                prob = 1-(1 / return_period)
+                prob = 1 - (1 / return_period)
                 mag = stat.genpareto.ppf(prob, self.fit[0], self.fit[1],
                                          self.fit[2])
                 return mag
@@ -472,7 +473,7 @@ class Parcial(object):
             data, fig = genpareto.plot(type_function)
             if save:
                 aux_name = title.replace(' ', '_')
-                py.image.save_as(fig, filename='gráficos/'+'%s.png' % aux_name)
+                py.image.save_as(fig, filename='gráficos/' + '%s.png' % aux_name)
             return data, fig
         except AttributeError:
             self.mvs()
@@ -482,11 +483,12 @@ class Parcial(object):
         hydrogram = HydrogramParcial(
             data=self.data, peaks=self.peaks,
             threshold=self.threshold,
-            threshold_criterion=self.threshold_criterion, title=title)
-        fig, data = hydrogram.plot(type_criterion=self.type_criterion, width=width, height=height, size_text=size_text)
+            threshold_criterion=self.threshold_criterion, title=title, type_criterion=self.type_criterion, width=width,
+            height=height, size_text=size_text)
+        fig, data = hydrogram.plot()
         if save:
             aux_name = title.replace(' ', '_')
-            py.image.save_as(fig, filename='gráficos/'+'%s.png' % aux_name)
+            py.image.save_as(fig, filename='gráficos/' + '%s.png' % aux_name)
 
         return fig, data
 
@@ -497,3 +499,10 @@ class Parcial(object):
             py.image.save_as(fig, filename='gráficos/boxplot_%s.png' % name)
 
         return fig, data
+
+    def plot_spells(self, title):
+        df_spells, df = Gantt.get_spells(data_peaks=self.peaks)
+        print(df_spells)
+        fig = FF.create_gantt(df_spells, colors='#000000', group_tasks=True, title=title)
+        return fig, df
+
