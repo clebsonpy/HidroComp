@@ -188,24 +188,30 @@ if __name__ == '__main__':
     # print(dados)
     """
     path = ''
-    stations = ['76077000', '76085000', '76100000', '76120000', '76251000', '76260000', '76300000', '76310000',
-     '76360001', '76370000', '76380000', '76395000', '76431000', '76440000', '76460000', '76490000',
-     '76500000', '76550000', '76560000', '76600000', '76630000', '76650000', '76700000', '76742000',
-     '76745000', '76750000', '76800000', '76081000']
+    stations = ['76100000', '76310000', '76380000', '76440000', '76460000', '76750000', '76800000']
+    #stations = ['76077000', '76085000', '76100000', '76120000', '76251000', '76260000', '76300000', '76310000',
+    #            '76360001', '76370000', '76380000', '76395000', '76431000', '76440000', '76460000', '76490000',
+    #            '76500000', '76550000', '76560000', '76600000', '76630000', '76650000', '76700000', '76742000',
+    #            '76745000', '76750000', '76800000', '76081000']
     flow = Flow(path_file=stations, source='ANA', consistence=1)
-    print(flow)
-    figg, data = flow.gantt(name='gantt')
+    flow.date(date_end='31/12/1977', date_start='1/1/1968')
+    flow.station = '76100000'
+    max_flow = flow.maximum()
+    print(max_flow.obj.month_abr)
+    print(max_flow.peaks)
+    fig, data = max_flow.hydrogram()
+    #figg, data = flow.gantt(name='gantt')
     """
     path = ''
     path2 = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_obs.csv'))
 
     data = pd.read_csv(path2, ',', index_col=0, parse_dates=True)
 
-    iha_obj_nat = IHA(data, month_water=9, status='pre', statistic='non-parametric', central_metric='mean',
+    iha_obj_nat = IHA(data, month_water=1, status='pre', statistic='non-parametric', central_metric='mean',
                       variation_metric='cv', type_criterion=None, type_threshold="stationary", duration=0,
                       threshold_high=4813, threshold_low=569.5, source='ONS', station='NAT')
 
-    iha_obj_obs = IHA(data, month_water=9, status='pos', statistic='non-parametric', central_metric='mean',
+    iha_obj_obs = IHA(data, month_water=1, status='pos', statistic='non-parametric', central_metric='mean',
                       variation_metric='cv', type_criterion=None, type_threshold="stationary", duration=0,
                       threshold_high=4813, threshold_low=569.5, source='CHESF', station='OBS')
 
@@ -239,6 +245,5 @@ if __name__ == '__main__':
     py.offline.plot(fig_spells_nat, filename=os.path.join(path, 'gráficos/spells_nat.html'))
     # py.offline.plot(fig_spells_obs, filename=os.path.join(path, 'gráficos/spells_obs.html'))
     # py.offline.plot(figp, filename=os.path.join(path, 'gráficos/permanência.html'))
-
     fim = timeit.default_timer()
     print('Duração: ', fim - ini)

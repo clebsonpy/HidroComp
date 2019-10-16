@@ -42,9 +42,7 @@ class FileRead(Files, metaclass=ABCMeta):
     def read(self):
         if type(self.name) == list and len(self.name) > 1:
             p = mp.Pool(4)
-            print(len(self.name))
             listaDfs = p.map(self.read, self.name)
-            print(listaDfs)
             p.close()
             if self.source == 'ANA':
                 dataFlow = pd.DataFrame()

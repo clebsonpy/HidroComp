@@ -20,7 +20,10 @@ class Gev(StatsBuild):
         self.parameter['loc'] = self.loc
         self.parameter['scale'] = self.scale
         super().__init__(data,  shape, loc, scale)
-        self.dist = genextreme(c=self.shape, loc=self.loc, scale=self.scale)
+        try:
+            self.dist = genextreme(c=self.shape, loc=self.loc, scale=self.scale)
+        except TypeError:
+            self.dist = None
             
     def mml(self):
         if self.data is None:

@@ -21,15 +21,16 @@ class HydrogramAnnual(HydrogramBuild):
                       )
 
         data = list()
-        data.append(self._plot_one(self.data, name='Pico'))
+        data.append(self._plot_one(data=self.data, name='Pico', color='rgb(0,0,0)'))
         data.append(self._plot_event_peaks())
 
         fig = dict(data=data, layout=layout)
         return fig, data
 
     def _plot_event_peaks(self):
-        point_peak = go.Scatter(x=self.peaks.index,
-                                y=self.data[self.data.columns.values[0]].loc[self.peaks.index].values,
+        print(self.peaks['peaks'].values)
+        point_peak = go.Scatter(x=self.peaks['peaks'].index,
+                                y=self.peaks['peaks'].values,
                                 name="Pico",
                                 mode='markers',
                                 marker=dict(size=8, color='rgb(128, 128, 128)', line=dict(width=1, color='rgb(0, 0, 0)')

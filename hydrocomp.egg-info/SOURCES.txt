@@ -11,6 +11,9 @@ hydrocomp.egg-info/SOURCES.txt
 hydrocomp.egg-info/dependency_links.txt
 hydrocomp.egg-info/requires.txt
 hydrocomp.egg-info/top_level.txt
+hydrocomp/api_ana/__init__.py
+hydrocomp/api_ana/api_biuld.py
+hydrocomp/api_ana/serie_temporal.py
 hydrocomp/comparasion/__init__.py
 hydrocomp/comparasion/bootstrap_build.py
 hydrocomp/comparasion/genpareto.py
@@ -36,7 +39,7 @@ hydrocomp/graphics/gantt.py
 hydrocomp/graphics/genextreme.py
 hydrocomp/graphics/genpareto.py
 hydrocomp/graphics/hydrogram_annual.py
-hydrocomp/graphics/hydrogram_biuld.py
+hydrocomp/graphics/hydrogram_build.py
 hydrocomp/graphics/hydrogram_by_year.py
 hydrocomp/graphics/hydrogram_clean.py
 hydrocomp/graphics/hydrogram_parcial.py
@@ -49,6 +52,7 @@ hydrocomp/graphics/.ipynb_checkpoints/hydrogram_clean-checkpoint.py
 hydrocomp/graphics/.ipynb_checkpoints/hydrogram_parcial-checkpoint.py
 hydrocomp/iha/__init__.py
 hydrocomp/iha/exceptions.py
+hydrocomp/iha/graphics.py
 hydrocomp/iha/iha.py
 hydrocomp/iha/test_iha.py
 hydrocomp/iha/test_rva.py
@@ -59,7 +63,7 @@ hydrocomp/series/flow.py
 hydrocomp/series/maximum.py
 hydrocomp/series/parcial.py
 hydrocomp/series/rainfall.py
-hydrocomp/series/series_biuld.py
+hydrocomp/series/series_build.py
 hydrocomp/statistic/__init__.py
 hydrocomp/statistic/exceptions.py
 hydrocomp/statistic/genextre.py
