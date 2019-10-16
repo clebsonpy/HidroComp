@@ -66,8 +66,6 @@ class IHA:
                     line = self.rva_line(data_group, boundaries=boundaries)
                     group_iha = self.rva_frequency(line=line, data_group=data_group)
                     group_iha_other = self.rva_frequency(line=line, data_group=data_group_other)
-                    print(group_iha)
-                    print(group_iha_other)
                     rva = (group_iha_other - group_iha) / group_iha
                     return rva_very(rva), line
 
@@ -75,8 +73,6 @@ class IHA:
                     line = iha_other.rva_line(data_group)
                     group_iha = self.rva_frequency(line=line, data_group=data_group)
                     group_iha_other = self.rva_frequency(line=line, data_group=data_group_other)
-                    print(group_iha)
-                    print(group_iha_other)
                     rva = (group_iha - group_iha_other) / group_iha_other
                     return rva_very(rva), line
                 else:
@@ -290,7 +286,6 @@ class IHA:
 
         events_high = self.flow.parcial(station=self.station, type_threshold=self.type_threshold, type_event="flood",
                                         type_criterion=self.type_criterion, value_threshold=self.threshold_high)
-        print(self.flow.month_abr)
 
         frequency_and_duration_high, threshold_high_mag = aux_frequency_and_duration(events_high)
 

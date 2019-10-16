@@ -30,44 +30,40 @@ class Gantt(object):
 
     @staticmethod
     def get_spells(data_peaks, month_water):
-        df_spells = pd.DataFrame(columns=['Task', 'Start', 'Finish', 'Description', 'IndexCol'])
+        df_spells = pd.DataFrame(columns=['Task', 'Start', 'Finish', 'Complete'])
         index = 0
         dates = pd.date_range(start=pd.to_datetime('1/%s/1998' % month_water[0], dayfirst=True), periods=365, freq='D')
+        print(dates)
+
+        print(data_peaks)
 
         for groups in data_peaks.groupby(pd.Grouper(freq=month_water[1])):
 
             for i in groups[1].index:
                 df_spells.at[index, 'Task'] = i.year
-                df_spells.at[index, 'Description'] = '%s - %s' % (i.year, index)
-                df_spells.at[index, 'IndexCol'] = index
+                df_spells.at[index, 'Complete'] = 100-((data_peaks['peaks'].max()-data_peaks['peaks'].loc[i])/data_peaks['peaks'].max())*100
                 start = data_peaks['Start'].loc[i]
                 end = data_peaks['End'].loc[i]
 
-                date_lim = pd.to_datetime('%s/%s/%s' % (dates[-1].day, dates[-1].month, start.year))
+                len_days = len(pd.date_range(start, end))
 
-                if end > date_lim > start:
+                for date in dates:
 
-                    count = 0
-                    for i in [start, end]:
-                        if count == 0:
-                            data_start = pd.to_datetime('%s/%s/%s' % (i.month, i.day, 1998))
-                            data_end = pd.to_datetime('%s/%s/%s' % (dates[-1].month, dates[-1].day, 1998))
+                    if date.month == start.month and date.day == start.day:
+                        inter_date = pd.date_range(start=date, periods=len_days)
+                        if inter_date[-1] > dates[-1]:
+                            date_start = pd.to_datetime(
+                                '%s/%s/%s' % (inter_date[0].day, inter_date[0].month, inter_date[0].year - 1),
+                                dayfirst=True)
+                            date_end = pd.to_datetime(
+                                '%s/%s/%s' % (inter_date[-1].day, inter_date[-1].month, inter_date[-1].year - 1),
+                                dayfirst=True)
+                            df_spells.at[index, 'Start'] = date_start
+                            df_spells.at[index, 'Finish'] = date_end
                         else:
-                            data_start = pd.to_datetime('%s/%s/%s' % (dates[1].month, dates[1].day, 1998))
-                            data_end = pd.to_datetime('%s/%s/%s' % (i.month, i.day, 1998))
-                        count += 1
-                        df_spells.at[index, 'Start'] = data_start
-                        df_spells.at[index, 'Finish'] = data_end
-
-                else:
-                    data_start = pd.to_datetime(
-                        '%s/%s/%s' % (start.month, start.day, 1998) if start.month >= month_water[
-                            0] else pd.to_datetime('%s/%s/%s' % (start.month, start.day, 1999)))
-                    data_end = pd.to_datetime(
-                        '%s/%s/%s' % (end.month, end.day, 1998) if end.month >= month_water[0] else pd.to_datetime(
-                            '%s/%s/%s' % (end.month, end.day, 1999)))
-                    df_spells.at[index, 'Start'] = data_start
-                    df_spells.at[index, 'Finish'] = data_end
-
+                            df_spells.at[index, 'Start'] = inter_date[0]
+                            df_spells.at[index, 'Finish'] = inter_date[-1]
                 index += 1
+
+            print(df_spells)
         return df_spells, index

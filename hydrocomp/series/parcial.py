@@ -3,6 +3,7 @@ import math
 import scipy.stats as stat
 import plotly.plotly as py
 import plotly.figure_factory as FF
+import plotly.graph_objs as go
 
 from hydrocomp.graphics.gantt import Gantt
 from hydrocomp.graphics.genpareto import GenPareto
@@ -502,7 +503,10 @@ class Parcial(object):
 
     def plot_spells(self, title):
         df_spells, df = Gantt.get_spells(data_peaks=self.peaks, month_water=[self.obj.month_num, self.obj.month_abr])
-        print(df_spells)
-        fig = FF.create_gantt(df_spells, colors='#000000', group_tasks=True, title=title)
-        return fig, df
 
+        fig = FF.create_gantt(df_spells, group_tasks=True, colors=['#ff0500', '#0000ff'], index_col='Complete',
+                              title=title, show_colorbar=True,  bar_width=0.2)
+
+        fig['layout']['xaxis']['title'] = "Mês"
+        fig['layout']['xaxis']['tickformat'] = "%b"
+        return fig, df

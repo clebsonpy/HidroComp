@@ -207,11 +207,11 @@ if __name__ == '__main__':
 
     data = pd.read_csv(path2, ',', index_col=0, parse_dates=True)
 
-    iha_obj_nat = IHA(data, month_water=1, status='pre', statistic='non-parametric', central_metric='mean',
+    iha_obj_nat = IHA(data, month_water=9, status='pre', statistic='non-parametric', central_metric='mean',
                       variation_metric='cv', type_criterion=None, type_threshold="stationary", duration=0,
                       threshold_high=4813, threshold_low=569.5, source='ONS', station='NAT')
 
-    iha_obj_obs = IHA(data, month_water=1, status='pos', statistic='non-parametric', central_metric='mean',
+    iha_obj_obs = IHA(data, month_water=9, status='pos', statistic='non-parametric', central_metric='mean',
                       variation_metric='cv', type_criterion=None, type_threshold="stationary", duration=0,
                       threshold_high=4813, threshold_low=569.5, source='CHESF', station='OBS')
 

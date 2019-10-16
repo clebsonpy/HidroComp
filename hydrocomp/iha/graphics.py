@@ -42,7 +42,6 @@ class Graphics:
         return line_graph
 
     def _plot_iha(self, metric, color):
-        print(self.data.index)
         point = go.Scatter(x=self.data.index,
                            y=self.data[metric].loc[self.data.index].values,
                            name=self.status.title()+'-impacto',
