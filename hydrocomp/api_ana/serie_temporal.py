@@ -8,20 +8,17 @@ class SerieTemporal(ApiBiuld):
     params = {'codEstacao': '', 'dataInicio': '', 'dataFim': '', 'tipoDados': '', 'nivelConsistencia': ''}
     typesData = {'3': ['Vazao{:02}'], '2': ['Chuva{:02}'], '1': ['Cota{:02}']}
 
-    def __init__(self, codEstacao='', dataInicio='', dataFim='', tipoDados='', nivelConsistencia=''):
-        self.params['codEstacao'] = codEstacao
-        self.params['dataInicio'] = dataInicio
-        self.params['dataFim'] = dataFim
-        self.params['tipoDados'] = tipoDados
-        self.params['nivelConsistencia'] = nivelConsistencia
-
     def __multIndex(self, date, n_days, consistence):
         list_date = pd.date_range(date, periods=n_days, freq="D")
         list_cons = [int(consistence)] * n_days
         index_multi = list(zip(*[list_date, list_cons]))
         return pd.MultiIndex.from_tuples(index_multi, names=["Date", "Consistence"])
 
-    def get(self):
+    def get(self, **kwargs):
+
+        super().get(**kwargs)
+
+        self.params.update(kwargs)
         root = self.requests()
         series = []
         for month in root.iter('SerieHistorica'):

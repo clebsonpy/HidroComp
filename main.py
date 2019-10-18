@@ -3,7 +3,10 @@ import os
 import plotly as py
 import timeit
 import pandas as pd
+import geopandas
 
+import matplotlib.pyplot as plt
+from hydrocomp.api_ana.inventario import Inventario
 from hydrocomp.iha import iha
 from hydrocomp.iha.iha import IHA
 from hydrocomp.iha.graphics import Graphics
@@ -202,6 +205,23 @@ if __name__ == '__main__':
     fig, data = max_flow.hydrogram()
     #figg, data = flow.gantt(name='gantt')
     """
+
+    inventario = Inventario().get(nmEstado='Alagoas')
+
+    world = geopandas.read_file(geopandas.datasets.get_path('naturalearth_lowres'))
+
+    ax = world[world.name == 'Brazil']
+
+
+    # We restrict to South America.
+    ax = ax.plot(color='white', edgecolor='black')
+
+    # We can now plot our ``GeoDataFrame``.
+    #inventario.plot(ax=ax, color='red')
+
+    plt.show()
+
+    """
     path = ''
     path2 = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_obs.csv'))
 
@@ -245,5 +265,6 @@ if __name__ == '__main__':
     py.offline.plot(fig_spells_nat, filename=os.path.join(path, 'gráficos/spells_nat.html'))
     # py.offline.plot(fig_spells_obs, filename=os.path.join(path, 'gráficos/spells_obs.html'))
     # py.offline.plot(figp, filename=os.path.join(path, 'gráficos/permanência.html'))
+    """
     fim = timeit.default_timer()
     print('Duração: ', fim - ini)

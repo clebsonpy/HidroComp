@@ -1,6 +1,7 @@
-from abc import ABCMeta
+from abc import ABCMeta, abstractmethod
 import xml.etree.ElementTree as ET
 import requests
+
 
 class ApiBiuld(metaclass=ABCMeta):
 
@@ -12,3 +13,14 @@ class ApiBiuld(metaclass=ABCMeta):
         tree = ET.ElementTree(ET.fromstring(response.content))
         root = tree.getroot()
         return root
+
+    @abstractmethod
+    def get(self, **kwargs):
+        if len(kwargs) > 0:
+            for i in kwargs:
+                if i in self.params:
+                    pass
+                else:
+                    raise KeyError
+        else:
+            pass

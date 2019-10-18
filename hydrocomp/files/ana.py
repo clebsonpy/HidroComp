@@ -102,10 +102,10 @@ class Ana(FileRead):
         return data_flow
 
     def hidro_serie_historica(self):
-        print(self.name)
-        serie_temporal = SerieTemporal(codEstacao=self.name, dataInicio=self.date_start, dataFim=self.date_end,
-                                       tipoDados=Ana.typesData[self.type_data][2], nivelConsistencia=self.consistence)
-        data = serie_temporal.get()
+        serie_temporal = SerieTemporal()
+        data = serie_temporal.get(codEstacao=self.name, dataInicio=self.date_start, dataFim=self.date_end,
+                                  tipoDados=Ana.typesData[self.type_data][2], nivelConsistencia=self.consistence)
+
         return data
 
     def __excludes_duplicates(self, data):
