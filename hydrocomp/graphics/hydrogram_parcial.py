@@ -31,7 +31,7 @@ class HydrogramParcial(HydrogramBuild):
                 font=dict(family='Time New Roman', size=self.size_text, color='rgb(0,0,0)'))
 
             data = []
-            data.append(self._plot_one(self.data))
+            data.append(self._plot_one(self.data, name='Xingó'))
             data.append(self._plot_threshold())
             if self.type_criterion is not None:
                 data.append(self._plot_threshold_criterion())
@@ -50,7 +50,7 @@ class HydrogramParcial(HydrogramBuild):
                 font=dict(family='Time New Roman', size=self.size_text, color='rgb(0,0,0)'))
 
             data = []
-            data.append(self._plot_one(self.data))
+            data.append(self._plot_one(self.data, name='Xingó'))
             data.append(self._plot_threshold())
             data += self._plot_event_peaks()
 
@@ -61,7 +61,7 @@ class HydrogramParcial(HydrogramBuild):
     def _plot_event_peaks(self):
         point_start = go.Scatter(
             x=list(self.peaks.Start),
-            y=self.data[self.data.columns.values[0]].loc[self.peaks.Start].values,
+            y=self.data.loc[self.peaks.Start].T.values[0],
             name="Inicio do Evento",
             mode='markers',
             marker=dict(color='rgb(0, 0, 0)',
@@ -71,7 +71,7 @@ class HydrogramParcial(HydrogramBuild):
 
         point_end = go.Scatter(
             x=list(self.peaks.End),
-            y=self.data[self.data.columns.values[0]].loc[self.peaks.End].values,
+            y=self.data.loc[self.peaks.End].T.values[0],
             name="Fim do Evento",
             mode='markers',
             marker=dict(color='rgb(0, 0, 0)',
@@ -80,8 +80,8 @@ class HydrogramParcial(HydrogramBuild):
             opacity=1)
 
         point_vazao = go.Scatter(
-            x=self.peaks.index,
-            y=self.peaks.peaks.values,
+            x=self.peaks['peaks'].index,
+            y=self.peaks['peaks'].values,
             name="Pico",
             mode='markers',
             marker=dict(size=8,

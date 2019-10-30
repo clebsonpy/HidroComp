@@ -1,4 +1,5 @@
 import plotly.graph_objs as go
+import pandas as pd
 
 from hydrocomp.graphics.hydrogram_build import HydrogramBuild
 
@@ -28,7 +29,6 @@ class HydrogramAnnual(HydrogramBuild):
         return fig, data
 
     def _plot_event_peaks(self):
-        print(self.peaks['peaks'].values)
         point_peak = go.Scatter(x=self.peaks['peaks'].index,
                                 y=self.peaks['peaks'].values,
                                 name="Pico",

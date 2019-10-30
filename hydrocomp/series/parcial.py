@@ -504,9 +504,16 @@ class Parcial(object):
     def plot_spells(self, title):
         df_spells, df = Gantt.get_spells(data_peaks=self.peaks, month_water=[self.obj.month_num, self.obj.month_abr])
 
-        fig = FF.create_gantt(df_spells, group_tasks=True, colors=['#ff0500', '#0000ff'], index_col='Complete',
-                              title=title, show_colorbar=True,  bar_width=0.2)
+        fig = FF.create_gantt(df_spells, group_tasks=True, colors='RdBu', index_col='Complete',
+                              title=title, show_colorbar=True, bar_width=0.2)
 
         fig['layout']['xaxis']['title'] = "Mês"
         fig['layout']['xaxis']['tickformat'] = "%b"
+        fig['data'][-1]['marker']['cmax'] = df_spells.Complete.max()
+        fig['data'][-1]['marker']['cmin'] = df_spells.Complete.min()
+        fig['data'][-1]['marker']['colorbar'] = dict(thickness=20,
+                                                     tickvals=[df_spells.Complete.min(), df_spells.Complete.max()],
+                                                     ticktext=[df_spells.Peaks.min(), df_spells.Peaks.max()])
+
+        print(fig['layout']['xaxis']['rangeselector']['buttons'])
         return fig, df

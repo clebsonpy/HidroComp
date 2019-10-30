@@ -206,34 +206,33 @@ if __name__ == '__main__':
     #figg, data = flow.gantt(name='gantt')
     """
 
-    inventario = Inventario().get(nmEstado='Alagoas')
+    path = ''
+    file_obs = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_obs.csv'))
+    file_nat = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_obs.csv'))
 
-    world = geopandas.read_file(geopandas.datasets.get_path('naturalearth_lowres'))
+    data_obs = pd.read_csv(file_obs, ',', index_col=0, parse_dates=True)
+    data_nat = pd.read_csv(file_nat, ',', index_col=0, parse_dates=True)
 
-    ax = world[world.name == 'Brazil']
+    threshold_high = data_nat.quantile(0.75).values[0]
+    threshold_low = data_nat.quantile(0.25).values[0]
+    print('Threshold High: {}'.format(threshold_high))
+    print('Threshold Low: {}'.format(threshold_low))
 
+    iha_obj_nat = IHA(data_nat, month_water=9, status='pre', statistic='non-parametric', central_metric='mean',
+                      variation_metric='cv', type_criterion=None, type_threshold="stationary", duration=0,
+                      threshold_high=threshold_high, threshold_low=threshold_low, source='ONS', station='NAT')
 
-    # We restrict to South America.
-    ax = ax.plot(color='white', edgecolor='black')
-
-    # We can now plot our ``GeoDataFrame``.
-    #inventario.plot(ax=ax, color='red')
-
-    plt.show()
+    iha_obj_obs = IHA(data_obs, month_water=9, status='pos', statistic='non-parametric', central_metric='mean',
+                      variation_metric='cv', type_criterion=None, type_threshold="stationary", duration=0,
+                      threshold_high=threshold_high, threshold_low=threshold_low, source='CHESF', station='OBS')
 
     """
-    path = ''
-    path2 = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_obs.csv'))
+    data_group_nat, magnitude_nat = iha_obj_nat.magnitude()
+    data_group_obs, magnitude_obs = iha_obj_obs.magnitude()
 
-    data = pd.read_csv(path2, ',', index_col=0, parse_dates=True)
-
-    iha_obj_nat = IHA(data, month_water=9, status='pre', statistic='non-parametric', central_metric='mean',
-                      variation_metric='cv', type_criterion=None, type_threshold="stationary", duration=0,
-                      threshold_high=4813, threshold_low=569.5, source='ONS', station='NAT')
-
-    iha_obj_obs = IHA(data, month_water=9, status='pos', statistic='non-parametric', central_metric='mean',
-                      variation_metric='cv', type_criterion=None, type_threshold="stationary", duration=0,
-                      threshold_high=4813, threshold_low=569.5, source='CHESF', station='OBS')
+    print(magnitude_nat)
+    print(magnitude_obs)
+    """
 
     data_group_nat, id_metric_nat, partial_high_nat, partial_low_nat = iha_obj_nat.frequency_and_duration()
     data_group_obs, id_metric_obs, partial_high_obs, partial_low_obs = iha_obj_obs.frequency_and_duration()
@@ -244,10 +243,10 @@ if __name__ == '__main__':
     fig_nat, data_nat = Graphics(data_group_nat, status=iha_obj_nat.status).plot(metric='High pulse duration',
                                                                                  line=line, color='blue')
     fig2 = dict(data=data_obs + [data_nat[0]], layout=fig_nat['layout'])
+    figh, data = partial_high_nat.plot_hydrogram("Parcial")
     fig_spells_nat, df = partial_high_nat.plot_spells("Natural")
     # fig_spells_obs = partial_high_obs.plot_spells("Obs")
     # test = dados.date(date_start="01/01/1995", date_end="31/12/2012")
-
     # value_threshold = test.mean()['XINGO'] + test.std()['XINGO']
     # print(test.mean())
     # maximum = test.maximum(station='MANSO')
@@ -263,8 +262,7 @@ if __name__ == '__main__':
     py.offline.plot(fig2, filename=os.path.join(path, 'gráficos/rva.html'))
 
     py.offline.plot(fig_spells_nat, filename=os.path.join(path, 'gráficos/spells_nat.html'))
-    # py.offline.plot(fig_spells_obs, filename=os.path.join(path, 'gráficos/spells_obs.html'))
-    # py.offline.plot(figp, filename=os.path.join(path, 'gráficos/permanência.html'))
-    """
+    py.offline.plot(figh, filename=os.path.join(path, 'gráficos/hidro_parcial.html'))
+    #py.offline.plot(fig, filename=os.path.join(path, 'gráficos/permanência.html'))
     fim = timeit.default_timer()
     print('Duração: ', fim - ini)

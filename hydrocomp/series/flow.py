@@ -13,7 +13,6 @@ from hydrocomp.graphics.permanence_curve import PermanenceCurve
 
 
 class Flow(SeriesBuild):
-
     type_data = 'FLUVIOMÉTRICO'
 
     def __init__(self, data=None, path_file=os.getcwd(), source=None, *args, **kwargs):
@@ -78,11 +77,12 @@ class Flow(SeriesBuild):
 
     def hydrogram(self, width=None, height=None, size_text=None, title=None):
         if self.station is None:
-            hydrogram = HydrogramClean(self.data, width=width, height=height, size_text=size_text, title=title)
+            hydrogram = HydrogramClean(self.data, width=width, height=height, size_text=size_text,
+                                       title=title)
             fig, data = hydrogram.plot()
         else:
-            hydrogram = HydrogramClean(self.data[self.station], width=width, height=height, size_text=size_text,
-                                       title=title)
+            hydrogram = HydrogramClean(self.data[self.station], width=width, height=height,
+                                       size_text=size_text, title=title)
             fig, data = hydrogram.plot()
         return fig, data
 

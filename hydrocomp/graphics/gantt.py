@@ -30,21 +30,20 @@ class Gantt(object):
 
     @staticmethod
     def get_spells(data_peaks, month_water):
-        df_spells = pd.DataFrame(columns=['Task', 'Start', 'Finish', 'Complete'])
+        df_spells = pd.DataFrame(columns=['Task', 'Start', 'Finish', 'Complete', 'Peaks'])
         index = 0
-        dates = pd.date_range(start=pd.to_datetime('1/%s/1998' % month_water[0], dayfirst=True), periods=365, freq='D')
-        print(dates)
 
-        print(data_peaks)
+        dates = pd.date_range(start=pd.to_datetime('1/%s/1998' % month_water[0], dayfirst=True), periods=365, freq='D')
 
         for groups in data_peaks.groupby(pd.Grouper(freq=month_water[1])):
 
             for i in groups[1].index:
-                df_spells.at[index, 'Task'] = i.year
+
                 df_spells.at[index, 'Complete'] = 100-((data_peaks['peaks'].max()-data_peaks['peaks'].loc[i])/data_peaks['peaks'].max())*100
                 start = data_peaks['Start'].loc[i]
                 end = data_peaks['End'].loc[i]
-
+                df_spells.at[index, 'Peaks'] = data_peaks['peaks'].loc[i]
+                df_spells.at[index, 'Task'] = groups[0].year
                 len_days = len(pd.date_range(start, end))
 
                 for date in dates:
@@ -58,12 +57,13 @@ class Gantt(object):
                             date_end = pd.to_datetime(
                                 '%s/%s/%s' % (inter_date[-1].day, inter_date[-1].month, inter_date[-1].year - 1),
                                 dayfirst=True)
+
                             df_spells.at[index, 'Start'] = date_start
                             df_spells.at[index, 'Finish'] = date_end
                         else:
+
                             df_spells.at[index, 'Start'] = inter_date[0]
                             df_spells.at[index, 'Finish'] = inter_date[-1]
                 index += 1
 
-            print(df_spells)
         return df_spells, index
