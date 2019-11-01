@@ -7,6 +7,7 @@ import geopandas
 
 import matplotlib.pyplot as plt
 from hydrocomp.api_ana.inventario import Inventario
+from hydrocomp.api_ana.basin import Basin
 from hydrocomp.iha import iha
 from hydrocomp.iha.iha import IHA
 from hydrocomp.iha.graphics import Graphics
@@ -205,7 +206,7 @@ if __name__ == '__main__':
     fig, data = max_flow.hydrogram()
     #figg, data = flow.gantt(name='gantt')
     """
-
+    """
     path = ''
     file_obs = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_obs.csv'))
     file_nat = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_obs.csv'))
@@ -226,14 +227,14 @@ if __name__ == '__main__':
                       variation_metric='cv', type_criterion=None, type_threshold="stationary", duration=0,
                       threshold_high=threshold_high, threshold_low=threshold_low, source='CHESF', station='OBS')
 
-    """
+    
     data_group_nat, magnitude_nat = iha_obj_nat.magnitude()
     data_group_obs, magnitude_obs = iha_obj_obs.magnitude()
 
     print(magnitude_nat)
     print(magnitude_obs)
-    """
-
+    
+    
     data_group_nat, id_metric_nat, partial_high_nat, partial_low_nat = iha_obj_nat.frequency_and_duration()
     data_group_obs, id_metric_obs, partial_high_obs, partial_low_obs = iha_obj_obs.frequency_and_duration()
     line = iha_obj_nat.rva_line(data_group_nat, boundaries=17)
@@ -264,5 +265,12 @@ if __name__ == '__main__':
     py.offline.plot(fig_spells_nat, filename=os.path.join(path, 'gráficos/spells_nat.html'))
     py.offline.plot(figh, filename=os.path.join(path, 'gráficos/hidro_parcial.html'))
     #py.offline.plot(fig, filename=os.path.join(path, 'gráficos/permanência.html'))
+    
+    """
+
+    basian = Basin()
+    print(basian.get())
+
     fim = timeit.default_timer()
+
     print('Duração: ', fim - ini)
