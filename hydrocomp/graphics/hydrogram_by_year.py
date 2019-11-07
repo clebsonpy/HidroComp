@@ -11,30 +11,20 @@ class HydrogramYear(HydrogramBuild):
 
     def plot(self):
         group = self.group_by_year()
-        z = []
-        y = []
-        x = []
-        for i in group:
-            for j in group[i].index:
-                y.append(group[i][j])
-                z.append(int(i))
-                x.append(j)
 
-        trace = go.Scatter(
-            x=x,
-            y=y,
-            mode="markers",
-            marker=dict(
-                size=3,
-                color=z,
-                colorscale='Jet',
-                showscale=True,
-                colorbar=dict(
-                    title=""
-                )
-            ), )
+        trace = []
+        for g in group:
+            trace.append(go.Scatter(
+                x=group[g].index,
+                y=group[g].values,
+                mode="lines",
+                color_continuous_scale='Jet',
+                line=dict(
+                    ),
 
-        data = [trace]
+            ))
+
+        data = trace
         bandxaxis = go.layout.XAxis(
             title="Mês",
             tickformat="%b",

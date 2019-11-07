@@ -6,7 +6,6 @@ from hydrocomp.series.flow import Flow
 
 
 class IHA:
-
     group = {
         'group1': 'magnitude',
         'group2': 'magnitude_and_duration',
@@ -59,8 +58,8 @@ class IHA:
             for i in self.group:
                 return self.rva(iha_other=iha_other, group_iha=i)
         else:
-            data_group, _ = eval('self.'+self.group[group_iha])()
-            data_group_other, _ = eval('iha_other.'+iha_other.group[group_iha])()
+            data_group, _ = eval('self.' + self.group[group_iha])()
+            data_group_other, _ = eval('iha_other.' + iha_other.group[group_iha])()
             if iha_other.status != self.status:
                 if iha_other.status is 'pos':
                     line = self.rva_line(data_group, boundaries=boundaries)
@@ -79,6 +78,7 @@ class IHA:
                     raise ObjectErro('Status Erro')
             else:
                 raise ObjectErro("Status equals")
+
     # </editor-fold>
 
     # <editor-fold desc="Calculation of statistical metrics">
@@ -99,6 +99,7 @@ class IHA:
 
         stats = mean.combine_first(cv)
         return stats
+
     # </editor-fold>
 
     # <editor-fold desc="Check type rate"
@@ -108,6 +109,7 @@ class IHA:
             return value1 < value2
         elif type_rate == 'Fall rate':
             return value1 > value2
+
     # </editor-fold>
 
     # <editor-fold desc="Range of Variability Approach Frequency">
@@ -130,6 +132,7 @@ class IHA:
                 count.at[i, 'Upper'] = boolean_upper[i].loc[boolean_upper[i] == True].count()
                 count.at[i, 'Median'] = boolean_median[i].loc[boolean_median[i] == True].count()
         return count
+
     # </editor-fold>
 
     # <editor-fold desc="Range of Variability Approach Line">
@@ -241,14 +244,17 @@ class IHA:
 
     def timing_extreme(self):
 
-        day_julian_max = pd.DatetimeIndex(self.flow.data[self.station].groupby(
-            pd.Grouper(freq=self.month_start[1])).idxmax().values)
-        day_julian_min = pd.DatetimeIndex(self.flow.data[self.station].groupby(
-            pd.Grouper(freq=self.month_start[1])).idxmin().values)
+        day_julian_max = self.flow.data[self.station].groupby(
+            pd.Grouper(freq=self.month_start[1])).idxmax()
+        day_julian_min = self.flow.data[self.station].groupby(
+            pd.Grouper(freq=self.month_start[1])).idxmin()
 
-        df_day_julian_max = pd.DataFrame(list(map(int, day_julian_max.strftime("%j"))), index=day_julian_max.year,
+
+        df_day_julian_max = pd.DataFrame(list(map(int, pd.DatetimeIndex(day_julian_max.values).strftime("%j"))),
+                                         index=day_julian_max.index.year,
                                          columns=["Date of maximum"])
-        df_day_julian_min = pd.DataFrame(list(map(int, day_julian_min.strftime("%j"))), index=day_julian_min.year,
+        df_day_julian_min = pd.DataFrame(list(map(int, pd.DatetimeIndex(day_julian_min.values).strftime("%j"))),
+                                         index=day_julian_min.index.year,
                                          columns=["Date of minimum"])
 
         # combine the dfs of days julian
@@ -265,9 +271,10 @@ class IHA:
             name = {'flood': 'High', 'drought': 'Low'}
             type_event = events.type_event
 
-            group = pd.DataFrame(index=pd.date_range(events.obj.date_start, events.obj.date_end, freq=self.month_start[1]),
-                                 columns=["{} pulse duration".format(name[type_event]),
-                                          '{} pulse count'.format(name[type_event])])
+            group = pd.DataFrame(
+                index=pd.date_range(events.obj.date_start, events.obj.date_end, freq=self.month_start[1]),
+                columns=["{} pulse duration".format(name[type_event]),
+                         '{} pulse count'.format(name[type_event])])
 
             if len(events.peaks) != 0:
                 duration_pulse = pd.DataFrame(events.peaks.groupby(

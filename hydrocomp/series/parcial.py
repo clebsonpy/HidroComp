@@ -506,9 +506,8 @@ class Parcial(object):
                                                                  month_water=[self.obj.month_num, self.obj.month_abr])
 
         df_spells = df_spells.sort_values('Task', ascending=False).reset_index(drop=True)
-        print(df_spells)
 
-        fig = FF.create_gantt(df_spells, group_tasks=True, colors='RdBu', index_col='Complete',
+        fig = FF.create_gantt(df_spells, group_tasks=True, colors='Jet', index_col='Complete',
                               title=title, show_colorbar=True, bar_width=0.2)
 
         fig['data'][-1]['marker'].update(cmax=df_spells.Complete.max(), cmin=df_spells.Complete.min(),

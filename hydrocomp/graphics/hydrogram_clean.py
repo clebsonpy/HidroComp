@@ -1,3 +1,4 @@
+import pandas as pd
 import plotly.graph_objs as go
 from hydrocomp.graphics.hydrogram_build import HydrogramBuild
 
@@ -6,7 +7,7 @@ class HydrogramClean(HydrogramBuild):
 
     def __init__(self, data, width=None, height=None, size_text=None, title=None):
         super().__init__(width=width, height=height, size_text=size_text, title=title)
-        self.data = data
+        self.data = pd.DataFrame(data)
 
     def plot(self):
         bandxaxis = go.layout.XAxis(title="Data")
@@ -21,7 +22,7 @@ class HydrogramClean(HydrogramBuild):
                           )
 
             data = list()
-            data.append(self._plot_one(self.data, self.data.name, color='rgb(0,0,0)'))
+            data.append(self._plot_one(self.data, self.title, color='rgb(0,0,0)'))
             fig = dict(data=data, layout=layout)
             return fig, data
 
