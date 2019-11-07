@@ -206,7 +206,7 @@ if __name__ == '__main__':
     fig, data = max_flow.hydrogram()
     #figg, data = flow.gantt(name='gantt')
     """
-    """
+
     path = ''
     file_obs = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_obs.csv'))
     file_nat = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_obs.csv'))
@@ -265,11 +265,6 @@ if __name__ == '__main__':
     py.offline.plot(fig_spells_nat, filename=os.path.join(path, 'gráficos/spells_nat.html'))
     py.offline.plot(figh, filename=os.path.join(path, 'gráficos/hidro_parcial.html'))
     #py.offline.plot(fig, filename=os.path.join(path, 'gráficos/permanência.html'))
-    
-    """
-
-    basian = Basin()
-    print(basian.get())
 
     fim = timeit.default_timer()
 

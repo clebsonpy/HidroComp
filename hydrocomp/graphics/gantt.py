@@ -39,11 +39,12 @@ class Gantt(object):
 
             for i in groups[1].index:
 
-                df_spells.at[index, 'Complete'] = 100-((data_peaks['peaks'].max()-data_peaks['peaks'].loc[i])/data_peaks['peaks'].max())*100
+                df_spells.at[index, 'Complete'] = 100 - (
+                            (data_peaks['peaks'].max() - data_peaks['peaks'].loc[i]) / data_peaks['peaks'].max()) * 100
                 start = data_peaks['Start'].loc[i]
                 end = data_peaks['End'].loc[i]
                 df_spells.at[index, 'Peaks'] = data_peaks['peaks'].loc[i]
-                df_spells.at[index, 'Task'] = groups[0].year
+                df_spells.at[index, 'Task'] = int(groups[0].year)
                 len_days = len(pd.date_range(start, end))
 
                 for date in dates:
@@ -66,4 +67,4 @@ class Gantt(object):
                             df_spells.at[index, 'Finish'] = inter_date[-1]
                 index += 1
 
-        return df_spells, index
+        return df_spells, index, dates[0], dates[-1]

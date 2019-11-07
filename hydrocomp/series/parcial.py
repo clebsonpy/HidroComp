@@ -502,18 +502,23 @@ class Parcial(object):
         return fig, data
 
     def plot_spells(self, title):
-        df_spells, df = Gantt.get_spells(data_peaks=self.peaks, month_water=[self.obj.month_num, self.obj.month_abr])
+        df_spells, df, month_start, month_end = Gantt.get_spells(data_peaks=self.peaks,
+                                                                 month_water=[self.obj.month_num, self.obj.month_abr])
+
+        df_spells = df_spells.sort_values('Task', ascending=False).reset_index(drop=True)
+        print(df_spells)
 
         fig = FF.create_gantt(df_spells, group_tasks=True, colors='RdBu', index_col='Complete',
                               title=title, show_colorbar=True, bar_width=0.2)
 
-        fig['layout']['xaxis']['title'] = "Mês"
-        fig['layout']['xaxis']['tickformat'] = "%b"
-        fig['data'][-1]['marker']['cmax'] = df_spells.Complete.max()
-        fig['data'][-1]['marker']['cmin'] = df_spells.Complete.min()
-        fig['data'][-1]['marker']['colorbar'] = dict(thickness=20,
-                                                     tickvals=[df_spells.Complete.min(), df_spells.Complete.max()],
-                                                     ticktext=[df_spells.Peaks.min(), df_spells.Peaks.max()])
+        fig['data'][-1]['marker'].update(cmax=df_spells.Complete.max(), cmin=df_spells.Complete.min(),
+                                         colorbar=dict(title="m³/s", thickness=20,
+                                                       tickvals=[df_spells.Complete.min(), df_spells.Complete.max()],
+                                                       ticktext=[df_spells.Peaks.min(), df_spells.Peaks.max()]))
 
-        print(fig['layout']['xaxis']['rangeselector']['buttons'])
+        fig['layout'].update(autosize=True)
+        fig['layout']['xaxis'].update(title="Mês", range=[month_start, month_end], tickformat="%b")
+        fig['layout']['yaxis'].update(title="Ano")
+        fig['layout']['xaxis']['rangeselector'] = {}
+
         return fig, df
