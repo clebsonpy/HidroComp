@@ -18,12 +18,9 @@ class HydrogramYear(HydrogramBuild):
                 x=group[g].index,
                 y=group[g].values,
                 mode="lines",
-                color_continuous_scale='Jet',
-                line=dict(
-                    ),
-
-            ))
-
+                name=g,)
+            )
+    
         data = trace
         bandxaxis = go.layout.XAxis(
             title="Mês",
@@ -43,7 +40,7 @@ class HydrogramYear(HydrogramBuild):
 
         fig = dict(data=data, layout=layout)
 
-        return fig, data
+        return fig
 
     def group_by_year(self):
         list_year = []

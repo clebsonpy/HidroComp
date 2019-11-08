@@ -242,7 +242,7 @@ if __name__ == '__main__':
     #                                                                             line=line, color='blue')
     #fig2 = dict(data=data_obs + [data_nat[0]], layout=fig_nat['layout'])
     #fig_hp, data_hp = events_obs_low.plot_hydrogram("Parcial")
-    fig_h, data_h = iha_obj_nat.flow.hydrogram_year("Hidrograma")
+    fig_h = iha_obj_nat.flow.hydrogram_year("Hidrograma")
     fig_spells_nat, df = events_nat_high.plot_spells("Observado")
     # fig_spells_obs = partial_high_obs.plot_spells("Obs")
     # test = dados.date(date_start="01/01/1995", date_end="31/12/2012")

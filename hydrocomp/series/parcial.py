@@ -1,7 +1,7 @@
 import pandas as pd
 import math
 import scipy.stats as stat
-import plotly.plotly as py
+import plotly as py
 import plotly.figure_factory as FF
 import plotly.graph_objs as go
 
@@ -507,17 +507,16 @@ class Parcial(object):
 
         df_spells = df_spells.sort_values('Task', ascending=False).reset_index(drop=True)
 
-        fig = FF.create_gantt(df_spells, group_tasks=True, colors='Jet', index_col='Complete',
-                              title=title, show_colorbar=True, bar_width=0.2)
+        fig = FF.create_gantt(df_spells, group_tasks=True, index_col='Complete', colors='Jet', title=title,
+                              show_colorbar=True, height=600, width=900)
 
-        fig['data'][-1]['marker'].update(cmax=df_spells.Complete.max(), cmin=df_spells.Complete.min(),
-                                         colorbar=dict(title="m³/s", thickness=20,
-                                                       tickvals=[df_spells.Complete.min(), df_spells.Complete.max()],
-                                                       ticktext=[df_spells.Peaks.min(), df_spells.Peaks.max()]))
+        #fig['data'][-1]['marker'].update(colorscale='Jet', colorbar=dict(title="m³/s", tickvals=df_spells.Complete,
+        #                                                                 ticktext=df_spells.Name))
 
+        print(fig)
         fig['layout'].update(autosize=True)
         fig['layout']['xaxis'].update(title="Mês", range=[month_start, month_end], tickformat="%b")
         fig['layout']['yaxis'].update(title="Ano")
         fig['layout']['xaxis']['rangeselector'] = {}
 
-        return fig, df
+        return fig, df_spells

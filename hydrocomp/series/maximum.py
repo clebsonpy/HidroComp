@@ -1,5 +1,5 @@
 import pandas as pd
-import plotly.plotly as py
+import plotly as py
 import scipy.stats as stat
 from hydrocomp.statistic.genextre import Gev
 
