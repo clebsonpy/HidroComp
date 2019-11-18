@@ -78,11 +78,11 @@ class Flow(SeriesBuild):
     def plot_hydrogram(self, title, save=False, width=None, height=None, size_text=None):
         if self.station is None:
             hydrogram = HydrogramClean(self.data, width=width, height=height, size_text=size_text,
-                                       title=title)
+                                       title=title, y_title='Vazão (m³/s)', x_title='Data')
             fig, data = hydrogram.plot()
         else:
             hydrogram = HydrogramClean(self.data[self.station], width=width, height=height,
-                                       size_text=size_text, title=title)
+                                       size_text=size_text, title=title, y_title='Vazão (m³/s)', x_title='Data')
             fig, data = hydrogram.plot()
         return fig, data
 

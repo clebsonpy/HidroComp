@@ -5,13 +5,15 @@ from hydrocomp.graphics.hydrogram_build import HydrogramBuild
 
 class HydrogramClean(HydrogramBuild):
 
-    def __init__(self, data, width=None, height=None, size_text=None, title=None):
+    def __init__(self, data, width=None, height=None, size_text=None, title=None, y_title=None, x_title=None):
         super().__init__(width=width, height=height, size_text=size_text, title=title)
         self.data = pd.DataFrame(data)
+        self.y_title = y_title
+        self.x_title = x_title
 
     def plot(self):
-        bandxaxis = go.layout.XAxis(title="Data")
-        bandyaxis = go.layout.YAxis(title="Vazão(m³/s)")
+        bandxaxis = go.layout.XAxis(title=self.x_title)
+        bandyaxis = go.layout.YAxis(title=self.y_title)
 
         if len(self.data.columns.values) == 1:
 

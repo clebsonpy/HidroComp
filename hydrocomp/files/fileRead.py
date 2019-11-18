@@ -41,7 +41,7 @@ class FileRead(Files, metaclass=ABCMeta):
     @abstractmethod
     def read(self):
         if type(self.name) == list and len(self.name) > 1:
-            p = mp.Pool(4)
+            p = mp.Pool(mp.cpu_count())
             listaDfs = p.map(self.read, self.name)
             p.close()
             if self.source == 'ANA':
