@@ -4,7 +4,7 @@ from hydrocomp.series.series_build import SeriesBuild
 from hydrocomp.graphics.hydrogram_clean import HydrogramClean
 
 
-class Cota(SeriesBuild):
+class Height(SeriesBuild):
 
     type_data = 'COTA'
 

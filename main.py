@@ -12,7 +12,7 @@ from hydrocomp.iha import iha
 from hydrocomp.iha.iha import IHA
 from hydrocomp.iha.graphics import Graphics
 from hydrocomp.series.flow import Flow
-from hydrocomp.series.cota import Cota
+from hydrocomp.series.height import Height
 from hydrocomp.series.rainfall import Rainfall
 
 if __name__ == '__main__':
@@ -199,7 +199,7 @@ if __name__ == '__main__':
     #            '76360001', '76370000', '76380000', '76395000', '76431000', '76440000', '76460000', '76490000',
     #            '76500000', '76550000', '76560000', '76600000', '76630000', '76650000', '76700000', '76742000',
     #            '76745000', '76750000', '76800000', '76081000']
-    flow = Cota(path_file=stations, source='ANA', consistence=1)
+    flow = Height(path_file=stations, source='ANA', consistence=1)
     #flow.date(date_end='31/12/1977', date_start='1/1/1968')
     #flow.station = '76100000'
     #max_flow = flow.maximum()
