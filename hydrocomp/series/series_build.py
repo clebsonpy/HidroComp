@@ -32,7 +32,7 @@ class SeriesBuild(metaclass=ABCMeta):
             if source in self.sources:
                 self.source = source
                 read = self.sources[self.source](self.path, *args, **kwargs)
-                self.station = read.name
+                #self.station = read.name
                 self.data = read.data.sort_index()
             else:
                 raise KeyError('Source not supported!')

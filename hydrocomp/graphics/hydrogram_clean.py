@@ -13,7 +13,7 @@ class HydrogramClean(HydrogramBuild):
         bandxaxis = go.layout.XAxis(title="Data")
         bandyaxis = go.layout.YAxis(title="Vazão(m³/s)")
 
-        try:
+        if len(self.data.columns.values) == 1:
 
             layout = dict(title=self.title,
                           width=self.width, height=self.height,
@@ -26,20 +26,44 @@ class HydrogramClean(HydrogramBuild):
             fig = dict(data=data, layout=layout)
             return fig, data
 
-        except AttributeError:
+        else:
 
             name = self.title
+            data, buttons = self._plot_multi()
             layout = dict(title=name,
                           width=self.width, height=self.height,
                           xaxis=bandxaxis, yaxis=bandyaxis,
-                          font=dict(family='Time New Roman', size=self.size_text))
-
-            data = self._plot_multi()
+                          font=dict(family='Time New Roman', size=self.size_text, color='rgb(0,0,0)'),
+                          updatemenus=[
+                              go.layout.Updatemenu(
+                                  active=0,
+                                  buttons=list(buttons),
+                              )
+                          ])
             fig = dict(data=data, layout=layout)
             return fig, data
 
     def _plot_multi(self):
         data = []
+        buttons = [dict(label="All",
+                        method='update',
+                        args=[{"visible": [True] * len(self.data.columns)},
+                              {"title": "Hidrograma"}]
+                        )]
+        aux = 0
+        visible = [False] * len(self.data.columns)
         for i in self.data:
-            data.append(self._plot_one(self.data[i], self.data[i].name))
-        return data
+            visible[aux] = True
+            data.append(self._plot_one(pd.DataFrame(self.data[i]), name=i))
+
+            buttons.append(
+                dict(label=i,
+                     method='update',
+                     args=[{"visible": visible},
+                           {"title": "Hidrograma: {}".format(i)}]
+                     )
+            )
+
+            visible = [False] * len(self.data.columns)
+            aux += 1
+        return data, buttons
