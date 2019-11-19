@@ -8,3 +8,7 @@ Medicoes/*/*.txt
 gráficos/
 output/
 *.vscode/
+*.pypirc
+dist/
+hydrocomp.egg-info/
+build/
