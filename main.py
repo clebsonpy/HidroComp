@@ -3,9 +3,7 @@ import os
 import plotly as py
 import timeit
 import pandas as pd
-import geopandas
 
-import matplotlib.pyplot as plt
 from hydrocomp.api_ana.inventario import Inventario
 from hydrocomp.api_ana.basin import Basin
 from hydrocomp.iha import iha

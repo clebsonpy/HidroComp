@@ -16,11 +16,11 @@ install_requires = [r.strip() for r in require]
 
 setup(
     name='hydrocomp',
-    version='0.1.2',
+    version='0.1.3',
     include_package_data=True,
     pacotes=find_packages('src'),
     long_description=long_description,
-    classifiers=['Development Status :: 1 - Planning,
+    classifiers=['Development Status :: 1 - Planning',
                  'Environment :: Console',
                  'Intended Audience :: Science/Research',
                  'Intended Audience :: Developers',
