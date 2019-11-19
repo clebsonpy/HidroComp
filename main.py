@@ -189,7 +189,6 @@ if __name__ == '__main__':
     # dados = pd.read_csv(file, index_col=0, parse_dates=True)
     # print(dados)
 
-    path = ''
     stations = ['76100000', '76310000', '76380000', '76440000', '76460000', '76750000', '76800000']
     #stations = ['835142', '835140', '835050', '835043', '835026', '835025', '835015', '835014', '835002', '835000']
 
@@ -263,7 +262,7 @@ if __name__ == '__main__':
     #py.offline.plot(fig2, filename=os.path.join(path, 'gráficos/rva.html'))
     """
     #py.offline.plot(figg, filename=os.path.join(path, 'gráficos/gantt_test.html'))
-    py.offline.plot(fig_h, filename=os.path.join(path, 'gráficos/hidro.html'))
+    #py.offline.plot(fig_h, filename=os.path.join(path, 'gráficos/hidro.html'))
     #py.offline.plot(fig_hp, filename=os.path.join(path, 'gráficos/hidro_parcial.html'))
     #py.offline.plot(fig, filename=os.path.join(path, 'gráficos/permanência.html'))
 

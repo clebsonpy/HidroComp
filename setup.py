@@ -3,7 +3,6 @@ import os
 
 rootpath = os.path.abspath(os.path.dirname(__file__))
 
-
 def read(*parts):
     return open(os.path.join(rootpath, *parts), 'r').read()
 
@@ -16,7 +15,7 @@ install_requires = [r.strip() for r in require]
 
 setup(
     name='hydrocomp',
-    version='0.1.3',
+    version='0.1.4',
     include_package_data=True,
     pacotes=find_packages('src'),
     long_description=long_description,
@@ -38,5 +37,5 @@ setup(
     keywords='hydrology statistic iha flow',
     description=u'Desenvolvido para estudos hidrológicos',
     install_requires=install_requires,
-    packages=['hydrocomp',],
+    packages=['hydrocomp'],
 )
