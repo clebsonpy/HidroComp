@@ -109,13 +109,16 @@ class Ana(FileRead):
         return data
 
     def __excludes_duplicates(self, data):
-        if self.consistence == 1:  # bruto_e_consistido
-            ordem = data.copy(deep=True)
-            eh_duplicata = ordem.reset_index(level=1, drop=True).index.duplicated(keep='last')
-            saida = data[~eh_duplicata]
-        elif self.consistence == 2:  # somente consistidos
-            try:
-                saida = data.iloc[data.index.isin([self.consistence], level=1)]
-            except KeyError:
-                return
+        if len(data) > 0:
+            if self.consistence == 1:  # bruto_e_consistido
+                ordem = data.copy(deep=True)
+                eh_duplicata = ordem.reset_index(level=1, drop=True).index.duplicated(keep='last')
+                saida = data[~eh_duplicata]
+            elif self.consistence == 2:  # somente consistidos
+                try:
+                    saida = data.iloc[data.index.isin([self.consistence], level=1)]
+                except KeyError:
+                    return
+        else:
+            return data
         return saida.reset_index(level=1, drop=True)

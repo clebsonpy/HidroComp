@@ -47,7 +47,10 @@ class FileRead(Files, metaclass=ABCMeta):
             if self.source == 'ANA':
                 dataFlow = pd.DataFrame()
                 for df in listaDfs:
-                    dataFlow = dataFlow.combine_first(df)
+                    if len(df) > 0:
+                        dataFlow = dataFlow.combine_first(df)
+                    else:
+                        dataFlow = dataFlow
                 return dataFlow.sort_index()
             else:
                 dataFlow = pd.DataFrame(listaDfs)
