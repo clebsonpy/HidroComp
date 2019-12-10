@@ -189,25 +189,25 @@ if __name__ == '__main__':
     # dados = pd.read_csv(file, index_col=0, parse_dates=True)
     # print(dados)
     path = ''
-    #stations = ['76100000', '76310000', '76380000', '76440000', '76460000', '76750000', '76800000']
-    stations_rainfall = ['835000', '835002', '835014', '835015', '835025', '835026', '835042', '835043', '835050',
-                         '835112', '835116', '835119', '835140', '835142', '835150', '835152', '835155', '835157',
-                         '835158', '835160', '835177', '835179', '835181', '835186', '835195', '835197', '835198',
-                         '835203', '835209']
+    stations = ['76100000', '76310000', '76380000', '76440000', '76460000', '76750000', '76800000']
+    #stations_rainfall = ['835000', '835002', '835014', '835015', '835025', '835026', '835042', '835043', '835050',
+    #                     '835112', '835116', '835119', '835140', '835142', '835150', '835152', '835155', '835157',
+    #                     '835158', '835160', '835177', '835179', '835181', '835186', '835195', '835197', '835198',
+    #                     '835203', '835209']
 
     # stations = ['76077000', '76085000', '76100000', '76120000', '76251000', '76260000', '76300000', '76310000',
     #            '76360001', '76370000', '76380000', '76395000', '76431000', '76440000', '76460000', '76490000',
     #            '76500000', '76550000', '76560000', '76600000', '76630000', '76650000', '76700000', '76742000',
     #            '76745000', '76750000', '76800000', '76081000']
-    flow = Rainfall(path_file=stations_rainfall, source='ANA', consistence=1)
-    # flow.date(date_end='31/12/1977', date_start='1/1/1968')
-    # flow.station = '76100000'
-    # max_flow = flow.maximum()
+    flow = Flow(path_file=stations, source='ANA', consistence=1)
+    flow.date(date_end='31/12/1977', date_start='1/4/1968')
+    flow.station = '76100000'
+    max_flow = flow.maximum()
     # print(max_flow.obj.month_abr)
     # print(max_flow.peaks)
     # fig, data = max_flow.hydrogram()
-    print(flow)
-    figg, data = flow.gantt(name='gantt')
+    print(max_flow.peaks)
+    #figg, data = flow.gantt(name='gantt')
     #fig_h, data = flow.plot_hydrogram('Hidro')
     """
 
@@ -264,7 +264,7 @@ if __name__ == '__main__':
     # fig, data = parcial.plot_hydrogram('Parcial')
     #py.offline.plot(fig2, filename=os.path.join(path, 'gráficos/rva.html'))
     """
-    py.offline.plot(figg, filename=os.path.join(path, 'gráficos/gantt_test.html'))
+    #py.offline.plot(figg, filename=os.path.join(path, 'gráficos/gantt_test.html'))
     # py.offline.plot(fig_h, filename=os.path.join(path, 'gráficos/hidro.html'))
     # py.offline.plot(fig_hp, filename=os.path.join(path, 'gráficos/hidro_parcial.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'gráficos/permanência.html'))

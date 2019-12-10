@@ -20,9 +20,10 @@ class Maximum(object):
     def __annual(self):
         self.obj.month_start_year_hydrologic()
         data_by_year_hydrologic = self.obj.data.groupby(pd.Grouper(freq=self.obj.month_abr))
-        max_vazao = data_by_year_hydrologic[self.station].max().values
-        idx_vazao = data_by_year_hydrologic[self.station].idxmax().values
-
+        max = data_by_year_hydrologic[self.station].max()
+        print(max)
+        max_vazao = max.values
+        idx_vazao = max.index.year
         self.peaks = pd.DataFrame(max_vazao, index=idx_vazao, columns=['peaks'])
         return self.peaks
 
