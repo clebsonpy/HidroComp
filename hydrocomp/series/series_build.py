@@ -20,10 +20,11 @@ class SeriesBuild(metaclass=ABCMeta):
         if data is not None:
             try:
                 self.station = kwargs['station']
-                self.data = pd.DataFrame(data[self.station]).sort_index()
+                self.__return_df(data)
+                self.data = self.data.rename(columns={self.data.columns[0]: self.station}).sort_index()
             except KeyError:
                 self.station = None
-                self.data = data
+                self.__return_df(data)
         else:
             try:
                 self.station = kwargs['station']
@@ -42,6 +43,12 @@ class SeriesBuild(metaclass=ABCMeta):
             self.date_start, self.date_end = self.__start_and_end()
             _data = pd.DataFrame(index=pd.date_range(start=self.date_start, end=self.date_end))
             self.data = _data.combine_first(self.data[self.date_start:self.date_end])
+
+    def __return_df(self, data):
+        if type(data) is type(pd.Series()):
+            self.data = pd.DataFrame(data)
+        else:
+            self.data = data
 
     @abstractmethod
     def month_start_year_hydrologic(self):
