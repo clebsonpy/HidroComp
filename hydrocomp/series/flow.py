@@ -92,8 +92,8 @@ class Flow(SeriesBuild):
         data = self.data.drop(index=idx)
         data = data.groupby(pd.Grouper(freq=self.month_abr))
         hydrogram = HydrogramYear(data, width=width, height=height, title=title, size_text=size_text)
-        fig = hydrogram.plot()
-        return fig
+        fig, data = hydrogram.plot()
+        return fig, data
 
     def permanence_curve(self, width=None, height=None, size_text=None, title=None):
         if self.station is None:

@@ -40,7 +40,7 @@ class HydrogramYear(HydrogramBuild):
 
         fig = dict(data=data, layout=layout)
 
-        return fig
+        return fig, data
 
     def group_by_year(self):
         list_year = []
