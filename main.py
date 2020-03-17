@@ -106,7 +106,7 @@ if __name__ == '__main__':
     #py.offline.plot(fig2, filename=os.path.join(path, 'graficos/rva.html'))
     """
     #py.offline.plot(figg, filename=os.path.join(path, 'graficos/gantt_test.html'))
-    py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro.html'))
+    #py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro.html'))
     # py.offline.plot(fig_hp, filename=os.path.join(path, 'graficos/hidro_parcial.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/permanencia.html'))
 

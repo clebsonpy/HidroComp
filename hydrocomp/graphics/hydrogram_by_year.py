@@ -1,6 +1,8 @@
 from .hydrogram_build import HydrogramBuild
 import plotly.graph_objs as go
 import pandas as pd
+from matplotlib import cm
+import numpy as np
 
 
 class HydrogramYear(HydrogramBuild):
@@ -11,7 +13,8 @@ class HydrogramYear(HydrogramBuild):
 
     def plot(self):
         group = self.group_by_year()
-
+        #cores = cm.hot()
+        print(np.linspace(0, 256, len(group.columns)))
         trace = []
         for g in group:
             trace.append(go.Scatter(
