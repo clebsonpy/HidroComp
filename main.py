@@ -19,12 +19,12 @@ if __name__ == '__main__':
 
     # dados.data.to_csv("rio_ibicui_consistido.csv")
     # print(dados['1993'])
-    file = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_obs.csv'))
+    file = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_nat.csv'))
     # dados = pd.read_csv(file, index_col=0, parse_dates=True)
     # print(dados)
     path = ''
     #file_rain = os.path.abspath(os.path.join('Medicoes', 'dados_inmet.csv'))
-    dados = pd.read_csv(file, ',', index_col=0, parse_dates=True).OBS
+    dados = pd.read_csv(file, ',', index_col=0, parse_dates=True).NAT
     #rainfall = Rainfall(data=dados, source='INMET')
     #print(rainfall.data)
     #stations = ['76100000', '76310000', '76380000', '76440000', '76460000', '76750000', '76800000']
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     #max_flow = flow.maximum()
     # print(max_flow.obj.month_abr)
     # print(max_flow.peaks)
-    fig = flow.hydrogram_year("")
+    fig, data = flow.hydrogram_year("")
     #print(max_flow.peaks)
     #figg, data = flow.gantt(name='gantt')
     #fig_h, data = flow.plot_hydrogram('Hidro')
@@ -106,7 +106,7 @@ if __name__ == '__main__':
     #py.offline.plot(fig2, filename=os.path.join(path, 'graficos/rva.html'))
     """
     #py.offline.plot(figg, filename=os.path.join(path, 'graficos/gantt_test.html'))
-    #py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro.html'))
+    py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro.html'))
     # py.offline.plot(fig_hp, filename=os.path.join(path, 'graficos/hidro_parcial.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/permanencia.html'))
 

@@ -3,6 +3,8 @@ import plotly.graph_objs as go
 import pandas as pd
 from matplotlib import cm
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.colors as colors
 
 
 class HydrogramYear(HydrogramBuild):
@@ -13,18 +15,37 @@ class HydrogramYear(HydrogramBuild):
 
     def plot(self):
         group = self.group_by_year()
-        #cores = cm.hot()
-        print(np.linspace(0, 256, len(group.columns)))
+        start = 0.0
+        stop = 0.9
+        number_of_lines = len(group.columns)
+        cm_subsection = np.linspace(start, stop, number_of_lines)
+
+        colors = dict(zip(group.columns, [cm.hot(x) for x in cm_subsection]))
+        print(colors)
+
         trace = []
         for g in group:
             trace.append(go.Scatter(
                 x=group[g].index,
                 y=group[g].values,
                 mode="lines",
+                line=dict(color='RGBA{}'.format(colors[g])),
                 name=g,)
             )
-    
-        data = trace
+
+        colorbar_trace = go.Scatter(x=[None],
+                                    y=[None],
+                                    mode='markers',
+                                    marker=dict(
+                                        colorscale=['RGBA{}'.format(cm.hot(x)) for x in cm_subsection],
+                                        showscale=True,
+                                        cmin=group.columns[0],
+                                        cmax=group.columns[-1],
+                                    ),
+                                    hoverinfo='none'
+                                    )
+
+        data = trace + [colorbar_trace]
         bandxaxis = go.layout.XAxis(
             title="Mês",
             tickformat="%b",
@@ -39,7 +60,8 @@ class HydrogramYear(HydrogramBuild):
             xaxis=bandxaxis,
             yaxis=bandyaxis,
             width=self.width, height=self.height,
-            font=dict(family='Courier New, monospace', size=self.size_text, color='#7f7f7f'))
+            font=dict(family='Courier New, monospace', size=self.size_text, color='#7f7f7f'),
+            showlegend=False)
 
         fig = dict(data=data, layout=layout)
 
