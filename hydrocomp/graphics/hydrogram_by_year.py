@@ -1,10 +1,8 @@
 from .hydrogram_build import HydrogramBuild
 import plotly.graph_objs as go
 import pandas as pd
-from matplotlib import cm
+import colorlover as cl
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.colors as colors
 
 
 class HydrogramYear(HydrogramBuild):
@@ -15,12 +13,10 @@ class HydrogramYear(HydrogramBuild):
 
     def plot(self):
         group = self.group_by_year()
-        start = 0.0
-        stop = 0.9
         number_of_lines = len(group.columns)
-        cm_subsection = np.linspace(start, stop, number_of_lines)
-
-        colors = dict(zip(group.columns, [cm.hot(x) for x in cm_subsection]))
+        ylrd = cl.scales['9']['seq']['YlOrRd'][1:]
+        ylrd = cl.interp(ylrd, number_of_lines)
+        colors = dict(zip(group.columns, ylrd))
         print(colors)
 
         trace = []
@@ -29,7 +25,7 @@ class HydrogramYear(HydrogramBuild):
                 x=group[g].index,
                 y=group[g].values,
                 mode="lines",
-                line=dict(color='RGBA{}'.format(colors[g])),
+                line=dict(color=colors[g]),
                 name=g,)
             )
 
@@ -37,7 +33,7 @@ class HydrogramYear(HydrogramBuild):
                                     y=[None],
                                     mode='markers',
                                     marker=dict(
-                                        colorscale=['RGBA{}'.format(cm.hot(x)) for x in cm_subsection],
+                                        colorscale=ylrd,
                                         showscale=True,
                                         cmin=group.columns[0],
                                         cmax=group.columns[-1],
@@ -49,10 +45,13 @@ class HydrogramYear(HydrogramBuild):
         bandxaxis = go.layout.XAxis(
             title="Mês",
             tickformat="%b",
+            linecolor='rgba(1,1,1,1)',
+            gridcolor='rgba(1,1,1,1)'
         )
 
         bandyaxis = go.layout.YAxis(
             title="Vazão(m³/s)",
+            showgrid=False,
         )
 
         layout = dict(
@@ -61,7 +60,7 @@ class HydrogramYear(HydrogramBuild):
             yaxis=bandyaxis,
             width=self.width, height=self.height,
             font=dict(family='Courier New, monospace', size=self.size_text, color='#7f7f7f'),
-            showlegend=False)
+            showlegend=False, plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
 
         fig = dict(data=data, layout=layout)
 

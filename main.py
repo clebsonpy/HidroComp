@@ -19,7 +19,7 @@ if __name__ == '__main__':
 
     # dados.data.to_csv("rio_ibicui_consistido.csv")
     # print(dados['1993'])
-    file = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_nat.csv'))
+    file = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_obs.csv'))
     # dados = pd.read_csv(file, index_col=0, parse_dates=True)
     # print(dados)
     path = ''
