@@ -7,8 +7,9 @@ import numpy as np
 
 class HydrogramYear(HydrogramBuild):
 
-    def __init__(self, data, width=None, height=None, size_text=None, title=None):
+    def __init__(self, data, threshold=None, width=None, height=None, size_text=None, title=None):
         self.data = data
+        self.threshold = threshold
         super().__init__(width=width, height=height, size_text=size_text, title=title)
 
     def plot(self):
@@ -17,7 +18,6 @@ class HydrogramYear(HydrogramBuild):
         ylrd = cl.scales['9']['seq']['YlOrRd'][1:]
         ylrd = cl.interp(ylrd, number_of_lines)
         colors = dict(zip(group.columns, ylrd))
-        print(colors)
 
         trace = []
         for g in group:
@@ -41,7 +41,12 @@ class HydrogramYear(HydrogramBuild):
                                     hoverinfo='none'
                                     )
 
-        data = trace + [colorbar_trace]
+        if self.threshold is not None:
+            trace_threshold = self._plot_threshold(group)
+            data = trace + [colorbar_trace] + [trace_threshold]
+        else:
+            data = trace + [colorbar_trace]
+
         bandxaxis = go.layout.XAxis(
             title="Mês",
             tickformat="%b",
@@ -65,6 +70,21 @@ class HydrogramYear(HydrogramBuild):
         fig = dict(data=data, layout=layout)
 
         return fig, data
+
+    def _plot_threshold(self, group):
+        trace_threshold = go.Scatter(
+            x=list(group[group.columns[3]].index),
+            y=[self.threshold]*len(group),
+            mode='lines+text',
+            text=['Threshold'],
+            textposition="bottom center",
+            line=dict(color='rgb(128, 128, 128)',
+                      width=1.5,
+                      dash='dot')
+        )
+
+        return trace_threshold
+
 
     def group_by_year(self):
         list_year = []

@@ -19,7 +19,7 @@ if __name__ == '__main__':
 
     # dados.data.to_csv("rio_ibicui_consistido.csv")
     # print(dados['1993'])
-    file = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_obs.csv'))
+    file = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_nat.csv'))
     # dados = pd.read_csv(file, index_col=0, parse_dates=True)
     # print(dados)
     path = ''
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     #max_flow = flow.maximum()
     # print(max_flow.obj.month_abr)
     # print(max_flow.peaks)
-    fig, data = flow.hydrogram_year("")
+    fig, data = flow.hydrogram_year("", threshold=3500)
     #print(max_flow.peaks)
     #figg, data = flow.gantt(name='gantt')
     #fig_h, data = flow.plot_hydrogram('Hidro')
