@@ -4,8 +4,8 @@ import plotly as py
 import timeit
 import pandas as pd
 
-from hydrocomp.api_ana.inventario import Inventario
-from hydrocomp.api_ana.basin import Basin
+#from hydrocomp.api_ana.inventario import Inventario
+#from hydrocomp.api_ana.basin import Basin
 from hydrocomp.iha import iha
 from hydrocomp.iha.iha import IHA
 from hydrocomp.iha.graphics import Graphics
@@ -95,7 +95,7 @@ if __name__ == '__main__':
     figh, data = flow.hydrogram()
     """
 
-    # Rosário Oeste
+    # Rosario Oeste
     """
     path = '/home/clebsonpy/Dropbox/IHA_Dados/Dados/Rosário Oeste'
     file = os.path.abspath(os.path.join(path, "vazoes_T_66250001.txt"))
@@ -119,9 +119,9 @@ if __name__ == '__main__':
     figh, data = flow.hydrogram()
     """
 
-    # Xingó
+    # Xingo
     """
-    path = '/home/clebsonpy/Dropbox/IHA_Dados/Dados/Xingó'
+    path = '/home/clebsonpy/Dropbox/IHA_Dados/Dados/Xingo'
 
     file_nat = os.path.abspath(os.path.join(path, 'Xingo_Nat.csv'))
     dados_nat = pd.read_csv(file_nat, index_col=0, parse_dates=True)
@@ -262,10 +262,10 @@ if __name__ == '__main__':
     # fig, data = parcial.plot_hydrogram('Parcial')
     #py.offline.plot(fig2, filename=os.path.join(path, 'gráficos/rva.html'))
     """
-    #py.offline.plot(figg, filename=os.path.join(path, 'gráficos/gantt_test.html'))
-    py.offline.plot(fig_h, filename=os.path.join(path, 'gráficos/hidro.html'))
-    #py.offline.plot(fig_hp, filename=os.path.join(path, 'gráficos/hidro_parcial.html'))
-    #py.offline.plot(fig, filename=os.path.join(path, 'gráficos/permanência.html'))
+    #py.offline.plot(figg, filename=os.path.join(path, 'graficos/gantt_test.html'))
+    py.offline.plot(fig_h, filename=os.path.join(path, 'graficos/hidro.html'))
+    #py.offline.plot(fig_hp, filename=os.path.join(path, 'graficos/hidro_parcial.html'))
+    #py.offline.plot(fig, filename=os.path.join(path, 'graficos/permanencia.html'))
 
     fim = timeit.default_timer()
 
