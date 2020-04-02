@@ -15,10 +15,10 @@ class HydrogramBuild(metaclass=ABCMeta):
     def plot(self):
         pass
 
-    def _plot_one(self, data, name, color=None):
+    def _plot_one(self, data, station=None, color=None):
         data = go.Scatter(x=data.index,
                           y=data.T.values[0],
-                          name=name,
+                          name=station,
                           line=dict(width=1, color=color),
                           opacity=1, connectgaps=False)
         return data

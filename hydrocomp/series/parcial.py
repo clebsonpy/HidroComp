@@ -480,10 +480,10 @@ class Parcial(object):
             self.mvs()
             return self.plot_distribution(title, type_function)
 
-    def plot_hydrogram(self, title, save=False, width=None, height=None, size_text=None):
+    def hydrogram(self, title, save=False, width=None, height=None, size_text=None):
         hydrogram = HydrogramParcial(
             data=self.data, peaks=self.peaks,
-            threshold=self.threshold,
+            threshold=self.threshold, station=self.station,
             threshold_criterion=self.threshold_criterion, title=title, type_criterion=self.type_criterion, width=width,
             height=height, size_text=size_text)
         fig, data = hydrogram.plot()

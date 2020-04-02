@@ -40,13 +40,16 @@ if __name__ == '__main__':
     #            '76360001', '76370000', '76380000', '76395000', '76431000', '76440000', '76460000', '76490000',
     #            '76500000', '76550000', '76560000', '76600000', '76630000', '76650000', '76700000', '76742000',
     #            '76745000', '76750000', '76800000', '76081000']
-    flow = Flow(data=dados, station='Observados')
-    #flow.date(date_end='31/12/1977', date_start='1/4/1968')
-    #flow.station = '76100000'
-    #max_flow = flow.maximum()
+    flow = Flow(data=dados, station='Xingó')
+    # flow.date(date_end='31/12/1977', date_start='1/4/1968')
+    # flow.station = '76100000'
+    # max_flow = flow.maximum()
     # print(max_flow.obj.month_abr)
+    parcial_flow = flow.parcial(type_criterion='autocorrelation', type_threshold="stationary",
+                                type_event="flood", value_threshold=0.75, duration=6)
     # print(max_flow.peaks)
-    fig, data = flow.hydrogram_year(title="Hidrograma", threshold=3500)
+    # fig, data = flow.hydrogram_year(title="Hidrograma", threshold=3500)
+    fig, data = parcial_flow.hydrogram(title="Hidrograma")
     #print(max_flow.peaks)
     #figg, data = flow.gantt(name='gantt')
     #fig_h, data = flow.plot_hydrogram('Hidro')

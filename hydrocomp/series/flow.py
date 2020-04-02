@@ -42,8 +42,8 @@ class Flow(SeriesBuild):
         return maximum
 
     def parcial(self, type_threshold, type_event, type_criterion, value_threshold, **kwargs):
-        parcial = Parcial(obj=self, type_threshold=type_threshold, type_event=type_event, type_criterion=type_criterion,
-                          value_threshold=value_threshold, **kwargs)
+        parcial = Parcial(station=self.station, obj=self, type_threshold=type_threshold, type_event=type_event,
+                          type_criterion=type_criterion, value_threshold=value_threshold, **kwargs)
 
         return parcial
 
