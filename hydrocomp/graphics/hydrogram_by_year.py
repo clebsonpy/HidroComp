@@ -7,7 +7,7 @@ import numpy as np
 
 class HydrogramYear(HydrogramBuild):
 
-    def __init__(self, data, threshold=None, width=None, height=None, size_text=None, title=None):
+    def __init__(self, data, title, threshold, width, height, size_text):
         self.data = data
         self.threshold = threshold
         super().__init__(width=width, height=height, size_text=size_text, title=title)
@@ -15,7 +15,7 @@ class HydrogramYear(HydrogramBuild):
     def plot(self):
         group = self.group_by_year()
         number_of_lines = len(group.columns)
-        ylrd = cl.scales['9']['seq']['YlOrRd'][1:]
+        ylrd = cl.scales['9']['div']['Spectral']
         ylrd = cl.interp(ylrd, number_of_lines)
         colors = dict(zip(group.columns, ylrd))
 
@@ -35,11 +35,12 @@ class HydrogramYear(HydrogramBuild):
                                     marker=dict(
                                         colorscale=ylrd,
                                         showscale=True,
+                                        colorbar=dict(title='Ano'),
                                         cmin=group.columns[0],
                                         cmax=group.columns[-1],
                                     ),
-                                    hoverinfo='none'
-                                    )
+                                    hoverinfo='none',
+        )
 
         if self.threshold is not None:
             trace_threshold = self._plot_threshold(group)
@@ -60,7 +61,8 @@ class HydrogramYear(HydrogramBuild):
         )
 
         layout = dict(
-            title=self.title,
+            title=dict(text=self.title,  x=0.5, xanchor='center', y=0.9, yanchor='top',
+                       font=dict(family='Courier New, monospace', color='#7f7f7f', size=self.size_text+6)),
             xaxis=bandxaxis,
             yaxis=bandyaxis,
             width=self.width, height=self.height,

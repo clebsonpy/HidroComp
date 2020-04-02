@@ -86,12 +86,12 @@ class Flow(SeriesBuild):
             fig, data = hydrogram.plot()
         return fig, data
 
-    def hydrogram_year(self, title, threshold=None, width=None, height=None, size_text=None):
+    def hydrogram_year(self, title="", threshold=None, width=None, height=None, size_text=14):
         self.month_start_year_hydrologic()
         idx = [i for i in self.data.index if i.month == 2 and i.day == 29]
         data = self.data.drop(index=idx)
         data = data.groupby(pd.Grouper(freq=self.month_abr))
-        hydrogram = HydrogramYear(data, threshold=threshold, width=width, height=height, title=title,
+        hydrogram = HydrogramYear(data=data, threshold=threshold, width=width, height=height, title=title,
                                   size_text=size_text)
         fig, data = hydrogram.plot()
         return fig, data

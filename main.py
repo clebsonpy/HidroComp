@@ -46,7 +46,7 @@ if __name__ == '__main__':
     #max_flow = flow.maximum()
     # print(max_flow.obj.month_abr)
     # print(max_flow.peaks)
-    fig, data = flow.hydrogram_year("", threshold=3500)
+    fig, data = flow.hydrogram_year(title="Hidrograma", threshold=3500)
     #print(max_flow.peaks)
     #figg, data = flow.gantt(name='gantt')
     #fig_h, data = flow.plot_hydrogram('Hidro')
