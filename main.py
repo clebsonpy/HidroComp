@@ -43,13 +43,13 @@ if __name__ == '__main__':
     flow = Flow(data=dados, station='Xingó')
     # flow.date(date_end='31/12/1977', date_start='1/4/1968')
     # flow.station = '76100000'
-    # max_flow = flow.maximum()
+    max_flow = flow.maximum()
     # print(max_flow.obj.month_abr)
-    parcial_flow = flow.parcial(type_criterion='autocorrelation', type_threshold="stationary",
-                                type_event="flood", value_threshold=0.75, duration=6)
+    # parcial_flow = flow.parcial(type_criterion='autocorrelation', type_threshold="stationary",
+    #                             type_event="flood", value_threshold=0.75, duration=6)
     # print(max_flow.peaks)
-    # fig, data = flow.hydrogram_year(title="Hidrograma", threshold=3500)
-    fig, data = parcial_flow.hydrogram(title="Hidrograma")
+    fig, data = max_flow.polar()
+    # fig, data = parcial_flow.hydrogram(title="Hidrograma")
     #print(max_flow.peaks)
     #figg, data = flow.gantt(name='gantt')
     #fig_h, data = flow.plot_hydrogram('Hidro')
@@ -109,7 +109,8 @@ if __name__ == '__main__':
     #py.offline.plot(fig2, filename=os.path.join(path, 'graficos/rva.html'))
     """
     #py.offline.plot(figg, filename=os.path.join(path, 'graficos/gantt_test.html'))
-    py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro.html'))
+    #py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro.html'))
+    py.offline.plot(fig, filename=os.path.join(path, 'graficos/polar.html'))
     # py.offline.plot(fig_hp, filename=os.path.join(path, 'graficos/hidro_parcial.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/permanencia.html'))
 

@@ -513,7 +513,6 @@ class Parcial(object):
         #fig['data'][-1]['marker'].update(colorscale='Jet', colorbar=dict(title="m³/s", tickvals=df_spells.Complete,
         #                                                                 ticktext=df_spells.Name))
 
-        print(fig)
         fig['layout'].update(autosize=True)
         fig['layout']['xaxis'].update(title="Mês", range=[month_start, month_end], tickformat="%b")
         fig['layout']['yaxis'].update(title="Ano")

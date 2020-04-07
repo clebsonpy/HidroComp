@@ -5,6 +5,7 @@ from hydrocomp.statistic.genextre import Gev
 
 from hydrocomp.graphics.genextreme import GenExtreme
 from hydrocomp.graphics.hydrogram_annual import HydrogramAnnual
+from hydrocomp.graphics.polar import Polar
 
 
 class Maximum(object):
@@ -21,9 +22,9 @@ class Maximum(object):
         self.obj.month_start_year_hydrologic()
         data_by_year_hydrologic = self.obj.data.groupby(pd.Grouper(freq=self.obj.month_abr))
         max = data_by_year_hydrologic[self.station].max()
-        print(max)
+        idx = data_by_year_hydrologic[self.station].idxmax()
         max_vazao = max.values
-        idx_vazao = max.index.year
+        idx_vazao = idx.values
         self.peaks = pd.DataFrame(max_vazao, index=idx_vazao, columns=['peaks'])
         return self.peaks
 
@@ -51,10 +52,18 @@ class Maximum(object):
         return fig, data
 
     def hydrogram(self, save=False, width=None, height=None, size_text=None, title=None):
-        hydrogrm = HydrogramAnnual(data=self.obj.data[self.station], peaks=self.peaks, width=height, height=width,
+        _hydrogram = HydrogramAnnual(data=self.obj.data[self.station], peaks=self.peaks, width=height, height=width,
                                    size_text=size_text, title=title)
-        fig, data = hydrogrm.plot()
+        fig, data = _hydrogram.plot()
         if save:
             py.image.save_as(fig, filename='gráficos/hidrogama_maximas_anuais.png')
+
+        return fig, data
+
+    def polar(self, save=False, width=None, height=None, size_text=None, title=None):
+        _polar = Polar(df_events=self.peaks)
+        fig, data = _polar.plot()
+        if save:
+            py.image.save_as(fig, filename='graficos/polar_maximas_anuais.png')
 
         return fig, data

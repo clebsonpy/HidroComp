@@ -71,5 +71,5 @@ class Gantt(object):
                     index += 1
                 else:
                     pass
-            df_spells.to_csv("df_spells.csv")
+            #df_spells.to_csv("df_spells.csv")
         return df_spells, index, dates[0], dates[-1]
