@@ -55,7 +55,7 @@ class SeriesBuild(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def plot_hydrogram(self, title, save=False, width=None, height=None, size_text=None):
+    def hydrogram(self, title, save=False, width=None, height=None, size_text=None):
         pass
 
     def __start_and_end(self):

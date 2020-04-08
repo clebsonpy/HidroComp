@@ -1,8 +1,5 @@
-import plotly as py
 import plotly.graph_objs as go
 import pandas as pd
-import calendar
-import datetime
 
 
 class Polar(object):
@@ -10,27 +7,16 @@ class Polar(object):
     def __init__(self, df_events):
         self.df_events = df_events
 
-    @staticmethod
-    def julin(ano, day_julian):
-        diasMes = calendar.monthrange(ano, 2)[1]
-        if diasMes == 29:
-            data = datetime.datetime.strptime('2000%s' % day_julian, '%Y%j')
-        elif diasMes == 28:
-            if day_julian > 59:
-                data = datetime.datetime.strptime('2000%s' % (day_julian + 1), '%Y%j')
-            else:
-                data = datetime.datetime.strptime('2000%s' % day_julian, '%Y%j')
-        return data
-
     def year_polar(self):
         date_julian = list(map(int, pd.DatetimeIndex(self.df_events.index.values).strftime("%j")))
-        print(date_julian)
-        date_jul_float = [(i/366)*360 for i in date_julian]
-        self.df_events['DateJ'] = date_jul_float
-        print(self.df_events)
-        return self.df_events
+        date_julian_polar = [(i/366)*360 for i in date_julian]
+        df_events_julian = self.df_events.copy()
+        df_events_julian['DateJulian'] = date_julian
+        df_events_julian['DateJulianPolar'] = date_julian_polar
+        print(df_events_julian)
+        return df_events_julian
 
-    def plot(self):
+    def plot(self, width=None, height=None, size_text=None, title=None):
         dicMes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set",
                   "Out", "Nov", "Dez"]
         df_polar = self.year_polar()
@@ -38,7 +24,7 @@ class Polar(object):
 
         trace = go.Scatterpolar(
             r=df_polar.peaks.values,  # Vazao
-            theta=df_polar.DateJ.values,  # Data
+            theta=df_polar.DateJulianPolar.values,  # Data
             mode='markers',
             marker=dict(
                 color='rgb(27,158,119)',
@@ -49,6 +35,7 @@ class Polar(object):
                 opacity=0.7),
             text=df_polar.index.date,
             thetaunit='degrees',
+            name=title
         )
 
         data = [trace]
@@ -58,9 +45,11 @@ class Polar(object):
 
         layout = dict(
             angularaxis=angularX,
-            title='',
-            font=dict(family='Courier New, monospace', size=18, color='#7f7f7f'),
-            showlegend=False,
+            title=dict(text=title, x=0.5, xanchor='center', y=0.95, yanchor='top',
+                       font=dict(family='Courier New, monospace', color='#7f7f7f', size=size_text + 6)),
+            width=width, height=height,
+            font=dict(family='Courier New, monospace', size=size_text, color='#7f7f7f'),
+            showlegend=False, plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
             polar=dict(
                 radialaxis=dict(showticklabels=True),
                 angularaxis=dict(showticklabels=True, ticks='', tickvals=position, ticktext=dicMes)
