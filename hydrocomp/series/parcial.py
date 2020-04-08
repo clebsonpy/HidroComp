@@ -3,12 +3,12 @@ import math
 import scipy.stats as stat
 import plotly as py
 import plotly.figure_factory as FF
-import plotly.graph_objs as go
 
 from hydrocomp.graphics.gantt import Gantt
 from hydrocomp.graphics.genpareto import GenPareto
 from hydrocomp.graphics.hydrogram_parcial import HydrogramParcial
 from hydrocomp.graphics.boxplot import Boxplot
+from hydrocomp.graphics.polar import Polar
 
 
 class Parcial(object):
@@ -519,3 +519,17 @@ class Parcial(object):
         fig['layout']['xaxis']['rangeselector'] = {}
 
         return fig, df_spells
+
+    def polar(self, save=False, width=None, height=None, size_text=14, title=None):
+        if title is None:
+            if self.type_event == 'flood':
+                title = 'Máximas Parciais'
+            elif self.type_event == 'drought':
+                title = 'Mínimas Parciais'
+
+        _polar = Polar(df_events=self.peaks)
+        fig, data = _polar.plot(width=width, height=height, size_text=size_text, title=title)
+        if save:
+            py.image.save_as(fig, filename='graficos/polar_maximas_anuais.png')
+
+        return fig, data

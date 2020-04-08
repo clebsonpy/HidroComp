@@ -60,9 +60,9 @@ class Maximum(object):
 
         return fig, data
 
-    def polar(self, save=False, width=None, height=None, size_text=None, title=None):
+    def polar(self, save=False, width=None, height=None, size_text=14, title="Máximas Anuais"):
         _polar = Polar(df_events=self.peaks)
-        fig, data = _polar.plot()
+        fig, data = _polar.plot(width=width, height=height, size_text=size_text, title=title)
         if save:
             py.image.save_as(fig, filename='graficos/polar_maximas_anuais.png')
 
