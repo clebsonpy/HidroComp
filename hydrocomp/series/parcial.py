@@ -3,12 +3,12 @@ import math
 import scipy.stats as stat
 import plotly as py
 import plotly.figure_factory as FF
-import plotly.graph_objs as go
 
 from hydrocomp.graphics.gantt import Gantt
 from hydrocomp.graphics.genpareto import GenPareto
 from hydrocomp.graphics.hydrogram_parcial import HydrogramParcial
 from hydrocomp.graphics.boxplot import Boxplot
+from hydrocomp.graphics.polar import Polar
 
 
 class Parcial(object):
@@ -480,10 +480,10 @@ class Parcial(object):
             self.mvs()
             return self.plot_distribution(title, type_function)
 
-    def plot_hydrogram(self, title, save=False, width=None, height=None, size_text=None):
+    def hydrogram(self, title, save=False, width=None, height=None, size_text=None):
         hydrogram = HydrogramParcial(
             data=self.data, peaks=self.peaks,
-            threshold=self.threshold,
+            threshold=self.threshold, station=self.station,
             threshold_criterion=self.threshold_criterion, title=title, type_criterion=self.type_criterion, width=width,
             height=height, size_text=size_text)
         fig, data = hydrogram.plot()
@@ -513,10 +513,23 @@ class Parcial(object):
         #fig['data'][-1]['marker'].update(colorscale='Jet', colorbar=dict(title="m³/s", tickvals=df_spells.Complete,
         #                                                                 ticktext=df_spells.Name))
 
-        print(fig)
         fig['layout'].update(autosize=True)
         fig['layout']['xaxis'].update(title="Mês", range=[month_start, month_end], tickformat="%b")
         fig['layout']['yaxis'].update(title="Ano")
         fig['layout']['xaxis']['rangeselector'] = {}
 
         return fig, df_spells
+
+    def polar(self, save=False, width=None, height=None, size_text=14, title=None):
+        if title is None:
+            if self.type_event == 'flood':
+                title = 'Máximas Parciais'
+            elif self.type_event == 'drought':
+                title = 'Mínimas Parciais'
+
+        _polar = Polar(df_events=self.peaks)
+        fig, data = _polar.plot(width=width, height=height, size_text=size_text, title=title)
+        if save:
+            py.image.save_as(fig, filename='graficos/polar_maximas_anuais.png')
+
+        return fig, data

@@ -42,8 +42,8 @@ class Flow(SeriesBuild):
         return maximum
 
     def parcial(self, type_threshold, type_event, type_criterion, value_threshold, **kwargs):
-        parcial = Parcial(obj=self, type_threshold=type_threshold, type_event=type_event, type_criterion=type_criterion,
-                          value_threshold=value_threshold, **kwargs)
+        parcial = Parcial(station=self.station, obj=self, type_threshold=type_threshold, type_event=type_event,
+                          type_criterion=type_criterion, value_threshold=value_threshold, **kwargs)
 
         return parcial
 
@@ -75,7 +75,7 @@ class Flow(SeriesBuild):
         else:
             return None
 
-    def plot_hydrogram(self, title, save=False, width=None, height=None, size_text=None):
+    def hydrogram(self, title, save=False, width=None, height=None, size_text=None):
         if self.station is None:
             hydrogram = HydrogramClean(self.data, width=width, height=height, size_text=size_text,
                                        title=title, y_title='Vazão (m³/s)', x_title='Data')
@@ -86,14 +86,15 @@ class Flow(SeriesBuild):
             fig, data = hydrogram.plot()
         return fig, data
 
-    def hydrogram_year(self, title, width=None, height=None, size_text=None):
+    def hydrogram_year(self, title="", threshold=None, width=None, height=None, size_text=14):
         self.month_start_year_hydrologic()
         idx = [i for i in self.data.index if i.month == 2 and i.day == 29]
         data = self.data.drop(index=idx)
         data = data.groupby(pd.Grouper(freq=self.month_abr))
-        hydrogram = HydrogramYear(data, width=width, height=height, title=title, size_text=size_text)
-        fig = hydrogram.plot()
-        return fig
+        hydrogram = HydrogramYear(data=data, threshold=threshold, width=width, height=height, title=title,
+                                  size_text=size_text)
+        fig, data = hydrogram.plot()
+        return fig, data
 
     def permanence_curve(self, width=None, height=None, size_text=None, title=None):
         if self.station is None:

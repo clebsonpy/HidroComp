@@ -1,6 +1,6 @@
 import pandas as pd
 from hydrocomp.api_ana.api_biuld import ApiBiuld
-import geopandas
+#import geopandas
 
 
 class Inventario(ApiBiuld):
@@ -32,6 +32,4 @@ class Inventario(ApiBiuld):
             stations.at[code, 'Responsavel'] = station.find('ResponsavelCodigo').text
             stations.at[code, 'Operadora'] = station.find('OperadoraCodigo').text
             stations.at[code, 'Area'] = station.find('AreaDrenagem').text
-        gdf = geopandas.GeoDataFrame(
-            stations, geometry=geopandas.points_from_xy(stations.Longitude, stations.Latitude))
-        return gdf
+        return stations
