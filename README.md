@@ -9,7 +9,7 @@ The source code is currently hosted on GitHub at:
 https://github.com/clebsonpy/HydroComp
 
 Binary installers for the latest released version are available at the [Python
-package index](https://pypi.org/project/pandas) and on conda.
+package index](https://pypi.org/project/hydrocomp/) and on conda.
 
 ```sh
 pip install hydrocomp
@@ -19,7 +19,7 @@ pip install hydrocomp
 - [NumPy](https://www.numpy.org)
 - [Pandas](https://pandas.pydata.org/)
 
-See the [full installation instructions](https://pandas.pydata.org/pandas-docs/stable/install.html#dependencies) for minimum supported versions of required, recommended and optional dependencies.
+See the [full installation instructions](https://pypi.org/project/hydrocomp/) for minimum supported versions of required, recommended and optional dependencies.
 
 [MIT](LICENSE)
 
