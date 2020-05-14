@@ -23,9 +23,9 @@ class Ana(FileRead):
     source = "ANA"
     extension = "txt"
 
-    def __init__(self, path_file=os.getcwd(), type_data='FLUVIOMÉTRICO', consistence='', date_start='',
+    def __init__(self, path_file=None, station=None, type_data='FLUVIOMÉTRICO', consistence='1', date_start='',
                  date_end='', *args, **kwargs):
-        super().__init__(path_file, *args, **kwargs)
+        super().__init__(path_file=path_file, station=station, *args, **kwargs)
         self.consistence = consistence
         self.date_start = date_start
         self.date_end = date_end
@@ -110,11 +110,11 @@ class Ana(FileRead):
 
     def __excludes_duplicates(self, data):
         if len(data) > 0:
-            if self.consistence == 1:  # bruto_e_consistido
+            if self.consistence == '1':  # bruto_e_consistido
                 ordem = data.copy(deep=True)
                 eh_duplicata = ordem.reset_index(level=1, drop=True).index.duplicated(keep='last')
                 saida = data[~eh_duplicata]
-            elif self.consistence == 2:  # somente consistidos
+            elif self.consistence == '2':  # somente consistidos
                 try:
                     saida = data.iloc[data.index.isin([self.consistence], level=1)]
                 except KeyError:

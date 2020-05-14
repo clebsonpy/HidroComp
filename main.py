@@ -188,12 +188,12 @@ if __name__ == '__main__':
 
     # dados.data.to_csv("rio_ibicui_consistido.csv")
     # print(dados['1993'])
-    file = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_nat.csv'))
+    # file = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_nat.csv'))
     # dados = pd.read_csv(file, index_col=0, parse_dates=True)
     # print(dados)
     path = ''
     #file_rain = os.path.abspath(os.path.join('Medicoes', 'dados_inmet.csv'))
-    dados = pd.read_csv(file, ',', index_col=0, parse_dates=True).NAT
+    # dados = pd.read_csv(file, ',', index_col=0, parse_dates=True).NAT
     #rainfall = Rainfall(data=dados, source='INMET')
     #print(rainfall.data)
     #stations = ['76100000', '76310000', '76380000', '76440000', '76460000', '76750000', '76800000']
@@ -205,18 +205,39 @@ if __name__ == '__main__':
     #                     '835158', '835160', '835177', '835179', '835181', '835186', '835195', '835197', '835198',
     #                     '835203', '835209']
 
-    # stations = ['76077000', '76085000', '76100000', '76120000', '76251000', '76260000', '76300000', '76310000',
+    #stations = ['76077000', '76085000', '76100000', '76120000', '76251000', '76260000', '76300000', '76310000',
     #            '76360001', '76370000', '76380000', '76395000', '76431000', '76440000', '76460000', '76490000',
     #            '76500000', '76550000', '76560000', '76600000', '76630000', '76650000', '76700000', '76742000',
     #            '76745000', '76750000', '76800000', '76081000']
-    flow = Flow(data=dados, station='Xingó')
+
+    #stations = ['49775100', '49775000', '49760000', '49750000', '49743100', '49740000', '49723000', '49706000',
+    #            '49690000', '49670000', '49550000', '49390000', '49370000', '49369000', '49330000', '49208100']
+
+    stations = ['49151800', '49169000', '49270000', '49280000', '49295000', '49305000', '49310000', '49310040',
+                '49310060', '49310900', '49315000', '49330000', '49330001', '49330002', '49330990', '49340000',
+                '49340010', '49340020', '49340030', '49340040', '49340050', '49340060', '49340070', '49340080',
+                '49340100', '49341000', '49369000', '49370000', '49370001', '49370002', '49402000', '49402500',
+                '49047000', '49050002', '49180000', '49190000', '49200000', '49205000', '49208020', '49208030',
+                '49208040', '49208050', '49208055', '49208070', '49208080', '49208090', '49208100', '49209000',
+                '49209100', '49210000', '49210040', '49210045', '49210050', '49210060', '49210070', '49210075',
+                '49210080', '49210085', '49210090', '49211010', '49211020', '49211030', '49211040', '49215000',
+                '49330970', '49330980', '49340200', '49369600', '49385000', '49390000', '49550000', '49570000',
+                '49572000', '49598900', '49601000', '49610000', '49619000', '49620000', '49650000', '49658000',
+                '49660000', '49660001', '49660002', '49670000', '49681900', '49690000', '49695000', '49700000',
+                '49704000', '49704900', '49705000', '49705001', '49705005', '49706000', '49706250', '49720000',
+                '49723000', '49730000', '49731000', '49731100', '49731110', '49740000', '49740001', '49743000',
+                '49743100', '49744000', '49745000', '49746000', '49747000', '49750000', '49760000', '49775000',
+                '49775100', '49775110', '49775120', '49790000', '49790001']
+
+    flow = Flow(station=stations, source='ANA')
+    flow.data.to_csv('Dados-Vazao-SF-AL-SE.csv')
     # flow.date(date_end='31/12/1977', date_start='1/4/1968')
     # flow.station = '76100000'
     # max_flow = flow.maximum()
     # print(max_flow.obj.month_abr)
-    parcial_flow = flow.parcial(type_criterion='autocorrelation', type_threshold="stationary",
-                                type_event="drought", value_threshold=0.25, duration=6)
-    fig, data = parcial_flow.polar()
+    #parcial_flow = flow.parcial(type_criterion='autocorrelation', type_threshold="stationary",
+                            #    type_event="drought", value_threshold=0.25, duration=6)
+    fig, data = flow.gantt('Gantt')
     # print(max_flow.peaks)
     # fig, data = max_flow.polar()
     # fig, data = parcial_flow.hydrogram(title="Hidrograma")
@@ -280,7 +301,7 @@ if __name__ == '__main__':
     """
     #py.offline.plot(figg, filename=os.path.join(path, 'graficos/gantt_test.html'))
     #py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro.html'))
-    py.offline.plot(fig, filename=os.path.join(path, 'graficos/polar.html'))
+    py.offline.plot(fig, filename=os.path.join(path, 'graficos/gantt_nubia.html'))
     # py.offline.plot(fig_hp, filename=os.path.join(path, 'graficos/hidro_parcial.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/permanencia.html'))
 

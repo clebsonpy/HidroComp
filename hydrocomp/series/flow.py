@@ -15,8 +15,9 @@ from hydrocomp.graphics.permanence_curve import PermanenceCurve
 class Flow(SeriesBuild):
     type_data = 'FLUVIOMÉTRICO'
 
-    def __init__(self, data=None, path_file=os.getcwd(), source=None, *args, **kwargs):
-        super().__init__(data, path_file, source, type_data=self.type_data, *args, **kwargs)
+    def __init__(self, data=None, path_file=None, station=None, source=None, *args, **kwargs):
+        super().__init__(data=data, path=path_file, station=station, source=source,
+                         type_data=self.type_data, *args, **kwargs)
         self.month_num = 1
         self.month_abr = 'AS-JAN'
 

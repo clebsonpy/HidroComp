@@ -10,7 +10,7 @@ from abc import ABCMeta, abstractmethod
 
 class Files(metaclass=ABCMeta):
 
-    def __init__(self, path_file=os.getcwd()):
+    def __init__(self, path_file=None):
         self.path = path_file
 
     @abstractmethod

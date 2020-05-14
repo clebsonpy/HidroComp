@@ -12,7 +12,7 @@ from abc import abstractmethod, ABCMeta
 
 class FileRead(Files, metaclass=ABCMeta):
 
-    def __init__(self, path_file=os.getcwd(), *args, **kwargs):
+    def __init__(self, path_file=None, station=None, *args, **kwargs):
         try:
             if os.path.isfile(path_file):
                 self.path = os.path.dirname(path_file)
@@ -25,11 +25,11 @@ class FileRead(Files, metaclass=ABCMeta):
                 self.name = None
                 self.api = False
             else:
-                self.path = path_file
+                self.path = station
                 self.name = None
                 self.api = True
         except TypeError:
-            self.path = path_file
+            self.path = station
             self.name = None
             self.api = True
         super().__init__(path_file=self.path)

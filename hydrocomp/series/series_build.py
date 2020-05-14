@@ -15,25 +15,27 @@ class SeriesBuild(metaclass=ABCMeta):
         "ANA": ana.Ana
     }
 
-    def __init__(self, data=None, path=os.getcwd(), source=None, *args, **kwargs):
+    def __init__(self, data=None, path=None, station=None, source=None, *args, **kwargs):
         self.path = path
         if data is not None:
             try:
-                self.station = kwargs['station']
+                if type(station) == list():
+                    self.station = None
+                else:
+                    self.station = station
                 self.__return_df(data)
                 self.data = self.data.rename(columns={self.data.columns[0]: self.station}).sort_index()
             except KeyError:
                 self.station = None
                 self.__return_df(data)
         else:
-            try:
-                self.station = kwargs['station']
-            except KeyError:
+            if type(station) != list():
+                self.station = station
+            else:
                 self.station = None
             if source in self.sources:
                 self.source = source
-                read = self.sources[self.source](self.path, *args, **kwargs)
-                #self.station = read.name
+                read = self.sources[self.source](path_file=self.path, station=self.station, *args, **kwargs)
                 self.data = read.data.sort_index()
             else:
                 raise KeyError('Source not supported!')
