@@ -10,7 +10,7 @@ import calendar as ca
 import numpy as np
 import pandas as pd
 from hydrocomp.files.fileRead import FileRead
-from hydrocomp.api_ana.serie_temporal import SerieTemporal
+from api_ana.serie_temporal import SerieTemporal
 
 
 class Ana(FileRead):

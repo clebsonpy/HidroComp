@@ -229,7 +229,7 @@ if __name__ == '__main__':
                 '49743100', '49744000', '49745000', '49746000', '49747000', '49750000', '49760000', '49775000',
                 '49775100', '49775110', '49775120', '49790000', '49790001']
 
-    flow = Flow(station=stations, source='ANA')
+    flow = Flow(station='49330000', source='ANA')
     flow.data.to_csv('Dados-Vazao-SF-AL-SE.csv')
     # flow.date(date_end='31/12/1977', date_start='1/4/1968')
     # flow.station = '76100000'
@@ -301,7 +301,7 @@ if __name__ == '__main__':
     """
     #py.offline.plot(figg, filename=os.path.join(path, 'graficos/gantt_test.html'))
     #py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro.html'))
-    py.offline.plot(fig, filename=os.path.join(path, 'graficos/gantt_nubia.html'))
+    #py.offline.plot(fig, filename=os.path.join(path, 'graficos/gantt_nubia.html'))
     # py.offline.plot(fig_hp, filename=os.path.join(path, 'graficos/hidro_parcial.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/permanencia.html'))
 
