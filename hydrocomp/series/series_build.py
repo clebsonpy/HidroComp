@@ -21,10 +21,14 @@ class SeriesBuild(metaclass=ABCMeta):
             try:
                 if type(station) == list():
                     self.station = None
-                else:
+                    self.__return_df(data)
+                elif station is not None:
                     self.station = station
-                self.__return_df(data)
-                self.data = self.data.rename(columns={self.data.columns[0]: self.station}).sort_index()
+                    self.__return_df(data)
+                    self.data = self.data.rename(columns={self.data.columns[0]: self.station}).sort_index()
+                else:
+                    self.__return_df(data)
+                    self.station = self.data.columns[0]
             except KeyError:
                 self.station = None
                 self.__return_df(data)

@@ -19,6 +19,7 @@ class Maximum(object):
         self.dist_gev = Gev(self.peaks['peaks'].values)
 
     def __annual(self):
+        print(self.station)
         self.obj.month_start_year_hydrologic()
         data_by_year_hydrologic = self.obj.data.groupby(pd.Grouper(freq=self.obj.month_abr))
         max = data_by_year_hydrologic[self.station].max()
@@ -34,7 +35,7 @@ class Maximum(object):
         elif estimador == 'MVS':
             self.dist_gev.mvs()
 
-        p = 1 / period_return
+        p = 1-(1 / period_return)
         return self.dist_gev.values(p)
 
     def plot_distribution(self, title, estimador, type_function, save=False):

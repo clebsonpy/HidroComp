@@ -23,14 +23,14 @@ class Flow(SeriesBuild):
 
     def month_start_year_hydrologic(self):
         if self.station is None:
-            mean_month = [self.data.loc[self.data.index.month == i].mean() for i in range(1, 13)]
-            month_start_year_hydrologic = 1 + mean_month.index(min(mean_month))
+            mean_month = pd.DataFrame([self.data.loc[self.data.index.month == i].mean() for i in range(1, 13)])
+            month_start_year_hydrologic = 1 + mean_month.idxmin().values[0]
             month_start_year_hydrologic_abr = cal.month_abbr[month_start_year_hydrologic].upper()
             self.month_num = month_start_year_hydrologic
-            self.month_abr = month_start_year_hydrologic_abr
+            self.month_abr = 'AS-%s' % month_start_year_hydrologic_abr
         else:
-            mean_month = [self.data[self.station].loc[self.data.index.month == i].mean() for i in range(1, 13)]
-            month_start_year_hydrologic = 1 + mean_month.index(min(mean_month))
+            mean_month = pd.DataFrame([self.data[self.station].loc[self.data.index.month == i].mean() for i in range(1, 13)])
+            month_start_year_hydrologic = 1 + mean_month.idxmin().values[0]
             month_start_year_hydrologic_abr = cal.month_abbr[month_start_year_hydrologic].upper()
             self.month_num = month_start_year_hydrologic
             self.month_abr = 'AS-%s' % month_start_year_hydrologic_abr
