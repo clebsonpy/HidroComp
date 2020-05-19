@@ -26,9 +26,12 @@ class SeriesBuild(metaclass=ABCMeta):
                     self.station = station
                     self.__return_df(data)
                     self.data = self.data.rename(columns={self.data.columns[0]: self.station}).sort_index()
-                else:
+                elif len(data.columns) == 1:
                     self.__return_df(data)
                     self.station = self.data.columns[0]
+                else:
+                    self.__return_df(data)
+                    self.station = None
             except KeyError:
                 self.station = None
                 self.__return_df(data)

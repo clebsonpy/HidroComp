@@ -10,6 +10,7 @@ from hydrocomp.iha.graphics import Graphics
 from hydrocomp.series.flow import Flow
 from hydrocomp.series.height import Height
 from hydrocomp.series.rainfall import Rainfall
+from api_ana.serie_temporal import SerieTemporal
 
 if __name__ == '__main__':
     ini = timeit.default_timer()
@@ -184,9 +185,8 @@ if __name__ == '__main__':
 
     # dados.data.to_csv("rio_ibicui_consistido.csv")
     # print(dados['1993'])
-    #file = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_nat.csv'))
-    #dados = pd.read_csv(file, index_col=0, parse_dates=True)
-    # print(dados)
+    file = os.path.abspath(os.path.join('Medicoes', 'PIMENTAL.csv'))
+    dados_nat = pd.read_csv(file, index_col=0, parse_dates=True)
     path = ''
     #file_rain = os.path.abspath(os.path.join('Medicoes', 'dados_inmet.csv'))
     # dados = pd.read_csv(file, ',', index_col=0, parse_dates=True).NAT
@@ -224,8 +224,16 @@ if __name__ == '__main__':
     #           '49723000', '49730000', '49731000', '49731100', '49731110', '49740000', '49740001', '49743000',
     #           '49743100', '49744000', '49745000', '49746000', '49747000', '49750000', '49760000', '49775000',
     #           '49775100', '49775110', '49775120', '49790000', '49790001']
-    file = 'C:\\Users\\Clebsonpy\\Downloads\\Vazões_Diárias_1931_2018.xlsx'
-    flow = Flow(path_file=file, source='ONS')
+    #flow_obs = Flow(station='18850000', source='ANA')
+    #dados = dados_nat.combine_first(flow_obs.data)
+    flow = Flow(data=dados_nat, station='PIMENTAL')
+    maximum = flow.maximum()
+    #fig, data = maximum.hydrogram(title="Máximas Anuais")
+    mag = maximum.magnitude(period_return=2, estimador='MML')
+    print(mag)
+    fig, data = flow.hydrogram_year(threshold=mag)
+    #fig, data = flow.hydrogram("Hidrograma")
+    #fig, data = flow_nat.hydrogram(title="Belo Monte natural")
     # i in flow.data:
     #    print(i)
     # flow.data.to_csv("Medicoes/PIMENTAL.csv")
@@ -299,8 +307,9 @@ if __name__ == '__main__':
     #py.offline.plot(fig2, filename=os.path.join(path, 'graficos/rva.html'))
     """
     #py.offline.plot(figg, filename=os.path.join(path, 'graficos/gantt_test.html'))
-    #py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro.html'))
+    #py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro-belo-monte.html'))
     #py.offline.plot(fig, filename=os.path.join(path, 'graficos/gantt_nubia.html'))
+    py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro_anual.html'))
     # py.offline.plot(fig_hp, filename=os.path.join(path, 'graficos/hidro_parcial.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/permanencia.html'))
 

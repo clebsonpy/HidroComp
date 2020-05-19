@@ -56,7 +56,7 @@ class HydrogramClean(HydrogramBuild):
         visible = [False] * len(self.data.columns)
         for i in self.data:
             visible[aux] = True
-            data.append(self._plot_one(pd.DataFrame(self.data[i]), name=i))
+            data.append(self._plot_one(pd.DataFrame(self.data[i]), station=i))
 
             buttons.append(
                 dict(label=i,

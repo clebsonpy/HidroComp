@@ -6,9 +6,10 @@ from hydrocomp.graphics.hydrogram_build import HydrogramBuild
 
 class HydrogramAnnual(HydrogramBuild):
 
-    def __init__(self, data, peaks, width=None, height=None, size_text=None, title=None):
-        self.data = data
+    def __init__(self, data, peaks, width=None, height=None, size_text=None, title=None, station=None):
+        self.data = pd.DataFrame(data)
         self.peaks = peaks
+        self.station = station
         super().__init__(width=width, height=height, size_text=size_text, title=title)
 
     def plot(self):
@@ -22,7 +23,7 @@ class HydrogramAnnual(HydrogramBuild):
                       )
 
         data = list()
-        data.append(self._plot_one(data=self.data, name='Pico', color='rgb(0,0,0)'))
+        data.append(self._plot_one(data=self.data, station=self.station, color='rgb(0,0,0)'))
         data.append(self._plot_event_peaks())
 
         fig = dict(data=data, layout=layout)

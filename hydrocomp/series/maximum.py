@@ -19,7 +19,6 @@ class Maximum(object):
         self.dist_gev = Gev(self.peaks['peaks'].values)
 
     def __annual(self):
-        print(self.station)
         self.obj.month_start_year_hydrologic()
         data_by_year_hydrologic = self.obj.data.groupby(pd.Grouper(freq=self.obj.month_abr))
         max = data_by_year_hydrologic[self.station].max()
@@ -54,7 +53,7 @@ class Maximum(object):
 
     def hydrogram(self, save=False, width=None, height=None, size_text=None, title=None):
         _hydrogram = HydrogramAnnual(data=self.obj.data[self.station], peaks=self.peaks, width=height, height=width,
-                                   size_text=size_text, title=title)
+                                     size_text=size_text, title=title, station=self.station)
         fig, data = _hydrogram.plot()
         if save:
             py.image.save_as(fig, filename='gráficos/hidrogama_maximas_anuais.png')
