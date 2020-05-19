@@ -1,6 +1,5 @@
 import pandas as pd
 import plotly as py
-import scipy.stats as stat
 from hydrocomp.statistic.genextre import Gev
 
 from hydrocomp.graphics.genextreme import GenExtreme
@@ -8,7 +7,7 @@ from hydrocomp.graphics.hydrogram_annual import HydrogramAnnual
 from hydrocomp.graphics.polar import Polar
 
 
-class Maximum(object):
+class Minimum(object):
     distribution = 'GEV'
 
     def __init__(self, obj, station):
@@ -20,11 +19,11 @@ class Maximum(object):
     def __annual(self):
         self.obj.month_start_year_hydrologic()
         data_by_year_hydrologic = self.obj.data.groupby(pd.Grouper(freq=self.obj.month_abr))
-        max = data_by_year_hydrologic[self.station].max()
-        idx = data_by_year_hydrologic[self.station].idxmax()
-        max_vazao = max.values
+        min = data_by_year_hydrologic[self.station].min()
+        idx = data_by_year_hydrologic[self.station].idxmin()
+        min_vazao = min.values
         idx_vazao = idx.values
-        self.peaks = pd.DataFrame(max_vazao, index=idx_vazao, columns=['peaks'])
+        self.peaks = pd.DataFrame(min_vazao, index=idx_vazao, columns=['peaks'])
         return self.peaks
 
     def magnitude(self, period_return, estimador):
