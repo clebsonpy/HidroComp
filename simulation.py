@@ -31,16 +31,12 @@ class Simulation:
         """
         maximum = self.data.maximum()
         peaks = maximum.peaks
-        mag = maximum.magnitude(period_return=1.01, estimador='MML')
+        mag = maximum.magnitude(period_return=10, estimador='MML')
         print(mag)
 
     def rule_02(self):
         """
-        - Antecipação do pulso da regra 4
-        - Regra4: Regime do EIA com pulso de 8000 m³.s-1
-        - Maior produção de energia quando o sul e sudeste do país apresentam diminuição de produção
-
-        :param:
+        - ANA
         :return:
         """
         pass
@@ -58,15 +54,6 @@ class Simulation:
         """
         - Q90
         - Estudos de viabilidades
-
-        :return:
-        """
-        pass
-
-    def rule_05(self):
-        """
-        - EIA
-        - Pulso de 8000 quando não tiver ocorrido 8000 no ano anterior. Se tiver, pulso de 4000
 
         :return:
         """

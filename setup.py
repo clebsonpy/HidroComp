@@ -15,7 +15,7 @@ install_requires = [r.strip() for r in require]
 
 setup(
     name='hydrocomp',
-    version='0.1.5',
+    version='0.1.6',
     include_package_data=True,
     pacotes=find_packages('src'),
     long_description=long_description,
