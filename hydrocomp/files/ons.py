@@ -13,7 +13,7 @@ import numpy as np
 class Ons(FileRead):
 
     source = "ONS"
-    extension = "xls"
+    extension = "xlsx"
 
     def __init__(self, path_file=os.getcwd(), type_data='FLUVIOMÉTRICO', station=None, *args, **kwargs):
         super().__init__(path_file)
@@ -38,7 +38,8 @@ class Ons(FileRead):
         file_ons = os.path.join(self.path, self.name+'.'+Ons.extension)
         data_flow = pd.read_excel(file_ons, shettname='Total', header=0, skiprows=5, index_col=0)
         data_flow.drop(np.NaN, inplace=True)
-
+        for i in data_flow:
+            print(i)
         aux = []
         dic = {'jan': '1', 'fev': '2', 'mar': '3', 'abr': '4', 'mai': '5',
                'jun': '6', 'jul': '7', 'ago': '8', 'set': '9', 'out': '10',
