@@ -31,7 +31,7 @@ class Simulation:
         """
         maximum = self.data.maximum()
         peaks = maximum.peaks
-        mag = maximum.magnitude(period_return=10, estimador='MML')
+        mag = maximum.magnitude(period_return=1.05, estimador='MML')
         print(mag)
 
     def rule_02(self):

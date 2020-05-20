@@ -1,6 +1,6 @@
-api-hydro-ana
-lmoments3>=1.0.1
-numpy>=1.14.2
+ana-hydro-api
+lmoments3=>1.0.1
+numpy=>1.14.2
 pandas>=0.25.1
 colorlover>=0.3.0
 Pillow>=6.2.1
@@ -9,7 +9,7 @@ pytz>=2018.4
 PyYAML>=5.1.2
 pyzmq>=18.0.1
 requests>=2.18.4
-scipy>=1.0.1
+scipy=>1.0.1
 six>=1.11.0
 statsmodels>=0.10.1
 wrapt>=1.11.2

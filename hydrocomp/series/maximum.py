@@ -27,6 +27,15 @@ class Maximum(object):
         self.peaks = pd.DataFrame(max_vazao, index=idx_vazao, columns=['peaks'])
         return self.peaks
 
+    def period_return(self, magnitude, estimador):
+        if estimador == 'MML':
+            self.dist_gev.mml()
+        elif estimador == 'MVS':
+            self.dist_gev.mvs()
+
+        p = self.dist_gev.probs(magnitude)
+        return 1/(1-p)
+
     def magnitude(self, period_return, estimador):
         if estimador == 'MML':
             self.dist_gev.mml()
