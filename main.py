@@ -225,20 +225,34 @@ if __name__ == '__main__':
     #           '49723000', '49730000', '49731000', '49731100', '49731110', '49740000', '49740001', '49743000',
     #           '49743100', '49744000', '49745000', '49746000', '49747000', '49750000', '49760000', '49775000',
     #           '49775100', '49775110', '49775120', '49790000', '49790001']
-    #flow_obs = Flow(station='18850000', source='ANA')
+    #flow = Flow(station='18850000', source='ANA')
     #dados = dados_nat.combine_first(flow_obs.data)
     #flow_obs = Flow(station='49330000', source="ANA")
     #fig_obs, data_obs = flow_obs.gantt("Gantt")
 
-    file = os.path.abspath(os.path.join('Medicoes', 'dadosDissetacao.csv'))
-    dados = pd.read_csv(file, ',', index_col=0, parse_dates=True)
-    #dados = dados.combine_first(flow_obs.data)
+    file = os.path.abspath(os.path.join('Medicoes', 'dadosDissertacao.csv'))
+    #file_nat = "E:\\Vazões_Diárias_1931_2018.xlsx"
+    dados = pd.DataFrame(pd.read_csv(file, ',', index_col=0, parse_dates=True).Observado)
+    #flow_nat = Flow(path_file=file_nat, source="ONS", station="XINGO")
+    #dados = flow_nat.data.combine_first(flow_obs.data)
     flow = Flow(data=dados)
+    flow.date(date_start="01/01/1995", date_end="31/12/2018")
+    print(flow)
+    #maximum = flow.maximum()
+    #minimum = flow.minimum()
+    #print(minimum.peaks.max().values)
+    #print(maximum.peaks.min().values)
+    #peaks_min = maximum.peaks.min().values
+    #peaks_max = minimum.peaks.max().values
+    #print(peaks_min)
+    # print(flow.get_year("2009").get_month(12))
     #flow.data = flow.data.rename(columns={"XINGO": "Natural", "49330000": "Observado"})
-    fig, data = flow.gantt(title="Gantt")
+    #flow.data.to_csv("Medicoes/dadosDissertacao.csv")
+    #fig, data = flow.gantt(title="Gantt")
+    #print(data)
     #fig.write_image("graficos/gantt.pdf")
     #fig, data = maximum.hydrogram(title="Máximas Anuais")
-    # fig, data = flow.hydrogram_year("Hidrograma Anual")
+    fig, data = flow.hydrogram_year("Hidrograma Anual", threshold=[2919.67, 945])
     #fig, data = flow_nat.hydrogram(title="Belo Monte natural")
     # i in flow.data:
     #    print(i)
@@ -311,7 +325,7 @@ if __name__ == '__main__':
     # fig, data = parcial.plot_hydrogram('Parcial')
     #py.offline.plot(fig2, filename=os.path.join(path, 'graficos/rva.html'))
     """
-    py.offline.plot(fig, filename=os.path.join(path, 'graficos/gantt_test.html'))
+    py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro_disser.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro-belo-monte.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/gantt_nubia.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro_anual.html'))

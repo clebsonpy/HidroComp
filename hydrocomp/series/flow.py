@@ -7,6 +7,7 @@ from hydrocomp.statistic.pearson3 import Pearson3
 from hydrocomp.series.series_build import SeriesBuild
 from hydrocomp.series.parcial import Parcial
 from hydrocomp.series.maximum import Maximum
+from hydrocomp.series.minimum import Minimum
 from hydrocomp.graphics.hydrogram_clean import HydrogramClean
 from hydrocomp.graphics.hydrogram_by_year import HydrogramYear
 from hydrocomp.graphics.permanence_curve import PermanenceCurve
@@ -37,6 +38,11 @@ class Flow(SeriesBuild):
             self.month_abr = 'AS-%s' % month_start_year_hydrologic_abr
 
         return self.month_num, self.month_abr
+
+    def minimum(self):
+        minimum = Minimum(obj=self, station=self.station)
+
+        return minimum
 
     def maximum(self):
         maximum = Maximum(obj=self, station=self.station)
