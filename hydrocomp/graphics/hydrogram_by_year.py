@@ -97,4 +97,5 @@ class HydrogramYear(HydrogramBuild):
                 '%s/%s/%s' % (i.month, i.day, 1999)) for i in index]
             serie = pd.Series(aux[0], index=indexN, name=key.year)
             list_year.append(serie)
-        return pd.DataFrame(list_year).T
+        print(list_year)
+        return pd.DataFrame(list_year)

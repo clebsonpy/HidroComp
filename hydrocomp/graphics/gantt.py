@@ -37,7 +37,6 @@ class Gantt(object):
         if len(data_peaks) > 0:
 
             for groups in data_peaks.groupby(pd.Grouper(freq=month_water[1])):
-
                 for i in groups[1].index:
 
                     #df_spells.at[index, 'Complete'] = 100 - (
@@ -49,7 +48,6 @@ class Gantt(object):
                     df_spells.at[index, 'Name'] = data_peaks['peaks'].loc[i]
                     df_spells.at[index, 'Task'] = int(groups[0].year)
                     len_days = len(pd.date_range(start, end))
-
                     for date in dates:
 
                         if date.month == start.month and date.day == start.day:

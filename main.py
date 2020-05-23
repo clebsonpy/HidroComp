@@ -1,6 +1,7 @@
 import os
 
 import plotly as py
+import plotly.figure_factory as FF
 import timeit
 
 import pandas as pd
@@ -185,8 +186,8 @@ if __name__ == '__main__':
 
     # dados.data.to_csv("rio_ibicui_consistido.csv")
     # print(dados['1993'])
-    file = os.path.abspath(os.path.join('Medicoes', 'PIMENTAL.csv'))
-    dados_nat = pd.read_csv(file, index_col=0, parse_dates=True)
+    #file = os.path.abspath(os.path.join('Medicoes', 'PIMENTAL.csv'))
+    #dados_nat = pd.read_csv(file, index_col=0, parse_dates=True)
     path = ''
     #file_rain = os.path.abspath(os.path.join('Medicoes', 'dados_inmet.csv'))
     # dados = pd.read_csv(file, ',', index_col=0, parse_dates=True).NAT
@@ -226,17 +227,21 @@ if __name__ == '__main__':
     #           '49775100', '49775110', '49775120', '49790000', '49790001']
     #flow_obs = Flow(station='18850000', source='ANA')
     #dados = dados_nat.combine_first(flow_obs.data)
-    flow = Flow(data=dados_nat, station='PIMENTAL')
-    maximum = flow.maximum()
+    #flow_obs = Flow(station='49330000', source="ANA")
+    #fig_obs, data_obs = flow_obs.gantt("Gantt")
+
+    file = os.path.abspath(os.path.join('Medicoes', 'dadosDissetacao.csv'))
+    dados = pd.read_csv(file, ',', index_col=0, parse_dates=True)
+    #dados = dados.combine_first(flow_obs.data)
+    flow = Flow(data=dados)
+    #flow.data = flow.data.rename(columns={"XINGO": "Natural", "49330000": "Observado"})
+    fig, data = flow.gantt(title="Gantt")
+    #fig.write_image("graficos/gantt.pdf")
     #fig, data = maximum.hydrogram(title="Máximas Anuais")
-    mag = maximum.magnitude(period_return=2, estimador='MML')
-    print(mag)
-    fig, data = flow.hydrogram_year(threshold=mag)
-    #fig, data = flow.hydrogram("Hidrograma")
+    # fig, data = flow.hydrogram_year("Hidrograma Anual")
     #fig, data = flow_nat.hydrogram(title="Belo Monte natural")
     # i in flow.data:
     #    print(i)
-    # flow.data.to_csv("Medicoes/PIMENTAL.csv")
     #flow.data.to_csv('Dados-Vazao-SF-AL-SE.csv')
     # flow.date(date_end='31/12/1977', date_start='1/4/1968')
     # flow.station = '76100000'
@@ -306,7 +311,7 @@ if __name__ == '__main__':
     # fig, data = parcial.plot_hydrogram('Parcial')
     #py.offline.plot(fig2, filename=os.path.join(path, 'graficos/rva.html'))
     """
-    # py.offline.plot(figg, filename=os.path.join(path, 'graficos/gantt_test.html'))
+    py.offline.plot(fig, filename=os.path.join(path, 'graficos/gantt_test.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro-belo-monte.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/gantt_nubia.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro_anual.html'))
