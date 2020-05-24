@@ -1,5 +1,5 @@
 # hydrocomp: Package Python for hydrological data analysis
-https://zenodo.org/badge/129845167.svg
+[![DOI](https://zenodo.org/badge/129845167.svg)](https://zenodo.org/badge/latestdoi/129845167)
 
 ## What is it?
 
