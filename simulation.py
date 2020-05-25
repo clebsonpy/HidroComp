@@ -1,4 +1,5 @@
 from api_ana.serie_temporal import SerieTemporal
+import plotly as py
 from hydrocomp.series.flow import Flow
 import pandas as pd
 
@@ -9,10 +10,10 @@ class Simulation:
         self.mxt_flow = mxt_flow
 
     def flows(self, flow, env_flow):
-        if env_flow > flow:
+        if env_flow >= flow:
             tvr_flow = flow
             turb_flow = 0
-        elif 0 < (flow-env_flow) < self.mxt_flow:
+        elif 0 <= (flow-env_flow) < self.mxt_flow:
             tvr_flow = env_flow
             turb_flow = flow - env_flow
         else: #(flow - env_flow) > self.mxt_flow:
@@ -23,7 +24,7 @@ class Simulation:
 
     def rule_01(self):
         """
-        - Natural com Qmax de 1 ano (1997-98)
+        - Natural com menor Qmax de 1 ano (2016-17)
         - Situação crítica para algumas espécies, mas que já foi suportada
 
         :param:
@@ -31,15 +32,48 @@ class Simulation:
         """
         maximum = self.data.maximum()
         peaks = maximum.peaks
-        mag = maximum.magnitude(period_return=1.05, estimador='MML')
-        print(mag)
+        env_flow = peaks.min().values[0]
+        idx = []
+        values_tvr = []
+        values_turb = []
+        for i in self.data.data.index:
+            values = self.flows(self.data.data.loc[i].values[0], env_flow)
+            values_tvr.append(values[0])
+            values_turb.append((values[1]))
+            idx.append(i)
+        return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR"),
+                             pd.Series(data=values_turb, index=idx, name="TURB"), self.data.data["PIMENTAL"]]).T
 
     def rule_02(self):
         """
         - ANA
         :return:
         """
-        pass
+        A = [1100, 1600, 2500, 4000, 1800, 1200, 1000, 900, 750, 700, 800, 900]
+        B = [1100, 1600, 4000, 8000, 4000, 2000, 1200, 900, 750, 700, 800, 900]
+
+        idx = []
+        values_tvr = []
+        values_turb = []
+        env = "B"
+        year = self.data.date_start.year
+        env_flow = A
+        for i in self.data.data.index:
+            if i.year != year:
+                if env == "A":
+                    env_flow = B
+                else:
+                    env_flow = A
+                values = self.flows(self.data.data.loc[i].values[0], env_flow[i.month - 1])
+            else:
+                env_flow = env_flow
+                values = self.flows(self.data.data.loc[i].values[0], env_flow[i.month - 1])
+
+            values_tvr.append(values[0])
+            values_turb.append((values[1]))
+            idx.append(i)
+        return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR"),
+                             pd.Series(data=values_turb, index=idx, name="TURB"), self.data.data["PIMENTAL"]]).T
 
     def rule_03(self):
         """
@@ -57,11 +91,31 @@ class Simulation:
 
         :return:
         """
-        pass
+        env_flow = self.data.quantile(0.1)
+        idx = []
+        values_tvr = []
+        values_turb = []
+        for i in self.data.data.index:
+            values = self.flows(self.data.data.loc[i].values[0], env_flow[0])
+            values_tvr.append(values[0])
+            values_turb.append((values[1]))
+            idx.append(i)
+        return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR"),
+                             pd.Series(data=values_turb, index=idx, name="TURB"), self.data.data["PIMENTAL"]]).T
 
 
 if __name__ == "__main__":
-    params = {'codEstacao': '18850000', 'tipoDados': '3', 'nivelConsistencia': '1'}
-    data = Flow(station='18850000', source='ANA')
-    simulation = Simulation(data=data, mxt_flow=1500)
-    simulation.rule_01()
+    file = "Medicoes/PIMENTAL.csv"
+    data = pd.read_csv(file, ',', index_col=0, parse_dates=True)
+    flow = Flow(data=data, source='ONS', station="PIMENTAL")
+    month = flow.month_start_year_hydrologic()
+    date_start = flow.date_start.replace(day=1, month=month[2])
+    date_end = flow.date_end.replace(day=28, month=month[2]-1)
+    flow.date(date_start=date_start, date_end=date_end)
+
+    simulation = Simulation(data=flow, mxt_flow=15000)
+    Q = simulation.rule_04()
+    flow_sim = Flow(data=Q)
+    fig, data = flow_sim.hydrogram(title="Hidrograma")
+
+    py.offline.plot(fig, filename='graficos/hidro_sim4.html')

@@ -16,11 +16,14 @@ class HydrogramAnnual(HydrogramBuild):
         bandxaxis = go.layout.XAxis(title="Data")
         bandyaxis = go.layout.YAxis(title="Vazão(m³/s)")
 
-        layout = dict(title=self.title,
-                      width=self.width, height=self.height,
-                      xaxis=bandxaxis, yaxis=bandyaxis,
-                      font=dict(family='Time New Roman', size=self.size_text, color='rgb(0,0,0)')
-                      )
+        layout = dict(
+            title=dict(text=self.title, x=0.5, xanchor='center', y=0.95, yanchor='top',
+                       font=dict(family='Courier New, monospace', size=self.size_text + 10)),
+            xaxis=bandxaxis,
+            yaxis=bandyaxis,
+            width=self.width, height=self.height,
+            font=dict(family='Courier New, monospace', size=self.size_text, color='#7f7f7f'),
+            showlegend=True, plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
 
         data = list()
         data.append(self._plot_one(data=self.data, station=self.station, color='rgb(0,0,0)'))
