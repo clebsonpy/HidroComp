@@ -17,11 +17,14 @@ class HydrogramClean(HydrogramBuild):
 
         if len(self.data.columns.values) == 1:
 
-            layout = dict(title=self.title,
-                          width=self.width, height=self.height,
-                          xaxis=bandxaxis, yaxis=bandyaxis,
-                          font=dict(family='Time New Roman', size=self.size_text, color='rgb(0,0,0)')
-                          )
+            layout = dict(
+                title=dict(text=self.title, x=0.5, xanchor='center', y=0.95, yanchor='top',
+                           font=dict(family='Courier New, monospace', size=self.size_text + 10)),
+                xaxis=bandxaxis,
+                yaxis=bandyaxis,
+                width=self.width, height=self.height,
+                font=dict(family='Courier New, monospace', size=self.size_text, color='#7f7f7f'),
+                showlegend=True, plot_bgcolor='rgba(0,0,0)', paper_bgcolor='rgba(0,0,0)')
 
             data = list()
             data.append(self._plot_one(self.data, self.title, color='rgb(0,0,0)'))
@@ -32,10 +35,14 @@ class HydrogramClean(HydrogramBuild):
 
             name = self.title
             data, buttons = self._plot_multi()
-            layout = dict(title=name,
-                          width=self.width, height=self.height,
-                          xaxis=bandxaxis, yaxis=bandyaxis,
-                          font=dict(family='Time New Roman', size=self.size_text, color='rgb(0,0,0)'),
+            layout = dict(
+                title=dict(text=self.title, x=0.5, xanchor='center', y=0.95, yanchor='top',
+                           font=dict(family='Courier New, monospace', size=self.size_text + 10)),
+                xaxis=bandxaxis,
+                yaxis=bandyaxis,
+                width=self.width, height=self.height,
+                font=dict(family='Courier New, monospace', size=self.size_text, color='rgb(0,0,0)'),
+                showlegend=True, plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF',
                           updatemenus=[
                               go.layout.Updatemenu(
                                   active=0,

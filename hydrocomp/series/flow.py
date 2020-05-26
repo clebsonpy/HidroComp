@@ -87,7 +87,7 @@ class Flow(SeriesBuild):
         else:
             return None
 
-    def hydrogram(self, title, save=False, width=None, height=None, size_text=None):
+    def hydrogram(self, title, save=False, width=None, height=None, size_text=16):
         print(self.station)
         if self.station is None:
             hydrogram = HydrogramClean(self.data, width=width, height=height, size_text=size_text,
@@ -99,7 +99,7 @@ class Flow(SeriesBuild):
             fig, data = hydrogram.plot()
         return fig, data
 
-    def hydrogram_year(self, title="", threshold=None, width=None, height=None, size_text=14):
+    def hydrogram_year(self, title="", threshold=None, width=None, height=None, size_text=16):
         self.month_start_year_hydrologic()
         idx = [i for i in self.data.index if i.month == 2 and i.day == 29]
         data = self.data.drop(index=idx)

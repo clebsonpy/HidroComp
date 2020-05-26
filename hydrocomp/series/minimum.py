@@ -49,7 +49,7 @@ class Minimum(object):
                                                                        estimador))
         return fig, data
 
-    def hydrogram(self, save=False, width=None, height=None, size_text=14, title=None):
+    def hydrogram(self, save=False, width=None, height=None, size_text=16, title=None):
         _hydrogram = HydrogramAnnual(data=self.obj.data[self.station], peaks=self.peaks, width=height, height=width,
                                      size_text=size_text, title=title, station=self.station)
         fig, data = _hydrogram.plot()

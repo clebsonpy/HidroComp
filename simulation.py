@@ -41,8 +41,9 @@ class Simulation:
             values_tvr.append(values[0])
             values_turb.append((values[1]))
             idx.append(i)
-        return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR"),
-                             pd.Series(data=values_turb, index=idx, name="TURB"), self.data.data["PIMENTAL"]]).T
+        return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR-01"),
+                             pd.Series(data=values_turb, index=idx, name="TURB-01"), self.data.data["Natural"]]).T
+
 
     def rule_02(self):
         """
@@ -72,8 +73,8 @@ class Simulation:
             values_tvr.append(values[0])
             values_turb.append((values[1]))
             idx.append(i)
-        return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR"),
-                             pd.Series(data=values_turb, index=idx, name="TURB"), self.data.data["PIMENTAL"]]).T
+        return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR-02"),
+                             pd.Series(data=values_turb, index=idx, name="TURB-02"), self.data.data["Natural"]]).T
 
     def rule_03(self):
         """
@@ -100,22 +101,29 @@ class Simulation:
             values_tvr.append(values[0])
             values_turb.append((values[1]))
             idx.append(i)
-        return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR"),
-                             pd.Series(data=values_turb, index=idx, name="TURB"), self.data.data["PIMENTAL"]]).T
+        return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR-04"),
+                             pd.Series(data=values_turb, index=idx, name="TURB-04"), self.data.data["Natural"]]).T
 
 
 if __name__ == "__main__":
     file = "Medicoes/PIMENTAL.csv"
     data = pd.read_csv(file, ',', index_col=0, parse_dates=True)
     flow = Flow(data=data, source='ONS', station="PIMENTAL")
+    flow.station = "Natural"
+    flow.data = flow.data.rename(columns={"PIMENTAL": "Natural"})
     month = flow.month_start_year_hydrologic()
     date_start = flow.date_start.replace(day=1, month=month[2])
     date_end = flow.date_end.replace(day=28, month=month[2]-1)
     flow.date(date_start=date_start, date_end=date_end)
 
     simulation = Simulation(data=flow, mxt_flow=15000)
-    Q = simulation.rule_04()
-    flow_sim = Flow(data=Q)
+    #Q1 = simulation.rule_01()
+    #Q2 = simulation.rule_02()
+    #Q = Q1.combine_first(Q2)
+    Q4 = simulation.rule_04()
+    #Q = Q.combine_first(Q4)
+
+    flow_sim = Flow(data=Q4)
     fig, data = flow_sim.hydrogram(title="Hidrograma")
 
-    py.offline.plot(fig, filename='graficos/hidro_sim4.html')
+    py.offline.plot(fig, filename='graficos/hidro_sim2.html')
