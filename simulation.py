@@ -44,7 +44,6 @@ class Simulation:
         return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR-01"),
                              pd.Series(data=values_turb, index=idx, name="TURB-01"), self.data.data["Natural"]]).T
 
-
     def rule_02(self):
         """
         - ANA

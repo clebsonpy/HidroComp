@@ -30,8 +30,8 @@ class IHA:
         """
         self.source = kwargs['source']
         self.flow = Flow(data, source=self.source, station=station)
-        self.status = status
         self.station = self.get_station(station)
+        self.status = status
         self.month_start = self.get_month_start(month_water)
         self.date_start = pd.to_datetime(date_start, dayfirst=True)
         self.date_end = pd.to_datetime(date_end, dayfirst=True)
@@ -232,8 +232,10 @@ class IHA:
 
         dic_zero = {i[0].year: i[1].loc[i[1][self.station].values == 0].sum()
                     for i in self.flow.data.groupby(pd.Grouper(freq=self.month_start[1]))}
+        serie_dict_zero = pd.Series(data=dic_zero, name='Number of zero days')
+        serie_dict_zero.loc[serie_dict_zero.isnull()] = 0
 
-        magn_and_duration = aver_data.combine_first(pd.DataFrame(pd.Series(data=dic_zero, name='Number of zero days')))
+        magn_and_duration = aver_data.combine_first(pd.DataFrame(serie_dict_zero))
 
         return magn_and_duration, self.metric_stats(magn_and_duration, central_metric=self.central_metric,
                                                     variation_metric=self.variation_metric)
@@ -291,12 +293,12 @@ class IHA:
             threshold = pd.DataFrame(pd.Series(events.threshold, name="{} Pulse Threshold".format(name[type_event])))
             return group, threshold
 
-        events_high = self.flow.parcial(station=self.station, type_threshold=self.type_threshold, type_event="flood",
+        events_high = self.flow.parcial(type_threshold=self.type_threshold, type_event="flood",
                                         type_criterion=self.type_criterion, value_threshold=self.threshold_high)
 
         frequency_and_duration_high, threshold_high_mag = aux_frequency_and_duration(events_high)
 
-        events_low = self.flow.parcial(station=self.station, type_event='drought', type_threshold=self.type_threshold,
+        events_low = self.flow.parcial(type_event='drought', type_threshold=self.type_threshold,
                                        type_criterion=self.type_criterion, value_threshold=self.threshold_low)
         frequency_and_duration_low, threshold_low_mag = aux_frequency_and_duration(events_low)
 
