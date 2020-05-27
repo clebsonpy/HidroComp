@@ -1,6 +1,7 @@
 from api_ana.serie_temporal import SerieTemporal
 import plotly as py
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from hydrocomp.series.flow import Flow
 import pandas as pd
 
@@ -45,7 +46,7 @@ class Simulation:
 
         self.data.data = self.data.data.rename(columns={"Natural": "Naturally"})
         return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR"),
-                             pd.Series(data=values_turb, index=idx, name="Turbine"), self.data.data["Naturally"]]).T, \
+                             pd.Series(data=values_turb, index=idx, name="Derivation channel"), self.data.data["Naturally"]]).T, \
                pd.DataFrame(pd.Series(data=values_tvr, index=idx, name="TVR - Naturally hash"))
 
     def rule_02(self):
@@ -59,18 +60,20 @@ class Simulation:
         idx = []
         values_tvr = []
         values_turb = []
-        env = "B"
+        env = "A"
         year = self.data.date_start.year
         env_flow = A
         for i in self.data.data.index:
             if i.year != year:
                 if env == "A":
                     env_flow = B
+                    env = "B"
                 else:
                     env_flow = A
+                    env = "A"
+                year = i.year
                 values = self.flows(self.data.data.loc[i].values[0], env_flow[i.month - 1])
             else:
-                env_flow = env_flow
                 values = self.flows(self.data.data.loc[i].values[0], env_flow[i.month - 1])
 
             values_tvr.append(values[0])
@@ -79,7 +82,7 @@ class Simulation:
 
         self.data.data = self.data.data.rename(columns={"Natural": "Naturally"})
         return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR"),
-                             pd.Series(data=values_turb, index=idx, name="Turbine"), self.data.data["Naturally"]]).T, \
+                             pd.Series(data=values_turb, index=idx, name="Derivation channel"), self.data.data["Naturally"]]).T, \
                pd.DataFrame(pd.Series(data=values_tvr, index=idx, name="TVR - ANA"))
 
     def rule_03(self):
@@ -110,7 +113,7 @@ class Simulation:
 
         self.data.data = self.data.data.rename(columns={"Natural": "Naturally"})
         return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR"),
-                             pd.Series(data=values_turb, index=idx, name="Turbine"), self.data.data["Naturally"]]).T, \
+                             pd.Series(data=values_turb, index=idx, name="Derivation channel"), self.data.data["Naturally"]]).T, \
                pd.DataFrame(pd.Series(data=values_tvr, index=idx, name="TVR - 90Q"))
 
 
@@ -133,6 +136,10 @@ if __name__ == "__main__":
     #Q = Q1.combine_first(Q4)
 
     flow_sim = Flow(data=Q4)
-    fig, data = flow_sim.hydrogram(title="Hydrograph - 90Q scenery", x_title="Date", y_title="Flow (m³/s)")
-    py.offline.plot(fig, filename='graficos/hidro_rule-04.html')
-    #py.offline.plot(fig, filename='graficos/hidro_sim2.html', image="svg", image_height=900, image_width=1800)
+    flow_sim.date(date_start="01/09/2007", date_end="31/08/2008")
+    fig, data = flow_sim.hydrogram(title="Hydrograph - 90Q scenery", x_title="Date",
+                                   y_title="Flow (m³/s)", color={"Naturally": "#002e6f", "TVR": "#8b0000",
+                                                                 "Derivation channel": "#000000"})
+
+    py.offline.plot(fig, filename='graficos/hydro_rule_04.html', image="svg", image_filename="hydro_rule_04.svg",
+                    image_height=900, image_width=900)

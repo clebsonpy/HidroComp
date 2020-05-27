@@ -5,11 +5,13 @@ from hydrocomp.graphics.hydrogram_build import HydrogramBuild
 
 class HydrogramClean(HydrogramBuild):
 
-    def __init__(self, data, width=None, height=None, size_text=None, title=None, y_title=None, x_title=None):
+    def __init__(self, data, width=None, height=None, size_text=None, title=None, y_title=None, x_title=None,
+                 color=None):
         super().__init__(width=width, height=height, size_text=size_text, title=title)
         self.data = pd.DataFrame(data)
         self.y_title = y_title
         self.x_title = x_title
+        self.color = color
 
     def plot(self):
         bandxaxis = go.layout.XAxis(title=self.x_title)
@@ -62,7 +64,12 @@ class HydrogramClean(HydrogramBuild):
         visible = [False] * len(self.data.columns)
         for i in self.data:
             visible[aux] = True
-            data.append(self._plot_one(pd.DataFrame(self.data[i]), station=i))
+            try:
+                color = self.color[i]
+            except:
+                color = None
+
+            data.append(self._plot_one(pd.DataFrame(self.data[i]), station=i, color=color))
 
             buttons.append(
                 dict(label=i,
