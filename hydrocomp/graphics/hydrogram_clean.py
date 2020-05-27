@@ -33,8 +33,13 @@ class HydrogramClean(HydrogramBuild):
 
         else:
 
-            name = self.title
             data, buttons = self._plot_multi()
+            menus = False
+            if menus:
+                update_menus = go.layout.Updatemenu(active=0, buttons=list(buttons))
+            else:
+                update_menus = None
+
             layout = dict(
                 title=dict(text=self.title, x=0.5, xanchor='center', y=0.95, yanchor='top',
                            font=dict(family='Courier New, monospace', size=self.size_text + 10)),
@@ -42,13 +47,7 @@ class HydrogramClean(HydrogramBuild):
                 yaxis=bandyaxis,
                 width=self.width, height=self.height,
                 font=dict(family='Courier New, monospace', size=self.size_text, color='rgb(0,0,0)'),
-                showlegend=True, plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF',
-                          updatemenus=[
-                              go.layout.Updatemenu(
-                                  active=0,
-                                  buttons=list(buttons),
-                              )
-                          ])
+                showlegend=True, plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF', updatemenus=update_menus)
             fig = dict(data=data, layout=layout)
             return fig, data
 

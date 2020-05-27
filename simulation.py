@@ -1,5 +1,6 @@
 from api_ana.serie_temporal import SerieTemporal
 import plotly as py
+import plotly.graph_objects as go
 from hydrocomp.series.flow import Flow
 import pandas as pd
 
@@ -16,7 +17,7 @@ class Simulation:
         elif 0 <= (flow-env_flow) < self.mxt_flow:
             tvr_flow = env_flow
             turb_flow = flow - env_flow
-        else: #(flow - env_flow) > self.mxt_flow:
+        elif (flow - env_flow) >= self.mxt_flow:
             tvr_flow = flow - self.mxt_flow
             turb_flow = self.mxt_flow
 
@@ -28,7 +29,7 @@ class Simulation:
         - Situação crítica para algumas espécies, mas que já foi suportada
 
         :param:
-        :return:
+        :return: tuple(DataFrame(columns=[TVR, Turbine, Naturally]), DataFrame(columns=[TVR - Naturally hash]))
         """
         maximum = self.data.maximum()
         peaks = maximum.peaks
@@ -41,13 +42,16 @@ class Simulation:
             values_tvr.append(values[0])
             values_turb.append((values[1]))
             idx.append(i)
-        return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR-01"),
-                             pd.Series(data=values_turb, index=idx, name="TURB-01"), self.data.data["Natural"]]).T
+
+        self.data.data = self.data.data.rename(columns={"Natural": "Naturally"})
+        return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR"),
+                             pd.Series(data=values_turb, index=idx, name="Turbine"), self.data.data["Naturally"]]).T, \
+               pd.DataFrame(pd.Series(data=values_tvr, index=idx, name="TVR - Naturally hash"))
 
     def rule_02(self):
         """
         - ANA
-        :return:
+        :return: tuple(DataFrame(columns=[TVR, Turbine, Naturally]), DataFrame(columns=[TVR - ANA]))
         """
         A = [1100, 1600, 2500, 4000, 1800, 1200, 1000, 900, 750, 700, 800, 900]
         B = [1100, 1600, 4000, 8000, 4000, 2000, 1200, 900, 750, 700, 800, 900]
@@ -72,15 +76,18 @@ class Simulation:
             values_tvr.append(values[0])
             values_turb.append((values[1]))
             idx.append(i)
-        return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR-02"),
-                             pd.Series(data=values_turb, index=idx, name="TURB-02"), self.data.data["Natural"]]).T
+
+        self.data.data = self.data.data.rename(columns={"Natural": "Naturally"})
+        return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR"),
+                             pd.Series(data=values_turb, index=idx, name="Turbine"), self.data.data["Naturally"]]).T, \
+               pd.DataFrame(pd.Series(data=values_tvr, index=idx, name="TVR - ANA"))
 
     def rule_03(self):
         """
         - DNAEE 02/1984
         - Estudos de viabilidades
 
-        :return:
+        :return:tuple(DataFrame(columns=[TVR, Turbine, Naturally]), DataFrame(columns=[TVR - DNAEE]))
         """
         pass
 
@@ -89,7 +96,7 @@ class Simulation:
         - Q90
         - Estudos de viabilidades
 
-        :return:
+        :return: tuple(DataFrame(columns=[TVR, Turbine, Naturally]), DataFrame(columns=[TVR - 90Q]))
         """
         env_flow = self.data.quantile(0.1)
         idx = []
@@ -100,8 +107,11 @@ class Simulation:
             values_tvr.append(values[0])
             values_turb.append((values[1]))
             idx.append(i)
-        return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR-04"),
-                             pd.Series(data=values_turb, index=idx, name="TURB-04"), self.data.data["Natural"]]).T
+
+        self.data.data = self.data.data.rename(columns={"Natural": "Naturally"})
+        return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR"),
+                             pd.Series(data=values_turb, index=idx, name="Turbine"), self.data.data["Naturally"]]).T, \
+               pd.DataFrame(pd.Series(data=values_tvr, index=idx, name="TVR - 90Q"))
 
 
 if __name__ == "__main__":
@@ -115,14 +125,14 @@ if __name__ == "__main__":
     date_end = flow.date_end.replace(day=28, month=month[2]-1)
     flow.date(date_start=date_start, date_end=date_end)
 
-    simulation = Simulation(data=flow, mxt_flow=15000)
-    #Q1 = simulation.rule_01()
-    #Q2 = simulation.rule_02()
+    simulation = Simulation(data=flow, mxt_flow=13950)
+    #Q1 = simulation.rule_01()[0]
+    #Q2 = simulation.rule_02()[0]
     #Q = Q1.combine_first(Q2)
-    Q4 = simulation.rule_04()
-    #Q = Q.combine_first(Q4)
+    Q4 = simulation.rule_04()[0]
+    #Q = Q1.combine_first(Q4)
 
     flow_sim = Flow(data=Q4)
-    fig, data = flow_sim.hydrogram(title="Hidrograma")
-
-    py.offline.plot(fig, filename='graficos/hidro_sim2.html')
+    fig, data = flow_sim.hydrogram(title="Hydrograph - 90Q scenery", x_title="Date", y_title="Flow (m³/s)")
+    py.offline.plot(fig, filename='graficos/hidro_rule-04.html')
+    #py.offline.plot(fig, filename='graficos/hidro_sim2.html', image="svg", image_height=900, image_width=1800)

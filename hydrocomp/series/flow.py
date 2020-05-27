@@ -87,15 +87,16 @@ class Flow(SeriesBuild):
         else:
             return None
 
-    def hydrogram(self, title, save=False, width=None, height=None, size_text=16):
+    def hydrogram(self, title, save=False, width=None, height=None, y_title='Vazão (m³/s)', x_title='Data',
+                  size_text=16):
         print(self.station)
         if self.station is None:
             hydrogram = HydrogramClean(self.data, width=width, height=height, size_text=size_text,
-                                       title=title, y_title='Vazão (m³/s)', x_title='Data')
+                                       title=title, y_title=y_title, x_title=x_title)
             fig, data = hydrogram.plot()
         else:
             hydrogram = HydrogramClean(self.data[self.station], width=width, height=height,
-                                       size_text=size_text, title=title, y_title='Vazão (m³/s)', x_title='Data')
+                                       size_text=size_text, title=title, y_title=y_title, x_title=x_title)
             fig, data = hydrogram.plot()
         return fig, data
 

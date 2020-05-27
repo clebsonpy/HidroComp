@@ -12,3 +12,4 @@ output/
 dist/
 hydrocomp.egg-info/
 build/
+node_modules/
