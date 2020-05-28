@@ -230,11 +230,10 @@ class IHA:
                                                    name='Base flow index', index=years))
                 aver_data = aver_data.combine_first(base_flow)
 
-        dic_zero = {i[0].year: i[1].loc[i[1][self.station].values == 0].sum()
+        dic_zero = {i[0].year: i[1].loc[i[1][self.station].values == 0].sum().values[0]
                     for i in self.flow.data.groupby(pd.Grouper(freq=self.month_start[1]))}
         serie_dict_zero = pd.Series(data=dic_zero, name='Number of zero days')
-        serie_dict_zero.loc[serie_dict_zero.isnull()] = 0
-
+        serie_dict_zero.loc[serie_dict_zero.isnull()].value = 0
         magn_and_duration = aver_data.combine_first(pd.DataFrame(serie_dict_zero))
 
         return magn_and_duration, self.metric_stats(magn_and_duration, central_metric=self.central_metric,

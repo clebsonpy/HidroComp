@@ -32,21 +32,31 @@ class Simulation:
         :param:
         :return: tuple(DataFrame(columns=[TVR, Turbine, Naturally]), DataFrame(columns=[TVR - Naturally hash]))
         """
-        maximum = self.data.maximum()
-        peaks = maximum.peaks
-        env_flow = peaks.min().values[0]
+        date_start = "01/09/2015"
+        date_end = "31/08/2016"
+        env_flow = Flow(data=self.data.data.copy())
+        env_flow.date(date_start=date_start, date_end=date_end)
         idx = []
         values_tvr = []
         values_turb = []
+        values_env_flow = []
         for i in self.data.data.index:
-            values = self.flows(self.data.data.loc[i].values[0], env_flow)
+            if i.month < 9:
+                year = 2016
+            else:
+                year = 2015
+            env_idx = i.replace(year=year)
+            values_env_flow.append(env_flow.data.loc[env_idx].values[0])
+            values = self.flows(self.data.data.loc[i].values[0], env_flow.data.loc[env_idx].values[0])
             values_tvr.append(values[0])
             values_turb.append((values[1]))
             idx.append(i)
 
         self.data.data = self.data.data.rename(columns={"Natural": "Naturally"})
         return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR"),
-                             pd.Series(data=values_turb, index=idx, name="Derivation channel"), self.data.data["Naturally"]]).T, \
+                             pd.Series(data=values_turb, index=idx, name="Derivation channel"),
+                             self.data.data["Naturally"],
+                             pd.Series(data=values_env_flow, index=idx, name="e-flow")]).T, \
                pd.DataFrame(pd.Series(data=values_tvr, index=idx, name="TVR - Naturally hash"))
 
     def rule_02(self):
@@ -127,19 +137,17 @@ if __name__ == "__main__":
     date_start = flow.date_start.replace(day=1, month=month[2])
     date_end = flow.date_end.replace(day=28, month=month[2]-1)
     flow.date(date_start=date_start, date_end=date_end)
-
     simulation = Simulation(data=flow, mxt_flow=13950)
-    #Q1 = simulation.rule_01()[0]
+    Q1 = simulation.rule_01()[0]
     #Q2 = simulation.rule_02()[0]
     #Q = Q1.combine_first(Q2)
-    Q4 = simulation.rule_04()[0]
+    #Q4 = simulation.rule_04()[0]
     #Q = Q1.combine_first(Q4)
 
-    flow_sim = Flow(data=Q4)
-    flow_sim.date(date_start="01/09/2007", date_end="31/08/2008")
+    flow_sim = Flow(data=Q1)
+    #flow_sim.date(date_start="01/09/2007", date_end="31/08/2008")
     fig, data = flow_sim.hydrogram(title="Hydrograph - 90Q scenery", x_title="Date",
                                    y_title="Flow (m³/s)", color={"Naturally": "#002e6f", "TVR": "#8b0000",
                                                                  "Derivation channel": "#000000"})
 
-    py.offline.plot(fig, filename='graficos/hydro_rule_04.html', image="svg", image_filename="hydro_rule_04.svg",
-                    image_height=900, image_width=900)
+    py.offline.plot(fig, filename='graficos/hydro_rule_01.html',) # image_height=900, image_width=900)

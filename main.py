@@ -252,7 +252,7 @@ if __name__ == '__main__':
     #print(data)
     #fig.write_image("graficos/gantt.pdf")
     #fig, data = maximum.hydrogram(title="Máximas Anuais")
-    fig, data = flow.hydrogram_year("Hidrograma Anual", threshold=[2919.67, 945])
+    #fig, data = flow.hydrogram_year("Hidrograma Anual", threshold=[2919.67, 945])
     #fig, data = flow_nat.hydrogram(title="Belo Monte natural")
     # i in flow.data:
     #    print(i)
