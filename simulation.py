@@ -52,10 +52,9 @@ class Simulation:
             values_turb.append((values[1]))
             idx.append(i)
 
-        self.data.data = self.data.data.rename(columns={"Natural": "Naturally"})
         return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR"),
                              pd.Series(data=values_turb, index=idx, name="Derivation channel"),
-                             self.data.data["Naturally"],
+                             self.data.data["Natural"],
                              pd.Series(data=values_env_flow, index=idx, name="e-flow")]).T, \
                pd.DataFrame(pd.Series(data=values_tvr, index=idx, name="TVR - Naturally hash"))
 
@@ -90,9 +89,8 @@ class Simulation:
             values_turb.append((values[1]))
             idx.append(i)
 
-        self.data.data = self.data.data.rename(columns={"Natural": "Naturally"})
         return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR"),
-                             pd.Series(data=values_turb, index=idx, name="Derivation channel"), self.data.data["Naturally"]]).T, \
+                             pd.Series(data=values_turb, index=idx, name="Derivation channel"), self.data.data["Natural"]]).T, \
                pd.DataFrame(pd.Series(data=values_tvr, index=idx, name="TVR - ANA"))
 
     def rule_03(self):
@@ -121,9 +119,8 @@ class Simulation:
             values_turb.append((values[1]))
             idx.append(i)
 
-        self.data.data = self.data.data.rename(columns={"Natural": "Naturally"})
         return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR"),
-                             pd.Series(data=values_turb, index=idx, name="Derivation channel"), self.data.data["Naturally"]]).T, \
+                             pd.Series(data=values_turb, index=idx, name="Derivation channel"), self.data.data["Natural"]]).T, \
                pd.DataFrame(pd.Series(data=values_tvr, index=idx, name="TVR - 90Q"))
 
 
