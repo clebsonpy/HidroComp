@@ -11,6 +11,18 @@ class HydrogramBuild(metaclass=ABCMeta):
         self.title = title
         self.size_text = size_text
 
+    def layout(self, bandxaxis, bandyaxis):
+        layout = dict(
+            title=dict(text=self.title, x=0.5, xanchor='center', y=0.95, yanchor='top',
+                       font=dict(family='Courier New, monospace', size=self.size_text + 10)),
+            xaxis=bandxaxis,
+            yaxis=bandyaxis,
+            width=self.width, height=self.height,
+            font=dict(family='Courier New, monospace', size=self.size_text, color='rgb(0,0,0)'),
+            showlegend=True, plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF')
+
+        return layout
+
     @abstractmethod
     def plot(self):
         pass

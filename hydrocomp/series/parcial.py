@@ -480,12 +480,12 @@ class Parcial(object):
             self.mvs()
             return self.plot_distribution(title, type_function)
 
-    def hydrogram(self, title, save=False, width=None, height=None, size_text=None):
+    def hydrogram(self, title, save=False, width=None, height=None, size_text=16, color=None):
         hydrogram = HydrogramParcial(
             data=self.data, peaks=self.peaks,
             threshold=self.threshold, station=self.station,
             threshold_criterion=self.threshold_criterion, title=title, type_criterion=self.type_criterion, width=width,
-            height=height, size_text=size_text)
+            height=height, size_text=size_text, color=color)
         fig, data = hydrogram.plot()
         if save:
             aux_name = title.replace(' ', '_')
@@ -501,14 +501,14 @@ class Parcial(object):
 
         return fig, data
 
-    def plot_spells(self, title):
+    def plot_spells(self, title, size_text=14):
         df_spells, df, month_start, month_end = Gantt.get_spells(data_peaks=self.peaks,
                                                                  month_water=[self.obj.month_num, self.obj.month_abr])
 
         df_spells = df_spells.sort_values('Task', ascending=False).reset_index(drop=True)
 
-        fig = FF.create_gantt(df_spells, group_tasks=True, index_col='Complete', colors='Jet', title=title,
-                              show_colorbar=True, height=600, width=900)
+        colors = '#000000'
+        fig = FF.create_gantt(df_spells, group_tasks=True, colors=colors, title=title, height=900, width=1200)
 
         #fig['data'][-1]['marker'].update(colorscale='Jet', colorbar=dict(title="m³/s", tickvals=df_spells.Complete,
         #                                                                 ticktext=df_spells.Name))
@@ -517,10 +517,13 @@ class Parcial(object):
         fig['layout']['xaxis'].update(title="Mês", range=[month_start, month_end], tickformat="%b")
         fig['layout']['yaxis'].update(title="Ano")
         fig['layout']['xaxis']['rangeselector'] = {}
-
+        fig.layout.title = dict(text=title, x=0.5, xanchor='center', y=0.9, yanchor='top',
+                                font=dict(family='Courier New, monospace', color='#7f7f7f', size=size_text + 6))
+        fig.layout.font = dict(family='Courier New, monospace', size=size_text, color='#7f7f7f')
+        fig.layout.plot_bgcolor = 'rgba(0,0,0,0)'
         return fig, df_spells
 
-    def polar(self, save=False, width=None, height=None, size_text=14, title=None):
+    def polar(self, save=False, width=None, height=None, size_text=14, title=None, color=None):
         if title is None:
             if self.type_event == 'flood':
                 title = 'Máximas Parciais'
@@ -528,7 +531,7 @@ class Parcial(object):
                 title = 'Mínimas Parciais'
 
         _polar = Polar(df_events=self.peaks)
-        fig, data = _polar.plot(width=width, height=height, size_text=size_text, title=title)
+        fig, data = _polar.plot(width=width, height=height, size_text=size_text, title=title, color=color)
         if save:
             py.image.save_as(fig, filename='graficos/polar_maximas_anuais.png')
 

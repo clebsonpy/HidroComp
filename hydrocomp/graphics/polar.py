@@ -13,21 +13,21 @@ class Polar(object):
         df_events_julian = self.df_events.copy()
         df_events_julian['DateJulian'] = date_julian
         df_events_julian['DateJulianPolar'] = date_julian_polar
-        print(df_events_julian)
         return df_events_julian
 
-    def plot(self, width=None, height=None, size_text=None, title=None):
+    def plot(self, width=None, height=None, size_text=None, title=None, color=None):
         dicMes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set",
                   "Out", "Nov", "Dez"]
         df_polar = self.year_polar()
-        position = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330]
+        position = [0, 31*0.9863, 59*0.9863, 90*0.9863, 120*0.9863, 151*0.9863, 181*0.9863, 212*0.9863, 243*0.9863,
+                    273*0.9863, 303*0.9863, 334*0.9863]
 
         trace = go.Scatterpolar(
             r=df_polar.peaks.values,  # Vazao
             theta=df_polar.DateJulianPolar.values,  # Data
             mode='markers',
             marker=dict(
-                color='rgb(27,158,119)',
+                color=color,
                 size=10,
                 line=dict(
                     color='white'
@@ -49,10 +49,11 @@ class Polar(object):
                        font=dict(family='Courier New, monospace', color='#7f7f7f', size=size_text + 6)),
             width=width, height=height,
             font=dict(family='Courier New, monospace', size=size_text, color='#7f7f7f'),
-            showlegend=False, plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
+            showlegend=True, plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
             polar=dict(
                 radialaxis=dict(showticklabels=True),
-                angularaxis=dict(showticklabels=True, ticks='', tickvals=position, ticktext=dicMes)
+                angularaxis=dict(showticklabels=True, ticks='', tickvals=position, ticktext=dicMes, rotation=90,
+                                 direction="clockwise"),
             )
         )
 

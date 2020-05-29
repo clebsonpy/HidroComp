@@ -204,7 +204,7 @@ class IHA:
         for year in years:
             aux = year[1].groupby(pd.Grouper(freq='M')).mean()
             df = pd.DataFrame({year[0].year: {
-                cal.month_name[i.month]: aux[self.station][i] for i in aux[self.station].index}})
+                i.month: aux[self.station][i] for i in aux[self.station].index}})
             data = data.combine_first(df)
         mean_months = data.T
 

@@ -6,9 +6,10 @@ from hydrocomp.graphics.hydrogram_build import HydrogramBuild
 class HydrogramParcial(HydrogramBuild):
 
     def __init__(self, data, peaks, threshold, threshold_criterion=None, type_criterion=None, width=None,
-                 height=None, size_text=None, title=None, station=None):
+                 height=None, size_text=None, title=None, station=None, color=None):
         super().__init__(width=width, height=height, size_text=size_text, title=title)
         self.data = data
+        self.color = color
         self.peaks = peaks
         self.station = station
         self.threshold = threshold
@@ -23,17 +24,17 @@ class HydrogramParcial(HydrogramBuild):
             if self.threshold_criterion is None:
                 raise AttributeError
 
-            title = 'Hidrograma Série de Duração Parcial - %s' % self.title
-            layout = dict(
-                title=dict(text=title,  x=0.5, xanchor='center', y=0.9, yanchor='top',
-                           font=dict(family='Time New Roman', size=self.size_text, color='rgb(0,0,0)')),
-                showlegend=True,
-                width=self.width, height=self.height,
-                xaxis=bandxaxis, yaxis=bandyaxis,
-                font=dict(family='Time New Roman', size=self.size_text, color='rgb(0,0,0)'))
+            layout = self.layout(bandxaxis=bandxaxis, bandyaxis=bandyaxis)
 
             data = []
-            data.append(self._plot_one(self.data, station=self.station))
+
+            for i in self.data:
+                try:
+                    color = self.color[i]
+                except:
+                    color = None
+
+            data.append(self._plot_one(self.data, station=self.station, color=color))
             data.append(self._plot_threshold())
             if self.type_criterion is not None:
                 data.append(self._plot_threshold_criterion())
@@ -43,17 +44,18 @@ class HydrogramParcial(HydrogramBuild):
             return fig, data
 
         except AttributeError:
-            title = 'Hidrograma Série de Duração Parcial -  %s' % self.title
-            layout = dict(
-                title=dict(text=title, x=0.5, xanchor='center', y=0.9, yanchor='top',
-                           font=dict(family='Time New Roman', size=self.size_text, color='rgb(0,0,0)')),
-                showlegend=True,
-                width=self.width, height=self.height,
-                xaxis=bandxaxis, yaxis=bandyaxis,
-                font=dict(family='Time New Roman', size=self.size_text, color='rgb(0,0,0)'))
+
+            layout = self.layout(bandxaxis=bandxaxis, bandyaxis=bandyaxis)
 
             data = []
-            data.append(self._plot_one(self.data, station=self.station))
+            for i in self.data:
+                print(i)
+                try:
+                    color = self.color[i]
+                except:
+                    color = None
+            print(self.color)
+            data.append(self._plot_one(self.data, station=self.station, color=color))
             data.append(self._plot_threshold())
             data += self._plot_event_peaks()
 

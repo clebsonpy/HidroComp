@@ -5,9 +5,10 @@ from hydrocomp.graphics.hydrogram_build import HydrogramBuild
 
 class HydrogramClean(HydrogramBuild):
 
-    def __init__(self, data, width=None, height=None, size_text=None, title=None, y_title=None, x_title=None,
-                 color=None):
+    def __init__(self, data, threshold=None, width=None, height=None, size_text=None, title=None, y_title=None,
+                 x_title=None, color=None):
         super().__init__(width=width, height=height, size_text=size_text, title=title)
+        self.threshold = threshold
         self.data = pd.DataFrame(data)
         self.y_title = y_title
         self.x_title = x_title
@@ -25,17 +26,45 @@ class HydrogramClean(HydrogramBuild):
                 xaxis=bandxaxis,
                 yaxis=bandyaxis,
                 width=self.width, height=self.height,
-                font=dict(family='Courier New, monospace', size=self.size_text, color='#7f7f7f'),
-                showlegend=True, plot_bgcolor='rgba(0,0,0)', paper_bgcolor='rgba(0,0,0)')
+                font=dict(family='Courier New, monospace', size=self.size_text, color='rgb(0,0,0)'),
+                showlegend=True, plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF')
 
             data = list()
             data.append(self._plot_one(self.data, self.title, color='rgb(0,0,0)'))
+
+            if self.threshold is not None:
+                if type(self.threshold) is list:
+                    trace_threshold = []
+                    i = 1
+                    for t in self.threshold:
+                        trace_threshold.append(self._plot_threshold(self.data, t, name="Limiar - {}".format(i)))
+                        i += 1
+                else:
+                    trace_threshold = [self._plot_threshold(self.data, self.threshold, name="Limiar")]
+                data = data + trace_threshold
+            else:
+                pass
+
             fig = dict(data=data, layout=layout)
             return fig, data
 
         else:
 
             data, buttons = self._plot_multi()
+
+            if self.threshold is not None:
+                if type(self.threshold) is list:
+                    trace_threshold = []
+                    i = 1
+                    for t in self.threshold:
+                        trace_threshold.append(self._plot_threshold(self.data, t, name="Limiar - {}".format(i)))
+                        i += 1
+                else:
+                    trace_threshold = [self._plot_threshold(self.data, self.threshold, name="Limiar")]
+                data = data + trace_threshold
+            else:
+                pass
+
             menus = False
             if menus:
                 update_menus = go.layout.Updatemenu(active=0, buttons=list(buttons))
@@ -52,6 +81,21 @@ class HydrogramClean(HydrogramBuild):
                 showlegend=True, plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF', updatemenus=update_menus)
             fig = dict(data=data, layout=layout)
             return fig, data
+
+    def _plot_threshold(self, group, threshold, name):
+        trace_threshold = go.Scatter(
+            x=list(group[group.columns[0]].index),
+            y=[threshold]*len(group),
+            mode='lines+text',
+            text=[name],
+            name=name,
+            textposition='top right',
+            line=dict(color='rgb(0, 0, 0)',
+                      width=1.5,
+                      dash='dot')
+        )
+
+        return trace_threshold
 
     def _plot_multi(self):
         data = []

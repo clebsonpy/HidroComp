@@ -58,20 +58,22 @@ class Simulation:
                              pd.Series(data=values_env_flow, index=idx, name="e-flow")]).T, \
                pd.DataFrame(pd.Series(data=values_tvr, index=idx, name="TVR - Naturally hash"))
 
-    def rule_02(self):
+    def rule_02(self, hydro_start="A"):
         """
         - ANA
         :return: tuple(DataFrame(columns=[TVR, Turbine, Naturally]), DataFrame(columns=[TVR - ANA]))
         """
         A = [1100, 1600, 2500, 4000, 1800, 1200, 1000, 900, 750, 700, 800, 900]
         B = [1100, 1600, 4000, 8000, 4000, 2000, 1200, 900, 750, 700, 800, 900]
-
+        env = hydro_start
+        if hydro_start == "A":
+            env_flow = A
+        elif hydro_start == "B":
+            env_flow = B
         idx = []
         values_tvr = []
         values_turb = []
-        env = "A"
         year = self.data.date_start.year
-        env_flow = A
         for i in self.data.data.index:
             if i.year != year:
                 if env == "A":
