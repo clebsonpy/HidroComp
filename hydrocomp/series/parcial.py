@@ -128,12 +128,12 @@ class Parcial(object):
 
         if self.type_event == 'flood':
             events = self.data[self.station].isin(self.data.loc[self.data[
-                                                                    self.station] >= threshold, self.station])
+                                                                    self.station] > threshold, self.station])
             return events, threshold
 
         elif self.type_event == 'drought':
             events = self.data[self.station].isin(self.data.loc[self.data[
-                                                                    self.station] <= threshold, self.station])
+                                                                    self.station] < threshold, self.station])
             return events, threshold
 
         else:

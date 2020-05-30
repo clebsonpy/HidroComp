@@ -246,14 +246,14 @@ class IHA:
     def timing_extreme(self):
 
         day_julian_max = self.flow.data[self.station].groupby(
-            pd.Grouper(freq=self.month_start[1])).idxmax()
+            pd.Grouper(freq=self.month_start[1])).idxmax().dropna(axis=0)
         day_julian_min = self.flow.data[self.station].groupby(
-            pd.Grouper(freq=self.month_start[1])).idxmin()
-
+            pd.Grouper(freq=self.month_start[1])).idxmin().dropna(axis=0)
 
         df_day_julian_max = pd.DataFrame(list(map(int, pd.DatetimeIndex(day_julian_max.values).strftime("%j"))),
                                          index=day_julian_max.index.year,
                                          columns=["Date of maximum"])
+
         df_day_julian_min = pd.DataFrame(list(map(int, pd.DatetimeIndex(day_julian_min.values).strftime("%j"))),
                                          index=day_julian_min.index.year,
                                          columns=["Date of minimum"])
