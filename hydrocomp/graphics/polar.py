@@ -49,11 +49,12 @@ class Polar(object):
                        font=dict(family='Courier New, monospace', color='#7f7f7f', size=size_text + 6)),
             width=width, height=height,
             font=dict(family='Courier New, monospace', size=size_text, color='#7f7f7f'),
-            showlegend=True, plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
+            showlegend=True, plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF',
             polar=dict(
-                radialaxis=dict(showticklabels=True),
+                radialaxis=dict(showticklabels=True, gridcolor="#000000"),
                 angularaxis=dict(showticklabels=True, ticks='', tickvals=position, ticktext=dicMes, rotation=90,
-                                 direction="clockwise"),
+                                 direction="clockwise", gridcolor="#000000", tickcolor="#000000"),
+                bgcolor='#FFFFFF',
             )
         )
 

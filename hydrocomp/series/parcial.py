@@ -523,7 +523,7 @@ class Parcial(object):
         fig.layout.plot_bgcolor = 'rgba(0,0,0,0)'
         return fig, df_spells
 
-    def polar(self, save=False, width=None, height=None, size_text=14, title=None, color=None):
+    def polar(self, save=False, width=900, height=900, size_text=14, title=None, color=None):
         if title is None:
             if self.type_event == 'flood':
                 title = 'Máximas Parciais'
