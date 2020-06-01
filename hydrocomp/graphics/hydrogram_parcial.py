@@ -17,8 +17,8 @@ class HydrogramParcial(HydrogramBuild):
         self.threshold_criterion = threshold_criterion
 
     def plot(self):
-        bandxaxis = go.layout.XAxis(title="Data")
-        bandyaxis = go.layout.YAxis(title="Vazão(m³/s)")
+        bandxaxis = go.layout.XAxis(title="Date")
+        bandyaxis = go.layout.YAxis(title="Flow(m³/s)")
 
         try:
             if self.threshold_criterion is None:
@@ -54,7 +54,7 @@ class HydrogramParcial(HydrogramBuild):
                     color = self.color[i]
                 except:
                     color = None
-            print(self.color)
+
             data.append(self._plot_one(self.data, station=self.station, color=color))
             data.append(self._plot_threshold())
             data += self._plot_event_peaks()
@@ -67,7 +67,7 @@ class HydrogramParcial(HydrogramBuild):
         point_start = go.Scatter(
             x=list(self.peaks.Start),
             y=self.data.loc[self.peaks.Start].T.values[0],
-            name="Inicio do Evento",
+            name="Start of events",
             mode='markers',
             marker=dict(color='rgb(0, 0, 0)',
                         symbol='circle-dot',
@@ -77,7 +77,7 @@ class HydrogramParcial(HydrogramBuild):
         point_end = go.Scatter(
             x=list(self.peaks.End),
             y=self.data.loc[self.peaks.End].T.values[0],
-            name="Fim do Evento",
+            name="Ends of events",
             mode='markers',
             marker=dict(color='rgb(0, 0, 0)',
                         size=6,
@@ -87,7 +87,7 @@ class HydrogramParcial(HydrogramBuild):
         point_vazao = go.Scatter(
             x=self.peaks['peaks'].index,
             y=self.peaks['peaks'].values,
-            name="Pico",
+            name="Peaks",
             mode='markers',
             marker=dict(size=8,
                         color='rgb(128, 128, 128)',
@@ -101,7 +101,7 @@ class HydrogramParcial(HydrogramBuild):
         trace_threshold = go.Scatter(
             x=self.data.index,
             y=[self.threshold]*len(self.data),
-            name="Limiar",
+            name="Threshold",
             line=dict(color='rgb(128, 128, 128)',
                       width=1.5,
                       dash='dot')

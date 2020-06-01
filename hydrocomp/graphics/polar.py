@@ -15,7 +15,7 @@ class Polar(object):
         df_events_julian['DateJulianPolar'] = date_julian_polar
         return df_events_julian
 
-    def plot(self, width=None, height=None, size_text=None, title=None, color=None):
+    def plot(self, width=None, height=None, size_text=None, title=None, color=None, name=None):
         dicMes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set",
                   "Out", "Nov", "Dez"]
         df_polar = self.year_polar()
@@ -35,7 +35,7 @@ class Polar(object):
                 opacity=0.7),
             text=df_polar.index.date,
             thetaunit='degrees',
-            name=title
+            name=name
         )
 
         data = [trace]

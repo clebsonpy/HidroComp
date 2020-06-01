@@ -523,15 +523,20 @@ class Parcial(object):
         fig.layout.plot_bgcolor = 'rgba(0,0,0,0)'
         return fig, df_spells
 
-    def polar(self, save=False, width=900, height=900, size_text=14, title=None, color=None):
-        if title is None:
-            if self.type_event == 'flood':
-                title = 'Máximas Parciais'
-            elif self.type_event == 'drought':
-                title = 'Mínimas Parciais'
+    def polar(self, save=False, width=900, height=900, size_text=14, title=None, color=None, name=None):
+        if self.type_event == 'flood':
+            if title is None:
+                title = 'Maximum Partial'
+            elif name is None:
+                name = 'Maximum peaks'
+        elif self.type_event == 'drought':
+            if title is None:
+                title = 'Minimum Partial'
+            elif name is None:
+                name = 'Minimum peaks'
 
         _polar = Polar(df_events=self.peaks)
-        fig, data = _polar.plot(width=width, height=height, size_text=size_text, title=title, color=color)
+        fig, data = _polar.plot(width=width, height=height, size_text=size_text, title=title, color=color, name=name)
         if save:
             py.image.save_as(fig, filename='graficos/polar_maximas_anuais.png')
 

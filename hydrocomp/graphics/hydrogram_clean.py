@@ -57,10 +57,10 @@ class HydrogramClean(HydrogramBuild):
                     trace_threshold = []
                     i = 1
                     for t in self.threshold:
-                        trace_threshold.append(self._plot_threshold(self.data, t, name="Limiar - {}".format(i)))
+                        trace_threshold.append(self._plot_threshold(self.data, t, name="Threshold - {}".format(i)))
                         i += 1
                 else:
-                    trace_threshold = [self._plot_threshold(self.data, self.threshold, name="Limiar")]
+                    trace_threshold = [self._plot_threshold(self.data, self.threshold, name="Threshold")]
                 data = data + trace_threshold
             else:
                 pass
@@ -86,8 +86,7 @@ class HydrogramClean(HydrogramBuild):
         trace_threshold = go.Scatter(
             x=list(group[group.columns[0]].index),
             y=[threshold]*len(group),
-            mode='lines+text',
-            text=[name],
+            mode='lines',
             name=name,
             textposition='top right',
             line=dict(color='rgb(0, 0, 0)',
