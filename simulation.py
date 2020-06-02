@@ -22,7 +22,7 @@ class Simulation:
             tvr_flow = flow - self.mxt_flow
             turb_flow = self.mxt_flow
 
-        return tvr_flow, turb_flow
+        return tvr_flow, turb_flow, env_flow
 
     def rule_01(self):
         """
@@ -46,10 +46,11 @@ class Simulation:
             else:
                 year = 2015
             env_idx = i.replace(year=year)
-            values_env_flow.append(env_flow.data.loc[env_idx].values[0])
+
             values = self.flows(self.data.data.loc[i].values[0], env_flow.data.loc[env_idx].values[0])
             values_tvr.append(values[0])
             values_turb.append((values[1]))
+            values_env_flow.append(values[2])
             idx.append(i)
 
         return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR"),
@@ -73,6 +74,7 @@ class Simulation:
         idx = []
         values_tvr = []
         values_turb = []
+        values_env_flow = []
         year = self.data.date_start.year
         for i in self.data.data.index:
             if i.year != year:
@@ -89,10 +91,13 @@ class Simulation:
 
             values_tvr.append(values[0])
             values_turb.append((values[1]))
+            values_env_flow.append(values[2])
             idx.append(i)
 
         return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR"),
-                             pd.Series(data=values_turb, index=idx, name="Derivation channel"), self.data.data["Natural"]]).T, \
+                             pd.Series(data=values_turb, index=idx, name="Derivation channel"),
+                             self.data.data["Natural"],
+                             pd.Series(data=values_env_flow, index=idx, name="e-flow")]).T, \
                pd.DataFrame(pd.Series(data=values_tvr, index=idx, name="TVR - ANA"))
 
     def rule_03(self):
@@ -115,14 +120,18 @@ class Simulation:
         idx = []
         values_tvr = []
         values_turb = []
+        values_env_flow = []
         for i in self.data.data.index:
             values = self.flows(self.data.data.loc[i].values[0], env_flow[0])
             values_tvr.append(values[0])
             values_turb.append((values[1]))
+            values_env_flow.append(values[2])
             idx.append(i)
 
         return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR"),
-                             pd.Series(data=values_turb, index=idx, name="Derivation channel"), self.data.data["Natural"]]).T, \
+                             pd.Series(data=values_turb, index=idx, name="Derivation channel"),
+                             self.data.data["Natural"],
+                             pd.Series(data=values_env_flow, index=idx, name="e-flow")]).T, \
                pd.DataFrame(pd.Series(data=values_tvr, index=idx, name="TVR - 90Q"))
 
 
