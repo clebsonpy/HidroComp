@@ -13,21 +13,28 @@ class Maximum(object):
 
     def __init__(self, obj, station):
         self.obj = obj
-        # self.data = self.obj.data
         self.station = station
         self.peaks = self.__annual()
         self.dist_gev = Gev(self.peaks['peaks'].values)
 
     def __annual(self):
-        print(self.station)
         self.obj.month_start_year_hydrologic()
-        data_by_year_hydrologic = self.obj.data.groupby(pd.Grouper(freq=self.obj.month_abr))
+        data_by_year_hydrologic = self.obj.data.groupby(pd.Grouper(freq=self.obj.month_abr_flood))
         max = data_by_year_hydrologic[self.station].max()
         idx = data_by_year_hydrologic[self.station].idxmax()
         max_vazao = max.values
         idx_vazao = idx.values
         self.peaks = pd.DataFrame(max_vazao, index=idx_vazao, columns=['peaks'])
         return self.peaks
+
+    def period_return(self, magnitude, estimador):
+        if estimador == 'MML':
+            self.dist_gev.mml()
+        elif estimador == 'MVS':
+            self.dist_gev.mvs()
+
+        p = self.dist_gev.probs(magnitude)
+        return 1/(1-p)
 
     def magnitude(self, period_return, estimador):
         if estimador == 'MML':
@@ -52,9 +59,9 @@ class Maximum(object):
                                                                        estimador))
         return fig, data
 
-    def hydrogram(self, save=False, width=None, height=None, size_text=None, title=None):
+    def hydrogram(self, save=False, width=None, height=None, size_text=16, title=None):
         _hydrogram = HydrogramAnnual(data=self.obj.data[self.station], peaks=self.peaks, width=height, height=width,
-                                   size_text=size_text, title=title)
+                                     size_text=size_text, title=title, station=self.station)
         fig, data = _hydrogram.plot()
         if save:
             py.image.save_as(fig, filename='gráficos/hidrogama_maximas_anuais.png')

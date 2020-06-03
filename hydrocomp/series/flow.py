@@ -7,6 +7,7 @@ from hydrocomp.statistic.pearson3 import Pearson3
 from hydrocomp.series.series_build import SeriesBuild
 from hydrocomp.series.parcial import Parcial
 from hydrocomp.series.maximum import Maximum
+from hydrocomp.series.minimum import Minimum
 from hydrocomp.graphics.hydrogram_clean import HydrogramClean
 from hydrocomp.graphics.hydrogram_by_year import HydrogramYear
 from hydrocomp.graphics.permanence_curve import PermanenceCurve
@@ -18,24 +19,34 @@ class Flow(SeriesBuild):
     def __init__(self, data=None, path_file=None, station=None, source=None, *args, **kwargs):
         super().__init__(data=data, path=path_file, station=station, source=source,
                          type_data=self.type_data, *args, **kwargs)
-        self.month_num = 1
-        self.month_abr = 'AS-JAN'
+        self.month_num_flood = 1
+        self.month_abr_flood = 'AS-JAN'
+        self.month_num_drought = 12
+        self.month_abr_drought = 'AS-DEC'
 
     def month_start_year_hydrologic(self):
         if self.station is None:
             mean_month = pd.DataFrame([self.data.loc[self.data.index.month == i].mean() for i in range(1, 13)])
             month_start_year_hydrologic = 1 + mean_month.idxmin().values[0]
-            month_start_year_hydrologic_abr = cal.month_abbr[month_start_year_hydrologic].upper()
-            self.month_num = month_start_year_hydrologic
-            self.month_abr = 'AS-%s' % month_start_year_hydrologic_abr
+            month_start_year_hydrologic_abr_flood = cal.month_abbr[month_start_year_hydrologic].upper()
         else:
-            mean_month = pd.DataFrame([self.data[self.station].loc[self.data.index.month == i].mean() for i in range(1, 13)])
+            data = pd.DataFrame(self.data[self.station])
+            mean_month = pd.DataFrame([data.loc[data.index.month == i].mean() for i in range(1, 13)])
             month_start_year_hydrologic = 1 + mean_month.idxmin().values[0]
-            month_start_year_hydrologic_abr = cal.month_abbr[month_start_year_hydrologic].upper()
-            self.month_num = month_start_year_hydrologic
-            self.month_abr = 'AS-%s' % month_start_year_hydrologic_abr
+            month_start_year_hydrologic_abr_flood = cal.month_abbr[month_start_year_hydrologic].upper()
 
-        return self.month_num, self.month_abr
+        self.month_num_flood = month_start_year_hydrologic
+        self.month_abr_flood = 'AS-%s' % month_start_year_hydrologic_abr_flood
+
+        self.month_num_drought = month_start_year_hydrologic - 6
+        month_start_year_hydrologic_abr_drought = cal.month_abbr[self.month_num_drought].upper()
+        self.month_abr_drought = 'AS-%s' % month_start_year_hydrologic_abr_drought
+        return self.month_num_flood, self.month_abr_flood, self.month_num_drought, self.month_abr_drought
+
+    def minimum(self):
+        minimum = Minimum(obj=self, station=self.station)
+
+        return minimum
 
     def maximum(self):
         maximum = Maximum(obj=self, station=self.station)
@@ -76,18 +87,19 @@ class Flow(SeriesBuild):
         else:
             return None
 
-    def hydrogram(self, title, save=False, width=None, height=None, size_text=None):
+    def hydrogram(self, title, threshold=None, save=False, width=None, height=None, y_title='Vazão (m³/s)',
+                  x_title='Data', size_text=16, color=None):
         if self.station is None:
-            hydrogram = HydrogramClean(self.data, width=width, height=height, size_text=size_text,
-                                       title=title, y_title='Vazão (m³/s)', x_title='Data')
+            hydrogram = HydrogramClean(self.data, threshold=threshold, width=width, height=height, size_text=size_text,
+                                       title=title, y_title=y_title, x_title=x_title, color=color)
             fig, data = hydrogram.plot()
         else:
-            hydrogram = HydrogramClean(self.data[self.station], width=width, height=height,
-                                       size_text=size_text, title=title, y_title='Vazão (m³/s)', x_title='Data')
+            hydrogram = HydrogramClean(self.data[self.station], threshold=threshold, width=width, height=height,
+                                       size_text=size_text, title=title, y_title=y_title, x_title=x_title, color=color)
             fig, data = hydrogram.plot()
         return fig, data
 
-    def hydrogram_year(self, title="", threshold=None, width=None, height=None, size_text=14):
+    def hydrogram_year(self, title="", threshold=None, width=None, height=None, size_text=16):
         self.month_start_year_hydrologic()
         idx = [i for i in self.data.index if i.month == 2 and i.day == 29]
         data = self.data.drop(index=idx)

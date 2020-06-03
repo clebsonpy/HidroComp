@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import plotly.figure_factory as FF
+import plotly.graph_objs as go
 
 from abc import abstractmethod, ABCMeta
 
@@ -26,9 +27,12 @@ class SeriesBuild(metaclass=ABCMeta):
                     self.station = station
                     self.__return_df(data)
                     self.data = self.data.rename(columns={self.data.columns[0]: self.station}).sort_index()
-                else:
+                elif len(data.columns) == 1:
                     self.__return_df(data)
                     self.station = self.data.columns[0]
+                else:
+                    self.__return_df(data)
+                    self.station = None
             except KeyError:
                 self.station = None
                 self.__return_df(data)
@@ -146,10 +150,18 @@ class SeriesBuild(metaclass=ABCMeta):
     def quantile(self, percentile):
         return self.data.quantile(percentile).values
 
-    def gantt(self, name):
+    def gantt(self, title=None, size_text=14):
         cont = 0
         df = pd.DataFrame(columns=['Task', 'Start', 'Finish', 'Description', 'IndexCol'])
         for i in self.data:
             df, cont = Gantt(self.data[i]).get_gantt(df, self.less_period(self.data[i]), cont)
-        fig = FF.create_gantt(df, colors='#000000', group_tasks=True, title=name)
+        colors = ['#000000', '#778899']
+
+        fig = FF.create_gantt(df, colors=colors, index_col='IndexCol', group_tasks=True)
+
+        fig.layout.xaxis.title = "Data"
+        fig.layout.title = dict(text=title, x=0.5, xanchor='center', y=0.9, yanchor='top',
+                                font=dict(family='Courier New, monospace', color='#7f7f7f', size=size_text + 6))
+        fig.layout.font = dict(family='Courier New, monospace', size=size_text, color='#7f7f7f')
+        fig.layout.plot_bgcolor = 'rgba(0,0,0,0)'
         return fig, df

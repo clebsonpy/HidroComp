@@ -15,7 +15,7 @@ install_requires = [r.strip() for r in require]
 
 setup(
     name='hydrocomp',
-    version='0.1.6',
+    version='0.1.7',
     include_package_data=True,
     pacotes=find_packages('src'),
     long_description=long_description,
@@ -35,7 +35,7 @@ setup(
     author='Clebson Farias',
     author_email='clebson2007.farias@gmail.com',
     keywords='hydrology statistic iha flow',
-    description=u'Desenvolvido para estudos hidrológicos',
+    description='Developed for hydrological studies',
     install_requires=install_requires,
     packages=['hydrocomp'],
 )

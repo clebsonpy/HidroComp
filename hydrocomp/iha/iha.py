@@ -30,8 +30,8 @@ class IHA:
         """
         self.source = kwargs['source']
         self.flow = Flow(data, source=self.source, station=station)
-        self.status = status
         self.station = self.get_station(station)
+        self.status = status
         self.month_start = self.get_month_start(month_water)
         self.date_start = pd.to_datetime(date_start, dayfirst=True)
         self.date_end = pd.to_datetime(date_end, dayfirst=True)
@@ -204,7 +204,7 @@ class IHA:
         for year in years:
             aux = year[1].groupby(pd.Grouper(freq='M')).mean()
             df = pd.DataFrame({year[0].year: {
-                cal.month_name[i.month]: aux[self.station][i] for i in aux[self.station].index}})
+                i.month: aux[self.station][i] for i in aux[self.station].index}})
             data = data.combine_first(df)
         mean_months = data.T
 
@@ -230,10 +230,11 @@ class IHA:
                                                    name='Base flow index', index=years))
                 aver_data = aver_data.combine_first(base_flow)
 
-        dic_zero = {i[0].year: i[1].loc[i[1][self.station].values == 0].sum()
+        dic_zero = {i[0].year: i[1].loc[i[1][self.station].values == 0].sum().values[0]
                     for i in self.flow.data.groupby(pd.Grouper(freq=self.month_start[1]))}
-
-        magn_and_duration = aver_data.combine_first(pd.DataFrame(pd.Series(data=dic_zero, name='Number of zero days')))
+        serie_dict_zero = pd.Series(data=dic_zero, name='Number of zero days')
+        serie_dict_zero.loc[serie_dict_zero.isnull()].value = 0
+        magn_and_duration = aver_data.combine_first(pd.DataFrame(serie_dict_zero))
 
         return magn_and_duration, self.metric_stats(magn_and_duration, central_metric=self.central_metric,
                                                     variation_metric=self.variation_metric)
@@ -245,14 +246,14 @@ class IHA:
     def timing_extreme(self):
 
         day_julian_max = self.flow.data[self.station].groupby(
-            pd.Grouper(freq=self.month_start[1])).idxmax()
+            pd.Grouper(freq=self.month_start[1])).idxmax().dropna(axis=0)
         day_julian_min = self.flow.data[self.station].groupby(
-            pd.Grouper(freq=self.month_start[1])).idxmin()
-
+            pd.Grouper(freq=self.month_start[1])).idxmin().dropna(axis=0)
 
         df_day_julian_max = pd.DataFrame(list(map(int, pd.DatetimeIndex(day_julian_max.values).strftime("%j"))),
                                          index=day_julian_max.index.year,
                                          columns=["Date of maximum"])
+
         df_day_julian_min = pd.DataFrame(list(map(int, pd.DatetimeIndex(day_julian_min.values).strftime("%j"))),
                                          index=day_julian_min.index.year,
                                          columns=["Date of minimum"])
@@ -291,12 +292,12 @@ class IHA:
             threshold = pd.DataFrame(pd.Series(events.threshold, name="{} Pulse Threshold".format(name[type_event])))
             return group, threshold
 
-        events_high = self.flow.parcial(station=self.station, type_threshold=self.type_threshold, type_event="flood",
+        events_high = self.flow.parcial(type_threshold=self.type_threshold, type_event="flood",
                                         type_criterion=self.type_criterion, value_threshold=self.threshold_high)
 
         frequency_and_duration_high, threshold_high_mag = aux_frequency_and_duration(events_high)
 
-        events_low = self.flow.parcial(station=self.station, type_event='drought', type_threshold=self.type_threshold,
+        events_low = self.flow.parcial(type_event='drought', type_threshold=self.type_threshold,
                                        type_criterion=self.type_criterion, value_threshold=self.threshold_low)
         frequency_and_duration_low, threshold_low_mag = aux_frequency_and_duration(events_low)
 

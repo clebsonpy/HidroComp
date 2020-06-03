@@ -6,9 +6,10 @@ from hydrocomp.graphics.hydrogram_build import HydrogramBuild
 class HydrogramParcial(HydrogramBuild):
 
     def __init__(self, data, peaks, threshold, threshold_criterion=None, type_criterion=None, width=None,
-                 height=None, size_text=None, title=None, station=None):
+                 height=None, size_text=None, title=None, station=None, color=None):
         super().__init__(width=width, height=height, size_text=size_text, title=title)
         self.data = data
+        self.color = color
         self.peaks = peaks
         self.station = station
         self.threshold = threshold
@@ -16,24 +17,24 @@ class HydrogramParcial(HydrogramBuild):
         self.threshold_criterion = threshold_criterion
 
     def plot(self):
-        bandxaxis = go.layout.XAxis(title="Data")
-        bandyaxis = go.layout.YAxis(title="Vazão(m³/s)")
+        bandxaxis = go.layout.XAxis(title="Date")
+        bandyaxis = go.layout.YAxis(title="Flow(m³/s)")
 
         try:
             if self.threshold_criterion is None:
                 raise AttributeError
 
-            title = 'Hidrograma Série de Duração Parcial - %s' % self.title
-            layout = dict(
-                title=dict(text=title,  x=0.5, xanchor='center', y=0.9, yanchor='top',
-                           font=dict(family='Time New Roman', size=self.size_text, color='rgb(0,0,0)')),
-                showlegend=True,
-                width=self.width, height=self.height,
-                xaxis=bandxaxis, yaxis=bandyaxis,
-                font=dict(family='Time New Roman', size=self.size_text, color='rgb(0,0,0)'))
+            layout = self.layout(bandxaxis=bandxaxis, bandyaxis=bandyaxis)
 
             data = []
-            data.append(self._plot_one(self.data, station=self.station))
+
+            for i in self.data:
+                try:
+                    color = self.color[i]
+                except:
+                    color = None
+
+            data.append(self._plot_one(self.data, station=self.station, color=color))
             data.append(self._plot_threshold())
             if self.type_criterion is not None:
                 data.append(self._plot_threshold_criterion())
@@ -43,17 +44,18 @@ class HydrogramParcial(HydrogramBuild):
             return fig, data
 
         except AttributeError:
-            title = 'Hidrograma Série de Duração Parcial -  %s' % self.title
-            layout = dict(
-                title=dict(text=title, x=0.5, xanchor='center', y=0.9, yanchor='top',
-                           font=dict(family='Time New Roman', size=self.size_text, color='rgb(0,0,0)')),
-                showlegend=True,
-                width=self.width, height=self.height,
-                xaxis=bandxaxis, yaxis=bandyaxis,
-                font=dict(family='Time New Roman', size=self.size_text, color='rgb(0,0,0)'))
+
+            layout = self.layout(bandxaxis=bandxaxis, bandyaxis=bandyaxis)
 
             data = []
-            data.append(self._plot_one(self.data, station=self.station))
+            for i in self.data:
+                print(i)
+                try:
+                    color = self.color[i]
+                except:
+                    color = None
+
+            data.append(self._plot_one(self.data, station=self.station, color=color))
             data.append(self._plot_threshold())
             data += self._plot_event_peaks()
 
@@ -65,7 +67,7 @@ class HydrogramParcial(HydrogramBuild):
         point_start = go.Scatter(
             x=list(self.peaks.Start),
             y=self.data.loc[self.peaks.Start].T.values[0],
-            name="Inicio do Evento",
+            name="Start of events",
             mode='markers',
             marker=dict(color='rgb(0, 0, 0)',
                         symbol='circle-dot',
@@ -75,7 +77,7 @@ class HydrogramParcial(HydrogramBuild):
         point_end = go.Scatter(
             x=list(self.peaks.End),
             y=self.data.loc[self.peaks.End].T.values[0],
-            name="Fim do Evento",
+            name="Ends of events",
             mode='markers',
             marker=dict(color='rgb(0, 0, 0)',
                         size=6,
@@ -85,7 +87,7 @@ class HydrogramParcial(HydrogramBuild):
         point_vazao = go.Scatter(
             x=self.peaks['peaks'].index,
             y=self.peaks['peaks'].values,
-            name="Pico",
+            name="Peaks",
             mode='markers',
             marker=dict(size=8,
                         color='rgb(128, 128, 128)',
@@ -99,7 +101,7 @@ class HydrogramParcial(HydrogramBuild):
         trace_threshold = go.Scatter(
             x=self.data.index,
             y=[self.threshold]*len(self.data),
-            name="Limiar",
+            name="Threshold",
             line=dict(color='rgb(128, 128, 128)',
                       width=1.5,
                       dash='dot')

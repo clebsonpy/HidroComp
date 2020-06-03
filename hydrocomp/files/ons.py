@@ -13,7 +13,7 @@ import numpy as np
 class Ons(FileRead):
 
     source = "ONS"
-    extension = "xls"
+    extension = "xlsx"
 
     def __init__(self, path_file=os.getcwd(), type_data='FLUVIOMÉTRICO', station=None, *args, **kwargs):
         super().__init__(path_file)

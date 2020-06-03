@@ -31,6 +31,10 @@ class Ana(FileRead):
         self.date_end = date_end
         self.type_data = type_data.upper()
         self.data = self.read(self.name)
+        try:
+            self.mean = kwargs["mean"]
+        except KeyError:
+            self.mean = None
 
     def list_files(self):
         return super().list_files()
@@ -120,4 +124,4 @@ class Ana(FileRead):
                     return
         else:
             return data
-        return saida.reset_index(level=1, drop=True)
+        return saida.reset_index(level=1, drop=True).groupby(pd.Grouper(freq='D')).mean()

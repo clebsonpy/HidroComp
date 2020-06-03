@@ -18,7 +18,6 @@ class HydrogramYear(HydrogramBuild):
         ylrd = cl.scales['9']['div']['Spectral']
         ylrd = cl.interp(ylrd, number_of_lines)
         colors = dict(zip(group.columns, ylrd))
-
         trace = []
         for g in group:
             trace.append(go.Scatter(
@@ -43,8 +42,15 @@ class HydrogramYear(HydrogramBuild):
         )
 
         if self.threshold is not None:
-            trace_threshold = self._plot_threshold(group)
-            data = trace + [colorbar_trace] + [trace_threshold]
+            if type(self.threshold) is list:
+                trace_threshold = []
+                i = 1
+                for t in self.threshold:
+                    trace_threshold.append(self._plot_threshold(group, t, name="Limiar - {}".format(i)))
+                    i += 1
+            else:
+                trace_threshold = [self._plot_threshold(group, self.threshold, name="Limiar")]
+            data = trace + [colorbar_trace] + trace_threshold
         else:
             data = trace + [colorbar_trace]
 
@@ -61,8 +67,8 @@ class HydrogramYear(HydrogramBuild):
         )
 
         layout = dict(
-            title=dict(text=self.title,  x=0.5, xanchor='center', y=0.9, yanchor='top',
-                       font=dict(family='Courier New, monospace', color='#7f7f7f', size=self.size_text+6)),
+            title=dict(text=self.title,  x=0.5, xanchor='center', y=0.95, yanchor='top',
+                       font=dict(family='Courier New, monospace', color='rgba(0,0,0,0)', size=self.size_text+6)),
             xaxis=bandxaxis,
             yaxis=bandyaxis,
             width=self.width, height=self.height,
@@ -73,14 +79,14 @@ class HydrogramYear(HydrogramBuild):
 
         return fig, data
 
-    def _plot_threshold(self, group):
+    def _plot_threshold(self, group, threshold, name):
         trace_threshold = go.Scatter(
             x=list(group[group.columns[3]].index),
-            y=[self.threshold]*len(group),
+            y=[threshold]*len(group),
             mode='lines+text',
-            text=['Threshold'],
-            textposition="bottom center",
-            line=dict(color='rgb(128, 128, 128)',
+            text=[name],
+            textposition='top right',
+            line=dict(color='rgb(0, 0, 0)',
                       width=1.5,
                       dash='dot')
         )
