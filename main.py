@@ -5,6 +5,7 @@ import plotly.figure_factory as FF
 import timeit
 
 import pandas as pd
+
 from hidrocomp.iha import iha
 from hidrocomp.iha.iha import IHA
 from hidrocomp.iha.graphics import Graphics
