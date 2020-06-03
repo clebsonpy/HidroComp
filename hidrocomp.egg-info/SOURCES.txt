@@ -1,0 +1,12 @@
+MANIFEST.in
+README.md
+requirements.txt
+setup.cfg
+setup.py
+hidrocomp/__init__.py
+hidrocomp.egg-info/PKG-INFO
+hidrocomp.egg-info/SOURCES.txt
+hidrocomp.egg-info/dependency_links.txt
+hidrocomp.egg-info/requires.txt
+hidrocomp.egg-info/top_level.txt
+test/test_statistic.py

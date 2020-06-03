@@ -2,7 +2,7 @@ from api_ana.serie_temporal import SerieTemporal
 import plotly as py
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from hydrocomp.series.flow import Flow
+from hidrocomp.series.flow import Flow
 import pandas as pd
 
 class Simulation:

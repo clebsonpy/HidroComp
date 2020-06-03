@@ -1,6 +1,6 @@
 from unittest import TestCase
-from hydrocomp.statistic.genextre import Gev
-from hydrocomp.statistic.genpareto import Gpa
+from hidrocomp.statistic.genextre import Gev
+from hidrocomp.statistic.genpareto import Gpa
 
 
 class TestGev(TestCase):

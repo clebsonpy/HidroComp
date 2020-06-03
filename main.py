@@ -5,12 +5,12 @@ import plotly.figure_factory as FF
 import timeit
 
 import pandas as pd
-from hydrocomp.iha import iha
-from hydrocomp.iha.iha import IHA
-from hydrocomp.iha.graphics import Graphics
-from hydrocomp.series.flow import Flow
-from hydrocomp.series.height import Height
-from hydrocomp.series.rainfall import Rainfall
+from hidrocomp.iha import iha
+from hidrocomp.iha.iha import IHA
+from hidrocomp.iha.graphics import Graphics
+from hidrocomp.series.flow import Flow
+from hidrocomp.series.height import Height
+from hidrocomp.series.rainfall import Rainfall
 from api_ana.serie_temporal import SerieTemporal
 
 if __name__ == '__main__':

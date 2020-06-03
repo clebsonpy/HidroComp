@@ -14,8 +14,8 @@ with open('requirements.txt') as f:
 install_requires = [r.strip() for r in require]
 
 setup(
-    name='hydrocomp',
-    version='0.1.7',
+    name='hidrocomp',
+    version='1.0.0',
     include_package_data=True,
     pacotes=find_packages('src'),
     long_description=long_description,
@@ -30,12 +30,12 @@ setup(
                  'Topic :: Scientific/Engineering',
                  'Topic :: Education',
                  ],
-    url='https://github.com/clebsonpy/HydroComp',
+    url='https://github.com/clebsonpy/HidroComp',
     license='MIT License',
     author='Clebson Farias',
     author_email='clebson2007.farias@gmail.com',
     keywords='hydrology statistic iha flow',
     description='Developed for hydrological studies',
     install_requires=install_requires,
-    packages=['hydrocomp'],
+    packages=['hidrocomp'],
 )
