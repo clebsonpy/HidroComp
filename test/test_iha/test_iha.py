@@ -1,7 +1,7 @@
 from unittest import TestCase
 import pandas as pd
 import os
-from hydrocomp.iha.iha import IHA
+from hidrocomp.iha.iha import IHA
 
 
 class TestIHA(TestCase):

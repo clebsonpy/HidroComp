@@ -1,4 +1,4 @@
-ana-hydro-api>=1.0.3
+ana-hidro-api==1.0.4
 lmoments3==1.0.1
 numpy>=1.14.2
 pandas>=0.25.1
