@@ -6,9 +6,9 @@ import timeit
 
 import pandas as pd
 
-from hidrocomp.iha import iha
-from hidrocomp.iha.iha import IHA
-from hidrocomp.iha.graphics import Graphics
+from hidrocomp.eflow import iha
+from hidrocomp.eflow.iha import IHA
+from hidrocomp.eflow.graphics import Graphics
 from hidrocomp.series.flow import Flow
 from hidrocomp.series.height import Height
 from hidrocomp.series.rainfall import Rainfall
@@ -326,7 +326,7 @@ if __name__ == '__main__':
     # fig, data = parcial.plot_hydrogram('Parcial')
     #py.offline.plot(fig2, filename=os.path.join(path, 'graficos/rva.html'))
     """
-    py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro_disser.html'))
+    # py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro_disser.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro-belo-monte.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/gantt_nubia.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro_anual.html'))

@@ -34,7 +34,7 @@ setup(
     license='MIT License',
     author='Clebson Farias',
     author_email='clebson2007.farias@gmail.com',
-    keywords='hydrology statistic iha flow',
+    keywords='hydrology statistic eflow flow',
     description='Developed for hydrological studies',
     install_requires=install_requires,
     packages=['hidrocomp'],

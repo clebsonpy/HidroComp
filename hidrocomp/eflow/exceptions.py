@@ -43,10 +43,28 @@ class NotTypePandas(Exception):
         return "NotRva: {}".format(self.message) + (" the line {}!".format(self.line) if self.line > 0 else "!")
 
 
-class ObjectErro(Exception):
+class ObjectError(Exception):
     def __int__(self, message, line=0):
         self.message = message
         self.line = line
 
     def __str__(self):
         return "ObjectErro: {}".format(self.message) + (" the line {}!".format(self.line) if self.line > 0 else "!")
+
+
+class VariableError(Exception):
+    def __int__(self, message, line=0):
+        self.message = message
+        self.line = line
+
+    def __str__(self):
+        return "VariableError: {}".format(self.message) + (" the line {}!".format(self.line) if self.line > 0 else "!")
+
+
+class StatusError(Exception):
+    def __int__(self, message, line=0):
+        self.message = message
+        self.line = line
+
+    def __str__(self):
+        return "StatusError: {}".format(self.message) + (" the line {}!".format(self.line) if self.line > 0 else "!")
