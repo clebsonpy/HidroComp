@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from hidrocomp.eflow.exceptions import *
 from hidrocomp.eflow.rva import RVA
+from hidrocomp.eflow.dhram import DHRAM
 
 
 class Aspect(metaclass=ABCMeta):
@@ -59,7 +60,7 @@ class Aspect(metaclass=ABCMeta):
         frequency_aspect = pd.DataFrame()
         if aspect_pos.status == "pos":
             for i in self.variables:
-                frequency = self.metric(variable=i).rva(aspect_pos.metric(variable=i).data, statistic=statistic,
+                frequency = self.metric(variable=i).rva(aspect_pos.metric(variable=i), statistic=statistic,
                                                         boundaries=boundaries).frequency_pos
                 frequency_aspect = frequency_aspect.combine_first(frequency)
             return frequency_aspect
@@ -70,12 +71,24 @@ class Aspect(metaclass=ABCMeta):
         measure_hydrologic_alteration = pd.DataFrame()
         if aspect_pos.status == "pos":
             for i in self.variables:
-                mha = self.metric(variable=i).rva(aspect_pos.metric(variable=i).data, statistic=statistic,
-                                                        boundaries=boundaries).measure_hydrologic_alteration()
+                mha = self.metric(variable=i).rva(aspect_pos.metric(variable=i), statistic=statistic,
+                                                  boundaries=boundaries).measure_hydrologic_alteration()
                 measure_hydrologic_alteration = measure_hydrologic_alteration.combine_first(mha)
             return measure_hydrologic_alteration
         else:
-            raise StatusError("")
+            raise StatusError("Aspect status must be pos")
+
+    def dhram_zscore(self, aspect_pos, n, interval=95):
+        zscore = pd.DataFrame()
+        if aspect_pos.status == "pos":
+            for i in self.variables:
+                score = self.metric(variable=i).dhram(variable_pos=aspect_pos.metric(variable=i), interval=interval,
+                                                      n=n).z_score()
+                zscore = zscore.combine_first(score)
+            return zscore
+        else:
+            raise StatusError("Aspect status must be pos")
+
 
 class Variable:
 
@@ -91,9 +104,11 @@ class PosVariable(Variable):
 
 class PreVariable(Variable):
 
-    def rva(self, data_variable_pos, statistic="non-parametric", boundaries=17):
-        return RVA(data_variable_pre=self.data, data_variable_pos=data_variable_pos, boundaries=boundaries,
-                   statistic=statistic, name_variable=self.name)
+    def rva(self, variable_pos, statistic="non-parametric", boundaries=17):
+        return RVA(variable_pre=self, variable_pos=variable_pos, boundaries=boundaries, statistic=statistic)
+
+    def dhram(self, variable_pos, n: int, interval: int = 95):
+        return DHRAM(variable_pre=self, variable_pos=variable_pos, n=n, interval=interval)
 
 
 class Magnitude(Aspect):

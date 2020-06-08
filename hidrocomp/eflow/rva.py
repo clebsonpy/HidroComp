@@ -4,12 +4,12 @@ import pandas as pd
 
 class RVA:
 
-    def __init__(self, data_variable_pre, data_variable_pos, statistic, boundaries, name_variable):
-        self.data_pre = data_variable_pre
-        self.data_pos = data_variable_pos
+    def __init__(self, variable_pre, variable_pos, statistic, boundaries):
+        self.data_pre = variable_pre.data
+        self.data_pos = variable_pos.data
         self.boundaries = boundaries
         self.statistic = statistic
-        self.name_variable = name_variable
+        self.name_variable = variable_pre.name
         self.line = self.__line()
         self.frequency_pre = self.__frequency(data_variable=self.data_pre)
         self.frequency_pos = self.__frequency(data_variable=self.data_pos)

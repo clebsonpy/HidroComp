@@ -38,6 +38,8 @@ class TestRVA(TestCase):
         print(magnitude_obs.metrics)
         print(magnitude_nat.rva_frequency(aspect_pos=magnitude_obs))
         print(magnitude_nat.rva_measure_hydrologic_alteration(aspect_pos=magnitude_obs))
+        print(magnitude_nat.dhram_zscore(aspect_pos=magnitude_obs, n=1000, interval=95))
+        print()
 
     def test_moving_averages(self):
         magnitude_duration_nat = self.iha_obj_nat.magnitude_and_duration()
@@ -46,6 +48,7 @@ class TestRVA(TestCase):
         print(magnitude_duration_obs.metrics)
         print(magnitude_duration_nat.rva_frequency(aspect_pos=magnitude_duration_obs))
         print(magnitude_duration_nat.rva_measure_hydrologic_alteration(aspect_pos=magnitude_duration_obs))
+        print(magnitude_duration_nat.dhram_zscore(aspect_pos=magnitude_duration_obs, n=100, interval=95))
 
     def test_days_julian(self):
         timing_extreme_nat = self.iha_obj_nat.timing_extreme()
@@ -54,6 +57,7 @@ class TestRVA(TestCase):
         print(timing_extreme_obs.metrics)
         print(timing_extreme_nat.rva_frequency(aspect_pos=timing_extreme_obs))
         print(timing_extreme_nat.rva_measure_hydrologic_alteration(aspect_pos=timing_extreme_obs))
+        print(timing_extreme_nat.dhram_zscore(aspect_pos=timing_extreme_obs, n=100, interval=95))
 
     def test_pulse(self):
         frequency_duration_nat = self.iha_obj_nat.frequency_and_duration()
@@ -62,6 +66,7 @@ class TestRVA(TestCase):
         print(frequency_duration_obs.metrics)
         print(frequency_duration_nat.rva_frequency(aspect_pos=frequency_duration_obs))
         print(frequency_duration_nat.rva_measure_hydrologic_alteration(aspect_pos=frequency_duration_obs))
+        print(frequency_duration_nat.dhram_zscore(aspect_pos=frequency_duration_obs, n=100, interval=95))
 
     def test_rise_fall(self):
         rate_and_frequency_nat = self.iha_obj_nat.rate_and_frequency()
@@ -70,3 +75,4 @@ class TestRVA(TestCase):
         print(rate_and_frequency_obs)
         print(rate_and_frequency_nat.rva_frequency(aspect_pos=rate_and_frequency_obs))
         print(rate_and_frequency_nat.rva_measure_hydrologic_alteration(aspect_pos=rate_and_frequency_obs))
+        print(rate_and_frequency_nat.dhram_zscore(aspect_pos=rate_and_frequency_obs, n=100, interval=95))
