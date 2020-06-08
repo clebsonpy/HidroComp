@@ -1,5 +1,7 @@
-from hidrocomp.eflow.exceptions import *
 import pandas as pd
+
+from hidrocomp.eflow.exceptions import *
+from hidrocomp.eflow.graphics import Graphics
 
 
 class RVA:
@@ -69,5 +71,17 @@ class RVA:
                 self.name_variable].loc[boolean_median[self.name_variable] == True].count()
         return count
 
-    def plot(self):
-        pass
+    def plot(self, color={"pre": "blue", "pos": "red"}):
+        """
+        @type color: dict
+        """
+        fig_obs, data_obs = Graphics(data_variable=self.data_pos, status="pos").plot(metric=self.name_variable,
+                                                                                     color=color["pos"], line=self.line)
+        fig_nat, data_nat = Graphics(data_variable=self.data_pre, status="pre").plot(metric=self.name_variable,
+                                                                                     color=color['pre'], line=self.line)
+
+        data_obs[1]["showlegend"] = False
+        data = data_obs + [data_nat[0]]
+        fig = dict(data=data_obs + [data_nat[0]], layout=fig_nat['layout'])
+
+        return fig, data

@@ -1,6 +1,7 @@
 from unittest import TestCase
 import pandas as pd
 import os
+import plotly as py
 from hidrocomp.eflow.iha import IHA
 from hidrocomp.series.flow import Flow
 
@@ -39,7 +40,10 @@ class TestRVA(TestCase):
         print(magnitude_nat.rva_frequency(aspect_pos=magnitude_obs))
         print(magnitude_nat.rva_measure_hydrologic_alteration(aspect_pos=magnitude_obs))
         print(magnitude_nat.dhram_zscore(aspect_pos=magnitude_obs, n=1000, interval=95))
-        print()
+        fig, data = magnitude_nat.metric(variable="February").rva(magnitude_obs.metric(variable="February"),boundaries=17,
+                                                                 statistic="non-parametric").plot()
+
+        py.offline.plot(fig, filename=os.path.join("graficos", "rva.html"))
 
     def test_moving_averages(self):
         magnitude_duration_nat = self.iha_obj_nat.magnitude_and_duration()

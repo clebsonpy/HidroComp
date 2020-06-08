@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractmethod
 import pandas as pd
 import numpy as np
+import calendar as cal
 from hidrocomp.eflow.exceptions import *
 from hidrocomp.eflow.rva import RVA
 from hidrocomp.eflow.dhram import DHRAM
@@ -20,6 +21,7 @@ class Aspect(metaclass=ABCMeta):
         self.metrics = self.metric_stats()
 
     def metric(self, variable=None):
+        variable = variable.title()
         if variable is None:
             raise VariableError("Metric is None")
         else:
@@ -50,6 +52,7 @@ class Aspect(metaclass=ABCMeta):
                                line=46)
 
         stats = mean.combine_first(cv)
+        stats = stats.reindex(self.variables)
         return stats
 
     @abstractmethod
@@ -63,6 +66,7 @@ class Aspect(metaclass=ABCMeta):
                 frequency = self.metric(variable=i).rva(aspect_pos.metric(variable=i), statistic=statistic,
                                                         boundaries=boundaries).frequency_pos
                 frequency_aspect = frequency_aspect.combine_first(frequency)
+                frequency_aspect = frequency_aspect.reindex(self.variables)
             return frequency_aspect
         else:
             raise StatusError("")
@@ -74,6 +78,7 @@ class Aspect(metaclass=ABCMeta):
                 mha = self.metric(variable=i).rva(aspect_pos.metric(variable=i), statistic=statistic,
                                                   boundaries=boundaries).measure_hydrologic_alteration()
                 measure_hydrologic_alteration = measure_hydrologic_alteration.combine_first(mha)
+                measure_hydrologic_alteration = measure_hydrologic_alteration.reindex(self.variables)
             return measure_hydrologic_alteration
         else:
             raise StatusError("Aspect status must be pos")
@@ -85,6 +90,7 @@ class Aspect(metaclass=ABCMeta):
                 score = self.metric(variable=i).dhram(variable_pos=aspect_pos.metric(variable=i), interval=interval,
                                                       n=n).z_score()
                 zscore = zscore.combine_first(score)
+                zscore = zscore.reindex(self.variables)
             return zscore
         else:
             raise StatusError("Aspect status must be pos")
@@ -113,34 +119,21 @@ class PreVariable(Variable):
 
 class Magnitude(Aspect):
 
-    variables = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october',
-                    'november', 'december']
-
-    def metric(self, variable=None):
-        month = self.variables.index(variable) + 1
-        if variable is None:
-            raise VariableError("Metric is None")
-        else:
-            if variable in self.variables:
-                if self.status == "pre":
-                    return PreVariable(data=self.data[month], value=self.metrics.loc[month], name=month)
-                elif self.status == "pos":
-                    return PosVariable(data=self.data[month], value=self.metrics.loc[month], name=month)
-                else:
-                    raise StatusError("Status invalid!")
-            else:
-                raise VariableError("Metric invalid! Options: {}".format(self.variables))
+    variables = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
+                 'November', 'December']
 
     def _data(self):
         years = self.flow.data.groupby(pd.Grouper(freq=self.month_start[1]))
-        data = pd.DataFrame()
+        data = pd.DataFrame(columns=['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
+                                     'September', 'October', 'November', 'December'])
         for year in years:
             aux = year[1].groupby(pd.Grouper(freq='M')).mean()
             df = pd.DataFrame({year[0].year: {
-                i.month: aux[self.station][i] for i in aux[self.station].index}})
-            data = data.combine_first(df)
+                cal.month_name[i.month]: aux[self.station][i] for i in aux[self.station].index}})
 
-        mean_months = data.T
+            data = data.combine_first(df.T)
+
+        mean_months = data
         return mean_months
 
 
