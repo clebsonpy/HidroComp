@@ -83,12 +83,12 @@ class Aspect(metaclass=ABCMeta):
         else:
             raise StatusError("Aspect status must be pos")
 
-    def dhram_zscore(self, aspect_pos, n, interval=95):
+    def dhram_zscore(self, aspect_pos, m, interval=95):
         zscore = pd.DataFrame()
         if aspect_pos.status == "pos":
             for i in self.variables:
                 score = self.metric(variable=i).dhram(variable_pos=aspect_pos.metric(variable=i), interval=interval,
-                                                      n=n).z_score()
+                                                      m=m).z_score()
                 zscore = zscore.combine_first(score)
                 zscore = zscore.reindex(self.variables)
             return zscore
@@ -113,8 +113,8 @@ class PreVariable(Variable):
     def rva(self, variable_pos, statistic="non-parametric", boundaries=17):
         return RVA(variable_pre=self, variable_pos=variable_pos, boundaries=boundaries, statistic=statistic)
 
-    def dhram(self, variable_pos, n: int, interval: int = 95):
-        return DHRAM(variable_pre=self, variable_pos=variable_pos, n=n, interval=interval)
+    def dhram(self, variable_pos, m: int, interval: int = 95):
+        return DHRAM(variable_pre=self, variable_pos=variable_pos, m=m, interval=interval)
 
 
 class Magnitude(Aspect):

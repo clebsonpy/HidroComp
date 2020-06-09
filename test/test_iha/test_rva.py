@@ -39,7 +39,7 @@ class TestRVA(TestCase):
         print(magnitude_obs.metrics)
         print(magnitude_nat.rva_frequency(aspect_pos=magnitude_obs))
         print(magnitude_nat.rva_measure_hydrologic_alteration(aspect_pos=magnitude_obs))
-        print(magnitude_nat.dhram_zscore(aspect_pos=magnitude_obs, n=1000, interval=95))
+        print(magnitude_nat.dhram_zscore(aspect_pos=magnitude_obs, m=1000, interval=95))
         fig, data = magnitude_nat.metric(variable="February").rva(magnitude_obs.metric(variable="February"),boundaries=17,
                                                                  statistic="non-parametric").plot()
 
