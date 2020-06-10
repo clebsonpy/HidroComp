@@ -1,6 +1,8 @@
 import pandas as pd
 from scipy.stats import zscore
 
+from hidrocomp.eflow.graphics import GraphicsDHRAM
+
 
 class DHRAM:
 
@@ -33,3 +35,18 @@ class DHRAM:
         z_score_df.at[self.name_variable, "Pos - 97_5"] = (self.confidence_intervals_pos[0.975] - mean) / std
 
         return z_score_df
+
+    def plot(self, color={"pre": "blue", "pos": "red"}):
+        """
+        @type color: dict
+        """
+        fig_obs, data_obs = GraphicsDHRAM(data_variable=self.sample_mean_pos, status="pos", color=color,
+                                          interval_confidence=self.confidence_intervals_pos).plot()
+        fig_nat, data_nat = GraphicsDHRAM(data_variable=self.sample_mean_pre, status="pre", color=color,
+                                          interval_confidence=self.confidence_intervals_pre).plot()
+
+        data = data_obs + data_nat
+        print(data)
+        fig = dict(data=data, layout=fig_nat['layout'])
+
+        return fig, data

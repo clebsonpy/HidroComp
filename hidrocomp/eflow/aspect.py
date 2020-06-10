@@ -8,9 +8,9 @@ from hidrocomp.eflow.dhram import DHRAM
 
 
 class Aspect(metaclass=ABCMeta):
-    variables = None
 
     def __init__(self, flow, month_start, central_metric, variation_metric, status):
+        self.variables = None
         self.flow = flow
         self.station = flow.station
         self.month_start = month_start
@@ -20,20 +20,22 @@ class Aspect(metaclass=ABCMeta):
         self.data = self._data()
         self.metrics = self.metric_stats()
 
-    def metric(self, variable=None):
-        variable = variable.title()
-        if variable is None:
-            raise VariableError("Metric is None")
+    def variable(self, name=None):
+        name = name.title()
+        if name is None:
+            raise VariableError("Variable is None")
         else:
-            if variable in self.variables:
-                if self.status == "pre":
-                    return PreVariable(data=self.data[variable], value=self.metrics.loc[variable], name=variable)
-                elif self.status == "pos":
-                    return PosVariable(data=self.data[variable], value=self.metrics.loc[variable], name=variable)
-                else:
-                    raise StatusError("Status invalid!")
-            else:
-                raise VariableError("Metric invalid! Options: {}".format(self.variables))
+            try:
+                if self.variables[name] is None:
+                    if self.status == "pre":
+                        self.variables[name] = PreVariable(data=self.data[name], value=self.metrics.loc[name], name=name)
+                    elif self.status == "pos":
+                        self.variables[name] = PosVariable(data=self.data[name], value=self.metrics.loc[name], name=name)
+                    else:
+                        raise StatusError("Status invalid!")
+                return self.variables[name]
+            except KeyError:
+                raise VariableError("Variable invalid! Options: {}".format(self.variables.keys()))
 
     def metric_stats(self):
         if self.central_metric == 'mean':
@@ -63,8 +65,8 @@ class Aspect(metaclass=ABCMeta):
         frequency_aspect = pd.DataFrame()
         if aspect_pos.status == "pos":
             for i in self.variables:
-                frequency = self.metric(variable=i).rva(aspect_pos.metric(variable=i), statistic=statistic,
-                                                        boundaries=boundaries).frequency_pos
+                frequency = self.variable(name=i).rva(aspect_pos.variable(name=i), statistic=statistic,
+                                                      boundaries=boundaries).frequency_pos
                 frequency_aspect = frequency_aspect.combine_first(frequency)
                 frequency_aspect = frequency_aspect.reindex(self.variables)
             return frequency_aspect
@@ -75,8 +77,8 @@ class Aspect(metaclass=ABCMeta):
         measure_hydrologic_alteration = pd.DataFrame()
         if aspect_pos.status == "pos":
             for i in self.variables:
-                mha = self.metric(variable=i).rva(aspect_pos.metric(variable=i), statistic=statistic,
-                                                  boundaries=boundaries).measure_hydrologic_alteration()
+                mha = self.variable(name=i).rva(aspect_pos.variable(name=i), statistic=statistic,
+                                                boundaries=boundaries).measure_hydrologic_alteration()
                 measure_hydrologic_alteration = measure_hydrologic_alteration.combine_first(mha)
                 measure_hydrologic_alteration = measure_hydrologic_alteration.reindex(self.variables)
             return measure_hydrologic_alteration
@@ -87,8 +89,8 @@ class Aspect(metaclass=ABCMeta):
         zscore = pd.DataFrame()
         if aspect_pos.status == "pos":
             for i in self.variables:
-                score = self.metric(variable=i).dhram(variable_pos=aspect_pos.metric(variable=i), interval=interval,
-                                                      m=m).z_score()
+                score = self.variable(name=i).dhram(variable_pos=aspect_pos.variable(name=i), interval=interval,
+                                                    m=m).z_score()
                 zscore = zscore.combine_first(score)
                 zscore = zscore.reindex(self.variables)
             return zscore
@@ -110,19 +112,29 @@ class PosVariable(Variable):
 
 class PreVariable(Variable):
 
-    def rva(self, variable_pos, statistic="non-parametric", boundaries=17):
-        return RVA(variable_pre=self, variable_pos=variable_pos, boundaries=boundaries, statistic=statistic)
+    _dhram: DHRAM = None
+    _rva: RVA = None
 
-    def dhram(self, variable_pos, m: int, interval: int = 95):
-        return DHRAM(variable_pre=self, variable_pos=variable_pos, m=m, interval=interval)
+    def rva(self, variable_pos, statistic="non-parametric", boundaries=17) -> RVA:
+        if self._rva is None:
+            self._rva = RVA(variable_pre=self, variable_pos=variable_pos, boundaries=boundaries, statistic=statistic)
+        return self._rva
+
+    def dhram(self, variable_pos, m: int, interval: int = 95) -> DHRAM:
+        if self._dhram is None:
+            self._dhram = DHRAM(variable_pre=self, variable_pos=variable_pos, m=m, interval=interval)
+        return self._dhram
 
 
 class Magnitude(Aspect):
 
-    variables = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
-                 'November', 'December']
+
+
 
     def _data(self):
+        self.variables = {'January': None, 'February': None, 'March': None, 'April': None, 'May': None, 'June': None,
+                          'July': None, 'August': None, 'September': None, 'October': None, 'November': None,
+                          'December': None}
         years = self.flow.data.groupby(pd.Grouper(freq=self.month_start[1]))
         data = pd.DataFrame(columns=['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
                                      'September', 'October', 'November', 'December'])
@@ -140,8 +152,8 @@ class Magnitude(Aspect):
 class MagnitudeDuration(Aspect):
 
     variables = ["1-day minimum", "1-day maximum", "3-day minimum", "3-day maximum", "7-day minimum",
-                    "7-day maximum", "30-day minimum", "30-day maximum", "90-day minimum", "90-day maximum",
-                    "Number of zero days", "Base flow index"]
+                 "7-day maximum", "30-day minimum", "30-day maximum", "90-day minimum", "90-day maximum",
+                 "Number of zero days", "Base flow index"]
 
     def _data(self):
         aver_data = pd.DataFrame()

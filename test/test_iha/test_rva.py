@@ -36,14 +36,19 @@ class TestRVA(TestCase):
         magnitude_nat = self.iha_obj_nat.magnitude()
         magnitude_obs = self.iha_obj_obs.magnitude()
         print(magnitude_nat.metrics)
-        print(magnitude_obs.metrics)
+        print(magnitude_nat.metrics)
         print(magnitude_nat.rva_frequency(aspect_pos=magnitude_obs))
         print(magnitude_nat.rva_measure_hydrologic_alteration(aspect_pos=magnitude_obs))
-        print(magnitude_nat.dhram_zscore(aspect_pos=magnitude_obs, m=1000, interval=95))
-        fig, data = magnitude_nat.metric(variable="February").rva(magnitude_obs.metric(variable="February"),boundaries=17,
-                                                                 statistic="non-parametric").plot()
+        print(magnitude_nat.dhram_zscore(aspect_pos=magnitude_obs, m=100, interval=95))
+        print(magnitude_nat.variable(name="January").dhram(variable_pos=magnitude_obs.variable(name="January"), m=100,
+                                                           interval=95))
+        fig, data = magnitude_nat.variable(name="February").rva(magnitude_obs.variable(name="February"),
+                                                                  boundaries=17, statistic="non-parametric").plot()
 
+        fig2, data2 = magnitude_nat.variable(name="February").dhram(magnitude_obs.variable(name="February"), m=100,
+                                                                    interval=95).plot()
         py.offline.plot(fig, filename=os.path.join("graficos", "rva.html"))
+        py.offline.plot(fig2, filename=os.path.join("graficos", "dhram.html"))
 
     def test_moving_averages(self):
         magnitude_duration_nat = self.iha_obj_nat.magnitude_and_duration()

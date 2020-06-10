@@ -1,7 +1,7 @@
 import pandas as pd
 
 from hidrocomp.eflow.exceptions import *
-from hidrocomp.eflow.graphics import Graphics
+from hidrocomp.eflow.graphics import Graphics, GraphicsRVA
 
 
 class RVA:
@@ -75,13 +75,10 @@ class RVA:
         """
         @type color: dict
         """
-        fig_obs, data_obs = Graphics(data_variable=self.data_pos, status="pos").plot(metric=self.name_variable,
-                                                                                     color=color["pos"], line=self.line)
-        fig_nat, data_nat = Graphics(data_variable=self.data_pre, status="pre").plot(metric=self.name_variable,
-                                                                                     color=color['pre'], line=self.line)
+        fig_obs, data_obs = GraphicsRVA(data_variable=self.data_pos, status="pos", color=color, line=self.line).plot()
+        fig_nat, data_nat = GraphicsRVA(data_variable=self.data_pre, status="pre", color=color, line=self.line).plot()
 
-        data_obs[1]["showlegend"] = False
         data = data_obs + [data_nat[0]]
-        fig = dict(data=data_obs + [data_nat[0]], layout=fig_nat['layout'])
+        fig = dict(data=data, layout=fig_nat['layout'])
 
         return fig, data
