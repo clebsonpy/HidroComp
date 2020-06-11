@@ -103,7 +103,7 @@ class Flow(SeriesBuild):
         self.month_start_year_hydrologic()
         idx = [i for i in self.data.index if i.month == 2 and i.day == 29]
         data = self.data.drop(index=idx)
-        data = data.groupby(pd.Grouper(freq=self.month_abr))
+        data = data.groupby(pd.Grouper(freq=self.month_abr_flood))
         hydrogram = HydrogramYear(data=data, threshold=threshold, width=width, height=height, title=title,
                                   size_text=size_text)
         fig, data = hydrogram.plot()
@@ -120,7 +120,7 @@ class Flow(SeriesBuild):
     def get_month_name(self):
         months = {1: 'Janeiro', 2: 'Fevereiro', 3: 'Março', 4: 'Abril', 5: 'Maio', 6: 'Junho', 7: 'Julho', 8: 'Agosto',
                   9: 'Setembro', 10: 'Outubro', 11: 'Novembro', 12: 'Dezembro'}
-        return months[self.month_num]
+        return months[self.month_num_flood]
 
     def flow_min(self, method):
         if method == 'q90':
