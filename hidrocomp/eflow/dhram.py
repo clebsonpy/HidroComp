@@ -4,36 +4,59 @@ from hidrocomp.statistic.normal import Normal
 from hidrocomp.eflow.graphics import GraphicsDHRAM
 
 
-class DHRAM:
+class DhramAspect:
+    _points = None
+    _values = None
+    _variables: list = []
+    _list_name_variables = []
+
+    @property
+    def variables(self):
+        return self._list_name_variables
+
+    @variables.setter
+    def variables(self, variable):
+        self._list_name_variables.append(variable.name)
+        self._variables.append(variable)
+
+    @property
+    def values(self):
+        df = pd.DataFrame()
+        for i in self._variables:
+            df = df.combine_first(i.value())
+            self._list_name_variables.append(i.name)
+        return df.reindex(self._list_name_variables)
+
+class DhramVariable:
 
     def __init__(self, variable_pre, variable_pos, interval: int, m: int):
-        self.name_variable = variable_pre.name
+        self.name = variable_pre.name
         self.data_pre = variable_pre.data
         self.data_pos = variable_pos.data
         self.interval = interval
         self.n_pre = len(self.data_pre)
         self.n_pos = len(self.data_pos)
         self.sample_mean_pre = pd.Series(data=[self.data_pre.sample(n=self.n_pre, replace=True).mean()
-                                               for _ in range(m)], name=self.name_variable)
+                                               for _ in range(m)], name=self.name)
         self.sample_mean_pos = pd.Series(data=[self.data_pos.sample(n=self.n_pos, replace=True).mean()
-                                               for _ in range(m)], name=self.name_variable)
+                                               for _ in range(m)], name=self.name)
         self.confidence_intervals_pre = self.sample_mean_pre.quantile([((100 - self.interval) / 2) / 100,
                                                                        1 - ((100 - self.interval) / 2) / 100])
         self.confidence_intervals_pos = self.sample_mean_pos.quantile([((100 - self.interval) / 2) / 100,
                                                                        1 - ((100 - self.interval) / 2) / 100])
 
     def value(self):
-        z_score_df = pd.DataFrame(columns=["Pre - 2_5", "Pre - 97_5", "Pos - 2_5", "Pos - 97_5"])
+        value = pd.DataFrame(columns=["Pre - 2_5", "Pre - 97_5", "Pos - 2_5", "Pos - 97_5"])
 
         dist = Normal(data=list(self.sample_mean_pre.values))
 
-        z_score_df.at[self.name_variable, "Pre - 2_5"] = dist.z_score(self.confidence_intervals_pre[0.025])
-        z_score_df.at[self.name_variable, "Pre - 97_5"] = dist.z_score(self.confidence_intervals_pre[0.975])
+        value.at[self.name, "Pre - 2_5"] = dist.z_score(self.confidence_intervals_pre[0.025])
+        value.at[self.name, "Pre - 97_5"] = dist.z_score(self.confidence_intervals_pre[0.975])
 
-        z_score_df.at[self.name_variable, "Pos - 2_5"] = dist.z_score(self.confidence_intervals_pos[0.025])
-        z_score_df.at[self.name_variable, "Pos - 97_5"] = dist.z_score(self.confidence_intervals_pos[0.975])
+        value.at[self.name, "Pos - 2_5"] = dist.z_score(self.confidence_intervals_pos[0.025])
+        value.at[self.name, "Pos - 97_5"] = dist.z_score(self.confidence_intervals_pos[0.975])
 
-        return z_score_df
+        return value
 
     @staticmethod
     def __definition_points(multi_pre):
@@ -46,7 +69,7 @@ class DHRAM:
         else:
             return 0
 
-    def points(self):
+    def point(self) -> pd.DataFrame:
         """
         1 point - 1x z_score(pre)
         2 point - 2x z_score(pre)
@@ -71,8 +94,8 @@ class DHRAM:
         else:
             multi_pre = value_pos / pre_97_5
 
-        point_df.at[self.name_variable, "Point"] = self.__definition_points(multi_pre)
-        point_df.at[self.name_variable, "Diff"] = multi_pre
+        point_df.at[self.name, "Point"] = self.__definition_points(multi_pre)
+        point_df.at[self.name, "Diff"] = multi_pre
 
         return point_df
 

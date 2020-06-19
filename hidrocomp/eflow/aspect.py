@@ -4,7 +4,7 @@ import numpy as np
 import calendar as cal
 from hidrocomp.eflow.exceptions import *
 from hidrocomp.eflow.rva import RVA
-from hidrocomp.eflow.dhram import DHRAM
+from hidrocomp.eflow.dhram import DhramVariable, DhramAspect
 
 
 class Aspect(metaclass=ABCMeta):
@@ -88,23 +88,22 @@ class Aspect(metaclass=ABCMeta):
             raise StatusError("Aspect status must be pos")
 
     def dhram(self, aspect_pos, m, interval=95):
-        class DHRAM:
-            points = None
-            value = None
 
         dhram_value = pd.DataFrame()
         dhram_points = pd.DataFrame()
+        dhram = DhramAspect()
         if aspect_pos.status == "pos":
             for i in self.variables:
-                dhram = self.variable(name=i).dhram(variable_pos=aspect_pos.variable(name=i), interval=interval,
+                dhram_variable = self.variable(name=i).dhram(variable_pos=aspect_pos.variable(name=i), interval=interval,
                                                     m=m)
+                dhram.variables = dhram_variable
+                # dhram_points = dhram_points.combine_first(dhram.point())
+                # dhram_value = dhram_value.combine_first(dhram.value())
 
-                dhram_points = dhram_points.combine_first(dhram.points())
-                dhram_value = dhram_value.combine_first(dhram.value())
-
-            DHRAM.value = dhram_value.reindex(self.variables)
-            DHRAM.points = dhram_points.reindex(self.variables)
-            return DHRAM
+            # DhramAspect.value = dhram_value.reindex(self.variables)
+            # DhramAspect.points = dhram_points.reindex(self.variables)
+            print(dhram.variables)
+            return dhram
         else:
             raise StatusError("Aspect status must be pos")
 
@@ -123,7 +122,7 @@ class PosVariable(Variable):
 
 class PreVariable(Variable):
 
-    _dhram: DHRAM = None
+    _dhram: DhramVariable = None
     _rva: RVA = None
 
     def rva(self, variable_pos, statistic="non-parametric", boundaries=17) -> RVA:
@@ -131,9 +130,9 @@ class PreVariable(Variable):
             self._rva = RVA(variable_pre=self, variable_pos=variable_pos, boundaries=boundaries, statistic=statistic)
         return self._rva
 
-    def dhram(self, variable_pos, m: int, interval: int = 95) -> DHRAM:
+    def dhram(self, variable_pos, m: int, interval: int = 95) -> DhramVariable:
         if self._dhram is None:
-            self._dhram = DHRAM(variable_pre=self, variable_pos=variable_pos, m=m, interval=interval)
+            self._dhram = DhramVariable(variable_pre=self, variable_pos=variable_pos, m=m, interval=interval)
         return self._dhram
 
 

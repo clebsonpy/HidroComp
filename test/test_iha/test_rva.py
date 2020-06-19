@@ -43,7 +43,7 @@ class TestRVA(TestCase):
         print(dhram.value)
         print(dhram.points)
         print(magnitude_nat.variable(name="January").dhram(variable_pos=magnitude_obs.variable(name="January"), m=100,
-                                                           interval=95).points())
+                                                           interval=95).point())
         fig, data = magnitude_nat.variable(name="February").rva(magnitude_obs.variable(name="February"),
                                                                 boundaries=17, statistic="non-parametric").plot()
 
