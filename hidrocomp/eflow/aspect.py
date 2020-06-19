@@ -21,16 +21,18 @@ class Aspect(metaclass=ABCMeta):
         self.metrics = self.metric_stats()
 
     def variable(self, name=None):
-        name = name.title()
+        name = name.capitalize()
         if name is None:
             raise VariableError("Variable is None")
         else:
             try:
                 if self.variables[name] is None:
                     if self.status == "pre":
-                        self.variables[name] = PreVariable(data=self.data[name], value=self.metrics.loc[name], name=name)
+                        self.variables[name] = PreVariable(data=self.data[name], value=self.metrics.loc[name],
+                                                           name=name)
                     elif self.status == "pos":
-                        self.variables[name] = PosVariable(data=self.data[name], value=self.metrics.loc[name], name=name)
+                        self.variables[name] = PosVariable(data=self.data[name], value=self.metrics.loc[name],
+                                                           name=name)
                     else:
                         raise StatusError("Status invalid!")
                 return self.variables[name]
@@ -85,15 +87,24 @@ class Aspect(metaclass=ABCMeta):
         else:
             raise StatusError("Aspect status must be pos")
 
-    def dhram_zscore(self, aspect_pos, m, interval=95):
-        zscore = pd.DataFrame()
+    def dhram(self, aspect_pos, m, interval=95):
+        class DHRAM:
+            points = None
+            value = None
+
+        dhram_value = pd.DataFrame()
+        dhram_points = pd.DataFrame()
         if aspect_pos.status == "pos":
             for i in self.variables:
-                score = self.variable(name=i).dhram(variable_pos=aspect_pos.variable(name=i), interval=interval,
-                                                    m=m).z_score()
-                zscore = zscore.combine_first(score)
-                zscore = zscore.reindex(self.variables)
-            return zscore
+                dhram = self.variable(name=i).dhram(variable_pos=aspect_pos.variable(name=i), interval=interval,
+                                                    m=m)
+
+                dhram_points = dhram_points.combine_first(dhram.points())
+                dhram_value = dhram_value.combine_first(dhram.value())
+
+            DHRAM.value = dhram_value.reindex(self.variables)
+            DHRAM.points = dhram_points.reindex(self.variables)
+            return DHRAM
         else:
             raise StatusError("Aspect status must be pos")
 
@@ -128,9 +139,6 @@ class PreVariable(Variable):
 
 class Magnitude(Aspect):
 
-
-
-
     def _data(self):
         self.variables = {'January': None, 'February': None, 'March': None, 'April': None, 'May': None, 'June': None,
                           'July': None, 'August': None, 'September': None, 'October': None, 'November': None,
@@ -151,11 +159,12 @@ class Magnitude(Aspect):
 
 class MagnitudeDuration(Aspect):
 
-    variables = ["1-day minimum", "1-day maximum", "3-day minimum", "3-day maximum", "7-day minimum",
-                 "7-day maximum", "30-day minimum", "30-day maximum", "90-day minimum", "90-day maximum",
-                 "Number of zero days", "Base flow index"]
-
     def _data(self):
+        self.variables = {"1-day minimum": None, "1-day maximum": None, "3-day minimum": None, "3-day maximum": None,
+                          "7-day minimum": None, "7-day maximum": None, "30-day minimum": None, "30-day maximum": None,
+                          "90-day minimum": None, "90-day maximum": None, "Number of zero days": None,
+                          "Base flow index": None}
+
         aver_data = pd.DataFrame()
         for i in [1, 3, 7, 30, 90]:
             ave_max = self.flow.data.rolling(window=i).mean().groupby(pd.Grouper(freq=self.month_start[1])).max()
@@ -181,9 +190,9 @@ class MagnitudeDuration(Aspect):
 
 class TimingExtreme(Aspect):
 
-    variables = ["Date of minimum", "Date of maximum"]
-
     def _data(self):
+        self.variables = {"Date of minimum": None, "Date of maximum": None}
+
         day_julian_max = self.flow.data[self.station].groupby(
             pd.Grouper(freq=self.month_start[1])).idxmax().dropna(axis=0)
         day_julian_min = self.flow.data[self.station].groupby(
@@ -204,8 +213,6 @@ class TimingExtreme(Aspect):
 
 class FrequencyDuration(Aspect):
 
-    variables = ["High pulse count", "High pulse duration", "Low pulse count", "Low pulse duration"]
-
     def __init__(self, flow, month_start, central_metric, variation_metric, status, type_threshold, type_criterion,
                  threshold_high, threshold_low):
         self.type_threshold = type_threshold
@@ -216,6 +223,9 @@ class FrequencyDuration(Aspect):
                          variation_metric=variation_metric, status=status)
 
     def _data(self):
+        self.variables = {"High pulse count": None, "High pulse duration": None, "Low pulse count": None,
+                          "Low pulse duration": None}
+
         def aux_frequency_and_duration(events):
             name = {'flood': 'High', 'drought': 'Low'}
             type_event = events.type_event
@@ -255,8 +265,6 @@ class FrequencyDuration(Aspect):
 
 class RateFrequency(Aspect):
 
-    variables = ["Rise rate", "Fall rate", "Number of reversals"]
-
     # <editor-fold desc="Check type rate"
     @staticmethod
     def check_rate(value1, value2, type_rate):
@@ -267,6 +275,8 @@ class RateFrequency(Aspect):
     # </editor-fold>
 
     def _data(self):
+        self.variables = {"Rise rate": None, "Fall rate": None, "Number of reversals": None}
+
         data_water = self.flow.data.groupby(pd.Grouper(freq=self.month_start[1]))
         rate_df = pd.DataFrame(columns=['Rise rate', 'Fall rate', 'Number of reversals'])
         boo = False

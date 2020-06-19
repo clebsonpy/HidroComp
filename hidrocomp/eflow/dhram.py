@@ -1,5 +1,5 @@
 import pandas as pd
-from scipy.stats import zscore
+from hidrocomp.statistic.normal import Normal
 
 from hidrocomp.eflow.graphics import GraphicsDHRAM
 
@@ -22,19 +22,59 @@ class DHRAM:
         self.confidence_intervals_pos = self.sample_mean_pos.quantile([((100 - self.interval) / 2) / 100,
                                                                        1 - ((100 - self.interval) / 2) / 100])
 
-    def z_score(self):
+    def value(self):
         z_score_df = pd.DataFrame(columns=["Pre - 2_5", "Pre - 97_5", "Pos - 2_5", "Pos - 97_5"])
 
-        mean = self.sample_mean_pre.mean()
-        std = self.sample_mean_pre.std()
+        dist = Normal(data=list(self.sample_mean_pre.values))
 
-        z_score_df.at[self.name_variable, "Pre - 2_5"] = (self.confidence_intervals_pre[0.025] - mean) / std
-        z_score_df.at[self.name_variable, "Pre - 97_5"] = (self.confidence_intervals_pre[0.975] - mean) / std
+        z_score_df.at[self.name_variable, "Pre - 2_5"] = dist.z_score(self.confidence_intervals_pre[0.025])
+        z_score_df.at[self.name_variable, "Pre - 97_5"] = dist.z_score(self.confidence_intervals_pre[0.975])
 
-        z_score_df.at[self.name_variable, "Pos - 2_5"] = (self.confidence_intervals_pos[0.025] - mean) / std
-        z_score_df.at[self.name_variable, "Pos - 97_5"] = (self.confidence_intervals_pos[0.975] - mean) / std
+        z_score_df.at[self.name_variable, "Pos - 2_5"] = dist.z_score(self.confidence_intervals_pos[0.025])
+        z_score_df.at[self.name_variable, "Pos - 97_5"] = dist.z_score(self.confidence_intervals_pos[0.975])
 
         return z_score_df
+
+    @staticmethod
+    def __definition_points(multi_pre):
+        if 1 < multi_pre <= 2:
+            return 1
+        elif 2 < multi_pre <= 3:
+            return 2
+        elif multi_pre > 3:
+            return 3
+        else:
+            return 0
+
+    def points(self):
+        """
+        1 point - 1x z_score(pre)
+        2 point - 2x z_score(pre)
+        3 point - 3x > z_score(pre)
+        @return:
+        """
+        point_df = pd.DataFrame(columns=["Diff", "Point"])
+
+        z_score = self.value()
+        pos_2_5 = z_score["Pos - 2_5"].values[0]
+        pos_97_5 = z_score["Pos - 97_5"].values[0]
+        pre_2_5 = z_score["Pre - 2_5"].values[0]
+        pre_97_5 = z_score["Pre - 97_5"].values[0]
+
+        if abs(pos_2_5) < abs(pos_97_5):
+            value_pos = pos_2_5
+        else:
+            value_pos = pos_97_5
+
+        if value_pos < 0:
+            multi_pre = value_pos / pre_2_5
+        else:
+            multi_pre = value_pos / pre_97_5
+
+        point_df.at[self.name_variable, "Point"] = self.__definition_points(multi_pre)
+        point_df.at[self.name_variable, "Diff"] = multi_pre
+
+        return point_df
 
     def plot(self, color={"pre": "blue", "pos": "red"}):
         """
@@ -46,7 +86,6 @@ class DHRAM:
                                           interval_confidence=self.confidence_intervals_pre).plot()
 
         data = data_obs + data_nat
-        print(data)
         fig = dict(data=data, layout=fig_nat['layout'])
 
         return fig, data
