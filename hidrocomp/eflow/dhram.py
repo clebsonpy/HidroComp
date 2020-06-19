@@ -59,43 +59,39 @@ class DhramVariable:
         self.name = variable_pre.name
         self.data_pre = variable_pre.data
         self.data_pos = variable_pos.data
-        self.interval = interval
+        self.interval = [((100 - interval) / 2) / 100, 1 - ((100 - interval) / 2) / 100]
         self.sample_pre = Bootstrap(data=self.data_pre, m=m)
         self.sample_pos = Bootstrap(data=self.data_pos, m=m)
 
+    def __calc_value(self, dist_pre, dist_pos):
+        value = pd.DataFrame(columns=["Pre - 2_5", "Pre - 97_5", "Pos - 2_5", "Pos - 97_5"])
+        confidence_intervals_pre = dist_pre.data.quantile(self.interval)
+        confidence_intervals_pos = dist_pos.data.quantile(self.interval)
+
+        value.at[self.name, "Pre - 2_5"] = dist_pre.z_score(confidence_intervals_pre[0.025])
+        value.at[self.name, "Pre - 97_5"] = dist_pre.z_score(confidence_intervals_pre[0.975])
+
+        value.at[self.name, "Pos - 2_5"] = dist_pre.z_score(confidence_intervals_pos[0.025])
+        value.at[self.name, "Pos - 97_5"] = dist_pre.z_score(confidence_intervals_pos[0.975])
+        return value
+
     @property
     def value_mean(self):
-        value = pd.DataFrame(columns=["Pre - 2_5", "Pre - 97_5", "Pos - 2_5", "Pos - 97_5"])
 
-        dist = Normal(data=list(self.sample_pre.mean().values))
-        confidence_intervals_pre = self.sample_pre.mean().quantile([((100 - self.interval) / 2) / 100,
-                                                                         1 - ((100 - self.interval) / 2) / 100])
-        confidence_intervals_pos = self.sample_pos.mean().quantile([((100 - self.interval) / 2) / 100,
-                                                                         1 - ((100 - self.interval) / 2) / 100])
+        dist_pre = Normal(data=self.sample_pre.mean())
+        dist_pos = Normal(data=self.sample_pos.mean())
 
-        value.at[self.name, "Pre - 2_5"] = dist.z_score(confidence_intervals_pre[0.025])
-        value.at[self.name, "Pre - 97_5"] = dist.z_score(confidence_intervals_pre[0.975])
-
-        value.at[self.name, "Pos - 2_5"] = dist.z_score(confidence_intervals_pos[0.025])
-        value.at[self.name, "Pos - 97_5"] = dist.z_score(confidence_intervals_pos[0.975])
+        value = self.__calc_value(dist_pre=dist_pre, dist_pos=dist_pos)
 
         return value
 
     @property
     def value_std(self):
-        value = pd.DataFrame(columns=["Pre - 2_5", "Pre - 97_5", "Pos - 2_5", "Pos - 97_5"])
 
-        dist = Normal(data=list(self.sample_pre.std().values))
-        confidence_intervals_pre = self.sample_pre.std().quantile([((100 - self.interval) / 2) / 100,
-                                                                    1 - ((100 - self.interval) / 2) / 100])
-        confidence_intervals_pos = self.sample_pos.std().quantile([((100 - self.interval) / 2) / 100,
-                                                                    1 - ((100 - self.interval) / 2) / 100])
+        dist_pre = Normal(data=self.sample_pre.std())
+        dist_pos = Normal(data=self.sample_pos.std())
 
-        value.at[self.name, "Pre - 2_5"] = dist.z_score(confidence_intervals_pre[0.025])
-        value.at[self.name, "Pre - 97_5"] = dist.z_score(confidence_intervals_pre[0.975])
-
-        value.at[self.name, "Pos - 2_5"] = dist.z_score(confidence_intervals_pos[0.025])
-        value.at[self.name, "Pos - 97_5"] = dist.z_score(confidence_intervals_pos[0.975])
+        value = self.__calc_value(dist_pre=dist_pre, dist_pos=dist_pos)
 
         return value
 
@@ -109,6 +105,19 @@ class DhramVariable:
             return 3
         else:
             return 0
+
+    @staticmethod
+    def __calc_diff(pre_2_5, pre_97_5, pos_2_5, pos_97_5):
+        if abs(pos_2_5) < abs(pos_97_5):
+            value_pos = pos_2_5
+            diff_pre = abs(value_pos) - abs(pre_2_5)
+            multi_diff_pre = diff_pre / 2
+        else:
+            value_pos = pos_97_5
+            diff_pre = abs(value_pos) - abs(pre_97_5)
+            multi_diff_pre = diff_pre / 2
+
+        return multi_diff_pre, value_pos
 
     @property
     def point(self) -> pd.DataFrame:
@@ -127,23 +136,8 @@ class DhramVariable:
         pre_mean_2_5,  pre_std_2_5 = z_score_mean["Pre - 2_5"].values[0], z_score_std["Pre - 2_5"].values[0]
         pre_mean_97_5, pre_std_97_5 = z_score_mean["Pre - 97_5"].values[0], z_score_std["Pre - 97_5"].values[0]
 
-        if abs(pos_mean_2_5) < abs(pos_mean_97_5):
-            value_mean_pos = pos_mean_2_5
-            diff_mean_pre = abs(value_mean_pos) - abs(pre_mean_2_5)
-            multi_diff_mean_pre = diff_mean_pre / 2
-        else:
-            value_mean_pos = pos_mean_97_5
-            diff_mean_pre = abs(value_mean_pos) - abs(pre_mean_97_5)
-            multi_diff_mean_pre = diff_mean_pre / 2
-
-        if abs(pos_std_2_5) < abs(pos_std_97_5):
-            value_std_pos = pos_std_2_5
-            diff_std_pre = abs(value_std_pos) - abs(pre_std_2_5)
-            multi_diff_std_pre = diff_std_pre / 2
-        else:
-            value_std_pos = pos_std_97_5
-            diff_std_pre = abs(value_std_pos) - abs(pre_std_97_5)
-            multi_diff_std_pre = diff_std_pre / 2
+        multi_diff_mean_pre, value_mean_pos = self.__calc_diff(pre_mean_2_5, pre_mean_97_5, pos_mean_2_5, pos_mean_97_5)
+        multi_diff_std_pre, value_std_pos = self.__calc_diff(pre_std_2_5, pre_std_97_5, pos_std_2_5, pos_std_97_5)
 
         point_df.at[self.name, "Mean"] = self.__definition_points(multi_diff_mean_pre)
         point_df.at[self.name, "Multi_diff_mean"] = multi_diff_mean_pre * (value_mean_pos/abs(value_mean_pos))

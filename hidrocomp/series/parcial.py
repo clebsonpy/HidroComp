@@ -4,6 +4,7 @@ import scipy.stats as stat
 import plotly as py
 import plotly.figure_factory as FF
 
+from hidrocomp.statistic.genpareto import Gpa
 from hidrocomp.graphics.gantt import Gantt
 from hidrocomp.graphics.genpareto import GenPareto
 from hidrocomp.graphics.hydrogram_parcial import HydrogramParcial
@@ -12,7 +13,7 @@ from hidrocomp.graphics.polar import Polar
 
 
 class Parcial(object):
-    distribution = 'GP'
+    distribution = 'GPA'
     __percentil = 0.8
     dic_name = {'stationary': 'Percentil', 'events_by_year': 'Eventos por Ano', 'autocorrelation': 'Autocorrelação'}
 
@@ -55,6 +56,7 @@ class Parcial(object):
 
         if self.peaks is None:
             self.event_peaks()
+            self.dist_gpa = Gpa(data=self.peaks["peaks"])
 
     def event_peaks(self):
         max_events = {'Date': list(), 'peaks': list(), 'Start': list(), 'End': list(),
@@ -393,92 +395,32 @@ class Parcial(object):
         data = {'Date': list(), 'peaks': list()}
         return data, max_events
 
-    def mvs(self):
-        try:
-            self.fit = stat.genpareto.fit(self.peaks['peaks'].values)
-        except TypeError:
-            self.event_peaks()
-            self.fit = stat.genpareto.fit(self.peaks['peaks'].values)
+    def magnitude(self, period_return, estimador):
+        if estimador == 'MML':
+            self.dist_gpa.mml()
+        elif estimador == 'MVS':
+            self.dist_gpa.mvs()
 
-        return self.fit
+        p = 1 - (1 / period_return)
+        return self.dist_gpa.values(p)
 
-    def resample(self, quantity):
-        try:
-            n = len(self.peaks)
-            df_resample = pd.DataFrame()
-            for i in range(quantity):
-                df = pd.DataFrame(self.peaks['peaks'].sample(n=n, replace=True).values, columns=['%s' % i])
-                df_resample = df_resample.combine_first(df)
-            return df_resample
+    def period_return(self, magnitude, estimador):
+        if estimador == 'MML':
+            self.dist_gpa.mml()
+        elif estimador == 'MVS':
+            self.dist_gpa.mvs()
 
-        except AttributeError:
-            self.event_peaks()
-            return self.resample(quantity)
-
-    def mvs_resample(self, quantity):
-        dic = {'Parameter': list()}
-        resample = self.resample(quantity)
-        peaks = self.peaks.copy()
-        for i in resample:
-            self.peaks['peaks'] = resample[i].values
-            dic['Parameter'].append(self.mvs())
-        self.peaks = peaks
-        return pd.DataFrame(dic)
-
-    def magnitude(self, return_period):
-        try:
-            if type(return_period) is list:
-                raise TypeError
-            try:
-                prob = 1 - (1 / return_period)
-                mag = stat.genpareto.ppf(prob, self.fit[0], self.fit[1],
-                                         self.fit[2])
-                return mag
-
-            except AttributeError:
-                self.mvs()
-                return self.magnitude(return_period)
-
-        except TypeError:
-            mag = self.__magnitudes(return_period)
-            return mag
-
-    def __magnitudes(self, return_periods, name=None):
-        if name is None:
-            name = self.name
-
-        magns = list()
-        for return_period in return_periods:
-            mag = self.magnitude(return_period)
-
-            magns.append(mag)
-
-        return pd.Series(magns, index=return_periods, name=name)
-
-    def magnitude_resample(self, quantity, return_period):
-        magn = pd.DataFrame()
-        para = self.mvs_resample(quantity)
-        fit_origin = self.mvs()
-        for i in para.index:
-            self.fit = para['Parameter'][i]
-            serie = self.__magnitudes(return_period, i)
-            magn = magn.combine_first(serie.to_frame())
-
-        self.fit = fit_origin
-        magn_resample = magn.T
-        return magn_resample
+        p = self.dist_gpa.probs(magnitude)
+        return 1 / (1 - p)
 
     def plot_distribution(self, title, type_function, save=False):
-        try:
-            genpareto = GenPareto(title, self.fit[0], self.fit[1], self.fit[2])
-            data, fig = genpareto.plot(type_function)
-            if save:
-                aux_name = title.replace(' ', '_')
-                py.image.save_as(fig, filename='gráficos/' + '%s.png' % aux_name)
-            return data, fig
-        except AttributeError:
-            self.mvs()
-            return self.plot_distribution(title, type_function)
+        parameter = self.dist_gpa.parameter
+        genpareto = GenPareto(title, shape=parameter["shape"], location=parameter["loc"], scale=parameter["scale"])
+        data, fig = genpareto.plot(type_function)
+        if save:
+            aux_name = title.replace(' ', '_')
+            py.image.save_as(fig, filename='gráficos/' + '%s.png' % aux_name)
+        return data, fig
 
     def hydrogram(self, title, save=False, width=None, height=None, size_text=16, color=None):
         hydrogram = HydrogramParcial(
@@ -509,9 +451,6 @@ class Parcial(object):
 
         colors = '#000000'
         fig = FF.create_gantt(df_spells, group_tasks=True, colors=colors, title=title, height=900, width=1200)
-
-        #fig['data'][-1]['marker'].update(colorscale='Jet', colorbar=dict(title="m³/s", tickvals=df_spells.Complete,
-        #                                                                 ticktext=df_spells.Name))
 
         fig['layout'].update(autosize=True)
         fig['layout']['xaxis'].update(title="Mês", range=[month_start, month_end], tickformat="%b")

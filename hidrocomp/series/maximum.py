@@ -15,7 +15,7 @@ class Maximum(object):
         self.obj = obj
         self.station = station
         self.peaks = self.__annual()
-        self.dist_gev = Gev(self.peaks['peaks'].values)
+        self.dist_gev = Gev(self.peaks['peaks'])
 
     def __annual(self):
         self.obj.month_start_year_hydrologic()
