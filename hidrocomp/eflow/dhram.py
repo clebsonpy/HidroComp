@@ -1,5 +1,6 @@
 import pandas as pd
 from hidrocomp.statistic.normal import Normal
+from hidrocomp.statistic.bootstrap import Bootstrap
 
 from hidrocomp.eflow.graphics import GraphicsDHRAM
 
@@ -7,25 +8,50 @@ from hidrocomp.eflow.graphics import GraphicsDHRAM
 class DhramAspect:
     _points = None
     _values = None
-    _variables: list = []
+    _variables: dict = {}
     _list_name_variables = []
+
+    def __init__(self, name):
+        self.aspect_name = name
 
     @property
     def variables(self):
-        return self._list_name_variables
+        return self._variables
 
     @variables.setter
     def variables(self, variable):
         self._list_name_variables.append(variable.name)
-        self._variables.append(variable)
+        self._variables[variable.name] = variable
 
     @property
-    def values(self):
+    def values_mean(self):
         df = pd.DataFrame()
         for i in self._variables:
-            df = df.combine_first(i.value())
-            self._list_name_variables.append(i.name)
+            df = df.combine_first(self._variables[i].value_mean)
         return df.reindex(self._list_name_variables)
+
+    @property
+    def values_std(self):
+        df = pd.DataFrame()
+        for i in self._variables:
+            df = df.combine_first(self._variables[i].value_std)
+        return df.reindex(self._list_name_variables)
+
+    @property
+    def points(self):
+        df = pd.DataFrame()
+        for i in self._variables:
+            df = df.combine_first(self._variables[i].point)
+        return df.reindex(self._list_name_variables)
+
+    @property
+    def point(self):
+        points = self.points
+        df = pd.DataFrame(columns=["Mean", "Std"])
+        df.at[self.aspect_name, "Mean"] = points["Mean"].max()
+        df.at[self.aspect_name, "Std"] = points["Std"].max()
+        return df
+
 
 class DhramVariable:
 
@@ -34,27 +60,42 @@ class DhramVariable:
         self.data_pre = variable_pre.data
         self.data_pos = variable_pos.data
         self.interval = interval
-        self.n_pre = len(self.data_pre)
-        self.n_pos = len(self.data_pos)
-        self.sample_mean_pre = pd.Series(data=[self.data_pre.sample(n=self.n_pre, replace=True).mean()
-                                               for _ in range(m)], name=self.name)
-        self.sample_mean_pos = pd.Series(data=[self.data_pos.sample(n=self.n_pos, replace=True).mean()
-                                               for _ in range(m)], name=self.name)
-        self.confidence_intervals_pre = self.sample_mean_pre.quantile([((100 - self.interval) / 2) / 100,
-                                                                       1 - ((100 - self.interval) / 2) / 100])
-        self.confidence_intervals_pos = self.sample_mean_pos.quantile([((100 - self.interval) / 2) / 100,
-                                                                       1 - ((100 - self.interval) / 2) / 100])
+        self.sample_pre = Bootstrap(data=self.data_pre, m=m)
+        self.sample_pos = Bootstrap(data=self.data_pos, m=m)
 
-    def value(self):
+    @property
+    def value_mean(self):
         value = pd.DataFrame(columns=["Pre - 2_5", "Pre - 97_5", "Pos - 2_5", "Pos - 97_5"])
 
-        dist = Normal(data=list(self.sample_mean_pre.values))
+        dist = Normal(data=list(self.sample_pre.mean().values))
+        confidence_intervals_pre = self.sample_pre.mean().quantile([((100 - self.interval) / 2) / 100,
+                                                                         1 - ((100 - self.interval) / 2) / 100])
+        confidence_intervals_pos = self.sample_pos.mean().quantile([((100 - self.interval) / 2) / 100,
+                                                                         1 - ((100 - self.interval) / 2) / 100])
 
-        value.at[self.name, "Pre - 2_5"] = dist.z_score(self.confidence_intervals_pre[0.025])
-        value.at[self.name, "Pre - 97_5"] = dist.z_score(self.confidence_intervals_pre[0.975])
+        value.at[self.name, "Pre - 2_5"] = dist.z_score(confidence_intervals_pre[0.025])
+        value.at[self.name, "Pre - 97_5"] = dist.z_score(confidence_intervals_pre[0.975])
 
-        value.at[self.name, "Pos - 2_5"] = dist.z_score(self.confidence_intervals_pos[0.025])
-        value.at[self.name, "Pos - 97_5"] = dist.z_score(self.confidence_intervals_pos[0.975])
+        value.at[self.name, "Pos - 2_5"] = dist.z_score(confidence_intervals_pos[0.025])
+        value.at[self.name, "Pos - 97_5"] = dist.z_score(confidence_intervals_pos[0.975])
+
+        return value
+
+    @property
+    def value_std(self):
+        value = pd.DataFrame(columns=["Pre - 2_5", "Pre - 97_5", "Pos - 2_5", "Pos - 97_5"])
+
+        dist = Normal(data=list(self.sample_pre.std().values))
+        confidence_intervals_pre = self.sample_pre.std().quantile([((100 - self.interval) / 2) / 100,
+                                                                    1 - ((100 - self.interval) / 2) / 100])
+        confidence_intervals_pos = self.sample_pos.std().quantile([((100 - self.interval) / 2) / 100,
+                                                                    1 - ((100 - self.interval) / 2) / 100])
+
+        value.at[self.name, "Pre - 2_5"] = dist.z_score(confidence_intervals_pre[0.025])
+        value.at[self.name, "Pre - 97_5"] = dist.z_score(confidence_intervals_pre[0.975])
+
+        value.at[self.name, "Pos - 2_5"] = dist.z_score(confidence_intervals_pos[0.025])
+        value.at[self.name, "Pos - 97_5"] = dist.z_score(confidence_intervals_pos[0.975])
 
         return value
 
@@ -69,6 +110,7 @@ class DhramVariable:
         else:
             return 0
 
+    @property
     def point(self) -> pd.DataFrame:
         """
         1 point - 1x z_score(pre)
@@ -76,26 +118,37 @@ class DhramVariable:
         3 point - 3x > z_score(pre)
         @return:
         """
-        point_df = pd.DataFrame(columns=["Diff", "Point"])
+        point_df = pd.DataFrame(columns=["Multi_diff_mean", "Mean", "Multi_diff_std", "Std"])
 
-        z_score = self.value()
-        pos_2_5 = z_score["Pos - 2_5"].values[0]
-        pos_97_5 = z_score["Pos - 97_5"].values[0]
-        pre_2_5 = z_score["Pre - 2_5"].values[0]
-        pre_97_5 = z_score["Pre - 97_5"].values[0]
+        z_score_mean = self.value_mean
+        z_score_std = self.value_std
+        pos_mean_2_5, pos_std_2_5 = z_score_mean["Pos - 2_5"].values[0], z_score_std["Pos - 2_5"].values[0]
+        pos_mean_97_5, pos_std_97_5 = z_score_mean["Pos - 97_5"].values[0], z_score_std["Pos - 97_5"].values[0]
+        pre_mean_2_5,  pre_std_2_5 = z_score_mean["Pre - 2_5"].values[0], z_score_std["Pre - 2_5"].values[0]
+        pre_mean_97_5, pre_std_97_5 = z_score_mean["Pre - 97_5"].values[0], z_score_std["Pre - 97_5"].values[0]
 
-        if abs(pos_2_5) < abs(pos_97_5):
-            value_pos = pos_2_5
+        if abs(pos_mean_2_5) < abs(pos_mean_97_5):
+            value_mean_pos = pos_mean_2_5
+            diff_mean_pre = abs(value_mean_pos) - abs(pre_mean_2_5)
+            multi_diff_mean_pre = diff_mean_pre / 2
         else:
-            value_pos = pos_97_5
+            value_mean_pos = pos_mean_97_5
+            diff_mean_pre = abs(value_mean_pos) - abs(pre_mean_97_5)
+            multi_diff_mean_pre = diff_mean_pre / 2
 
-        if value_pos < 0:
-            multi_pre = value_pos / pre_2_5
+        if abs(pos_std_2_5) < abs(pos_std_97_5):
+            value_std_pos = pos_std_2_5
+            diff_std_pre = abs(value_std_pos) - abs(pre_std_2_5)
+            multi_diff_std_pre = diff_std_pre / 2
         else:
-            multi_pre = value_pos / pre_97_5
+            value_std_pos = pos_std_97_5
+            diff_std_pre = abs(value_std_pos) - abs(pre_std_97_5)
+            multi_diff_std_pre = diff_std_pre / 2
 
-        point_df.at[self.name, "Point"] = self.__definition_points(multi_pre)
-        point_df.at[self.name, "Diff"] = multi_pre
+        point_df.at[self.name, "Mean"] = self.__definition_points(multi_diff_mean_pre)
+        point_df.at[self.name, "Multi_diff_mean"] = multi_diff_mean_pre * (value_mean_pos/abs(value_mean_pos))
+        point_df.at[self.name, "Std"] = self.__definition_points(multi_diff_std_pre)
+        point_df.at[self.name, "Multi_diff_std"] = multi_diff_std_pre * (value_std_pos / abs(value_std_pos))
 
         return point_df
 
@@ -103,12 +156,13 @@ class DhramVariable:
         """
         @type color: dict
         """
-        fig_obs, data_obs = GraphicsDHRAM(data_variable=self.sample_mean_pos, status="pos", color=color,
-                                          interval_confidence=self.confidence_intervals_pos).plot()
-        fig_nat, data_nat = GraphicsDHRAM(data_variable=self.sample_mean_pre, status="pre", color=color,
-                                          interval_confidence=self.confidence_intervals_pre).plot()
+        fig_obs, data_obs = GraphicsDHRAM(data_variable=self.sample_pos.mean(), status="pos", color=color).plot()
+        fig_nat, data_nat = GraphicsDHRAM(data_variable=self.sample_pre.mean(), status="pre", color=color).plot()
 
         data = data_obs + data_nat
         fig = dict(data=data, layout=fig_nat['layout'])
 
         return fig, data
+
+    def __str__(self):
+        return self.name

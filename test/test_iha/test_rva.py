@@ -39,18 +39,20 @@ class TestRVA(TestCase):
         print(magnitude_nat.metrics)
         print(magnitude_nat.rva_frequency(aspect_pos=magnitude_obs))
         print(magnitude_nat.rva_measure_hydrologic_alteration(aspect_pos=magnitude_obs))
-        dhram = magnitude_nat.dhram(aspect_pos=magnitude_obs, m=100, interval=95)
-        print(dhram.value)
+        dhram = magnitude_nat.dhram(aspect_pos=magnitude_obs, m=1000, interval=95)
+        print(dhram.variables["January"].point)
+        print(dhram.values_mean)
+        print(dhram.values_std)
         print(dhram.points)
-        print(magnitude_nat.variable(name="January").dhram(variable_pos=magnitude_obs.variable(name="January"), m=100,
-                                                           interval=95).point())
+        print(dhram.point)
         fig, data = magnitude_nat.variable(name="February").rva(magnitude_obs.variable(name="February"),
                                                                 boundaries=17, statistic="non-parametric").plot()
 
-        fig2, data2 = magnitude_nat.variable(name="February").dhram(magnitude_obs.variable(name="February"), m=100,
+        fig2, data2 = magnitude_nat.variable(name="February").dhram(magnitude_obs.variable(name="February"), m=1000,
                                                                     interval=95).plot()
-        py.offline.plot(fig, filename=os.path.join("graficos", "rva.html"))
-        py.offline.plot(fig2, filename=os.path.join("graficos", "dhram.html"))
+        fig3, data3 = dhram.variables["February"].plot()
+        py.offline.plot(fig3, filename=os.path.join("graficos", "dhram3.html"))
+        py.offline.plot(fig2, filename=os.path.join("graficos", "dhram2.html"))
 
     def test_moving_averages(self):
         magnitude_duration_nat = self.iha_obj_nat.magnitude_and_duration()

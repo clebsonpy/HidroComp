@@ -8,9 +8,11 @@ from hidrocomp.eflow.dhram import DhramVariable, DhramAspect
 
 
 class Aspect(metaclass=ABCMeta):
+    name = None
 
     def __init__(self, flow, month_start, central_metric, variation_metric, status):
         self.variables = None
+        self._dhram = None
         self.flow = flow
         self.station = flow.station
         self.month_start = month_start
@@ -88,24 +90,16 @@ class Aspect(metaclass=ABCMeta):
             raise StatusError("Aspect status must be pos")
 
     def dhram(self, aspect_pos, m, interval=95):
-
-        dhram_value = pd.DataFrame()
-        dhram_points = pd.DataFrame()
-        dhram = DhramAspect()
-        if aspect_pos.status == "pos":
-            for i in self.variables:
-                dhram_variable = self.variable(name=i).dhram(variable_pos=aspect_pos.variable(name=i), interval=interval,
-                                                    m=m)
-                dhram.variables = dhram_variable
-                # dhram_points = dhram_points.combine_first(dhram.point())
-                # dhram_value = dhram_value.combine_first(dhram.value())
-
-            # DhramAspect.value = dhram_value.reindex(self.variables)
-            # DhramAspect.points = dhram_points.reindex(self.variables)
-            print(dhram.variables)
-            return dhram
-        else:
-            raise StatusError("Aspect status must be pos")
+        if self._dhram is None:
+            self._dhram = DhramAspect(name=self.name)
+            if aspect_pos.status == "pos":
+                for i in self.variables:
+                    dhram_variable = self.variable(name=i).dhram(variable_pos=aspect_pos.variable(name=i), m=m,
+                                                                 interval=interval)
+                    self._dhram.variables = dhram_variable
+            else:
+                raise StatusError("Aspect status must be pos")
+        return self._dhram
 
 
 class Variable:
@@ -137,6 +131,7 @@ class PreVariable(Variable):
 
 
 class Magnitude(Aspect):
+    name = "Magnitude"
 
     def _data(self):
         self.variables = {'January': None, 'February': None, 'March': None, 'April': None, 'May': None, 'June': None,

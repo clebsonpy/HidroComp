@@ -84,10 +84,9 @@ class GraphicsRVA(Graphics):
 class GraphicsDHRAM(Graphics):
 
     def __init__(self, data_variable, status, color=None, width=None, height=None, size_text=14, xaxis=None,
-                 yaxis=None, interval_confidence=None):
+                 yaxis=None):
         super().__init__(data_variable=data_variable, status=status, color=color, width=width, height=height,
                          size_text=size_text, xaxis=xaxis, yaxis=yaxis)
-        self.interval_confidence = interval_confidence
 
     def plot(self):
         layout = self.layout()
@@ -97,6 +96,7 @@ class GraphicsDHRAM(Graphics):
         fig = dict(data=data, layout=layout)
         return fig, data
 
+    """"
     def _line_interval_confidence(self):
         x = list(self.data.index.values)
         x_rev = x[::-1]
@@ -109,6 +109,7 @@ class GraphicsDHRAM(Graphics):
             fill='toself')
 
         return trace
+    """
 
     def _point_simulation(self):
         point = go.Scatter(x=self.data.index,
