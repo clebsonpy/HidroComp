@@ -7,9 +7,9 @@ import pandas as pd
 class Graphics(metaclass=ABCMeta):
 
     def __init__(self, data_variable, status, color=None, width=None, height=None, size_text=14, xaxis=None,
-                 yaxis=None):
+                 yaxis=None, name=None):
         self.data = data_variable.sort_index()
-        self.name = data_variable.name
+        self.name = name
         self.status = status
         self.width = width
         self.height = height
@@ -84,9 +84,9 @@ class GraphicsRVA(Graphics):
 class GraphicsDHRAM(Graphics):
 
     def __init__(self, data_variable, status, color=None, width=None, height=None, size_text=14, xaxis=None,
-                 yaxis=None):
+                 yaxis=None, name=None):
         super().__init__(data_variable=data_variable, status=status, color=color, width=width, height=height,
-                         size_text=size_text, xaxis=xaxis, yaxis=yaxis)
+                         size_text=size_text, xaxis=xaxis, yaxis=yaxis, name=name)
 
     def plot(self):
         layout = self.layout()

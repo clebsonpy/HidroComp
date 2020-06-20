@@ -152,6 +152,7 @@ class Magnitude(Aspect):
 
 
 class MagnitudeDuration(Aspect):
+    name = "Magnitude and Duration"
 
     def _data(self):
         self.variables = {"1-day minimum": None, "1-day maximum": None, "3-day minimum": None, "3-day maximum": None,
@@ -183,6 +184,7 @@ class MagnitudeDuration(Aspect):
 
 
 class TimingExtreme(Aspect):
+    name = "Timing Extreme"
 
     def _data(self):
         self.variables = {"Date of minimum": None, "Date of maximum": None}
@@ -206,6 +208,7 @@ class TimingExtreme(Aspect):
 
 
 class FrequencyDuration(Aspect):
+    name = "Frequency and Duration"
 
     def __init__(self, flow, month_start, central_metric, variation_metric, status, type_threshold, type_criterion,
                  threshold_high, threshold_low):
@@ -258,6 +261,7 @@ class FrequencyDuration(Aspect):
 
 
 class RateFrequency(Aspect):
+    name = "Rate and Frequency"
 
     # <editor-fold desc="Check type rate"
     @staticmethod

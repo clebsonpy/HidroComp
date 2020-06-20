@@ -227,12 +227,12 @@ if __name__ == '__main__':
     #           '49743100', '49744000', '49745000', '49746000', '49747000', '49750000', '49760000', '49775000',
     #           '49775100', '49775110', '49775120', '49790000', '49790001']
     flow = Flow(station="49330000", source='ANA')
-    flow.date(date_start="01/01/1995", date_end="31/12/2012")
+    #rain.date(date_start="01/01/1995", date_end="31/12/2012")
     print(flow)
     #dados = dados_nat.combine_first(flow_obs.data)
     #flow_obs = Flow(station='49330000', source="ANA")
-    fig_obs, data_obs = flow.hydrogram_year(title="")
-    py.offline.plot(fig_obs, filename=os.path.join(path, 'graficos/hidro_disser.html'))
+    fig, data = flow.hydrogram_year(title="")
+    py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro_disser.html'))
     #dados = SerieTemporal().get(codEstacao="49330000", tipoDados="3")
     #print(dados)
     #file = os.path.abspath(os.path.join('Medicoes', 'dadosDissertacao.csv'))
@@ -330,7 +330,7 @@ if __name__ == '__main__':
     # fig, data = parcial.plot_hydrogram('Parcial')
     #py.offline.plot(fig2, filename=os.path.join(path, 'graficos/rva.html'))
     """
-    # py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro_disser.html'))
+    #py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro_disser.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro-belo-monte.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/gantt_nubia.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro_anual.html'))

@@ -8,6 +8,7 @@ class Bootstrap:
         self.data = data
         self.n = len(data)
         self.m = m
+        self.name = self.data.name
 
     @property
     def sample(self) -> pd.DataFrame:

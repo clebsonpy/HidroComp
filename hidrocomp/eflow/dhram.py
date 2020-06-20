@@ -38,19 +38,31 @@ class DhramAspect:
         return df.reindex(self._list_name_variables)
 
     @property
-    def points(self):
+    def diff(self):
         df = pd.DataFrame()
         for i in self._variables:
-            df = df.combine_first(self._variables[i].point)
+            df = df.combine_first(self._variables[i].diff)
         return df.reindex(self._list_name_variables)
 
     @property
     def point(self):
-        points = self.points
+        diff_mean = self.diff.abs().mean()
+        print(diff_mean)
         df = pd.DataFrame(columns=["Mean", "Std"])
-        df.at[self.aspect_name, "Mean"] = points["Mean"].max()
-        df.at[self.aspect_name, "Std"] = points["Std"].max()
+        df.at[self.aspect_name, "Mean"] = self.__definition_points(diff_mean["Multi_diff_mean"])
+        df.at[self.aspect_name, "Std"] = self.__definition_points(diff_mean["Multi_diff_std"])
         return df
+
+    @staticmethod
+    def __definition_points(multi_pre):
+        if 1 < multi_pre <= 2:
+            return 1
+        elif 2 < multi_pre <= 3:
+            return 2
+        elif multi_pre > 3:
+            return 3
+        else:
+            return 0
 
 
 class DhramVariable:
@@ -96,17 +108,6 @@ class DhramVariable:
         return value
 
     @staticmethod
-    def __definition_points(multi_pre):
-        if 1 < multi_pre <= 2:
-            return 1
-        elif 2 < multi_pre <= 3:
-            return 2
-        elif multi_pre > 3:
-            return 3
-        else:
-            return 0
-
-    @staticmethod
     def __calc_diff(pre_2_5, pre_97_5, pos_2_5, pos_97_5):
         if abs(pos_2_5) < abs(pos_97_5):
             value_pos = pos_2_5
@@ -120,14 +121,9 @@ class DhramVariable:
         return multi_diff_pre, value_pos
 
     @property
-    def point(self) -> pd.DataFrame:
-        """
-        1 point - 1x z_score(pre)
-        2 point - 2x z_score(pre)
-        3 point - 3x > z_score(pre)
-        @return:
-        """
-        point_df = pd.DataFrame(columns=["Multi_diff_mean", "Mean", "Multi_diff_std", "Std"])
+    def diff(self) -> pd.DataFrame:
+
+        diff_df = pd.DataFrame(columns=["Multi_diff_mean", "Multi_diff_std"])
 
         z_score_mean = self.value_mean
         z_score_std = self.value_std
@@ -139,19 +135,27 @@ class DhramVariable:
         multi_diff_mean_pre, value_mean_pos = self.__calc_diff(pre_mean_2_5, pre_mean_97_5, pos_mean_2_5, pos_mean_97_5)
         multi_diff_std_pre, value_std_pos = self.__calc_diff(pre_std_2_5, pre_std_97_5, pos_std_2_5, pos_std_97_5)
 
-        point_df.at[self.name, "Mean"] = self.__definition_points(multi_diff_mean_pre)
-        point_df.at[self.name, "Multi_diff_mean"] = multi_diff_mean_pre * (value_mean_pos/abs(value_mean_pos))
-        point_df.at[self.name, "Std"] = self.__definition_points(multi_diff_std_pre)
-        point_df.at[self.name, "Multi_diff_std"] = multi_diff_std_pre * (value_std_pos / abs(value_std_pos))
+        diff_df.at[self.name, "Multi_diff_mean"] = multi_diff_mean_pre * (value_mean_pos/abs(value_mean_pos))
+        diff_df.at[self.name, "Multi_diff_std"] = multi_diff_std_pre * (value_std_pos / abs(value_std_pos))
 
-        return point_df
+        return diff_df
 
-    def plot(self, color={"pre": "blue", "pos": "red"}):
+    def plot(self, color={"pre": "blue", "pos": "red"}, type="mean"):
         """
         @type color: dict
         """
-        fig_obs, data_obs = GraphicsDHRAM(data_variable=self.sample_pos.mean(), status="pos", color=color).plot()
-        fig_nat, data_nat = GraphicsDHRAM(data_variable=self.sample_pre.mean(), status="pre", color=color).plot()
+        if type == "mean":
+            fig_obs, data_obs = GraphicsDHRAM(data_variable=self.sample_pos.mean(), status="pos", color=color,
+                                              name=self.name).plot()
+            fig_nat, data_nat = GraphicsDHRAM(data_variable=self.sample_pre.mean(), status="pre", color=color,
+                                              name=self.name).plot()
+        elif type == "std":
+            fig_obs, data_obs = GraphicsDHRAM(data_variable=self.sample_pos.std(), status="pos", color=color,
+                                              name=self.name).plot()
+            fig_nat, data_nat = GraphicsDHRAM(data_variable=self.sample_pre.std(), status="pre", color=color,
+                                              name=self.name).plot()
+        else:
+            raise AttributeError("Type Error")
 
         data = data_obs + data_nat
         fig = dict(data=data, layout=fig_nat['layout'])
