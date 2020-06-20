@@ -33,6 +33,10 @@ class TestRVA(TestCase):
             self.assertEqual(data['Coeff. of Var.'][i], data2['Coeff. of Var.'][i])
 
     def test_mean_month(self):
+        dhram = self.iha_obj_nat.dhram(iha_obs=self.iha_obj_obs, m=100, interval=95)
+        print(dhram)
+
+        """
         magnitude_nat = self.iha_obj_nat.magnitude()
         magnitude_obs = self.iha_obj_obs.magnitude()
         print(magnitude_nat.metrics)
@@ -48,6 +52,8 @@ class TestRVA(TestCase):
 
         py.offline.plot(fig_std, filename=os.path.join("graficos", "dhram_std.html"))
         py.offline.plot(fig_mean, filename=os.path.join("graficos", "dhram_mean.html"))
+        
+        """
 
     def test_moving_averages(self):
         magnitude_duration_nat = self.iha_obj_nat.magnitude_and_duration()

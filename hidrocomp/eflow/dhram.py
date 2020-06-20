@@ -5,14 +5,37 @@ from hidrocomp.statistic.bootstrap import Bootstrap
 from hidrocomp.eflow.graphics import GraphicsDHRAM
 
 
+class Dhram:
+
+    def __init__(self):
+        self._point = None
+        self._aspects: dict = {}
+
+    @property
+    def aspects(self):
+        return self._aspects
+
+    @aspects.setter
+    def aspects(self, aspect):
+        self._aspects[aspect.name] = aspect
+
+    @property
+    def point(self):
+        if self._point is None:
+            df = pd.DataFrame()
+            for i in self.aspects:
+                df = df.combine_first(self.aspects[i].point)
+            self._point = df
+        return self._point
+
+
 class DhramAspect:
-    _points = None
-    _values = None
-    _variables: dict = {}
-    _list_name_variables = []
 
     def __init__(self, name):
-        self.aspect_name = name
+        self.name = name
+        self._point = None
+        self._variables: dict = {}
+        self._list_name_variables = []
 
     @property
     def variables(self):
@@ -39,18 +62,19 @@ class DhramAspect:
 
     @property
     def diff(self):
-        df = pd.DataFrame()
-        for i in self._variables:
-            df = df.combine_first(self._variables[i].diff)
-        return df.reindex(self._list_name_variables)
+        if self._point is None:
+            df = pd.DataFrame()
+            for i in self._variables:
+                df = df.combine_first(self._variables[i].diff)
+            self._point = df.reindex(self._list_name_variables)
+        return self._point
 
     @property
     def point(self):
         diff_mean = self.diff.abs().mean()
-        print(diff_mean)
         df = pd.DataFrame(columns=["Mean", "Std"])
-        df.at[self.aspect_name, "Mean"] = self.__definition_points(diff_mean["Multi_diff_mean"])
-        df.at[self.aspect_name, "Std"] = self.__definition_points(diff_mean["Multi_diff_std"])
+        df.at[self.name, "Mean"] = self.__definition_points(diff_mean["Multi_diff_mean"])
+        df.at[self.name, "Std"] = self.__definition_points(diff_mean["Multi_diff_std"])
         return df
 
     @staticmethod

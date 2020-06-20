@@ -2,16 +2,10 @@ from hidrocomp.eflow.exceptions import *
 import pandas as pd
 import calendar as cal
 from hidrocomp.eflow.aspect import Magnitude, MagnitudeDuration, TimingExtreme, FrequencyDuration, RateFrequency
+from hidrocomp.eflow.dhram import Dhram
 
 
 class IHA:
-    group = {
-        'group1': 'magnitude',
-        'group2': 'magnitude_and_duration',
-        'group3': 'timing_extreme',
-        'group4': 'frequency_and_duration',
-        'group5': 'rate_and_frequency'
-    }
 
     def __init__(self, flow, month_water=None, status=None, date_start=None, date_end=None,
                  statistic=None, central_metric=None, variation_metric=None, type_threshold=None, type_criterion=None,
@@ -27,10 +21,13 @@ class IHA:
         :param central_metric: 'mean or median'
         :param variation_metric: 'str' or 'cv'
         """
+        self.aspects = {"Magnitude": None, "Magnitude and Duration": None, "Timing Extreme": None,
+                        "Frequency and Duration": None, "Rate and Frequency": None}
         ##self.source = kwargs['source']
         self.flow = flow #Flow(data, source=self.source, station=station)
         #self.station = self.get_station(station)
         self.status = status
+        self._dhram = None
         self.month_start = self.get_month_start(month_water)
         self.date_start = pd.to_datetime(date_start, dayfirst=True)
         self.date_end = pd.to_datetime(date_end, dayfirst=True)
@@ -76,39 +73,78 @@ class IHA:
 
     # </editor-fold>
 
+    def dhram(self, iha_obs, m=1000, interval=95):
+        if self.status == "pos":
+            raise StatusError("Dhram not available for self object!")
+        if iha_obs.status == "pre":
+            raise StatusError(f"status of {iha_obs} invalid!")
+
+        self._dhram = Dhram()
+        self._dhram.aspects = self.magnitude.dhram(aspect_pos=iha_obs.magnitude, m=m, interval=interval)
+        self._dhram.aspects = self.magnitude_and_duration.dhram(aspect_pos=iha_obs.magnitude_and_duration, m=m,
+                                                                interval=interval)
+        self._dhram.aspects = self.timing_extreme.dhram(aspect_pos=iha_obs.timing_extreme, m=m, interval=interval)
+        self._dhram.aspects = self.frequency_and_duration.dhram(aspect_pos=iha_obs.frequency_and_duration, m=m,
+                                                                interval=interval)
+        self._dhram.aspects = self.rate_and_frequency.dhram(aspect_pos=iha_obs.rate_and_frequency, interval=interval,
+                                                            m=m)
+        return self._dhram
+
     # <editor-fold desc="Group 1: Magnitude of monthly water conditions">
+    @property
     def magnitude(self):
-        return Magnitude(flow=self.flow, month_start=self.month_start, central_metric=self.central_metric,
-                         variation_metric=self.variation_metric, status=self.status)
+        if self.aspects["Magnitude"] is None:
+            magnit = Magnitude(flow=self.flow, month_start=self.month_start, central_metric=self.central_metric,
+                                  variation_metric=self.variation_metric, status=self.status)
+
+            self.aspects["Magnitude"] = magnit
+        return self.aspects["Magnitude"]
 
     # </editor-fold>
 
     # <editor-fold desc="Group 2: Magnitude and Duration of annual extreme water conditions">
+    @property
     def magnitude_and_duration(self):
-        return MagnitudeDuration(flow=self.flow, month_start=self.month_start, central_metric=self.central_metric,
-                                 variation_metric=self.variation_metric, status=self.status)
+        if self.aspects["Magnitude and Duration"] is None:
+            magnit_and_durat = MagnitudeDuration(flow=self.flow, month_start=self.month_start, status=self.status,
+                                                 central_metric=self.central_metric,
+                                                 variation_metric=self.variation_metric)
 
+            self.aspects["Magnitude and Duration"] = magnit_and_durat
+        return self.aspects["Magnitude and Duration"]
     # </editor-fold>
 
     # <editor-fold desc="Group 3: Timing of annual extreme water conditions">
-
+    @property
     def timing_extreme(self):
-        return TimingExtreme(flow=self.flow, month_start=self.month_start, central_metric=self.central_metric,
-                             variation_metric=self.variation_metric, status=self.status)
+        if self.aspects["Timing Extreme"] is None:
+            timing = TimingExtreme(flow=self.flow, month_start=self.month_start, central_metric=self.central_metric,
+                                   variation_metric=self.variation_metric, status=self.status)
 
+            self.aspects["Timing Extreme"] = timing
+        return self.aspects["Timing Extreme"]
     # </editor-fold>
 
     # <editor-fold desc="Group 4: Frequency and duration of high and low pulses">
+    @property
     def frequency_and_duration(self):
-        return FrequencyDuration(flow=self.flow, month_start=self.month_start, central_metric=self.central_metric,
-                                 variation_metric=self.variation_metric, status=self.status,
-                                 type_threshold=self.type_threshold, type_criterion=self.type_criterion,
-                                 threshold_high=self.threshold_high, threshold_low=self.threshold_low)
+        if self.aspects["Frequency and Duration"] is None:
+            freq = FrequencyDuration(flow=self.flow, month_start=self.month_start, central_metric=self.central_metric,
+                                     variation_metric=self.variation_metric, status=self.status,
+                                     type_threshold=self.type_threshold, type_criterion=self.type_criterion,
+                                     threshold_high=self.threshold_high, threshold_low=self.threshold_low)
 
+            self.aspects["Frequency and Duration"] = freq
+        return self.aspects["Frequency and Duration"]
     # </editor-fold>
 
     # <editor-fold desc="Group 5: Rate and frequency of water condition changes">
+    @property
     def rate_and_frequency(self):
-        return RateFrequency(flow=self.flow, month_start=self.month_start, central_metric=self.central_metric,
-                             variation_metric=self.variation_metric, status=self.status)
+        if self.aspects["Rate and Frequency"] is None:
+            rate = RateFrequency(flow=self.flow, month_start=self.month_start, central_metric=self.central_metric,
+                                 variation_metric=self.variation_metric, status=self.status)
+
+            self.aspects["Rate and Frequency"] = rate
+        return self.aspects["Rate and Frequency"]
     # </editor-fold>
