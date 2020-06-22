@@ -35,6 +35,7 @@ class TestRVA(TestCase):
     def test_mean_month(self):
         dhram = self.iha_obj_nat.dhram(iha_obs=self.iha_obj_obs, m=100, interval=95)
         print(dhram)
+        print(dhram.classification)
 
         """
         magnitude_nat = self.iha_obj_nat.magnitude()

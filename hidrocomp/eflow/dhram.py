@@ -10,6 +10,7 @@ class Dhram:
     def __init__(self):
         self._point = None
         self._aspects: dict = {}
+        self._classification = None
 
     @property
     def aspects(self):
@@ -27,6 +28,27 @@ class Dhram:
                 df = df.combine_first(self.aspects[i].point)
             self._point = df
         return self._point
+
+    @staticmethod
+    def __definition_classification(points) -> str:
+        if points == 0:
+            return "{} Points - Un-impacted".format(points)
+        elif 1 <= points <= 4:
+            return "{} Points - Low risk of impact".format(points)
+        elif 5 <= points <= 10:
+            return "{} Points - Moderate risk of impact".format(points)
+        elif 11 <= points <= 20:
+            return "{} Points - High risk of impact".format(points)
+        elif 21 <= points <= 30:
+            return "{} Points - Severely impacted".format(points)
+
+    @property
+    def classification(self):
+        points = self.point.sum().sum()
+        print(points)
+        if self._classification is None:
+            self._classification = self.__definition_classification(points=points)
+        return self._classification
 
 
 class DhramAspect:
