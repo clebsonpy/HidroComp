@@ -34,8 +34,8 @@ class TestRVA(TestCase):
 
     def test_mean_month(self):
         dhram = self.iha_obj_nat.dhram(iha_obs=self.iha_obj_obs, m=100, interval=95)
-        print(dhram)
-        print(dhram.classification)
+        fig = dhram.aspects["Magnitude"].plot()
+        py.offline.plot(fig, filename=os.path.join("graficos", "dhram.html"))
 
         """
         magnitude_nat = self.iha_obj_nat.magnitude()
@@ -63,7 +63,7 @@ class TestRVA(TestCase):
         print(magnitude_duration_obs.metrics)
         print(magnitude_duration_nat.rva_frequency(aspect_pos=magnitude_duration_obs))
         print(magnitude_duration_nat.rva_measure_hydrologic_alteration(aspect_pos=magnitude_duration_obs))
-        dhram = magnitude_duration_nat.dhram(aspect_pos=magnitude_duration_obs, m=1000, interval=95)
+        dhram = magnitude_duration_nat.dhram(aspect_pos=magnitude_duration_obs, m=100, interval=95)
         print(dhram.diff)
         print(dhram.point)
 

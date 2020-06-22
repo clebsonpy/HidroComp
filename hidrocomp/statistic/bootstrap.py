@@ -3,12 +3,12 @@ import pandas as pd
 
 class Bootstrap:
 
-    def __init__(self, data: pd.Series, m: int):
+    def __init__(self, data: pd.Series, m: int, name):
         self._sample = None
         self.data = data
         self.n = len(data)
         self.m = m
-        self.name = self.data.name
+        self.name = name
 
     @property
     def sample(self) -> pd.DataFrame:
@@ -20,7 +20,9 @@ class Bootstrap:
         return self._sample
 
     def mean(self):
-        return self.sample.mean()
+        series_mean = self.sample.mean()
+        series_mean.name = self.name
+        return series_mean
 
     def std(self):
         return self.sample.std()

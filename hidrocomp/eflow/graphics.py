@@ -88,11 +88,18 @@ class GraphicsDHRAM(Graphics):
         super().__init__(data_variable=data_variable, status=status, color=color, width=width, height=height,
                          size_text=size_text, xaxis=xaxis, yaxis=yaxis, name=name)
 
-    def plot(self):
+    def plot(self, type="violin"):
         layout = self.layout()
 
         data = list()
-        data.append(self._point_simulation())
+        if type == "point":
+            data.append(self._point_simulation())
+        elif type == "box":
+            pass
+        elif type == "violin":
+            pass
+        else:
+            raise TypeError
         fig = dict(data=data, layout=layout)
         return fig, data
 
@@ -120,3 +127,10 @@ class GraphicsDHRAM(Graphics):
                                                                                         color=self.color[self.status])))
 
         return point
+
+
+    def _box(self):
+        pass
+
+    def _violin(self):
+        pass

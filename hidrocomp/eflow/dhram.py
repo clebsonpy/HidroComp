@@ -1,4 +1,6 @@
 import pandas as pd
+import plotly.express as px
+import plotly.graph_objs as go
 from hidrocomp.statistic.normal import Normal
 from hidrocomp.statistic.bootstrap import Bootstrap
 
@@ -45,7 +47,6 @@ class Dhram:
     @property
     def classification(self):
         points = self.point.sum().sum()
-        print(points)
         if self._classification is None:
             self._classification = self.__definition_classification(points=points)
         return self._classification
@@ -71,23 +72,23 @@ class DhramAspect:
     @property
     def values_mean(self):
         df = pd.DataFrame()
-        for i in self._variables:
-            df = df.combine_first(self._variables[i].value_mean)
+        for i in self.variables:
+            df = df.combine_first(self.variables[i].value_mean)
         return df.reindex(self._list_name_variables)
 
     @property
     def values_std(self):
         df = pd.DataFrame()
-        for i in self._variables:
-            df = df.combine_first(self._variables[i].value_std)
+        for i in self.variables:
+            df = df.combine_first(self.variables[i].value_std)
         return df.reindex(self._list_name_variables)
 
     @property
     def diff(self):
         if self._point is None:
             df = pd.DataFrame()
-            for i in self._variables:
-                df = df.combine_first(self._variables[i].diff)
+            for i in self.variables:
+                df = df.combine_first(self.variables[i].diff)
             self._point = df.reindex(self._list_name_variables)
         return self._point
 
@@ -110,6 +111,36 @@ class DhramAspect:
         else:
             return 0
 
+    def plot(self, type="mean"):
+        dic = {"Data": [], "Status": [], "Variable": []}
+        for i in self.variables:
+            variable_pre = self.variables[i].sample_pre.mean()
+            variable_pos = self.variables[i].sample_pos.mean()
+            dic["Data"] = dic["Data"] + list(variable_pre.values)
+            dic["Status"] = dic["Status"] + ["Pre-impact"]*len(variable_pre)
+            dic["Variable"] = dic["Variable"] + [i]*len(variable_pre)
+            dic["Data"] = dic["Data"] + list(variable_pos.values)
+            dic["Status"] = dic["Status"] + ["Pos-impact"] * len(variable_pos)
+            dic["Variable"] = dic["Variable"] + [i] * len(variable_pos)
+
+        df = pd.DataFrame(dic)
+
+        bandxaxis = go.layout.XAxis(title="Variables")
+        bandyaxis = go.layout.YAxis(title="Data")
+
+        layout = dict(
+            title=dict(text=self.name, x=0.5, xanchor='center', y=0.95, yanchor='top',
+                       font=dict(family='Courier New, monospace', size=14 + 10)),
+            xaxis=bandxaxis,
+            yaxis=bandyaxis,
+            width=None, height=None,
+            font=dict(family='Courier New, monospace', size=14, color='rgb(0,0,0)'),
+            showlegend=True, plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF')
+
+        fig = px.violin(df, x="Variable", y="Data", color="Status", points="all", title=self.name)
+        fig.layout = layout
+        return fig
+
 
 class DhramVariable:
 
@@ -118,8 +149,8 @@ class DhramVariable:
         self.data_pre = variable_pre.data
         self.data_pos = variable_pos.data
         self.interval = [((100 - interval) / 2) / 100, 1 - ((100 - interval) / 2) / 100]
-        self.sample_pre = Bootstrap(data=self.data_pre, m=m)
-        self.sample_pos = Bootstrap(data=self.data_pos, m=m)
+        self.sample_pre = Bootstrap(data=self.data_pre, m=m, name=self.name)
+        self.sample_pos = Bootstrap(data=self.data_pos, m=m, name=self.name)
 
     def __calc_value(self, dist_pre, dist_pos):
         value = pd.DataFrame(columns=["Pre - 2_5", "Pre - 97_5", "Pos - 2_5", "Pos - 97_5"])
