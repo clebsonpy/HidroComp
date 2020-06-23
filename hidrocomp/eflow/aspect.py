@@ -89,7 +89,7 @@ class Aspect(metaclass=ABCMeta):
         else:
             raise StatusError("Aspect status must be pos")
 
-    def dhram(self, aspect_pos, m, interval=95):
+    def dhram(self, aspect_pos, m: int, interval: int):
         if self._dhram is None:
             self._dhram = DhramAspect(name=self.name)
             if aspect_pos.status == "pos":
@@ -124,7 +124,7 @@ class PreVariable(Variable):
             self._rva = RVA(variable_pre=self, variable_pos=variable_pos, boundaries=boundaries, statistic=statistic)
         return self._rva
 
-    def dhram(self, variable_pos, m: int, interval: int = 95) -> DhramVariable:
+    def dhram(self, variable_pos, m: int, interval: int) -> DhramVariable:
         if self._dhram is None:
             self._dhram = DhramVariable(variable_pre=self, variable_pos=variable_pos, m=m, interval=interval)
         return self._dhram

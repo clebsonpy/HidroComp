@@ -73,7 +73,7 @@ class IHA:
 
     # </editor-fold>
 
-    def dhram(self, iha_obs, m=1000, interval=95):
+    def dhram(self, iha_obs, m=500, interval=95):
         if self.status == "pos":
             raise StatusError("Dhram not available for self object!")
         if iha_obs.status == "pre":
@@ -95,7 +95,7 @@ class IHA:
     def magnitude(self):
         if self.aspects["Magnitude"] is None:
             magnit = Magnitude(flow=self.flow, month_start=self.month_start, central_metric=self.central_metric,
-                                  variation_metric=self.variation_metric, status=self.status)
+                               variation_metric=self.variation_metric, status=self.status)
 
             self.aspects["Magnitude"] = magnit
         return self.aspects["Magnitude"]
@@ -148,3 +148,7 @@ class IHA:
             self.aspects["Rate and Frequency"] = rate
         return self.aspects["Rate and Frequency"]
     # </editor-fold>
+
+    @property
+    def aspects_name(self):
+        return f"Aspects_names({list(self.aspects.keys())})"

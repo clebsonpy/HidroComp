@@ -137,9 +137,10 @@ class DhramAspect:
             font=dict(family='Courier New, monospace', size=14, color='rgb(0,0,0)'),
             showlegend=True, plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF')
 
-        fig = px.violin(df, x="Variable", y="Data", color="Status", points="all", title=self.name)
+        fig = px.violin(df, x="Variable", y="Data", color="Status", points="all")
+        data = fig["data"]
         fig.layout = layout
-        return fig
+        return fig, data
 
 
 class DhramVariable:

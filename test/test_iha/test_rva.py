@@ -34,7 +34,8 @@ class TestRVA(TestCase):
 
     def test_mean_month(self):
         dhram = self.iha_obj_nat.dhram(iha_obs=self.iha_obj_obs, m=100, interval=95)
-        fig = dhram.aspects["Magnitude"].plot()
+        print(self.iha_obj_nat.aspects_name)
+        fig, data = dhram.aspects["Timing Extreme"].plot()
         py.offline.plot(fig, filename=os.path.join("graficos", "dhram.html"))
 
         """

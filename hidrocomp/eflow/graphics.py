@@ -128,7 +128,6 @@ class GraphicsDHRAM(Graphics):
 
         return point
 
-
     def _box(self):
         pass
 
