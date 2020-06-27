@@ -3,7 +3,7 @@ import plotly.express as px
 import plotly.graph_objs as go
 from hidrocomp.statistic.normal import Normal
 from hidrocomp.statistic.bootstrap import Bootstrap
-
+from hidrocomp.eflow.exceptions import *
 from hidrocomp.eflow.graphics import GraphicsDHRAM
 
 
@@ -84,20 +84,20 @@ class DhramAspect:
         return df.reindex(self._list_name_variables)
 
     @property
-    def diff(self):
+    def abnormality(self):
         if self._point is None:
             df = pd.DataFrame()
             for i in self.variables:
-                df = df.combine_first(self.variables[i].diff)
+                df = df.combine_first(self.variables[i].abnormality)
             self._point = df.reindex(self._list_name_variables)
         return self._point
 
     @property
     def point(self):
-        diff_mean = self.diff.abs().mean()
+        diff_mean = self.abnormality.abs().mean()
         df = pd.DataFrame(columns=["Mean", "Std"])
-        df.at[self.name, "Mean"] = self.__definition_points(diff_mean["Multi_diff_mean"])
-        df.at[self.name, "Std"] = self.__definition_points(diff_mean["Multi_diff_std"])
+        df.at[self.name, "Mean"] = self.__definition_points(diff_mean["Abnormality_mean"])
+        df.at[self.name, "Std"] = self.__definition_points(diff_mean["Abnormality_std"])
         return df
 
     @staticmethod
@@ -112,10 +112,42 @@ class DhramAspect:
             return 0
 
     def plot(self, type="mean"):
-        dic = {"Data": [], "Status": [], "Variable": []}
+        dic = {"Data": [], "Status": [], "Variable": [], "Error": [], "Error_minus": []}
+
         for i in self.variables:
-            variable_pre = self.variables[i].sample_pre.mean()
-            variable_pos = self.variables[i].sample_pos.mean()
+            if type == "mean":
+                variable_pre = self.variables[i].sample_pre.mean()
+                variable_pos = self.variables[i].sample_pos.mean()
+            elif type == "std":
+                variable_pre = self.variables[i].sample_pre.std()
+                variable_pos = self.variables[i].sample_pos.std()
+            else:
+                raise TypeError("Type: mean or std")
+            dic["Data"] = dic["Data"] + [variable_pre.mean()]
+            dic["Status"] = dic["Status"] + ["Pre-impact"]
+            dic["Variable"] = dic["Variable"] + [i]
+            dic["Error"] = dic["Error"] + [variable_pre.quantile(self.variables[i].interval[1]) - variable_pre.mean()]
+            dic["Error_minus"] = dic["Error_minus"] + [variable_pre.mean() -
+                                                       variable_pre.quantile(self.variables[i].interval[0])]
+            dic["Data"] = dic["Data"] + [variable_pos.mean()]
+            dic["Status"] = dic["Status"] + ["Pos-impact"]
+            dic["Variable"] = dic["Variable"] + [i]
+            dic["Error"] = dic["Error"] + [variable_pos.quantile(self.variables[i].interval[1]) - variable_pos.mean()]
+            dic["Error_minus"] = dic["Error_minus"] + [variable_pos.mean() -
+                                                       variable_pos.quantile(self.variables[i].interval[0])]
+
+        df = pd.DataFrame(dic)
+
+        """
+        for i in self.variables:
+            if type == "mean":
+                variable_pre = self.variables[i].sample_pre.mean()
+                variable_pos = self.variables[i].sample_pos.mean()
+            elif type == "std":
+                variable_pre = self.variables[i].sample_pre.std()
+                variable_pos = self.variables[i].sample_pos.std()
+            else:
+                raise TypeError("Type: mean or std")
             dic["Data"] = dic["Data"] + list(variable_pre.values)
             dic["Status"] = dic["Status"] + ["Pre-impact"]*len(variable_pre)
             dic["Variable"] = dic["Variable"] + [i]*len(variable_pre)
@@ -124,12 +156,13 @@ class DhramAspect:
             dic["Variable"] = dic["Variable"] + [i] * len(variable_pos)
 
         df = pd.DataFrame(dic)
+        """
 
         bandxaxis = go.layout.XAxis(title="Variables")
         bandyaxis = go.layout.YAxis(title="Data")
 
         layout = dict(
-            title=dict(text=self.name, x=0.5, xanchor='center', y=0.95, yanchor='top',
+            title=dict(text=self.name + " - " + type.title(), x=0.5, xanchor='center', y=0.95, yanchor='top',
                        font=dict(family='Courier New, monospace', size=14 + 10)),
             xaxis=bandxaxis,
             yaxis=bandyaxis,
@@ -137,7 +170,7 @@ class DhramAspect:
             font=dict(family='Courier New, monospace', size=14, color='rgb(0,0,0)'),
             showlegend=True, plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF')
 
-        fig = px.violin(df, x="Variable", y="Data", color="Status", points="all")
+        fig = px.scatter(df, x="Variable", y="Data", color="Status", error_y="Error", error_y_minus="Error_minus")
         data = fig["data"]
         fig.layout = layout
         return fig, data
@@ -158,11 +191,11 @@ class DhramVariable:
         confidence_intervals_pre = dist_pre.data.quantile(self.interval)
         confidence_intervals_pos = dist_pos.data.quantile(self.interval)
 
-        value.at[self.name, "Pre - 2_5"] = dist_pre.z_score(confidence_intervals_pre[0.025])
-        value.at[self.name, "Pre - 97_5"] = dist_pre.z_score(confidence_intervals_pre[0.975])
+        value.at[self.name, "Pre - 2_5"] = dist_pre.z_score(confidence_intervals_pre[self.interval[0]])
+        value.at[self.name, "Pre - 97_5"] = dist_pre.z_score(confidence_intervals_pre[self.interval[1]])
 
-        value.at[self.name, "Pos - 2_5"] = dist_pre.z_score(confidence_intervals_pos[0.025])
-        value.at[self.name, "Pos - 97_5"] = dist_pre.z_score(confidence_intervals_pos[0.975])
+        value.at[self.name, "Pos - 2_5"] = dist_pre.z_score(confidence_intervals_pos[self.interval[0]])
+        value.at[self.name, "Pos - 97_5"] = dist_pre.z_score(confidence_intervals_pos[self.interval[0]])
         return value
 
     @property
@@ -199,9 +232,9 @@ class DhramVariable:
         return multi_diff_pre, value_pos
 
     @property
-    def diff(self) -> pd.DataFrame:
+    def abnormality(self) -> pd.DataFrame:
 
-        diff_df = pd.DataFrame(columns=["Multi_diff_mean", "Multi_diff_std"])
+        diff_df = pd.DataFrame(columns=["Abnormality_mean", "Abnormality_std"])
 
         z_score_mean = self.value_mean
         z_score_std = self.value_std
@@ -213,8 +246,8 @@ class DhramVariable:
         multi_diff_mean_pre, value_mean_pos = self.__calc_diff(pre_mean_2_5, pre_mean_97_5, pos_mean_2_5, pos_mean_97_5)
         multi_diff_std_pre, value_std_pos = self.__calc_diff(pre_std_2_5, pre_std_97_5, pos_std_2_5, pos_std_97_5)
 
-        diff_df.at[self.name, "Multi_diff_mean"] = multi_diff_mean_pre * (value_mean_pos/abs(value_mean_pos))
-        diff_df.at[self.name, "Multi_diff_std"] = multi_diff_std_pre * (value_std_pos / abs(value_std_pos))
+        diff_df.at[self.name, "Abnormality_mean"] = multi_diff_mean_pre * (value_mean_pos/abs(value_mean_pos))
+        diff_df.at[self.name, "Abnormality_std"] = multi_diff_std_pre * (value_std_pos / abs(value_std_pos))
 
         return diff_df
 
@@ -224,14 +257,14 @@ class DhramVariable:
         """
         if type == "mean":
             fig_obs, data_obs = GraphicsDHRAM(data_variable=self.sample_pos.mean(), status="pos", color=color,
-                                              name=self.name).plot()
+                                              name=self.name).plot(type="point")
             fig_nat, data_nat = GraphicsDHRAM(data_variable=self.sample_pre.mean(), status="pre", color=color,
-                                              name=self.name).plot()
+                                              name=self.name).plot(type="point")
         elif type == "std":
             fig_obs, data_obs = GraphicsDHRAM(data_variable=self.sample_pos.std(), status="pos", color=color,
-                                              name=self.name).plot()
+                                              name=self.name).plot(type="point")
             fig_nat, data_nat = GraphicsDHRAM(data_variable=self.sample_pre.std(), status="pre", color=color,
-                                              name=self.name).plot()
+                                              name=self.name).plot(type="point")
         else:
             raise AttributeError("Type Error")
 

@@ -35,18 +35,18 @@ class TestRVA(TestCase):
     def test_mean_month(self):
         dhram = self.iha_obj_nat.dhram(iha_obs=self.iha_obj_obs, m=100, interval=95)
         print(self.iha_obj_nat.aspects_name)
-        fig, data = dhram.aspects["Timing Extreme"].plot()
+        fig, data = dhram.aspects["Timing Extreme"].plot("mean")
         py.offline.plot(fig, filename=os.path.join("graficos", "dhram.html"))
 
         """
-        magnitude_nat = self.iha_obj_nat.magnitude()
-        magnitude_obs = self.iha_obj_obs.magnitude()
+        magnitude_nat = self.iha_obj_nat.magnitude
+        magnitude_obs = self.iha_obj_obs.magnitude
         print(magnitude_nat.metrics)
         print(magnitude_nat.metrics)
         print(magnitude_nat.rva_frequency(aspect_pos=magnitude_obs))
         print(magnitude_nat.rva_measure_hydrologic_alteration(aspect_pos=magnitude_obs))
         dhram = magnitude_nat.dhram(aspect_pos=magnitude_obs, m=1000, interval=95)
-        print(dhram.diff)
+        print(dhram.abnormality)
         print(dhram.point)
 
         fig_std, data_std = dhram.variables["February"].plot(type="std")
@@ -54,8 +54,8 @@ class TestRVA(TestCase):
 
         py.offline.plot(fig_std, filename=os.path.join("graficos", "dhram_std.html"))
         py.offline.plot(fig_mean, filename=os.path.join("graficos", "dhram_mean.html"))
-        
         """
+
 
     def test_moving_averages(self):
         magnitude_duration_nat = self.iha_obj_nat.magnitude_and_duration()
