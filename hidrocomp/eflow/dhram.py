@@ -1,6 +1,4 @@
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objs as go
 from hidrocomp.statistic.normal import Normal
 from hidrocomp.statistic.bootstrap import Bootstrap
 from hidrocomp.eflow.exceptions import *
@@ -111,68 +109,9 @@ class DhramAspect:
         else:
             return 0
 
-    def plot(self, type="mean"):
-        dic = {"Data": [], "Status": [], "Variable": [], "Error": [], "Error_minus": []}
-
-        for i in self.variables:
-            if type == "mean":
-                variable_pre = self.variables[i].sample_pre.mean()
-                variable_pos = self.variables[i].sample_pos.mean()
-            elif type == "std":
-                variable_pre = self.variables[i].sample_pre.std()
-                variable_pos = self.variables[i].sample_pos.std()
-            else:
-                raise TypeError("Type: mean or std")
-            dic["Data"] = dic["Data"] + [variable_pre.mean()]
-            dic["Status"] = dic["Status"] + ["Pre-impact"]
-            dic["Variable"] = dic["Variable"] + [i]
-            dic["Error"] = dic["Error"] + [variable_pre.quantile(self.variables[i].interval[1]) - variable_pre.mean()]
-            dic["Error_minus"] = dic["Error_minus"] + [variable_pre.mean() -
-                                                       variable_pre.quantile(self.variables[i].interval[0])]
-            dic["Data"] = dic["Data"] + [variable_pos.mean()]
-            dic["Status"] = dic["Status"] + ["Pos-impact"]
-            dic["Variable"] = dic["Variable"] + [i]
-            dic["Error"] = dic["Error"] + [variable_pos.quantile(self.variables[i].interval[1]) - variable_pos.mean()]
-            dic["Error_minus"] = dic["Error_minus"] + [variable_pos.mean() -
-                                                       variable_pos.quantile(self.variables[i].interval[0])]
-
-        df = pd.DataFrame(dic)
-
-        """
-        for i in self.variables:
-            if type == "mean":
-                variable_pre = self.variables[i].sample_pre.mean()
-                variable_pos = self.variables[i].sample_pos.mean()
-            elif type == "std":
-                variable_pre = self.variables[i].sample_pre.std()
-                variable_pos = self.variables[i].sample_pos.std()
-            else:
-                raise TypeError("Type: mean or std")
-            dic["Data"] = dic["Data"] + list(variable_pre.values)
-            dic["Status"] = dic["Status"] + ["Pre-impact"]*len(variable_pre)
-            dic["Variable"] = dic["Variable"] + [i]*len(variable_pre)
-            dic["Data"] = dic["Data"] + list(variable_pos.values)
-            dic["Status"] = dic["Status"] + ["Pos-impact"] * len(variable_pos)
-            dic["Variable"] = dic["Variable"] + [i] * len(variable_pos)
-
-        df = pd.DataFrame(dic)
-        """
-
-        bandxaxis = go.layout.XAxis(title="Variables")
-        bandyaxis = go.layout.YAxis(title="Data")
-
-        layout = dict(
-            title=dict(text=self.name + " - " + type.title(), x=0.5, xanchor='center', y=0.95, yanchor='top',
-                       font=dict(family='Courier New, monospace', size=14 + 10)),
-            xaxis=bandxaxis,
-            yaxis=bandyaxis,
-            width=None, height=None,
-            font=dict(family='Courier New, monospace', size=14, color='rgb(0,0,0)'),
-            showlegend=True, plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF')
-
-        fig = px.scatter(df, x="Variable", y="Data", color="Status", error_y="Error", error_y_minus="Error_minus")
-        data = fig["data"]
-        fig.layout = layout
+    def plot(self, data_type="mean"):
+        graphs = GraphicsDHRAM(obj_dhram=self, data_type=data_type, xaxis="Variable", yaxis="Data")
+        fig, data = graphs.plot(type="error_bar")
         return fig, data
 
 
@@ -256,15 +195,11 @@ class DhramVariable:
         @type color: dict
         """
         if type == "mean":
-            fig_obs, data_obs = GraphicsDHRAM(data_variable=self.sample_pos.mean(), status="pos", color=color,
-                                              name=self.name).plot(type="point")
-            fig_nat, data_nat = GraphicsDHRAM(data_variable=self.sample_pre.mean(), status="pre", color=color,
-                                              name=self.name).plot(type="point")
+            fig_obs, data_obs = GraphicsDHRAM(obj_dhram=self, color=color, name=self.name).plot(type="point")
+            fig_nat, data_nat = GraphicsDHRAM(obj_dhram=self, color=color, name=self.name).plot(type="point")
         elif type == "std":
-            fig_obs, data_obs = GraphicsDHRAM(data_variable=self.sample_pos.std(), status="pos", color=color,
-                                              name=self.name).plot(type="point")
-            fig_nat, data_nat = GraphicsDHRAM(data_variable=self.sample_pre.std(), status="pre", color=color,
-                                              name=self.name).plot(type="point")
+            fig_obs, data_obs = GraphicsDHRAM(obj_dhram=self, color=color, name=self.name).plot(type="point")
+            fig_nat, data_nat = GraphicsDHRAM(obj_dhram=self, color=color, name=self.name).plot(type="point")
         else:
             raise AttributeError("Type Error")
 

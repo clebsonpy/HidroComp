@@ -1,16 +1,16 @@
 from abc import ABCMeta, abstractmethod
 
 import plotly.graph_objs as go
+import plotly.express as px
 import pandas as pd
 
 
 class Graphics(metaclass=ABCMeta):
 
-    def __init__(self, data_variable, status, color=None, width=None, height=None, size_text=14, xaxis=None,
+    def __init__(self, obj, color=None, width=None, height=None, size_text=14, xaxis=None,
                  yaxis=None, name=None):
-        self.data = data_variable.sort_index()
+        self.obj = obj
         self.name = name
-        self.status = status
         self.width = width
         self.height = height
         self.size_text = size_text
@@ -39,9 +39,9 @@ class Graphics(metaclass=ABCMeta):
 
 class GraphicsRVA(Graphics):
 
-    def __init__(self, data_variable, status, line=None, color=None, width=None, height=None, size_text=14, xaxis=None,
+    def __init__(self, data_variable, line=None, color=None, width=None, height=None, size_text=14, xaxis=None,
                  yaxis=None):
-        super().__init__(data_variable=data_variable, status=status, color=color, width=width, height=height,
+        super().__init__(obj=data_variable, color=color, width=width, height=height,
                          size_text=size_text, xaxis=xaxis, yaxis=yaxis)
         self.line = line
 
@@ -83,25 +83,29 @@ class GraphicsRVA(Graphics):
 
 class GraphicsDHRAM(Graphics):
 
-    def __init__(self, data_variable, status, color=None, width=None, height=None, size_text=14, xaxis=None,
-                 yaxis=None, name=None):
-        super().__init__(data_variable=data_variable, status=status, color=color, width=width, height=height,
-                         size_text=size_text, xaxis=xaxis, yaxis=yaxis, name=name)
+    def __init__(self, obj_dhram, color=None, width=None, height=None, size_text=14, xaxis=None, yaxis=None, name=None,
+                 data_type=None):
+        super().__init__(obj=obj_dhram, color=color, width=width, height=height, size_text=size_text, xaxis=xaxis,
+                         yaxis=yaxis, name=name)
+        self.data_type = data_type
 
-    def plot(self, type="violin"):
+    def plot(self, type="error_bar"):
         layout = self.layout()
 
         data = list()
         if type == "point":
             data.append(self._point_simulation())
+            fig = dict(data=data, layout=layout)
+            return fig, data
         elif type == "box":
             pass
         elif type == "violin":
             pass
+        elif type == "error_bar":
+            return self._error_bar()
         else:
             raise TypeError
-        fig = dict(data=data, layout=layout)
-        return fig, data
+
 
     """"
     def _line_interval_confidence(self):
@@ -116,20 +120,59 @@ class GraphicsDHRAM(Graphics):
             fill='toself')
 
         return trace
-    """
+    
 
     def _point_simulation(self):
-        point = go.Scatter(x=self.data.index,
-                           y=self.data[self.data.index].values,
+        point = go.Scatter(x=self.obj.index,
+                           y=self.obj[self.obj.index].values,
                            name=self.status.title() + '-impacto',
                            mode='markers',
                            marker=dict(size=8, color=self.color[self.status], line=dict(width=1,
                                                                                         color=self.color[self.status])))
 
         return point
+    """
 
     def _box(self):
         pass
 
-    def _violin(self):
-        pass
+    def _error_bar(self):
+        dic = {"Data": [], "Status": [], "Variable": [], "Error": [], "Error_minus": [], "Text": []}
+
+        for i in self.obj.variables:
+            if self.data_type == "mean":
+                variable_pre = self.obj.variables[i].sample_pre.mean()
+                variable_pos = self.obj.variables[i].sample_pos.mean()
+            elif self.data_type == "std":
+                variable_pre = self.obj.variables[i].sample_pre.std()
+                variable_pos = self.obj.variables[i].sample_pos.std()
+            else:
+                raise TypeError("Type: mean or std")
+            dic["Data"] = dic["Data"] + [variable_pre.mean()]
+            dic["Status"] = dic["Status"] + ["Pre-impact"]
+            dic["Variable"] = dic["Variable"] + [i]
+            dic["Error"] = dic["Error"] + [variable_pre.quantile(self.obj.variables[i].interval[1]) - variable_pre.mean()]
+            dic["Error_minus"] = dic["Error_minus"] + [variable_pre.mean() -
+                                                       variable_pre.quantile(self.obj.variables[i].interval[0])]
+            dic["Text"] = dic["Text"] + [f"{(self.obj.variables[i].interval[1] - self.obj.variables[i].interval[0]) * 100}% "
+                                         f"({round(variable_pre.quantile(self.obj.variables[i].interval[0]), 2)}"
+                                         f" - {round(variable_pre.quantile(self.obj.variables[i].interval[1]), 2)})"]
+            dic["Data"] = dic["Data"] + [variable_pos.mean()]
+            dic["Status"] = dic["Status"] + ["Pos-impact"]
+            dic["Variable"] = dic["Variable"] + [i]
+            dic["Error"] = dic["Error"] + [variable_pos.quantile(self.obj.variables[i].interval[1]) - variable_pos.mean()]
+            dic["Error_minus"] = dic["Error_minus"] + [variable_pos.mean() -
+                                                       variable_pos.quantile(self.obj.variables[i].interval[0])]
+            dic["Text"] = dic["Text"] + [f"{(self.obj.variables[i].interval[1] - self.obj.variables[i].interval[0]) * 100}% "
+                                         f"({round(variable_pos.quantile(self.obj.variables[i].interval[0]), 2)}"
+                                         f" - {round(variable_pos.quantile(self.obj.variables[i].interval[1]), 2)})"]
+
+        df = pd.DataFrame(dic)
+        fig = px.scatter(df, x="Variable", y="Data", color="Status", error_y="Error", error_y_minus="Error_minus",
+                         text="Text", labels={"Text": f"Confidence Interval"}, hover_data={"Data": ":.2f"})
+
+        fig.update_traces(mode="markers")
+        data = fig["data"]
+        fig.layout = self.layout()
+        fig.layout.title.text = f"{self.obj.name} - {self.data_type.title()}"
+        return fig, data
