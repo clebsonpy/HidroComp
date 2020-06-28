@@ -1,8 +1,7 @@
-import os
 import calendar as cal
 import pandas as pd
-from hidrocomp.series.exceptions import StationError
 
+from hidrocomp.series.exceptions import StationError
 from hidrocomp.statistic.pearson3 import Pearson3
 from hidrocomp.series.series_build import SeriesBuild
 from hidrocomp.series.parcial import Parcial
@@ -100,17 +99,40 @@ class Flow(SeriesBuild):
             fig, data = hydrogram.plot()
         return fig, data
 
-    def iha(self, status=None, date_start=None, date_end=None, statistic=None, central_metric=None, month_water=None,
-            variation_metric=None, type_threshold=None, type_criterion=None, threshold_high=None, threshold_low=None):
-
+    def iha(self, status=None, date_start: str = None, date_end: str = None, statistic="no-parametric",
+            central_metric="mean", month_water: int = None, variation_metric: str = "std", type_threshold="stationary",
+            type_criterion: str = None, threshold_high: float = None, threshold_low: float = None, **kwargs) -> IHA:
+        """
+        @param status:
+        @param date_start:
+        @param date_end:
+        @param statistic:
+        @param central_metric:
+        @param month_water:
+        @param variation_metric:
+        @param type_threshold:
+        @param type_criterion:
+        @param threshold_high:
+        @param threshold_low:
+        @return:
+        """
         iha = IHA(flow=self, month_water=month_water, status=status, date_start=date_start, date_end=date_end,
                   statistic=statistic, central_metric=central_metric, variation_metric=variation_metric,
                   type_threshold=type_threshold, type_criterion=type_criterion, threshold_high=threshold_high,
-                  threshold_low=threshold_low)
+                  threshold_low=threshold_low, **kwargs)
         return iha
 
-    def power_energy(self):
-        pass
+    def power_energy(self, efficiency: int, gravity: float, hydraulic_head: float, station: str = None) -> pd.Series:
+        if len(self.columns) > 1:
+            if station is None:
+                raise AttributeError("Station is None")
+            else:
+                data = self.data[station]
+        else:
+            data = self.data
+        const = efficiency * gravity * hydraulic_head
+        pot = data.multiply(const)
+        return pot
 
     def hydrogram_year(self, title="", threshold=None, width=None, height=None, size_text=16):
         self.month_start_year_hydrologic()

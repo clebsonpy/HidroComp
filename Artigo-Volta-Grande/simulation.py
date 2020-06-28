@@ -172,6 +172,9 @@ if __name__ == "__main__":
     #Q = Q1.combine_first(Q4)
 
     flow_sim = Flow(data=Q3)
+    print(flow_sim)
+    print(flow_sim.power_energy(efficiency=92, hydraulic_head=87.5, gravity=9.32, station="Derivation channel"))
+    print(flow_sim.power_energy(efficiency=92, hydraulic_head=11.4, gravity=9.32, station="TVR"))
     #flow_sim.date(date_start="01/09/2007", date_end="31/08/2008")
     fig, data = flow_sim.hydrogram(title="Hydrograph - 90Q scenery", x_title="Date",
                                    y_title="Flow (m³/s)", color={"Naturally": "#002e6f", "TVR": "#8b0000",

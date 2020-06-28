@@ -1,3 +1,5 @@
+from typing import Union, Type
+
 from hidrocomp.eflow.exceptions import *
 import pandas as pd
 import calendar as cal
@@ -7,9 +9,10 @@ from hidrocomp.eflow.dhram import Dhram
 
 class IHA:
 
-    def __init__(self, flow, month_water=None, status=None, date_start=None, date_end=None,
-                 statistic=None, central_metric=None, variation_metric=None, type_threshold=None, type_criterion=None,
-                 threshold_high=None, threshold_low=None, **kwargs):
+    def __init__(self, flow, date_start: str = None, date_end: str = None, statistic="no-parametric",
+                 central_metric="mean", variation_metric: str = "std", type_threshold="stationary", status=None,
+                 month_water: int = None, type_criterion: str = None, threshold_high: float = None,
+                 threshold_low: float = None, **kwargs):
         """
         :param data: pandas Series
         :param month_water: initial month water (int: referent the month, ex.: 1 for Jan, 2 for Fev)
@@ -21,11 +24,11 @@ class IHA:
         :param central_metric: 'mean or median'
         :param variation_metric: 'str' or 'cv'
         """
-        self.aspects = {"Magnitude": None, "Magnitude and Duration": None, "Timing Extreme": None,
-                        "Frequency and Duration": None, "Rate and Frequency": None}
-        ##self.source = kwargs['source']
-        self.flow = flow #Flow(data, source=self.source, station=station)
-        #self.station = self.get_station(station)
+        self.aspects = {"Magnitude": Union[Magnitude], "Magnitude and Duration": Union[MagnitudeDuration],
+                        "Timing Extreme": Union[TimingExtreme], "Frequency and Duration": Union[FrequencyDuration],
+                        "Rate and Frequency": Union[RateFrequency]}
+
+        self.flow = flow
         self.status = status
         self._dhram = None
         self.month_start = self.get_month_start(month_water)
@@ -73,7 +76,10 @@ class IHA:
 
     # </editor-fold>
 
-    def dhram(self, iha_obs, m=500, interval=95):
+    def rva(self):
+        pass
+
+    def dhram(self, iha_obs, m: int = 500, interval: int = 95) -> Dhram:
         if self.status == "pos":
             raise StatusError("Dhram not available for self object!")
         if iha_obs.status == "pre":
@@ -92,8 +98,8 @@ class IHA:
 
     # <editor-fold desc="Group 1: Magnitude of monthly water conditions">
     @property
-    def magnitude(self):
-        if self.aspects["Magnitude"] is None:
+    def magnitude(self) -> Magnitude:
+        if not isinstance(self.aspects["Magnitude"], Magnitude):
             magnit = Magnitude(flow=self.flow, month_start=self.month_start, central_metric=self.central_metric,
                                variation_metric=self.variation_metric, status=self.status)
 
@@ -104,8 +110,8 @@ class IHA:
 
     # <editor-fold desc="Group 2: Magnitude and Duration of annual extreme water conditions">
     @property
-    def magnitude_and_duration(self):
-        if self.aspects["Magnitude and Duration"] is None:
+    def magnitude_and_duration(self) -> MagnitudeDuration:
+        if not isinstance(self.aspects["Magnitude and Duration"], MagnitudeDuration):
             magnit_and_durat = MagnitudeDuration(flow=self.flow, month_start=self.month_start, status=self.status,
                                                  central_metric=self.central_metric,
                                                  variation_metric=self.variation_metric)
@@ -116,8 +122,8 @@ class IHA:
 
     # <editor-fold desc="Group 3: Timing of annual extreme water conditions">
     @property
-    def timing_extreme(self):
-        if self.aspects["Timing Extreme"] is None:
+    def timing_extreme(self) -> TimingExtreme:
+        if not isinstance(self.aspects["Timing Extreme"], TimingExtreme):
             timing = TimingExtreme(flow=self.flow, month_start=self.month_start, central_metric=self.central_metric,
                                    variation_metric=self.variation_metric, status=self.status)
 
@@ -127,8 +133,8 @@ class IHA:
 
     # <editor-fold desc="Group 4: Frequency and duration of high and low pulses">
     @property
-    def frequency_and_duration(self):
-        if self.aspects["Frequency and Duration"] is None:
+    def frequency_and_duration(self) -> FrequencyDuration:
+        if not isinstance(self.aspects["Frequency and Duration"], FrequencyDuration):
             freq = FrequencyDuration(flow=self.flow, month_start=self.month_start, central_metric=self.central_metric,
                                      variation_metric=self.variation_metric, status=self.status,
                                      type_threshold=self.type_threshold, type_criterion=self.type_criterion,
@@ -140,8 +146,8 @@ class IHA:
 
     # <editor-fold desc="Group 5: Rate and frequency of water condition changes">
     @property
-    def rate_and_frequency(self):
-        if self.aspects["Rate and Frequency"] is None:
+    def rate_and_frequency(self) -> RateFrequency:
+        if not isinstance(self.aspects["Rate and Frequency"], RateFrequency):
             rate = RateFrequency(flow=self.flow, month_start=self.month_start, central_metric=self.central_metric,
                                  variation_metric=self.variation_metric, status=self.status)
 
@@ -150,5 +156,5 @@ class IHA:
     # </editor-fold>
 
     @property
-    def aspects_name(self):
+    def aspects_name(self) -> str:
         return f"Aspects_names({list(self.aspects.keys())})"

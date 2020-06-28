@@ -86,6 +86,10 @@ class SeriesBuild(metaclass=ABCMeta):
         """
         return self.__class__(data=self.data[val].copy())
 
+    @property
+    def columns(self):
+        return self.data.columns
+
     def date(self, date_start=None, date_end=None):
         """
         """
