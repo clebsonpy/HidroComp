@@ -99,6 +99,9 @@ class Flow(SeriesBuild):
             fig, data = hydrogram.plot()
         return fig, data
 
+    def power_energy(self):
+        pass
+
     def hydrogram_year(self, title="", threshold=None, width=None, height=None, size_text=16):
         self.month_start_year_hydrologic()
         idx = [i for i in self.data.index if i.month == 2 and i.day == 29]

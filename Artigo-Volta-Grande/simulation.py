@@ -5,6 +5,7 @@ from plotly.subplots import make_subplots
 from hidrocomp.series.flow import Flow
 import pandas as pd
 
+
 class Simulation:
 
     def __init__(self, data, mxt_flow):
