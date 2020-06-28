@@ -103,11 +103,28 @@ class Simulation:
     def rule_03(self):
         """
         - DNAEE 02/1984
-        - Estudos de viabilidades
+        - Estudos de viabilidades, 80% da menor vazão de no mínumo 10 anos de dados
 
         :return:tuple(DataFrame(columns=[TVR, Turbine, Naturally]), DataFrame(columns=[TVR - DNAEE]))
         """
-        pass
+        env_flow = self.data.data.groupby(pd.Grouper(freq="M")).mean().min() * 0.8
+
+        idx = []
+        values_tvr = []
+        values_turb = []
+        values_env_flow = []
+        for i in self.data.data.index:
+            values = self.flows(self.data.data.loc[i].values[0], env_flow[0])
+            values_tvr.append(values[0])
+            values_turb.append((values[1]))
+            values_env_flow.append(values[2])
+            idx.append(i)
+
+        return pd.DataFrame([pd.Series(data=values_tvr, index=idx, name="TVR"),
+                             pd.Series(data=values_turb, index=idx, name="Derivation channel"),
+                             self.data.data["Natural"],
+                             pd.Series(data=values_env_flow, index=idx, name="e-flow")]).T, \
+               pd.DataFrame(pd.Series(data=values_tvr, index=idx, name="TVR - DNAEE"))
 
     def rule_04(self):
         """
@@ -136,7 +153,7 @@ class Simulation:
 
 
 if __name__ == "__main__":
-    file = "Medicoes/PIMENTAL.csv"
+    file = "../Medicoes/PIMENTAL.csv"
     data = pd.read_csv(file, ',', index_col=0, parse_dates=True)
     flow = Flow(data=data, source='ONS', station="PIMENTAL")
     flow.station = "Natural"
@@ -146,16 +163,17 @@ if __name__ == "__main__":
     date_end = flow.date_end.replace(day=28, month=month[2]-1)
     flow.date(date_start=date_start, date_end=date_end)
     simulation = Simulation(data=flow, mxt_flow=13950)
-    Q1 = simulation.rule_01()[0]
+    #Q1 = simulation.rule_01()[0]
     #Q2 = simulation.rule_02()[0]
     #Q = Q1.combine_first(Q2)
+    Q3 = simulation.rule_03()[0]
     #Q4 = simulation.rule_04()[0]
     #Q = Q1.combine_first(Q4)
 
-    flow_sim = Flow(data=Q1)
+    flow_sim = Flow(data=Q3)
     #flow_sim.date(date_start="01/09/2007", date_end="31/08/2008")
     fig, data = flow_sim.hydrogram(title="Hydrograph - 90Q scenery", x_title="Date",
                                    y_title="Flow (m³/s)", color={"Naturally": "#002e6f", "TVR": "#8b0000",
                                                                  "Derivation channel": "#000000"})
 
-    py.offline.plot(fig, filename='graficos/hydro_rule_01.html',) # image_height=900, image_width=900)
+    py.offline.plot(fig, filename='../graficos/hydro_rule_01.html',) # image_height=900, image_width=900)

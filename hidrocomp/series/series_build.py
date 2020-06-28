@@ -125,6 +125,12 @@ class SeriesBuild(metaclass=ABCMeta):
         """
         return self.data.describe()
 
+    def min(self):
+        return self.data.min()
+
+    def max(self):
+        return self.data.max()
+
     def get_year(self, year):
         """
         Seleciona todos os dados referente ao ano.
