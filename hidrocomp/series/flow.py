@@ -8,6 +8,7 @@ from hidrocomp.series.series_build import SeriesBuild
 from hidrocomp.series.parcial import Parcial
 from hidrocomp.series.maximum import Maximum
 from hidrocomp.series.minimum import Minimum
+from hidrocomp.eflow.iha import IHA
 from hidrocomp.graphics.hydrogram_clean import HydrogramClean
 from hidrocomp.graphics.hydrogram_by_year import HydrogramYear
 from hidrocomp.graphics.permanence_curve import PermanenceCurve
@@ -98,6 +99,15 @@ class Flow(SeriesBuild):
                                        size_text=size_text, title=title, y_title=y_title, x_title=x_title, color=color)
             fig, data = hydrogram.plot()
         return fig, data
+
+    def iha(self, status=None, date_start=None, date_end=None, statistic=None, central_metric=None, month_water=None,
+            variation_metric=None, type_threshold=None, type_criterion=None, threshold_high=None, threshold_low=None):
+
+        iha = IHA(flow=self, month_water=month_water, status=status, date_start=date_start, date_end=date_end,
+                  statistic=statistic, central_metric=central_metric, variation_metric=variation_metric,
+                  type_threshold=type_threshold, type_criterion=type_criterion, threshold_high=threshold_high,
+                  threshold_low=threshold_low)
+        return iha
 
     def power_energy(self):
         pass
