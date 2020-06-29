@@ -32,6 +32,7 @@ class TestRVA(TestCase):
             self.assertEqual(data['Coeff. of Var.'][i], data2['Coeff. of Var.'][i])
 
     def test_mean_month(self):
+        print(self.iha_obj_nat.summary())
         dhram = self.iha_obj_nat.dhram(iha_obs=self.iha_obj_obs, m=100, interval=95)
         print(self.iha_obj_nat.aspects_name)
         fig, data = dhram.aspects["Timing Extreme"].plot("mean")

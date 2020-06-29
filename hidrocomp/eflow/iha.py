@@ -96,6 +96,21 @@ class IHA:
                                                             m=m)
         return self._dhram
 
+    def summary(self):
+        df = pd.DataFrame()
+        idx = []
+        df = df.combine_first(self.magnitude.metrics)
+        idx = idx + list(self.magnitude.variables.keys())
+        df = df.combine_first(self.magnitude_and_duration.metrics)
+        idx = idx + list(self.magnitude_and_duration.variables.keys())
+        df = df.combine_first(self.timing_extreme.metrics)
+        idx = idx + list(self.timing_extreme.variables.keys())
+        df = df.combine_first(self.frequency_and_duration.metrics)
+        idx = idx + list(self.frequency_and_duration.variables.keys())
+        df = df.combine_first(self.rate_and_frequency.metrics)
+        idx = idx + list(self.rate_and_frequency.variables.keys())
+        return df.reindex(idx)
+
     # <editor-fold desc="Group 1: Magnitude of monthly water conditions">
     @property
     def magnitude(self) -> Magnitude:

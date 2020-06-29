@@ -54,7 +54,7 @@ class DhramAspect:
 
     def __init__(self, name):
         self.name = name
-        self._point = None
+        self._abnormality = None
         self._variables: dict = {}
         self._list_name_variables = []
 
@@ -83,12 +83,12 @@ class DhramAspect:
 
     @property
     def abnormality(self):
-        if self._point is None:
+        if self._abnormality is None:
             df = pd.DataFrame()
             for i in self.variables:
                 df = df.combine_first(self.variables[i].abnormality)
-            self._point = df.reindex(self._list_name_variables)
-        return self._point
+            self._abnormality = df.reindex(self._list_name_variables)
+        return self._abnormality
 
     @property
     def point(self):
