@@ -141,38 +141,31 @@ class GraphicsDHRAM(Graphics):
 
         for i in self.obj.variables:
             if self.data_type == "mean":
-                variable_pre = self.obj.variables[i].sample_pre.mean()
-                variable_pos = self.obj.variables[i].sample_pos.mean()
+                variable_diff = self.obj.variables[i].value_mean
+                variable = {"Diff": variable_diff}
             elif self.data_type == "std":
-                variable_pre = self.obj.variables[i].sample_pre.std()
-                variable_pos = self.obj.variables[i].sample_pos.std()
+                variable_diff = self.obj.variables[i].value_std
+                variable = {"Diff": variable_diff}
             else:
-                raise TypeError("Type: mean or std")
-            dic["Data"] = dic["Data"] + [variable_pre.mean()]
-            dic["Status"] = dic["Status"] + ["Pre-impact"]
-            dic["Variable"] = dic["Variable"] + [i]
-            dic["Error"] = dic["Error"] + [variable_pre.quantile(self.obj.variables[i].interval[1]) - variable_pre.mean()]
-            dic["Error_minus"] = dic["Error_minus"] + [variable_pre.mean() -
-                                                       variable_pre.quantile(self.obj.variables[i].interval[0])]
-            dic["Text"] = dic["Text"] + [f"{(self.obj.variables[i].interval[1] - self.obj.variables[i].interval[0]) * 100}% "
-                                         f"({round(variable_pre.quantile(self.obj.variables[i].interval[0]), 2)}"
-                                         f" - {round(variable_pre.quantile(self.obj.variables[i].interval[1]), 2)})"]
-            dic["Data"] = dic["Data"] + [variable_pos.mean()]
-            dic["Status"] = dic["Status"] + ["Pos-impact"]
-            dic["Variable"] = dic["Variable"] + [i]
-            dic["Error"] = dic["Error"] + [variable_pos.quantile(self.obj.variables[i].interval[1]) - variable_pos.mean()]
-            dic["Error_minus"] = dic["Error_minus"] + [variable_pos.mean() -
-                                                       variable_pos.quantile(self.obj.variables[i].interval[0])]
-            dic["Text"] = dic["Text"] + [f"{(self.obj.variables[i].interval[1] - self.obj.variables[i].interval[0]) * 100}% "
-                                         f"({round(variable_pos.quantile(self.obj.variables[i].interval[0]), 2)}"
-                                         f" - {round(variable_pos.quantile(self.obj.variables[i].interval[1]), 2)})"]
+                raise TypeError("Type: mean, std or diff_mean")
+
+            for j in variable:
+                dic["Data"] = dic["Data"] + [variable[j]["Pos - mean"].values[0]]
+                dic["Status"] = dic["Status"] + [j]
+                dic["Variable"] = dic["Variable"] + [i]
+                dic["Error"] = dic["Error"] + [variable[j]["Pos - 97_5"].values[0] - variable[j]["Pos - mean"].values[0]]
+                dic["Error_minus"] = dic["Error_minus"] + [variable[j]["Pos - mean"].values[0] - variable[j]["Pos - 2_5"].values[0]]
+
+                dic["Text"] = dic["Text"] + [f"{(self.obj.variables[i].interval[1] - self.obj.variables[i].interval[0]) * 100}% "
+                                             f"({round(variable[j]['Pos - 2_5'].values[0], 2)}"
+                                             f"; {round(variable[j]['Pos - 97_5'].values[0], 2)})"]
 
         df = pd.DataFrame(dic)
         fig = px.scatter(df, x="Variable", y="Data", color="Status", error_y="Error", error_y_minus="Error_minus",
-                         text="Text", labels={"Text": f"Confidence Interval"}, hover_data={"Data": ":.2f"})
+                         text="Text", labels={"Text": "Confidence Interval", "Data": "Abnormality"},
+                         hover_data={"Data": ":.2f"})
 
         fig.update_traces(mode="markers")
-        data = fig["data"]
         fig.layout = self.layout()
         fig.layout.title.text = f"{self.obj.name} - {self.data_type.title()}"
-        return fig, data
+        return fig, df

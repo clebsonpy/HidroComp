@@ -1,4 +1,5 @@
 import pandas as pd
+import plotly.graph_objs as go
 from hidrocomp.statistic.normal import Normal
 from hidrocomp.statistic.bootstrap import Bootstrap
 from hidrocomp.eflow.exceptions import *
@@ -48,6 +49,91 @@ class Dhram:
         if self._classification is None:
             self._classification = self.__definition_classification(points=points)
         return self._classification
+
+    def plot(self, data_type="diff"):
+        data_type_dict = {'std': "Standard deviation", "mean": "Mean"}
+        data = []
+        symbol = {'Magnitude': 'circle', 'Magnitude and Duration': 'x', 'Timing Extreme': 'cross',
+                  'Frequency and Duration': 'triangle-up', 'Rate and Frequency': 'diamond'}
+        x = []
+        error = []
+        error_minus = []
+        for i in self.aspects:
+            graphs = GraphicsDHRAM(obj_dhram=self.aspects[i], data_type=data_type, xaxis="Variable",
+                                   yaxis="Abnormality")
+            fig, df = graphs.plot(type="error_bar")
+
+            data_fig = fig["data"]
+            error = error + list(df["Data"].values + df["Error"].values)
+            error_minus = error_minus + list(df["Data"].values - df["Error_minus"].values)
+            x = x + list(df["Variable"].values)
+            data_fig[0]["name"] = i
+            data_fig[0]["marker"]["color"] = "black"
+            data_fig[0]["marker"]["symbol"] = symbol[i]
+            data = data + [data_fig[0]]
+        layout = fig["layout"]
+        layout["title"]["text"] = f"Difference - {data_type_dict[data_type]}"
+
+        fig = go.Figure(data=data, layout=layout)
+        fig.add_trace(go.Scatter(
+            x=x, y=[4]*len(x),
+            mode='lines',
+            line=dict(width=0.5, color='#2EFE2E'),
+            stackgroup="one",
+            showlegend=False,
+        ))
+        fig.add_trace(go.Scatter(
+            x=x, y=[2] * len(x),
+            mode='lines',
+            line=dict(width=0.5, color='#F7FE2E'),
+            stackgroup="one",
+            showlegend=False
+        ))
+        fig.add_trace(go.Scatter(
+            x=x, y=[2] * len(x),
+            mode='lines',
+            line=dict(width=0.5, color='#FAAC58'),
+            stackgroup="one",
+            showlegend=False
+        ))
+        if max(error) > 8:
+            fig.add_trace(go.Scatter(
+                x=x, y=[max(error)-8] * len(x),
+                mode='lines',
+                line=dict(width=0.5, color='#FE2E2E'),
+                stackgroup="one",
+                showlegend=False
+            ))
+        fig.add_trace(go.Scatter(
+            x=x, y=[-4] * len(x),
+            mode='lines',
+            line=dict(width=0.5, color='#2EFE2E'),
+            stackgroup="two",
+            showlegend=False
+        ))
+        fig.add_trace(go.Scatter(
+            x=x, y=[-2] * len(x),
+            mode='lines',
+            line=dict(width=0.5, color='#F7FE2E'),
+            stackgroup="two",
+            showlegend=False
+        ))
+        fig.add_trace(go.Scatter(
+            x=x, y=[-2] * len(x),
+            mode='lines',
+            line=dict(width=0.5, color='#FAAC58'),
+            stackgroup="two",
+            showlegend=False
+        ))
+        if min(error_minus) < -8:
+            fig.add_trace(go.Scatter(
+                x=x, y=[min(error_minus)+8] * len(x),
+                mode='lines',
+                line=dict(width=0.5, color='#FE2E2E'),
+                stackgroup="two",
+                showlegend=False
+            ))
+        return fig, data
 
 
 class DhramAspect:
@@ -110,7 +196,7 @@ class DhramAspect:
             return 0
 
     def plot(self, data_type="mean"):
-        graphs = GraphicsDHRAM(obj_dhram=self, data_type=data_type, xaxis="Variable", yaxis="Data")
+        graphs = GraphicsDHRAM(obj_dhram=self, data_type=data_type, xaxis="Variable", yaxis="Abnormality")
         fig, data = graphs.plot(type="error_bar")
         return fig, data
 
@@ -126,15 +212,23 @@ class DhramVariable:
         self.sample_pos = Bootstrap(data=self.data_pos, m=m, name=self.name)
 
     def __calc_value(self, dist_pre, dist_pos):
-        value = pd.DataFrame(columns=["Pre - 2_5", "Pre - 97_5", "Pos - 2_5", "Pos - 97_5"])
+        value = pd.DataFrame(columns=["Pre - 2_5", "Pre - 97_5", "Pos - 2_5", "Pos - 97_5", "Pre - mean", "Pos - mean"])
         confidence_intervals_pre = dist_pre.data.quantile(self.interval)
         confidence_intervals_pos = dist_pos.data.quantile(self.interval)
+        zscore_pre_2_5 = dist_pre.z_score(confidence_intervals_pre[self.interval[0]])
+        zscore_pos_2_5 = dist_pre.z_score(confidence_intervals_pos[self.interval[0]])
+        zscore_pre_97_5 = dist_pre.z_score(confidence_intervals_pre[self.interval[1]])
+        zscore_pos_97_5 = dist_pre.z_score(confidence_intervals_pos[self.interval[1]])
+        zscore_pre_mean = dist_pre.z_score(dist_pre.data.mean())
+        zscore_pos_mean = dist_pre.z_score(dist_pos.data.mean())
 
-        value.at[self.name, "Pre - 2_5"] = dist_pre.z_score(confidence_intervals_pre[self.interval[0]])
-        value.at[self.name, "Pre - 97_5"] = dist_pre.z_score(confidence_intervals_pre[self.interval[1]])
+        value.at[self.name, "Pre - 2_5"] = zscore_pre_2_5
+        value.at[self.name, "Pre - mean"] = zscore_pre_mean
+        value.at[self.name, "Pre - 97_5"] = zscore_pre_97_5
 
-        value.at[self.name, "Pos - 2_5"] = dist_pre.z_score(confidence_intervals_pos[self.interval[0]])
-        value.at[self.name, "Pos - 97_5"] = dist_pre.z_score(confidence_intervals_pos[self.interval[0]])
+        value.at[self.name, "Pos - 2_5"] = zscore_pos_2_5
+        value.at[self.name, "Pos - mean"] = zscore_pos_mean
+        value.at[self.name, "Pos - 97_5"] = zscore_pos_97_5
         return value
 
     @property
@@ -144,7 +238,6 @@ class DhramVariable:
         dist_pos = Normal(data=self.sample_pos.mean())
 
         value = self.__calc_value(dist_pre=dist_pre, dist_pos=dist_pos)
-
         return value
 
     @property
@@ -158,17 +251,14 @@ class DhramVariable:
         return value
 
     @staticmethod
-    def __calc_diff(pre_2_5, pre_97_5, pos_2_5, pos_97_5):
+    def __calc_abnormality(pos_2_5, pos_97_5):
         if abs(pos_2_5) < abs(pos_97_5):
             value_pos = pos_2_5
-            diff_pre = abs(value_pos) - abs(pre_2_5)
-            multi_diff_pre = diff_pre / 2
         else:
             value_pos = pos_97_5
-            diff_pre = abs(value_pos) - abs(pre_97_5)
-            multi_diff_pre = diff_pre / 2
 
-        return multi_diff_pre, value_pos
+        multi_diff = (abs(abs(value_pos) - 2) / 2) * value_pos/abs(value_pos)
+        return multi_diff
 
     @property
     def abnormality(self) -> pd.DataFrame:
@@ -179,14 +269,12 @@ class DhramVariable:
         z_score_std = self.value_std
         pos_mean_2_5, pos_std_2_5 = z_score_mean["Pos - 2_5"].values[0], z_score_std["Pos - 2_5"].values[0]
         pos_mean_97_5, pos_std_97_5 = z_score_mean["Pos - 97_5"].values[0], z_score_std["Pos - 97_5"].values[0]
-        pre_mean_2_5,  pre_std_2_5 = z_score_mean["Pre - 2_5"].values[0], z_score_std["Pre - 2_5"].values[0]
-        pre_mean_97_5, pre_std_97_5 = z_score_mean["Pre - 97_5"].values[0], z_score_std["Pre - 97_5"].values[0]
 
-        multi_diff_mean_pre, value_mean_pos = self.__calc_diff(pre_mean_2_5, pre_mean_97_5, pos_mean_2_5, pos_mean_97_5)
-        multi_diff_std_pre, value_std_pos = self.__calc_diff(pre_std_2_5, pre_std_97_5, pos_std_2_5, pos_std_97_5)
+        value_mean_pos = self.__calc_abnormality(pos_mean_2_5, pos_mean_97_5)
+        value_std_pos = self.__calc_abnormality(pos_std_2_5, pos_std_97_5)
 
-        diff_df.at[self.name, "Abnormality_mean"] = multi_diff_mean_pre * (value_mean_pos/abs(value_mean_pos))
-        diff_df.at[self.name, "Abnormality_std"] = multi_diff_std_pre * (value_std_pos / abs(value_std_pos))
+        diff_df.at[self.name, "Abnormality_mean"] = value_mean_pos
+        diff_df.at[self.name, "Abnormality_std"] = value_std_pos
 
         return diff_df
 

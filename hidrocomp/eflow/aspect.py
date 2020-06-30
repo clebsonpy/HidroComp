@@ -179,7 +179,11 @@ class MagnitudeDuration(Aspect):
                     for i in self.flow.data.groupby(pd.Grouper(freq=self.month_start[1]))}
         serie_dict_zero = pd.Series(data=dic_zero, name='Number of zero days')
         serie_dict_zero.loc[serie_dict_zero.isnull()].value = 0
-        magn_and_duration = aver_data.combine_first(pd.DataFrame(serie_dict_zero))
+        if serie_dict_zero.sum() > 0:
+            magn_and_duration = aver_data.combine_first(pd.DataFrame(serie_dict_zero))
+        else:
+            del self.variables['Number of zero days']
+            magn_and_duration = aver_data
         return magn_and_duration
 
 
