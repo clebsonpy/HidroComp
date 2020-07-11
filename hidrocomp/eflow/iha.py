@@ -1,10 +1,10 @@
-from typing import Union, Type
+from typing import Union
 
 from hidrocomp.eflow.exceptions import *
 import pandas as pd
 import calendar as cal
 from hidrocomp.eflow.aspect import Magnitude, MagnitudeDuration, TimingExtreme, FrequencyDuration, RateFrequency
-from hidrocomp.eflow.dhram import Dhram
+from hidrocomp.eflow import Cha, RVA
 
 
 class IHA:
@@ -30,7 +30,7 @@ class IHA:
 
         self.flow = flow
         self.status = status
-        self._dhram = None
+        self._cha = None
         self.month_start = self.get_month_start(month_water)
         self.date_start = pd.to_datetime(date_start, dayfirst=True)
         self.date_end = pd.to_datetime(date_end, dayfirst=True)
@@ -76,25 +76,28 @@ class IHA:
 
     # </editor-fold>
 
-    def rva(self):
+    def __str__(self) -> str:
+        return self.summary().__str__()
+
+    def rva(self) -> RVA:
         pass
 
-    def dhram(self, iha_obs, m: int = 500, interval: int = 95) -> Dhram:
+    def cha(self, iha_obs, m: int = 500, interval: int = 95) -> Cha:
         if self.status == "pos":
             raise StatusError("Dhram not available for self object!")
         if iha_obs.status == "pre":
             raise StatusError(f"status of {iha_obs} invalid!")
 
-        self._dhram = Dhram()
-        self._dhram.aspects = self.magnitude.dhram(aspect_pos=iha_obs.magnitude, m=m, interval=interval)
-        self._dhram.aspects = self.magnitude_and_duration.dhram(aspect_pos=iha_obs.magnitude_and_duration, m=m,
-                                                                interval=interval)
-        self._dhram.aspects = self.timing_extreme.dhram(aspect_pos=iha_obs.timing_extreme, m=m, interval=interval)
-        self._dhram.aspects = self.frequency_and_duration.dhram(aspect_pos=iha_obs.frequency_and_duration, m=m,
-                                                                interval=interval)
-        self._dhram.aspects = self.rate_and_frequency.dhram(aspect_pos=iha_obs.rate_and_frequency, interval=interval,
-                                                            m=m)
-        return self._dhram
+        self._cha = Cha()
+        self._cha.aspects = self.magnitude.cha(aspect_pos=iha_obs.magnitude, m=m, interval=interval)
+        self._cha.aspects = self.magnitude_and_duration.cha(aspect_pos=iha_obs.magnitude_and_duration, m=m,
+                                                            interval=interval)
+        self._cha.aspects = self.timing_extreme.cha(aspect_pos=iha_obs.timing_extreme, m=m, interval=interval)
+        self._cha.aspects = self.frequency_and_duration.cha(aspect_pos=iha_obs.frequency_and_duration, m=m,
+                                                            interval=interval)
+        self._cha.aspects = self.rate_and_frequency.cha(aspect_pos=iha_obs.rate_and_frequency, interval=interval,
+                                                        m=m)
+        return self._cha
 
     def summary(self):
         df = pd.DataFrame()

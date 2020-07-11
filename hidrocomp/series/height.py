@@ -2,6 +2,7 @@ import os
 
 from hidrocomp.series.series_build import SeriesBuild
 from hidrocomp.graphics.hydrogram_clean import HydrogramClean
+from .parcial import Parcial
 
 
 class Height(SeriesBuild):

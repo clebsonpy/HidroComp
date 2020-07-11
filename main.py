@@ -228,7 +228,7 @@ if __name__ == '__main__':
     #           '49775100', '49775110', '49775120', '49790000', '49790001']
     flow = Flow(station="49330000", source='ANA')
     #rain.date(date_start="01/01/1995", date_end="31/12/2012")
-    print(flow)
+    print(flow.parcial())
     #dados = dados_nat.combine_first(flow_obs.data)
     #flow_obs = Flow(station='49330000', source="ANA")
     #fig, data = flow.hydrogram_year(title="")

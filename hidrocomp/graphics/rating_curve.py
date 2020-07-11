@@ -2,7 +2,7 @@ import plotly.graph_objs as go
 import numpy as np
 
 
-class PermanenceCurve:
+class RatingCurve:
 
     def __init__(self, data, width=None, height=None, size_text=None, title=None):
         self.data = data

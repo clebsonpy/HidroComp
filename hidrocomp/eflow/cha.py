@@ -3,10 +3,10 @@ import plotly.graph_objs as go
 from hidrocomp.statistic.normal import Normal
 from hidrocomp.statistic.bootstrap import Bootstrap
 from hidrocomp.eflow.exceptions import *
-from hidrocomp.eflow.graphics import GraphicsDHRAM
+from hidrocomp.eflow.graphics import GraphicsCha
 
 
-class Dhram:
+class Cha:
 
     def __init__(self):
         self._point = None
@@ -59,8 +59,8 @@ class Dhram:
         error = []
         error_minus = []
         for i in self.aspects:
-            graphs = GraphicsDHRAM(obj_dhram=self.aspects[i], data_type=data_type, xaxis="Variable",
-                                   yaxis="Abnormality")
+            graphs = GraphicsCha(obj_dhram=self.aspects[i], data_type=data_type, xaxis="Variable",
+                                 yaxis="Abnormality")
             fig, df = graphs.plot(type="error_bar")
 
             data_fig = fig["data"]
@@ -136,7 +136,7 @@ class Dhram:
         return fig, data
 
 
-class DhramAspect:
+class ChaAspect:
 
     def __init__(self, name):
         self.name = name
@@ -196,12 +196,12 @@ class DhramAspect:
             return 0
 
     def plot(self, data_type="mean"):
-        graphs = GraphicsDHRAM(obj_dhram=self, data_type=data_type, xaxis="Variable", yaxis="Abnormality")
+        graphs = GraphicsCha(obj_dhram=self, data_type=data_type, xaxis="Variable", yaxis="Abnormality")
         fig, data = graphs.plot(type="error_bar")
         return fig, data
 
 
-class DhramVariable:
+class ChaVariable:
 
     def __init__(self, variable_pre, variable_pos, interval: int, m: int):
         self.name = variable_pre.name
@@ -283,11 +283,11 @@ class DhramVariable:
         @type color: dict
         """
         if type == "mean":
-            fig_obs, data_obs = GraphicsDHRAM(obj_dhram=self, color=color, name=self.name).plot(type="point")
-            fig_nat, data_nat = GraphicsDHRAM(obj_dhram=self, color=color, name=self.name).plot(type="point")
+            fig_obs, data_obs = GraphicsCha(obj_dhram=self, color=color, name=self.name).plot(type="point")
+            fig_nat, data_nat = GraphicsCha(obj_dhram=self, color=color, name=self.name).plot(type="point")
         elif type == "std":
-            fig_obs, data_obs = GraphicsDHRAM(obj_dhram=self, color=color, name=self.name).plot(type="point")
-            fig_nat, data_nat = GraphicsDHRAM(obj_dhram=self, color=color, name=self.name).plot(type="point")
+            fig_obs, data_obs = GraphicsCha(obj_dhram=self, color=color, name=self.name).plot(type="point")
+            fig_nat, data_nat = GraphicsCha(obj_dhram=self, color=color, name=self.name).plot(type="point")
         else:
             raise AttributeError("Type Error")
 

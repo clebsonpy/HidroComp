@@ -4,7 +4,8 @@ import os
 import plotly as py
 
 from test.test_iha.simulation import Simulation
-from hidrocomp.series.flow import Flow
+from hidrocomp.series import Flow
+
 
 class TestRVA(TestCase):
     file = "data/PIMENTAL.csv"
@@ -52,31 +53,13 @@ class TestRVA(TestCase):
             self.assertEqual(data['Coeff. of Var.'][i], data2['Coeff. of Var.'][i])
 
     def test_mean_month(self):
-        print(self.iha_obj_nat.summary())
-        dhram = self.iha_obj_nat.dhram(iha_obs=self.iha_obj_obs, m=100, interval=95)
+        print(self.iha_obj_nat)
+        dhram = self.iha_obj_nat.cha(iha_obs=self.iha_obj_obs, m=100, interval=95)
         print(self.iha_obj_nat.aspects_name)
         print(dhram.point)
         print(dhram.classification)
         fig, data = dhram.plot("mean")
         py.offline.plot(fig, filename=os.path.join("graficos", "dhram.html"))
-
-        """
-        magnitude_nat = self.iha_obj_nat.magnitude
-        magnitude_obs = self.iha_obj_obs.magnitude
-        print(magnitude_nat.metrics)
-        print(magnitude_nat.metrics)
-        print(magnitude_nat.rva_frequency(aspect_pos=magnitude_obs))
-        print(magnitude_nat.rva_measure_hydrologic_alteration(aspect_pos=magnitude_obs))
-        dhram = magnitude_nat.dhram(aspect_pos=magnitude_obs, m=1000, interval=95)
-        print(dhram.abnormality)
-        print(dhram.point)
-
-        fig_std, data_std = dhram.variables["February"].plot(type="std")
-        fig_mean, data_mean = dhram.variables["February"].plot(type="mean")
-
-        py.offline.plot(fig_std, filename=os.path.join("graficos", "dhram_std.html"))
-        py.offline.plot(fig_mean, filename=os.path.join("graficos", "dhram_mean.html"))
-        """
 
     def test_moving_averages(self):
         magnitude_duration_nat = self.iha_obj_nat.magnitude_and_duration
@@ -85,16 +68,9 @@ class TestRVA(TestCase):
         print(magnitude_duration_obs.metrics)
         print(magnitude_duration_nat.rva_frequency(aspect_pos=magnitude_duration_obs))
         print(magnitude_duration_nat.rva_measure_hydrologic_alteration(aspect_pos=magnitude_duration_obs))
-        dhram = magnitude_duration_nat.dhram(aspect_pos=magnitude_duration_obs, m=100, interval=95)
+        dhram = magnitude_duration_nat.cha(aspect_pos=magnitude_duration_obs, m=100, interval=95)
         print(dhram.diff)
         print(dhram.point)
-
-        #fig_std, data_std = dhram.variables["February"].plot(type="std")
-        #fig_mean, data_mean = dhram.variables["February"].plot(type="mean")
-
-        #py.offline.plot(fig_std, filename=os.path.join("graficos", "dhram_std.html"))
-        #py.offline.plot(fig_mean, filename=os.path.join("graficos", "dhram_mean.html"))
-
 
     def test_days_julian(self):
         timing_extreme_nat = self.iha_obj_nat.timing_extreme
@@ -103,10 +79,9 @@ class TestRVA(TestCase):
         print(timing_extreme_obs.metrics)
         print(timing_extreme_nat.rva_frequency(aspect_pos=timing_extreme_obs))
         print(timing_extreme_nat.rva_measure_hydrologic_alteration(aspect_pos=timing_extreme_obs))
-        dhram = timing_extreme_nat.dhram(aspect_pos=timing_extreme_obs, m=1000, interval=95)
+        dhram = timing_extreme_nat.cha(aspect_pos=timing_extreme_obs, m=1000, interval=95)
         print(dhram.diff)
         print(dhram.point)
-
 
     def test_pulse(self):
         frequency_duration_nat = self.iha_obj_nat.frequency_and_duration
@@ -115,7 +90,7 @@ class TestRVA(TestCase):
         print(frequency_duration_obs.metrics)
         print(frequency_duration_nat.rva_frequency(aspect_pos=frequency_duration_obs))
         print(frequency_duration_nat.rva_measure_hydrologic_alteration(aspect_pos=frequency_duration_obs))
-        dhram = frequency_duration_nat.dhram(aspect_pos=frequency_duration_obs, m=1000, interval=95)
+        dhram = frequency_duration_nat.cha(aspect_pos=frequency_duration_obs, m=1000, interval=95)
         print(dhram.diff)
         print(dhram.point)
 
@@ -126,6 +101,6 @@ class TestRVA(TestCase):
         print(rate_and_frequency_obs.metrics)
         print(rate_and_frequency_nat.rva_frequency(aspect_pos=rate_and_frequency_obs))
         print(rate_and_frequency_nat.rva_measure_hydrologic_alteration(aspect_pos=rate_and_frequency_obs))
-        dhram = rate_and_frequency_nat.dhram(aspect_pos=rate_and_frequency_obs, m=1000, interval=95)
+        dhram = rate_and_frequency_nat.cha(aspect_pos=rate_and_frequency_obs, m=1000, interval=95)
         print(dhram.diff)
         print(dhram.point)

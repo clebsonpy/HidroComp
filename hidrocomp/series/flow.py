@@ -7,10 +7,8 @@ from hidrocomp.series.series_build import SeriesBuild
 from hidrocomp.series.parcial import Parcial
 from hidrocomp.series.maximum import Maximum
 from hidrocomp.series.minimum import Minimum
-from hidrocomp.eflow.iha import IHA
-from hidrocomp.graphics.hydrogram_clean import HydrogramClean
-from hidrocomp.graphics.hydrogram_by_year import HydrogramYear
-from hidrocomp.graphics.permanence_curve import PermanenceCurve
+from hidrocomp.eflow import IHA
+from hidrocomp.graphics import RatingCurve, HydrogramYear, HydrogramClean
 
 
 class Flow(SeriesBuild):
@@ -144,11 +142,11 @@ class Flow(SeriesBuild):
         fig, data = hydrogram.plot()
         return fig, data
 
-    def permanence_curve(self, width=None, height=None, size_text=None, title=None):
+    def rating_curve(self, width=None, height=None, size_text=None, title=None):
         if self.station is None:
             raise StationError
-        permanence = PermanenceCurve(self.data[self.station], width=width, height=height, size_text=size_text,
-                                     title=title)
+        permanence = RatingCurve(self.data[self.station], width=width, height=height, size_text=size_text,
+                                 title=title)
         fig, data = permanence.plot()
         return fig, data
 

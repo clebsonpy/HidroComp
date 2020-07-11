@@ -81,7 +81,7 @@ class GraphicsRVA(Graphics):
         return fig, data
 
 
-class GraphicsDHRAM(Graphics):
+class GraphicsCha(Graphics):
 
     def __init__(self, obj_dhram, color=None, width=None, height=None, size_text=14, xaxis=None, yaxis=None, name=None,
                  data_type=None):
@@ -105,33 +105,6 @@ class GraphicsDHRAM(Graphics):
             return self._error_bar()
         else:
             raise TypeError
-
-
-    """"
-    def _line_interval_confidence(self):
-        x = list(self.data.index.values)
-        x_rev = x[::-1]
-        y_lower = [self.interval_confidence.values[0]] * len(self.data.index)
-        y_upper = [self.interval_confidence.values[1]] * len(self.data.index)
-        y_lower = y_lower[::-1]
-
-        trace = go.Scatter(
-            x=x+x_rev, y=y_upper+y_lower,
-            fill='toself')
-
-        return trace
-    
-
-    def _point_simulation(self):
-        point = go.Scatter(x=self.obj.index,
-                           y=self.obj[self.obj.index].values,
-                           name=self.status.title() + '-impacto',
-                           mode='markers',
-                           marker=dict(size=8, color=self.color[self.status], line=dict(width=1,
-                                                                                        color=self.color[self.status])))
-
-        return point
-    """
 
     def _box(self):
         pass

@@ -4,7 +4,7 @@ import numpy as np
 import calendar as cal
 from hidrocomp.eflow.exceptions import *
 from hidrocomp.eflow.rva import RVA
-from hidrocomp.eflow.dhram import DhramVariable, DhramAspect
+from hidrocomp.eflow.cha import ChaVariable, ChaAspect
 
 
 class Aspect(metaclass=ABCMeta):
@@ -12,7 +12,7 @@ class Aspect(metaclass=ABCMeta):
 
     def __init__(self, flow, month_start, central_metric, variation_metric, status):
         self.variables = None
-        self._dhram = None
+        self._cha = None
         self.flow = flow
         self.station = flow.station
         self.month_start = month_start
@@ -89,17 +89,17 @@ class Aspect(metaclass=ABCMeta):
         else:
             raise StatusError("Aspect status must be pos")
 
-    def dhram(self, aspect_pos, m: int, interval: int):
-        if self._dhram is None:
-            self._dhram = DhramAspect(name=self.name)
+    def cha(self, aspect_pos, m: int, interval: int):
+        if self._cha is None:
+            self._cha = ChaAspect(name=self.name)
             if aspect_pos.status == "pos":
                 for i in self.variables:
-                    dhram_variable = self.variable(name=i).dhram(variable_pos=aspect_pos.variable(name=i), m=m,
-                                                                 interval=interval)
-                    self._dhram.variables = dhram_variable
+                    cha_variable = self.variable(name=i).cha(variable_pos=aspect_pos.variable(name=i), m=m,
+                                                             interval=interval)
+                    self._cha.variables = cha_variable
             else:
                 raise StatusError("Aspect status must be pos")
-        return self._dhram
+        return self._cha
 
 
 class Variable:
@@ -116,7 +116,7 @@ class PosVariable(Variable):
 
 class PreVariable(Variable):
 
-    _dhram: DhramVariable = None
+    _cha: ChaVariable = None
     _rva: RVA = None
 
     def rva(self, variable_pos, statistic="non-parametric", boundaries=17) -> RVA:
@@ -124,10 +124,10 @@ class PreVariable(Variable):
             self._rva = RVA(variable_pre=self, variable_pos=variable_pos, boundaries=boundaries, statistic=statistic)
         return self._rva
 
-    def dhram(self, variable_pos, m: int, interval: int) -> DhramVariable:
-        if self._dhram is None:
-            self._dhram = DhramVariable(variable_pre=self, variable_pos=variable_pos, m=m, interval=interval)
-        return self._dhram
+    def cha(self, variable_pos, m: int, interval: int) -> ChaVariable:
+        if self._cha is None:
+            self._cha = ChaVariable(variable_pre=self, variable_pos=variable_pos, m=m, interval=interval)
+        return self._cha
 
 
 class Magnitude(Aspect):

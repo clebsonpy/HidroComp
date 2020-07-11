@@ -34,10 +34,6 @@ class StatsBuild(metaclass=ABCMeta):
     def mml(self):
         pass
 
-    @abstractmethod
-    def rvs(self, n):
-        pass
-
     def probs(self, x):
         if self.dist is None:
             raise e.DistributionNotExist('Distribuição não existe', 51)
