@@ -47,6 +47,8 @@ class Parcial(object):
             self.__percentil = 0.65
         elif self.type_criterion == 'autocorrelation':
             self.duration = kwargs['duration']
+        elif self.type_criterion == "duration_and_xmin":
+            self.duration = kwargs['duration']
 
         self.__threshold(self.value)
         if self.type_criterion is not None:
@@ -57,6 +59,11 @@ class Parcial(object):
         if self.peaks is None:
             self.event_peaks()
             self.dist_gpa = Gpa(data=self.peaks["peaks"])
+
+    def test_peaks(self):
+
+        events_threshold = self.__events_over_threshold(self.threshold)[0]
+        print(events_threshold)
 
     def event_peaks(self):
         max_events = {'Date': list(), 'peaks': list(), 'Start': list(), 'End': list(),
@@ -188,7 +195,8 @@ class Parcial(object):
                                                              data_min=kwargs['data_min'],
                                                              events_criterion=kwargs['events_criterion'])
 
-        elif self.type_criterion == 'duration_e_xmin':
+        elif self.type_criterion == 'duration_and_xmin':
+            # self.duration = 5 + math.log(self.obj.inf_stations[self.station].area, 2)
             return self.__criterion_duration_and_xmin(data=kwargs['data'], max_events=kwargs['max_events'],
                                                       data_min=kwargs['data_min'],
                                                       events_criterion=kwargs['events_criterion'])
@@ -266,7 +274,7 @@ class Parcial(object):
             elif len(data_min) == 0:
                 return data, max_events, data_min
             else:
-                if self.__test_xmin_bigger_dois_terco_x(data, max_events, data_min):
+                if self.__test_xmin_bigger_dois_terco_x(data, max_events, data_min) and self.__test_duration(data, max_events):
                     data, max_events = self.__troca_peaks(data, max_events)
                     data_min = {'Date': [], 'peaks': []}
                     return data, max_events, data_min
@@ -287,8 +295,7 @@ class Parcial(object):
             elif len(data_min) == 0:
                 return data, max_events, data_min
             else:
-                if self.__test_xmin_bigger_q(data, max_events, data_min) or \
-                        self.__test_duration(data, max_events):
+                if self.__test_xmin_bigger_q(data, max_events, data_min) and self.__test_duration(data, max_events):
                     data, max_events = self.__troca_peaks(data, max_events)
                     data_min = {'Date': [], 'peaks': []}
                     return data, max_events, data_min
@@ -300,11 +307,10 @@ class Parcial(object):
             return data, max_events, data_min
 
     def __test_duration(self, data, max_events):
-        data_max = data['Date'][data['peaks'].index(
-            self.__peaks_type_event(data['peaks']))]
+        data_max = data['Date'][data['peaks'].index(self.__peaks_type_event(data['peaks']))]
 
-        distancia_dias = data_max - max_events['Date'][-1]
-        if distancia_dias.days < self.duration:
+        duration_intro_events = data_max - max_events['Date'][-1]
+        if duration_intro_events.days < self.duration:
             return True
         return False
 
@@ -341,12 +347,12 @@ class Parcial(object):
         df_data = df_data.loc[data_q1:data_q2]
         if self.type_event == "flood":
             xmin = df_data.min().values
-            if xmin > (2 / 3) * q1:
+            if xmin < (2 / 3) * q1:
                 return True
             return False
         elif self.type_event == "drought":
             xmax = df_data.max().values
-            if xmax < (2 / 3) * q1:
+            if xmax > (2 / 3) * q1:
                 return True
             return False
         else:

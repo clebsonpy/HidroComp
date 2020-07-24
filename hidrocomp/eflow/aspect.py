@@ -215,11 +215,13 @@ class FrequencyDuration(Aspect):
     name = "Frequency and Duration"
 
     def __init__(self, flow, month_start, central_metric, variation_metric, status, type_threshold, type_criterion,
-                 threshold_high, threshold_low):
+                 threshold_high, threshold_low, *args, **kwargs):
         self.type_threshold = type_threshold
         self.type_criterion = type_criterion
         self.threshold_high = threshold_high
         self.threshold_low = threshold_low
+        self.args = args
+        self.kwargs = kwargs
         super().__init__(flow=flow, month_start=month_start, central_metric=central_metric,
                          variation_metric=variation_metric, status=status)
 
@@ -251,13 +253,18 @@ class FrequencyDuration(Aspect):
             threshold = pd.DataFrame(pd.Series(events.threshold, name="{} Pulse Threshold".format(name[type_event])))
             return group, threshold
 
+        print(self.kwargs)
         self.events_high = self.flow.parcial(type_threshold=self.type_threshold, type_event="flood",
-                                             type_criterion=self.type_criterion, value_threshold=self.threshold_high)
+                                             type_criterion=self.type_criterion, value_threshold=self.threshold_high,
+                                             *self.args, **self.kwargs)
 
         frequency_and_duration_high, threshold_high_mag = aux_frequency_and_duration(self.events_high)
 
+
         self.events_low = self.flow.parcial(type_event='drought', type_threshold=self.type_threshold,
-                                            type_criterion=self.type_criterion, value_threshold=self.threshold_low)
+                                            type_criterion=self.type_criterion, value_threshold=self.threshold_low,
+                                            *self.args, **self.kwargs)
+
         frequency_and_duration_low, threshold_low_mag = aux_frequency_and_duration(self.events_low)
 
         frequency_and_duration = frequency_and_duration_high.combine_first(frequency_and_duration_low)

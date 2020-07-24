@@ -11,9 +11,9 @@ class TestIHA(TestCase):
     data = pd.read_csv(path, ',', index_col=0, parse_dates=True)
     flow = Flow(data, source="ONS", station="XINGO")
 
-    iha_obj_nat = IHA(flow, month_water=9, status='pre', statistic='non-parametric', central_metric='mean',
-                      variation_metric='cv',  type_criterion=None, type_threshold="stationary", duration=0,
-                      threshold_high=4813, threshold_low=569.5)
+    iha_obj_nat = flow.iha(month_water=9, status='pre', statistic='non-parametric', central_metric='mean',
+                           variation_metric='cv',  type_criterion=None, type_threshold="stationary", duration=0,
+                           threshold_high=4813, threshold_low=569.5)
 
     @staticmethod
     def read_iha(file):
@@ -32,7 +32,7 @@ class TestIHA(TestCase):
 
     def test_mean_month(self):
         data = self.read_iha('Group1.csv')
-        magnitude = self.iha_obj_nat.magnitude()
+        magnitude = self.iha_obj_nat.magnitude
         data2 = magnitude.metrics
         print(data)
         print(data2)

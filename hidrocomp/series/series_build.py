@@ -13,7 +13,8 @@ class SeriesBuild(metaclass=ABCMeta):
 
     sources = {
         "ONS": ons.Ons,
-        "ANA": ana.Ana
+        "ANA": ana.Ana,
+        "SAR": ana.Sar,
     }
 
     def __init__(self, data=None, path=None, station=None, source=None, *args, **kwargs):
@@ -45,6 +46,7 @@ class SeriesBuild(metaclass=ABCMeta):
                 self.source = source
                 read = self.sources[self.source](path_file=self.path, station=self.station, *args, **kwargs)
                 self.data = read.data.sort_index()
+                self.inf_stations = read.inf_stations
             else:
                 raise KeyError('Source not supported!')
         if self.data.size == 0:
@@ -54,6 +56,7 @@ class SeriesBuild(metaclass=ABCMeta):
             _data = pd.DataFrame(index=pd.date_range(start=self.date_start, end=self.date_end))
             self.data = _data.combine_first(self.data[self.date_start:self.date_end])
 
+
     def __return_df(self, data):
         if type(data) is type(pd.Series()):
             self.data = pd.DataFrame(data)
@@ -61,7 +64,7 @@ class SeriesBuild(metaclass=ABCMeta):
             self.data = data
 
     @abstractmethod
-    def month_start_year_hydrologic(self):
+    def _month_start_year_hydrologic(self):
         pass
 
     @abstractmethod

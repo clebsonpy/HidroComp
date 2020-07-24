@@ -10,7 +10,8 @@ import calendar as ca
 import numpy as np
 import pandas as pd
 from hidrocomp.files.fileRead import FileRead
-from api_ana.serie_temporal import SerieTemporal
+from hydro_api.ana.hidro import Inventory
+from hydro_api.ana.sar import Reservoirs
 
 
 class Ana(FileRead):
@@ -30,7 +31,9 @@ class Ana(FileRead):
         self.date_start = date_start
         self.date_end = date_end
         self.type_data = type_data.upper()
-        self.data = self.read(self.name)
+        self.data, inf = self.read(self.name)
+        self.inf_stations = inf
+
         try:
             self.mean = kwargs["mean"]
         except KeyError:
@@ -46,7 +49,10 @@ class Ana(FileRead):
                 return super().read()
             else:
                 self.name = name
-                data = self.__excludes_duplicates(self.hidro_serie_historica())
+                _data, inf = self.hydro_series_historical()
+                inf_stations = {self.name: inf}
+                data = self.__excludes_duplicates(_data)
+            return data, inf_stations
         else:
             if name is None or name is not list:
                 self.name = self.list_files()
@@ -54,7 +60,7 @@ class Ana(FileRead):
             else:
                 self.name = name
                 data = self.__excludes_duplicates(self.__readTxt())
-        return data
+            return data
 
     def __lines(self):
         list_lines = []
@@ -105,11 +111,10 @@ class Ana(FileRead):
         data_flow = pd.DataFrame(pd.concat(data_flow))
         return data_flow
 
-    def hidro_serie_historica(self):
-        serie_temporal = SerieTemporal()
-        data = serie_temporal.get(codEstacao=self.name, dataInicio=self.date_start, dataFim=self.date_end,
-                                  tipoDados=Ana.typesData[self.type_data][2], nivelConsistencia=self.consistence)
-        return data
+    def hydro_series_historical(self):
+        inventory = Inventory()[self.name]
+        series_temporal = inventory.series_temporal(type_data=Ana.typesData[self.type_data][2])
+        return series_temporal, inventory
 
     def __excludes_duplicates(self, data):
         if len(data) > 0:
@@ -125,3 +130,32 @@ class Ana(FileRead):
         else:
             return data
         return saida.reset_index(level=1, drop=True).groupby(pd.Grouper(freq='D')).mean()
+
+
+class Sar(FileRead):
+
+    source = "SAR"
+
+    def __init__(self, path_file=None, station=None, type_data='FLUVIOMÉTRICO', *args, **kwargs):
+        super().__init__(path_file=path_file, station=station, *args, **kwargs)
+        self.data, inf = self.read(self.name)
+        self.type_data = type_data
+        self.inf_stations = inf
+
+    def list_files(self):
+        return super().list_files()
+
+    def read(self, name=None):
+        if name is None:
+            self.name = self.path
+            return super().read()
+        else:
+            self.name = name
+            data, inf = self.hydro_series_historical()
+            inf_station = {self.name: inf}
+        return data, inf_station
+
+    def hydro_series_historical(self):
+        reservoir = Reservoirs()[self.name]
+        series_temporal = reservoir.series_temporal
+        return series_temporal.flow.add_prefix("D").combine_first(series_temporal.affluence.add_prefix("A")), reservoir

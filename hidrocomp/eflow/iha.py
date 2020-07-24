@@ -156,7 +156,8 @@ class IHA:
             freq = FrequencyDuration(flow=self.flow, month_start=self.month_start, central_metric=self.central_metric,
                                      variation_metric=self.variation_metric, status=self.status,
                                      type_threshold=self.type_threshold, type_criterion=self.type_criterion,
-                                     threshold_high=self.threshold_high, threshold_low=self.threshold_low)
+                                     threshold_high=self.threshold_high, threshold_low=self.threshold_low,
+                                     **self.kwargs)
 
             self.aspects["Frequency and Duration"] = freq
         return self.aspects["Frequency and Duration"]
