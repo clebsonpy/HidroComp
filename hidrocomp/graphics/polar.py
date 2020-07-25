@@ -23,7 +23,7 @@ class Polar(object):
                     273*0.9863, 303*0.9863, 334*0.9863]
 
         trace = go.Scatterpolar(
-            r=df_polar.peaks.values,  # Vazao
+            r=df_polar.Peaks.values,  # Vazao
             theta=df_polar.DateJulianPolar.values,  # Data
             mode='markers',
             marker=dict(

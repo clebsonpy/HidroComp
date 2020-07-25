@@ -84,8 +84,8 @@ class HydrogramParcial(HydrogramBuild):
             opacity=1)
 
         point_vazao = go.Scatter(
-            x=self.peaks['peaks'].index,
-            y=self.peaks['peaks'].values,
+            x=self.peaks['Peaks'].index,
+            y=self.peaks['Peaks'].values,
             name="Peaks",
             mode='markers',
             marker=dict(size=8,

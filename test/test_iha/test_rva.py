@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import plotly as py
 from hidrocomp.series import Flow
-from hidrocomp.series.partial_test import Partial
+from hidrocomp.series.partial import Partial
 
 
 class TestRVA(TestCase):
@@ -41,10 +41,11 @@ class TestRVA(TestCase):
     #                                                   threshold_low=569.5)
 
     data = Flow(station="66160000", source="ANA")
-    data.date(date_start="01/09/2001", date_end="31/07/2008")
+    data.date(date_start="01/09/2001", date_end="31/08/2008")
+    data.data = data.data*2.2458955
 
     # threshold_low = data.minimum().peaks.max().values[0]
-    threshold_high = data.maximum().peaks.min().values[0]
+    threshold_high = 1025
     # duration = 10
     # iha_pre = data.iha(status='pre', statistic="no-parametric", central_metric="mean", month_water=9,
     #                    variation_metric="std", type_threshold="stationary",
@@ -63,23 +64,11 @@ class TestRVA(TestCase):
             self.assertEqual(data['Coeff. of Var.'][i], data2['Coeff. of Var.'][i])
 
     def test_mean_month(self):
-        print(self.threshold_high)
-        print(self.data)
-        partial = Partial(data=self.data.data, threshold=self.threshold_high, station="66160000")
-        print(partial.peaks())
+        partial = self.data.partial(type_threshold="stationary", type_event="flood", value_threshold=self.threshold_high,
+                                    type_criterion="duration_and_xmin", duration=10)
 
-        # test = Flow(data=partial.peaks().to_frame())
-        # fig, data = test.gantt()
-        # py.offline.plot(fig, filename=os.path.join("graficos", "test.html"))
-
-
-        # print(self.iha_obj_nat)
-        # dhram = self.iha_obj_nat.cha(iha_obs=self.iha_obj_obs, m=100, interval=95)
-        # print(self.iha_obj_nat.aspects_name)
-        # print(dhram.point)
-        # print(dhram.classification)
-        # fig, data = dhram.plot("mean")
-        # py.offline.plot(fig, filename=os.path.join("graficos", "dhram.html"))
+        fig, data = partial.hydrogram("")
+        py.offline.plot(fig, filename=os.path.join("graficos", "test.html"))
 
     def test_moving_averages(self):
         magnitude_duration_nat = self.iha_obj_nat.magnitude_and_duration

@@ -4,7 +4,7 @@ import pandas as pd
 from hidrocomp.series.exceptions import StationError
 from hidrocomp.statistic.pearson3 import Pearson3
 from hidrocomp.series.series_build import SeriesBuild
-from hidrocomp.series.parcial import Parcial
+from hidrocomp.series.partial import Partial
 from hidrocomp.series.maximum import Maximum
 from hidrocomp.series.minimum import Minimum
 from hidrocomp.eflow import IHA
@@ -79,11 +79,11 @@ class Flow(SeriesBuild):
 
         return maximum
 
-    def parcial(self, type_threshold, type_event, type_criterion, value_threshold, **kwargs):
-        parcial = Parcial(station=self.station, obj=self, type_threshold=type_threshold, type_event=type_event,
+    def partial(self, type_threshold, type_event, type_criterion, value_threshold, **kwargs):
+        partial = Partial(station=self.station, obj=self, type_threshold=type_threshold, type_event=type_event,
                           type_criterion=type_criterion, value_threshold=value_threshold, **kwargs)
 
-        return parcial
+        return partial
 
     def simulation_withdraw(self, criterion, rate, months=None, value=None):
         if type(months) is not list and months is not None:
