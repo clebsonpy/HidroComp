@@ -12,6 +12,7 @@ class Cha:
         self._point = None
         self._aspects: dict = {}
         self._classification = None
+        self._abnormality = None
 
     @property
     def aspects(self):
@@ -20,6 +21,16 @@ class Cha:
     @aspects.setter
     def aspects(self, aspect):
         self._aspects[aspect.name] = aspect
+
+    @property
+    def abnormality(self):
+        if self._abnormality is None:
+            df = pd.DataFrame()
+            for aspect in self.aspects:
+                df = df.combine_first(self.aspects[aspect].abnormality)
+            self._abnormality = df
+            return self._abnormality
+        return self._abnormality
 
     # @property
     # def point(self):

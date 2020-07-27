@@ -172,7 +172,6 @@ class MagnitudeDuration(Aspect):
                       "Base flow index": None}
 
     def __init__(self, flow, month_start, central_metric, variation_metric, status, variables: list = None):
-        print(variables)
         self.variables = {}
         if variables is not None:
             for variable in variables:
@@ -210,7 +209,6 @@ class MagnitudeDuration(Aspect):
         if serie_dict_zero.sum() > 0:
             magn_and_duration = aver_data.combine_first(pd.DataFrame(serie_dict_zero))
         else:
-            # print(self.variables)
             if 'Number of zero days' in self.variables.keys():
                 del self.variables['Number of zero days']
             magn_and_duration = aver_data
@@ -274,7 +272,6 @@ class FrequencyDuration(Aspect):
             self.variables = self.variables_all.copy()
         super().__init__(flow=flow, month_start=month_start, central_metric=central_metric,
                          variation_metric=variation_metric, status=status)
-
 
     def events_low(self):
         return self.__events_low
