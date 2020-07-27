@@ -10,8 +10,7 @@ from hidrocomp.eflow.cha import ChaVariable, ChaAspect
 class Aspect(metaclass=ABCMeta):
     name = None
 
-    def __init__(self, flow, month_start, central_metric, variation_metric, status):
-        self.variables = None
+    def __init__(self, flow, month_start, central_metric, variation_metric, status, variables: list = None):
         self._cha = None
         self.flow = flow
         self.station = flow.station
@@ -133,10 +132,23 @@ class PreVariable(Variable):
 class Magnitude(Aspect):
     name = "Magnitude"
 
+    variables_all = {'January': None, 'February': None, 'March': None, 'April': None, 'May': None, 'June': None,
+                     'July': None, 'August': None, 'September': None, 'October': None, 'November': None,
+                     'December': None}
+
+    def __init__(self, flow, month_start, central_metric, variation_metric, status, variables: list = None):
+        self.variables = {}
+        if variables is not None:
+            for variable in variables:
+                self.variables[variable] = None
+        else:
+            self.variables = self.variables_all.copy()
+
+        super().__init__(flow=flow, month_start=month_start, central_metric=central_metric,
+                         variation_metric=variation_metric, status=status)
+
     def _data(self):
-        self.variables = {'January': None, 'February': None, 'March': None, 'April': None, 'May': None, 'June': None,
-                          'July': None, 'August': None, 'September': None, 'October': None, 'November': None,
-                          'December': None}
+
         years = self.flow.data.groupby(pd.Grouper(freq=self.month_start[1]))
         data = pd.DataFrame(columns=['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
                                      'September', 'October', 'November', 'December'])
@@ -154,11 +166,27 @@ class Magnitude(Aspect):
 class MagnitudeDuration(Aspect):
     name = "Magnitude and Duration"
 
+    variables_all = {"1-day minimum": None, "1-day maximum": None, "3-day minimum": None, "3-day maximum": None,
+                      "7-day minimum": None, "7-day maximum": None, "30-day minimum": None, "30-day maximum": None,
+                      "90-day minimum": None, "90-day maximum": None, "Number of zero days": None,
+                      "Base flow index": None}
+
+    def __init__(self, flow, month_start, central_metric, variation_metric, status, variables: list = None):
+        print(variables)
+        self.variables = {}
+        if variables is not None:
+            for variable in variables:
+                self.variables[variable] = None
+        else:
+            self.variables = self.variables_all.copy()
+        super().__init__(flow=flow, month_start=month_start, central_metric=central_metric,
+                         variation_metric=variation_metric, status=status)
+
     def _data(self):
-        self.variables = {"1-day minimum": None, "1-day maximum": None, "3-day minimum": None, "3-day maximum": None,
-                          "7-day minimum": None, "7-day maximum": None, "30-day minimum": None, "30-day maximum": None,
-                          "90-day minimum": None, "90-day maximum": None, "Number of zero days": None,
-                          "Base flow index": None}
+        # self.variables = {"1-day minimum": None, "1-day maximum": None, "3-day minimum": None, "3-day maximum": None,
+        #                   "7-day minimum": None, "7-day maximum": None, "30-day minimum": None, "30-day maximum": None,
+        #                   "90-day minimum": None, "90-day maximum": None, "Number of zero days": None,
+        #                   "Base flow index": None}
 
         aver_data = pd.DataFrame()
         for i in [1, 3, 7, 30, 90]:
@@ -182,16 +210,28 @@ class MagnitudeDuration(Aspect):
         if serie_dict_zero.sum() > 0:
             magn_and_duration = aver_data.combine_first(pd.DataFrame(serie_dict_zero))
         else:
-            del self.variables['Number of zero days']
+            # print(self.variables)
+            if 'Number of zero days' in self.variables.keys():
+                del self.variables['Number of zero days']
             magn_and_duration = aver_data
         return magn_and_duration
 
 
 class TimingExtreme(Aspect):
     name = "Timing Extreme"
+    variables_all = {"Date of minimum": None, "Date of maximum": None}
+
+    def __init__(self, flow, month_start, central_metric, variation_metric, status, variables: list = None):
+        self.variables = {}
+        if variables is not None:
+            for variable in variables:
+                self.variables[variable] = None
+        else:
+            self.variables = self.variables_all.copy()
+        super().__init__(flow=flow, month_start=month_start, central_metric=central_metric,
+                         variation_metric=variation_metric, status=status)
 
     def _data(self):
-        self.variables = {"Date of minimum": None, "Date of maximum": None}
 
         day_julian_max = self.flow.data[self.station].groupby(
             pd.Grouper(freq=self.month_start[1])).idxmax().dropna(axis=0)
@@ -213,21 +253,38 @@ class TimingExtreme(Aspect):
 
 class FrequencyDuration(Aspect):
     name = "Frequency and Duration"
+    variables_all = {"High pulse count": None, "High pulse duration": None, "Low pulse count": None,
+                     "Low pulse duration": None}
 
     def __init__(self, flow, month_start, central_metric, variation_metric, status, type_threshold, type_criterion,
-                 threshold_high, threshold_low, *args, **kwargs):
+                 threshold_high, threshold_low, variables: list = None, *args, **kwargs):
         self.type_threshold = type_threshold
         self.type_criterion = type_criterion
         self.threshold_high = threshold_high
         self.threshold_low = threshold_low
+        self.__events_high = None
+        self.__events_low = None
         self.args = args
         self.kwargs = kwargs
+        self.variables = {}
+        if variables is not None:
+            for variable in variables:
+                self.variables[variable] = None
+        else:
+            self.variables = self.variables_all.copy()
         super().__init__(flow=flow, month_start=month_start, central_metric=central_metric,
                          variation_metric=variation_metric, status=status)
 
+
+    def events_low(self):
+        return self.__events_low
+
+    def events_high(self):
+        return self.__events_high
+
     def _data(self):
-        self.variables = {"High pulse count": None, "High pulse duration": None, "Low pulse count": None,
-                          "Low pulse duration": None}
+        # self.variables = {"High pulse count": None, "High pulse duration": None, "Low pulse count": None,
+        #                   "Low pulse duration": None}
 
         def aux_frequency_and_duration(events):
             name = {'flood': 'High', 'drought': 'Low'}
@@ -253,19 +310,17 @@ class FrequencyDuration(Aspect):
             threshold = pd.DataFrame(pd.Series(events.threshold, name="{} Pulse Threshold".format(name[type_event])))
             return group, threshold
 
-        print(self.kwargs)
-        self.events_high = self.flow.parcial(type_threshold=self.type_threshold, type_event="flood",
-                                             type_criterion=self.type_criterion, value_threshold=self.threshold_high,
-                                             *self.args, **self.kwargs)
+        self.__events_high = self.flow.partial(type_threshold=self.type_threshold, type_event="flood",
+                                               type_criterion=self.type_criterion, value_threshold=self.threshold_high,
+                                               *self.args, **self.kwargs)
 
-        frequency_and_duration_high, threshold_high_mag = aux_frequency_and_duration(self.events_high)
+        frequency_and_duration_high, threshold_high_mag = aux_frequency_and_duration(self.__events_high)
 
+        self.__events_low = self.flow.partial(type_event='drought', type_threshold=self.type_threshold,
+                                              type_criterion=self.type_criterion, value_threshold=self.threshold_low,
+                                              *self.args, **self.kwargs)
 
-        self.events_low = self.flow.parcial(type_event='drought', type_threshold=self.type_threshold,
-                                            type_criterion=self.type_criterion, value_threshold=self.threshold_low,
-                                            *self.args, **self.kwargs)
-
-        frequency_and_duration_low, threshold_low_mag = aux_frequency_and_duration(self.events_low)
+        frequency_and_duration_low, threshold_low_mag = aux_frequency_and_duration(self.__events_low)
 
         frequency_and_duration = frequency_and_duration_high.combine_first(frequency_and_duration_low)
         return frequency_and_duration
@@ -273,6 +328,17 @@ class FrequencyDuration(Aspect):
 
 class RateFrequency(Aspect):
     name = "Rate and Frequency"
+    variables_all = {"Rise rate": None, "Fall rate": None, "Number of reversals": None}
+
+    def __init__(self, flow, month_start, central_metric, variation_metric, status, variables: list = None):
+        self.variables = {}
+        if variables is not None:
+            for variable in variables:
+                self.variables[variable] = None
+        else:
+            self.variables = self.variables_all.copy()
+        super().__init__(flow=flow, month_start=month_start, central_metric=central_metric,
+                         variation_metric=variation_metric, status=status)
 
     # <editor-fold desc="Check type rate"
     @staticmethod
@@ -284,7 +350,7 @@ class RateFrequency(Aspect):
     # </editor-fold>
 
     def _data(self):
-        self.variables = {"Rise rate": None, "Fall rate": None, "Number of reversals": None}
+        # self.variables = {"Rise rate": None, "Fall rate": None, "Number of reversals": None}
 
         data_water = self.flow.data.groupby(pd.Grouper(freq=self.month_start[1]))
         rate_df = pd.DataFrame(columns=['Rise rate', 'Fall rate', 'Number of reversals'])

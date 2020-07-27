@@ -21,34 +21,34 @@ class Cha:
     def aspects(self, aspect):
         self._aspects[aspect.name] = aspect
 
-    @property
-    def point(self):
-        if self._point is None:
-            df = pd.DataFrame()
-            for i in self.aspects:
-                df = df.combine_first(self.aspects[i].point)
-            self._point = df
-        return self._point
+    # @property
+    # def point(self):
+    #     if self._point is None:
+    #         df = pd.DataFrame()
+    #         for i in self.aspects:
+    #             df = df.combine_first(self.aspects[i].point)
+    #         self._point = df
+    #     return self._point
 
-    @staticmethod
-    def __definition_classification(points) -> str:
-        if points == 0:
-            return "{} Points - Un-impacted".format(points)
-        elif 1 <= points <= 4:
-            return "{} Points - Low risk of impact".format(points)
-        elif 5 <= points <= 10:
-            return "{} Points - Moderate risk of impact".format(points)
-        elif 11 <= points <= 20:
-            return "{} Points - High risk of impact".format(points)
-        elif 21 <= points <= 30:
-            return "{} Points - Severely impacted".format(points)
-
-    @property
-    def classification(self):
-        points = self.point.sum().sum()
-        if self._classification is None:
-            self._classification = self.__definition_classification(points=points)
-        return self._classification
+    # @staticmethod
+    # def __definition_classification(points) -> str:
+    #     if points == 0:
+    #         return "{} Points - Un-impacted".format(points)
+    #     elif 1 <= points <= 4:
+    #         return "{} Points - Low risk of impact".format(points)
+    #     elif 5 <= points <= 10:
+    #         return "{} Points - Moderate risk of impact".format(points)
+    #     elif 11 <= points <= 20:
+    #         return "{} Points - High risk of impact".format(points)
+    #     elif 21 <= points <= 30:
+    #         return "{} Points - Severely impacted".format(points)
+    #
+    # @property
+    # def classification(self):
+    #     points = self.point.sum().sum()
+    #     if self._classification is None:
+    #         self._classification = self.__definition_classification(points=points)
+    #     return self._classification
 
     def plot(self, data_type="diff"):
         data_type_dict = {'std': "Standard deviation", "mean": "Mean"}
@@ -174,26 +174,28 @@ class ChaAspect:
             for i in self.variables:
                 df = df.combine_first(self.variables[i].abnormality)
             self._abnormality = df.reindex(self._list_name_variables)
+
         return self._abnormality
 
-    @property
-    def point(self):
-        diff_mean = self.abnormality.abs().mean()
-        df = pd.DataFrame(columns=["Mean", "Std"])
-        df.at[self.name, "Mean"] = self.__definition_points(diff_mean["Abnormality_mean"])
-        df.at[self.name, "Std"] = self.__definition_points(diff_mean["Abnormality_std"])
-        return df
+    # @property
+    # def point(self):
+    #     print(self.abnormality)
+    #     diff_mean = self.abnormality.abs().mean()
+    #     df = pd.DataFrame(columns=["Mean", "Std"])
+    #     df.at[self.name, "Mean"] = self.__definition_points(diff_mean["Abnormality_mean"])
+    #     df.at[self.name, "Std"] = self.__definition_points(diff_mean["Abnormality_std"])
+    #     return df
 
-    @staticmethod
-    def __definition_points(multi_pre):
-        if 1 < multi_pre <= 2:
-            return 1
-        elif 2 < multi_pre <= 3:
-            return 2
-        elif multi_pre > 3:
-            return 3
-        else:
-            return 0
+    # @staticmethod
+    # def __definition_points(multi_pre):
+    #     if 1 < multi_pre <= 2:
+    #         return 1
+    #     elif 2 < multi_pre <= 3:
+    #         return 2
+    #     elif multi_pre > 3:
+    #         return 3
+    #     else:
+    #         return 0
 
     def plot(self, data_type="mean"):
         graphs = GraphicsCha(obj_dhram=self, data_type=data_type, xaxis="Variable", yaxis="Abnormality")

@@ -40,17 +40,21 @@ class TestRVA(TestCase):
     #                                                   type_threshold="stationary", duration=0, threshold_high=4813,
     #                                                   threshold_low=569.5)
 
-    data = Flow(station="66160000", source="ANA")
-    data.date(date_start="01/09/2001", date_end="31/08/2008")
-    data.data = data.data*2.2458955
+    flow = Flow(station=["66231000", "66160000"], source="ANA")
+    flow.date(date_start="01/09/2001", date_end="31/08/2008")
+
+    alpha = 2.2458955
+    data_mod = pd.DataFrame(flow.data["66160000"] * alpha)
+    data_nat = Flow(data=data_mod)
+
+    data_obs = Flow(data=pd.DataFrame(flow.data["66231000"]))
 
     # threshold_low = data.minimum().peaks.max().values[0]
     threshold_high = 1025
+    threshold_low = 59
+    duration = 15
     # duration = 10
-    # iha_pre = data.iha(status='pre', statistic="no-parametric", central_metric="mean", month_water=9,
-    #                    variation_metric="std", type_threshold="stationary",
-    #                    threshold_high=threshold_high, threshold_low=threshold_low, type_criterion="duration_and_xmin",
-    #                    duration=duration)
+
 
     @staticmethod
     def read_iha(file):
@@ -64,10 +68,75 @@ class TestRVA(TestCase):
             self.assertEqual(data['Coeff. of Var.'][i], data2['Coeff. of Var.'][i])
 
     def test_mean_month(self):
-        partial = self.data.partial(type_threshold="stationary", type_event="flood", value_threshold=self.threshold_high,
-                                    type_criterion="duration_and_xmin", duration=10)
+        self.data.station = "66160000"
+        partial = self.data.partial(type_criterion="wrc", type_threshold="stationary", duration=self.duration,
+                                    value_threshold=self.threshold_high, type_event="flood")
 
         fig, data = partial.hydrogram("")
+        py.offline.plot(fig, filename=os.path.join("graficos", "test.html"))
+
+    def test_iha_events_low(self):
+        iha_pre = self.data_obs.iha(status='pos', statistic="no-parametric", central_metric="mean", month_water=9,
+                                    variation_metric="std", type_threshold="stationary", type_criterion="wrc",
+                                    threshold_high=self.threshold_high, threshold_low=self.threshold_low,
+                                    duration=self.duration)
+
+        partial = iha_pre.frequency_and_duration.events_low()
+
+        fig, data = partial.hydrogram("")
+        py.offline.plot(fig, filename=os.path.join("graficos", "test.html"))
+
+    def test_iha_events_high(self):
+        iha_pre = self.data_nat.iha(status='pre', statistic="no-parametric", central_metric="mean", month_water=9,
+                                    variation_metric="std", type_threshold="stationary", type_criterion="wrc",
+                                    threshold_high=self.threshold_high, threshold_low=self.threshold_low,
+                                    duration=self.duration, aspects=["Magnitude and Duration", "Frequency and Duration",
+                                                                     "Timing Extreme"],
+                                    magnitude_and_duration=["1-day maximum", "1-day minimum"],
+                                    timing=["Date of maximum", "Date of minimum"])
+
+        print(iha_pre.summary())
+
+        partial = iha_pre.frequency_and_duration.events_high()
+
+        fig, data = partial.plot_hydrogram("")
+        py.offline.plot(fig, filename=os.path.join("graficos", "test.html"))
+
+    def test_cha_aspects(self):
+        iha_pre = self.data_nat.iha(status='pre', statistic="no-parametric", central_metric="mean", month_water=9,
+                                    variation_metric="std", type_threshold="stationary", type_criterion="wrc",
+                                    threshold_high=self.threshold_high, threshold_low=self.threshold_low,
+                                    duration=self.duration, aspects=["Magnitude and Duration", "Frequency and Duration",
+                                                                     "Timing Extreme"],
+                                    magnitude_and_duration=["1-day maximum", "1-day minimum"],
+                                    timing=["Date of maximum", "Date of minimum"])
+
+        iha_pos = self.data_obs.iha(status='pos', statistic="no-parametric", central_metric="mean", month_water=9,
+                                    variation_metric="std", type_threshold="stationary", type_criterion="wrc",
+                                    threshold_high=self.threshold_high, threshold_low=self.threshold_low,
+                                    duration=self.duration, aspects=["Magnitude and Duration", "Frequency and Duration",
+                                                                     "Timing Extreme"],
+                                    magnitude_and_duration=["1-day maximum", "1-day minimum"],
+                                    timing=["Date of maximum", "Date of minimum"])
+
+        cha = iha_pre.cha(iha_obs=iha_pos)
+        fig, data = cha.plot(data_type="mean")
+        py.offline.plot(fig, filename=os.path.join("graficos", "test.html"))
+
+    def test_cha(self):
+        iha_pre = self.data_nat.iha(status='pre', statistic="no-parametric", central_metric="mean", month_water=9,
+                                    variation_metric="std", type_threshold="stationary", type_criterion="wrc",
+                                    threshold_high=self.threshold_high, threshold_low=self.threshold_low,
+                                    duration=self.duration)
+        print(iha_pre)
+
+        iha_pos = self.data_obs.iha(status='pos', statistic="no-parametric", central_metric="mean", month_water=9,
+                                    variation_metric="std", type_threshold="stationary", type_criterion="wrc",
+                                    threshold_high=self.threshold_high, threshold_low=self.threshold_low,
+                                    duration=self.duration)
+
+        cha = iha_pre.cha(iha_obs=iha_pos)
+        fig, data = cha.plot(data_type="mean")
         py.offline.plot(fig, filename=os.path.join("graficos", "test.html"))
 
     def test_moving_averages(self):

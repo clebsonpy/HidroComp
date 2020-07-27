@@ -47,7 +47,7 @@ class Partial(object):
             self.__percentil = 0.65
         elif self.type_criterion == 'autocorrelation':
             self.duration = kwargs['duration']
-        elif self.type_criterion == "duration_and_xmin":
+        elif self.type_criterion == "wrc":
             self.duration = kwargs['duration']
 
 
@@ -63,16 +63,43 @@ class Partial(object):
     @property
     def peaks(self):
         if self.__peaks is None:
-            self.__peaks = self.__criterion_water_resources_council()
+            if self.type_criterion == "wrc":
+                if self.type_event == "flood":
+                    self.__peaks = self.__criterion_water_resources_council()
+                elif self.type_event == "drought":
+                    self.__peaks = self.__events_over_threshold()
+                    if len(self.__peaks) > 0:
+                        self.__peaks.at[self.__peaks.index[-1],
+                                        "End"] = self.__peaks["End"].iloc[-1] - pd.to_timedelta(1, unit="d")
+
+            elif self.type_criterion == "duration":
+                if self.type_event == "flood":
+                    self.__peaks = self.__duration()
+                elif self.type_event == "drought":
+                    self.__peaks = self.__events_over_threshold()
+                    self.__peaks.at[self.__peaks.iloc[-1].index,
+                                    "End"] = self.__peaks.iloc[-1].End - pd.timedelta_range(start='1 day', periods=1,
+                                                                                            freq='D')
+            else:
+                self.__peaks = self.__events_over_threshold()
 
         return self.__peaks
 
     def __events_over_threshold(self):
 
-        data = self.data.loc[self.data[self.station] > self.threshold, self.station].to_frame()
+        if self.type_event == 'flood':
+            data = self.data.loc[self.data[self.station] > self.threshold, self.station].to_frame()
+
+        elif self.type_event == 'drought':
+            data = self.data.loc[self.data[self.station] < self.threshold, self.station].to_frame()
+
+        else:
+            raise TypeError("Type events {} invalid! Use flood or drought".format(self.type_event))
+
         date_start, date_end = self.__start_and_end(data=data)
-        _data = pd.DataFrame(index=pd.date_range(start=date_start, end=date_end))
-        data = _data.combine_first(data[date_start:date_end])
+        if date_start is not None and date_end is not None:
+            _data = pd.DataFrame(index=pd.date_range(start=date_start, end=date_end))
+            data = _data.combine_first(data[date_start:date_end])
 
         max_events = {'Date': list(), 'Peaks': list(), 'Start': list(), 'End': list(), "Duration": list()}
         events = self.__period_events(data=data, station=self.station)
@@ -80,8 +107,13 @@ class Partial(object):
             start = events["Start"][i]
             end = events["Finish"][i]
             duration = (end - start)
-            peaks = data[start:end].max()[0]
-            date_max = data[start:end].idxmax()[0]
+            if self.type_event == "flood":
+                peaks = data[start:end].max()[0]
+                date_max = data[start:end].idxmax()[0]
+            else:
+                peaks = data[start:end].min()[0]
+                date_max = data[start:end].idxmin()[0]
+
             max_events["Date"].append(date_max)
             max_events["Peaks"].append(peaks)
             max_events["Start"].append(start)
@@ -101,22 +133,24 @@ class Partial(object):
             actual = events_over_threshold.loc[events_over_threshold.index == i]
 
             if len(events_duration) == 0:
-                events_duration = events_duration.combine_first(actual)
+                events_duration = events_duration.combine_first(actual).sort_values(by="Peaks", ascending=False)
                 events_duration.at[i, "Date"] = i
-
             else:
                 if_add = False
                 for j in events_duration.index:
                     duration = i - j
                     if abs(duration.days) <= self.duration:
-                        events_duration = self.__update_peaks(actual=actual, events=events_duration, idx=j)
+                        events_duration = self.__update_peaks(actual=actual, events=events_duration,
+                                                              idx=j).sort_values(by="Peaks", ascending=False)
                         if_add = True
                         break
                 if not if_add:
-                    events_duration = events_duration.combine_first(actual)
+                    events_duration = events_duration.combine_first(actual).sort_values(by="Peaks", ascending=False)
                     events_duration.at[i, "Date"] = i
 
-        events_duration = events_duration.set_index("Date")
+        if len(events_duration) > 0:
+            events_duration = events_duration.set_index("Date")
+
         return events_duration
 
     def __threshold(self, value):
@@ -130,12 +164,16 @@ class Partial(object):
 
     @staticmethod
     def __update_peaks(actual, events, idx):
-        if actual.index.values[0] > idx:
+        if actual["End"].values[0] > events["End"][idx]:
             end = actual["End"].values[0]
-            start = events["Start"][idx]
         else:
             end = events["End"][idx]
+
+        if actual["Start"].values[0] > events["Start"][idx]:
+            start = events["Start"][idx]
+        else:
             start = actual["Start"].values[0]
+
         events["Start"][idx] = start
         events["End"][idx] = end
 
@@ -157,34 +195,44 @@ class Partial(object):
         Events dependents
         theta < 5days + log(A) or (3/4)*min[Q1, Q2]
         """
-        events_duration = self.__duration()
+        try:
+            events_duration = self.__duration().sort_values(by="Peaks", ascending=False)
 
-        events_wrc = pd.DataFrame()
+            events_wrc = pd.DataFrame()
+            for i in events_duration.index:
+                actual = events_duration.loc[events_duration.index == i]
 
-        for i in events_duration.index:
-            actual = events_duration.loc[events_duration.index == i]
-
-            if len(events_wrc) == 0:
-                events_wrc = events_wrc.combine_first(actual)
-                events_wrc.at[i, "Date"] = i
-
-            else:
-                date_range = pd.date_range(events_wrc.iloc[-1].name, i)
-                qmin = self.data[self.station].loc[date_range].min()
-                q1 = events_duration.iloc[-1].Peaks
-                q2 = actual["Peaks"][i]
-
-                if qmin < (3/4)*min([q1, q2]):
-                    events_wrc = events_wrc.combine_first(actual)
+                if len(events_wrc) == 0:
+                    events_wrc = events_wrc.combine_first(actual).sort_values(by="Peaks", ascending=False)
                     events_wrc.at[i, "Date"] = i
-                else:
-                    events_wrc = self.__update_peaks(actual=actual, events=events_wrc)
 
-        events_wrc = events_wrc.set_index("Date")
+                else:
+                    if_add = False
+                    for j in events_wrc.index:
+                        date_range = pd.date_range(j, i)
+                        qmin = self.data[self.station].loc[date_range].min()
+                        q1 = events_wrc["Peaks"][j]
+                        q2 = actual["Peaks"][i]
+
+                        if qmin > (3/4)*min([q1, q2]):
+                            events_wrc = self.__update_peaks(actual=actual, events=events_wrc,
+                                                             idx=j).sort_values(by="Peaks", ascending=False)
+                            if_add = True
+                            break
+                    if not if_add:
+                        events_wrc = events_wrc.combine_first(actual).sort_values(by="Peaks", ascending=False)
+                        events_wrc.at[i, "Date"] = i
+
+            if len(events_wrc) > 0:
+                events_wrc = events_wrc.set_index("Date")
+        except KeyError:
+            events_wrc = self.__duration()
         return events_wrc
 
     @staticmethod
     def __start_and_end(data):
+        if len(data) == 0:
+            return None, None
         try:
             boolean = data.dropna(axis=0, how='all')
         except AttributeError:
@@ -214,7 +262,6 @@ class Partial(object):
         dic = {'Start': list_start, 'Finish': list_end}
         return pd.DataFrame(dic)
 
-
     def magnitude(self, period_return, estimador):
         if estimador == 'MML':
             self.dist_gpa.mml()
@@ -242,14 +289,6 @@ class Partial(object):
             py.image.save_as(fig, filename='gráficos/' + '%s.png' % aux_name)
         return data, fig
 
-    def plot_boxplot_resample(self, magn_resample, name, save=False):
-
-        data, fig = Boxplot(magn_resample=magn_resample, name=name).plot()
-        if save:
-            py.image.save_as(fig, filename='gráficos/boxplot_%s.png' % name)
-
-        return fig, data
-
     def plot_spells(self, title, size_text=14):
         df_spells, df, month_start, month_end = Gantt.get_spells(data_peaks=self.peaks,
                                                                  month_water=[self.obj.month_num, self.obj.month_abr])
@@ -269,7 +308,7 @@ class Partial(object):
         fig.layout.plot_bgcolor = 'rgba(0,0,0,0)'
         return fig, df_spells
 
-    def polar(self,  width=900, height=900, size_text=14, title=None, color=None, name=None):
+    def plot_polar(self, title=None, width=900, height=900, size_text=14, color=None, name=None):
         if self.type_event == 'flood':
             if title is None:
                 title = 'Maximum Partial'
@@ -286,7 +325,7 @@ class Partial(object):
 
         return fig, data
 
-    def hydrogram(self, title, width=None, height=None, size_text=16, color=None):
+    def plot_hydrogram(self, title, width=None, height=None, size_text=16, color=None):
         hydrogram = HydrogramParcial(data=self.data, peaks=self.peaks, threshold=self.threshold, station=self.station,
                                      threshold_criterion=None, title=title, width=width,
                                      type_criterion=None, height=height, size_text=size_text,

@@ -127,8 +127,16 @@ class Flow(SeriesBuild):
 
     def iha(self, status=None, date_start: str = None, date_end: str = None, statistic="no-parametric",
             central_metric="mean", month_water: int = None, variation_metric: str = "std", type_threshold="stationary",
-            type_criterion: str = None, threshold_high: float = None, threshold_low: float = None, **kwargs) -> IHA:
+            type_criterion: str = None, threshold_high: float = None, threshold_low: float = None,
+            aspects: list = None, magnitude: list = None, magnitude_and_duration: list = None, timing: list = None,
+            frequency_and_duration: list = None, rate_and_frequency: list = None, **kwargs) -> IHA:
         """
+        @param rate_and_frequency:
+        @param frequency_and_duration:
+        @param timing:
+        @param magnitude_and_duration:
+        @param magnitude:
+        @param aspects:
         @param status:
         @param date_start:
         @param date_end:
@@ -145,7 +153,9 @@ class Flow(SeriesBuild):
         iha = IHA(flow=self, month_water=month_water, status=status, date_start=date_start, date_end=date_end,
                   statistic=statistic, central_metric=central_metric, variation_metric=variation_metric,
                   type_threshold=type_threshold, type_criterion=type_criterion, threshold_high=threshold_high,
-                  threshold_low=threshold_low, **kwargs)
+                  threshold_low=threshold_low, aspects=aspects, magnitude=magnitude, timing=timing,
+                  frequency_and_duration=frequency_and_duration, rate_and_frequency=rate_and_frequency,
+                  magnitude_and_duration=magnitude_and_duration, **kwargs)
         return iha
 
     def power_energy(self, efficiency: int, gravity: float, hydraulic_head: float, station: str = None) -> pd.Series:

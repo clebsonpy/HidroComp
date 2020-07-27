@@ -22,21 +22,37 @@ class Polar(object):
         position = [0, 31*0.9863, 59*0.9863, 90*0.9863, 120*0.9863, 151*0.9863, 181*0.9863, 212*0.9863, 243*0.9863,
                     273*0.9863, 303*0.9863, 334*0.9863]
 
-        trace = go.Scatterpolar(
-            r=df_polar.Peaks.values,  # Vazao
-            theta=df_polar.DateJulianPolar.values,  # Data
-            mode='markers',
-            marker=dict(
-                color=color,
-                size=10,
-                line=dict(
-                    color='white'
-                ),
-                opacity=0.7),
-            text=df_polar.index.date,
-            thetaunit='degrees',
-            name=name
-        )
+        try:
+            trace = go.Scatterpolar(
+                r=df_polar.Peaks.values,  # Vazao
+                theta=df_polar.DateJulianPolar.values,  # Data
+                mode='markers',
+                marker=dict(
+                    color=color,
+                    size=10,
+                    line=dict(
+                        color='white'
+                    ),
+                    opacity=0.7),
+                text=df_polar.index.date,
+                thetaunit='degrees',
+                name=name
+            )
+        except AttributeError:
+            trace = go.Scatterpolar(
+                r=df_polar.Peaks.values,  # Vazao
+                theta=df_polar.DateJulianPolar.values,  # Data
+                mode='markers',
+                marker=dict(
+                    color=color,
+                    size=10,
+                    line=dict(
+                        color='white'
+                    ),
+                    opacity=0.7),
+                thetaunit='degrees',
+                name=name
+            )
 
         data = [trace]
         angularX = go.layout.AngularAxis(

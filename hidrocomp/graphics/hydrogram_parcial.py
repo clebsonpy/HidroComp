@@ -61,7 +61,6 @@ class HydrogramParcial(HydrogramBuild):
             fig = dict(data=data, layout=layout)
             return fig, data
 
-
     def _plot_event_peaks(self):
         point_start = go.Scatter(
             x=list(self.peaks.Start),
@@ -75,7 +74,7 @@ class HydrogramParcial(HydrogramBuild):
 
         point_end = go.Scatter(
             x=list(self.peaks.End),
-            y=self.data.loc[self.peaks.End].T.values[0],
+            y=self.data[self.station].loc[list(self.peaks.End)],
             name="Ends of events",
             mode='markers',
             marker=dict(color='rgb(0, 0, 0)',
