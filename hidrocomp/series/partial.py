@@ -80,6 +80,9 @@ class Partial(object):
                     self.__peaks.at[self.__peaks.iloc[-1].index,
                                     "End"] = self.__peaks.iloc[-1].End - pd.timedelta_range(start='1 day', periods=1,
                                                                                             freq='D')
+            elif self.type_criterion == "autocorrelation":
+                self.__peaks = self.__test_autocorrelation()
+
             else:
                 self.__peaks = self.__events_over_threshold()
 
@@ -161,6 +164,24 @@ class Partial(object):
         else:
             self.threshold = self.data[self.station].quantile(value)
         return self.threshold
+
+    def __test_autocorrelation(self):
+        peaks = self.__duration()
+        try:
+            n = len(peaks.Peaks)
+            serie = pd.Series(peaks.Peaks, index=peaks.index)
+            lag1 = serie.autocorr(lag=1)
+            lag2 = serie.autocorr(lag=2)
+            r11_n = (-1 + 1.645 * math.sqrt(n - 1 - 1)) / (n - 1)
+            r12_n = (-1 - 1.645 * math.sqrt(n - 1 - 1)) / (n - 1)
+            r21_n = (-1 + 1.645 * math.sqrt(n - 2 - 1)) / (n - 2)
+            r22_n = (-1 - 1.645 * math.sqrt(n - 2 - 1)) / (n - 2)
+            if r11_n > lag1 > r12_n and r21_n > lag2 > r22_n:
+                self.duration += 1
+                return self.__test_autocorrelation()
+            return peaks
+        except AttributeError:
+            return peaks
 
     @staticmethod
     def __update_peaks(actual, events, idx):

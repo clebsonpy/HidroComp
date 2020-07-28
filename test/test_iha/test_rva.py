@@ -20,7 +20,7 @@ class TestRVA(TestCase):
     # threshold_low = data.minimum().peaks.max().values[0]
     threshold_high = 1025
     threshold_low = 59
-    duration = 15
+    duration = 1
     # duration = 10
 
 
@@ -36,32 +36,34 @@ class TestRVA(TestCase):
             self.assertEqual(data['Coeff. of Var.'][i], data2['Coeff. of Var.'][i])
 
     def test_mean_month(self):
-        self.data.station = "66160000"
-        partial = self.data.partial(type_criterion="wrc", type_threshold="stationary", duration=self.duration,
-                                    value_threshold=self.threshold_high, type_event="flood")
+        partial = self.data_nat.partial(type_criterion="autocorrelation", type_threshold="stationary",
+                                        duration=self.duration, value_threshold=self.threshold_high, type_event="flood")
 
-        fig, data = partial.hydrogram("")
+        fig, data = partial.plot_hydrogram("")
         py.offline.plot(fig, filename=os.path.join("graficos", "test.html"))
 
-    def test_iha_events_low(self):
-        iha_pre = self.data_obs.iha(status='pos', statistic="no-parametric", central_metric="mean", month_water=9,
-                                    variation_metric="std", type_threshold="stationary", type_criterion="wrc",
-                                    threshold_high=self.threshold_high, threshold_low=self.threshold_low,
-                                    duration=self.duration)
+    def test_iha_events_high_pos(self):
+        iha_pos = self.data_obs.iha(status='pos', statistic="no-parametric", central_metric="mean", month_water=9,
+                               variation_metric="std", type_threshold="stationary",
+                               threshold_high=self.threshold_high, threshold_low=self.threshold_low,
+                               type_criterion="autocorrelation", duration=1,
+                               aspects=["Magnitude and Duration", "Frequency and Duration", "Timing Extreme"],
+                               magnitude_and_duration=["1-day maximum", "1-day minimum"],
+                               timing=["Date of maximum", "Date of minimum"])
 
-        partial = iha_pre.frequency_and_duration.events_low()
+        partial = iha_pos.frequency_and_duration.events_high()
 
-        fig, data = partial.hydrogram("")
+        fig, data = partial.plot_polar("")
         py.offline.plot(fig, filename=os.path.join("graficos", "test.html"))
 
-    def test_iha_events_high(self):
+    def test_iha_events_high_pre(self):
         iha_pre = self.data_nat.iha(status='pre', statistic="no-parametric", central_metric="mean", month_water=9,
-                                    variation_metric="std", type_threshold="stationary", type_criterion="wrc",
-                                    threshold_high=self.threshold_high, threshold_low=self.threshold_low,
-                                    duration=self.duration, aspects=["Magnitude and Duration", "Frequency and Duration",
-                                                                     "Timing Extreme"],
-                                    magnitude_and_duration=["1-day maximum", "1-day minimum"],
-                                    timing=["Date of maximum", "Date of minimum"])
+                           variation_metric="std", type_threshold="stationary",
+                           threshold_high=self.threshold_high, threshold_low=self.threshold_low, type_criterion="autocorrelation",
+                           duration=1,
+                           aspects=["Magnitude and Duration", "Frequency and Duration", "Timing Extreme"],
+                           magnitude_and_duration=["1-day maximum", "1-day minimum"],
+                           timing=["Date of maximum", "Date of minimum"])
 
         print(iha_pre.summary())
 

@@ -107,6 +107,8 @@ class SeriesBuild(metaclass=ABCMeta):
             date_end = pd.to_datetime(date_end, dayfirst=True)
             self.data = self.data.loc[:date_end].copy()
 
+        return self
+
     def less_period(self, data):
         """
         """

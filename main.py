@@ -12,7 +12,7 @@ from hidrocomp.eflow.graphics import Graphics
 from hidrocomp.series.flow import Flow
 from hidrocomp.series.height import Height
 from hidrocomp.series.rainfall import Rainfall
-from api_ana.serie_temporal import SerieTemporal
+# from api_ana.serie_temporal import SerieTemporal
 
 if __name__ == '__main__':
     ini = timeit.default_timer()
@@ -256,13 +256,13 @@ if __name__ == '__main__':
     #                       "935084", "935012", "935081", "936044", "936053", "936054", "936081", "936113", "936114",
     #                       "936127", "936129", "936133", "936137"]
 
-    # stations = ['937032', '937031', '937010', '937006', '937004', '937002', '937000', '936026', '936009', '936007',
-    #             '837036', '837024', '837019', '837015', '837009', '837002', '836053', '836041', '836032', '836031',
-    #             '836029', '836019', '836011', '836002', '836000']
+    stations = ['937032', '937031', '937010', '937006', '937004', '937002', '937000', '936026', '936009', '936007',
+                '837036', '837024', '837019', '837015', '837009', '837002', '836053', '836041', '836032', '836031',
+                '836029', '836019', '836011', '836002', '836000']
     #
-    # flow = Rainfall(station=stations, source="ANA")
+    rainfall = Rainfall(station=stations, source="ANA")
     # flow.data.to_excel(os.path.abspath(os.path.join('Medicoes', 'dados_ipanema.xlsx')))
-    # fig, data = flow.gantt(title="Gantt")
+    fig, data = rainfall.gantt(title="Gantt")
     # flow.date(date_start="01/01/2008")
     # flow.data.to_excel(os.path.abspath(os.path.join('Medicoes', 'dados_ipanema_2008.xlsx')))
     # fig_gantt, data_gantt = flow.gantt(title="Gantt")
@@ -364,7 +364,7 @@ if __name__ == '__main__':
     # fig, data = parcial.plot_hydrogram('Parcial')
     #py.offline.plot(fig2, filename=os.path.join(path, 'graficos/rva.html'))
     """
-    # py.offline.plot(fig, filename=os.path.join(path, 'graficos/gantt_artigo.html'))
+    py.offline.plot(fig, filename=os.path.join(path, 'graficos/gantt_artigo.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/gantt_ipanema.html'))
     # py.offline.plot(fig_gantt, filename=os.path.join(path, 'graficos/gantt_ipanema_2008.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro_anual.html'))

@@ -38,7 +38,9 @@ class HydrogramParcial(HydrogramBuild):
             data.append(self._plot_threshold())
             if self.type_criterion is not None:
                 data.append(self._plot_threshold_criterion())
-            data += self._plot_event_peaks()
+
+            if len(self.peaks) > 0:
+                data += self._plot_event_peaks()
 
             fig = dict(data=data, layout=layout)
             return fig, data
@@ -56,7 +58,8 @@ class HydrogramParcial(HydrogramBuild):
 
             data.append(self._plot_one(self.data, station=self.station, color=color))
             data.append(self._plot_threshold())
-            data += self._plot_event_peaks()
+            if len(self.peaks) > 0:
+                data += self._plot_event_peaks()
 
             fig = dict(data=data, layout=layout)
             return fig, data

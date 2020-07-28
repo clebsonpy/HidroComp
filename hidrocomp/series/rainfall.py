@@ -9,10 +9,10 @@ class Rainfall(SeriesBuild):
     type_data = 'PLUVIOMÉTRICO'
 
     def __init__(self, data=None, path_file=None, station=None, source=None, *args, **kwargs):
-        super().__init__(data=data, path=path_file, station=station, source=source,
-                         type_data=self.type_data, *args, **kwargs)
+        super().__init__(data=data, path=path_file, station=station, source=source, type_data=self.type_data, *args,
+                         **kwargs)
 
-    def month_start_year_hydrologic(self):
+    def _month_start_year_hydrologic(self):
         pass
 
     def hydrogram(self, title, threshold=None, save=False, width=None, height=None, y_title='Precipitação (mm)',
