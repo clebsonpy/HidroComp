@@ -46,12 +46,24 @@ class FileRead(Files, metaclass=ABCMeta):
             p.close()
             if self.source == 'ANA':
                 dataFlow = pd.DataFrame()
-                for df in listaDfs:
+                inf_stations = {}
+                for df, inf in listaDfs:
                     if len(df) > 0:
                         dataFlow = dataFlow.combine_first(df)
+                        inf_stations.update(inf)
                     else:
                         dataFlow = dataFlow
-                return dataFlow.sort_index()
+                return dataFlow.sort_index(), inf_stations
+            elif self.source == 'SAR':
+                dataFlow = pd.DataFrame()
+                inf_stations = {}
+                for df, inf in listaDfs:
+                    if len(df) > 0:
+                        dataFlow = dataFlow.combine_first(df)
+                        inf_stations.update(inf)
+                    else:
+                        dataFlow = dataFlow
+                return dataFlow.sort_index(), inf_stations
             else:
                 dataFlow = pd.DataFrame(listaDfs)
                 return dataFlow.sort_index()

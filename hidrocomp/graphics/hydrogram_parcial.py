@@ -1,4 +1,5 @@
 import plotly.graph_objs as go
+import pandas as pd
 
 from hidrocomp.graphics.hydrogram_build import HydrogramBuild
 
@@ -8,10 +9,10 @@ class HydrogramParcial(HydrogramBuild):
     def __init__(self, data, peaks, threshold, threshold_criterion=None, type_criterion=None, width=None,
                  height=None, size_text=None, title=None, station=None, color=None):
         super().__init__(width=width, height=height, size_text=size_text, title=title)
-        self.data = data
         self.color = color
         self.peaks = peaks
         self.station = station
+        self.data = data[self.station].to_frame()
         self.threshold = threshold
         self.type_criterion = type_criterion
         self.threshold_criterion = threshold_criterion
@@ -33,12 +34,13 @@ class HydrogramParcial(HydrogramBuild):
                     color = self.color[i]
                 except:
                     color = None
-
             data.append(self._plot_one(self.data, station=self.station, color=color))
             data.append(self._plot_threshold())
             if self.type_criterion is not None:
                 data.append(self._plot_threshold_criterion())
-            data += self._plot_event_peaks()
+
+            if len(self.peaks) > 0:
+                data += self._plot_event_peaks()
 
             fig = dict(data=data, layout=layout)
             return fig, data
@@ -49,7 +51,6 @@ class HydrogramParcial(HydrogramBuild):
 
             data = []
             for i in self.data:
-                print(i)
                 try:
                     color = self.color[i]
                 except:
@@ -57,11 +58,11 @@ class HydrogramParcial(HydrogramBuild):
 
             data.append(self._plot_one(self.data, station=self.station, color=color))
             data.append(self._plot_threshold())
-            data += self._plot_event_peaks()
+            if len(self.peaks) > 0:
+                data += self._plot_event_peaks()
 
             fig = dict(data=data, layout=layout)
             return fig, data
-
 
     def _plot_event_peaks(self):
         point_start = go.Scatter(
@@ -85,8 +86,8 @@ class HydrogramParcial(HydrogramBuild):
             opacity=1)
 
         point_vazao = go.Scatter(
-            x=self.peaks['peaks'].index,
-            y=self.peaks['peaks'].values,
+            x=self.peaks['Peaks'].index,
+            y=self.peaks['Peaks'].values,
             name="Peaks",
             mode='markers',
             marker=dict(size=8,

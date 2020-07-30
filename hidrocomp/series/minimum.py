@@ -17,7 +17,6 @@ class Minimum(object):
         self.dist_gev = Gev(self.peaks['peaks'].values)
 
     def __annual(self):
-        self.obj.month_start_year_hydrologic()
         data_by_year_hydrologic = self.obj.data.groupby(pd.Grouper(freq=self.obj.month_abr_drought))
         min = data_by_year_hydrologic[self.station].min()
         idx = data_by_year_hydrologic[self.station].idxmin()

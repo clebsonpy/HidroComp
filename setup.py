@@ -15,9 +15,8 @@ install_requires = [r.strip() for r in require]
 
 setup(
     name='hidrocomp',
-    version='1.0.1',
+    version='1.1.0',
     include_package_data=True,
-    pacotes=find_packages('src'),
     long_description=long_description,
     classifiers=['Development Status :: 1 - Planning',
                  'Environment :: Console',
@@ -34,7 +33,7 @@ setup(
     license='MIT License',
     author='Clebson Farias',
     author_email='clebson2007.farias@gmail.com',
-    keywords='hydrology statistic iha flow',
+    keywords='hydrology statistic eflow flow',
     description='Developed for hydrological studies',
     install_requires=install_requires,
     packages=['hidrocomp'],

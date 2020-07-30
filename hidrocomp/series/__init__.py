@@ -1,1 +1,5 @@
-__all__ = ["flow", "rainfall", "parcial", "maximum", "height.py"]
+from .flow import Flow
+from .height import Height
+from .rainfall import Rainfall
+
+__all__ = ["Flow", "Rainfall", "Height"]
