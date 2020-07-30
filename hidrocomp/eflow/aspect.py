@@ -192,8 +192,10 @@ class MagnitudeDuration(Aspect):
             ave_max = self.flow.data.rolling(window=i).mean().groupby(pd.Grouper(freq=self.month_start[1])).max()
             ave_min = self.flow.data.rolling(window=i).mean().groupby(pd.Grouper(freq=self.month_start[1])).min()
             years = ave_max.index.year
-            df1 = pd.DataFrame(pd.Series(data=ave_min[self.station].values, name='%s-day minimum' % i, index=years))
-            df2 = pd.DataFrame(pd.Series(data=ave_max[self.station].values, name='%s-day maximum' % i, index=years))
+            df1 = pd.DataFrame(pd.Series(data=ave_min[self.station].values, name='%s-day minimum' % i,
+                                         index=ave_max.index.year))
+            df2 = pd.DataFrame(pd.Series(data=ave_max[self.station].values, name='%s-day maximum' % i,
+                                         index=ave_min.index.year))
             aver_data = aver_data.combine_first(df1)
             aver_data = aver_data.combine_first(df2)
             if i == 7:

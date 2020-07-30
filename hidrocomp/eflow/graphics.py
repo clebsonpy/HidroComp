@@ -135,7 +135,7 @@ class GraphicsCha(Graphics):
 
         df = pd.DataFrame(dic)
         fig = px.scatter(df, x="Variable", y="Data", color="Status", error_y="Error", error_y_minus="Error_minus",
-                         text="Text", labels={"Text": "Confidence Interval", "Data": "Abnormality"},
+                         text="Text", labels={"Text": "Variable", "Data": ""},
                          hover_data={"Data": ":.2f"})
 
         fig.update_traces(mode="markers")

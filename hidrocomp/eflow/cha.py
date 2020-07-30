@@ -174,11 +174,13 @@ class ChaVariable:
         self.interval = [((100 - interval) / 2) / 100, 1 - ((100 - interval) / 2) / 100]
         self.sample_pre = Bootstrap(data=self.data_pre, m=m, name=self.name)
         self.sample_pos = Bootstrap(data=self.data_pos, m=m, name=self.name)
+        self.sample_diff = Bootstrap(data=self.data_pre-self.data_pos, m=m, name=self.name)
 
-    def __calc_value(self, dist_pre, dist_pos):
+    def __calc_value(self, dist_pre, dist_pos, dist_diff):
         value = pd.DataFrame(columns=["Pre - 2_5", "Pre - 97_5", "Pos - 2_5", "Pos - 97_5", "Pre - mean", "Pos - mean"])
         confidence_intervals_pre = dist_pre.data.quantile(self.interval)
         confidence_intervals_pos = dist_pos.data.quantile(self.interval)
+        confidence_intervals_diff = dist_diff.data.quantile(self.interval)
         zscore_pre_2_5 = dist_pre.z_score(confidence_intervals_pre[self.interval[0]])
         zscore_pos_2_5 = dist_pre.z_score(confidence_intervals_pos[self.interval[0]])
         zscore_pre_97_5 = dist_pre.z_score(confidence_intervals_pre[self.interval[1]])
@@ -200,8 +202,9 @@ class ChaVariable:
 
         dist_pre = Normal(data=self.sample_pre.mean())
         dist_pos = Normal(data=self.sample_pos.mean())
+        dist_diff = Normal(data=self.sample_diff.mean())
 
-        value = self.__calc_value(dist_pre=dist_pre, dist_pos=dist_pos)
+        value = self.__calc_value(dist_pre=dist_pre, dist_pos=dist_pos, dist_diff=dist_diff)
         return value
 
     @property
@@ -209,8 +212,9 @@ class ChaVariable:
 
         dist_pre = Normal(data=self.sample_pre.std())
         dist_pos = Normal(data=self.sample_pos.std())
+        dist_diff = Normal(data=self.sample_diff.std())
 
-        value = self.__calc_value(dist_pre=dist_pre, dist_pos=dist_pos)
+        value = self.__calc_value(dist_pre=dist_pre, dist_pos=dist_pos, dist_diff=dist_diff)
 
         return value
 

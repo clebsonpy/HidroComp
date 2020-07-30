@@ -81,11 +81,15 @@ class Partial(object):
                                     "End"] = self.__peaks.iloc[-1].End - pd.timedelta_range(start='1 day', periods=1,
                                                                                             freq='D')
             elif self.type_criterion == "autocorrelation":
-                self.__peaks = self.__test_autocorrelation()
-
+                if self.type_event == "flood":
+                    self.__peaks = self.__test_autocorrelation()
+                elif self.type_event == "drought":
+                    self.__peaks = self.__test_autocorrelation()
+                    if len(self.__peaks) > 0:
+                        self.__peaks.at[self.__peaks.sort_values(by="End").index[-1],
+                                        "End"] = self.__peaks.sort_values(by="End")["End"].iloc[-1] - pd.to_timedelta(1, unit="d")
             else:
                 self.__peaks = self.__events_over_threshold()
-
         return self.__peaks
 
     def __events_over_threshold(self):
@@ -180,7 +184,7 @@ class Partial(object):
                 self.duration += 1
                 return self.__test_autocorrelation()
             return peaks
-        except AttributeError:
+        except (AttributeError, ValueError):
             return peaks
 
     @staticmethod
@@ -311,8 +315,15 @@ class Partial(object):
         return data, fig
 
     def plot_spells(self, title, size_text=14):
+        if self.type_event == "drought":
+            month_start_abr, month_start_num = self.obj.month_abr_drought, self.obj.month_num_drought
+        elif self.type_event == "flood":
+            month_start_abr, month_start_num = self.obj.month_abr_flood, self.obj.month_num_flood
+        else:
+            raise TypeError
+
         df_spells, df, month_start, month_end = Gantt.get_spells(data_peaks=self.peaks,
-                                                                 month_water=[self.obj.month_num, self.obj.month_abr])
+                                                                 month_water=[month_start_num, month_start_abr])
 
         df_spells = df_spells.sort_values('Task', ascending=False).reset_index(drop=True)
 
@@ -348,8 +359,8 @@ class Partial(object):
 
     def plot_hydrogram(self, title, width=None, height=None, size_text=16, color=None):
         hydrogram = HydrogramParcial(data=self.data, peaks=self.peaks, threshold=self.threshold, station=self.station,
-                                     threshold_criterion=None, title=title, width=width,
-                                     type_criterion=None, height=height, size_text=size_text,
+                                     threshold_criterion=self.threshold_criterion, title=title, width=width,
+                                     type_criterion=self.type_criterion, height=height, size_text=size_text,
                                      color=color)
         fig, data = hydrogram.plot()
         return fig, data
