@@ -21,24 +21,58 @@ class Polar(object):
         df_polar = self.year_polar()
         position = [0, 31*0.9863, 59*0.9863, 90*0.9863, 120*0.9863, 151*0.9863, 181*0.9863, 212*0.9863, 243*0.9863,
                     273*0.9863, 303*0.9863, 334*0.9863]
+        if len(df_polar) > 0:
+            try:
+                trace = go.Scatterpolar(
+                    r=df_polar.Peaks.values,  # Vazao
+                    theta=df_polar.DateJulianPolar.values,  # Data
+                    mode='markers',
+                    marker=dict(
+                        color=color,
+                        size=10,
+                        line=dict(
+                            color='white'
+                        ),
+                        opacity=0.7),
+                    text=df_polar.index.date,
+                    thetaunit='degrees',
+                    name=name
+                )
+            except AttributeError:
+                trace = go.Scatterpolar(
+                    r=df_polar.Peaks.values,  # Vazao
+                    theta=df_polar.DateJulianPolar.values,  # Data
+                    mode='markers',
+                    marker=dict(
+                        color=color,
+                        size=10,
+                        line=dict(
+                            color='white'
+                        ),
+                        opacity=0.7),
+                    thetaunit='degrees',
+                    name=name
+                )
 
-        trace = go.Scatterpolar(
-            r=df_polar.peaks.values,  # Vazao
-            theta=df_polar.DateJulianPolar.values,  # Data
-            mode='markers',
-            marker=dict(
-                color=color,
-                size=10,
-                line=dict(
-                    color='white'
-                ),
-                opacity=0.7),
-            text=df_polar.index.date,
-            thetaunit='degrees',
-            name=name
-        )
+            data = [trace]
 
-        data = [trace]
+        else:
+            trace = go.Scatterpolar(
+                r=None,  # Vazao
+                theta=None,  # Data
+                mode='markers',
+                marker=dict(
+                    color=color,
+                    size=10,
+                    line=dict(
+                        color='white'
+                    ),
+                    opacity=0.7),
+                thetaunit='degrees',
+                name=name
+            )
+            data = [trace]
+
         angularX = go.layout.AngularAxis(
             showticklabels=False,
         )

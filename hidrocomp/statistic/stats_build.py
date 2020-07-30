@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 from hidrocomp import statistic as e
 from abc import ABCMeta, abstractmethod
@@ -9,7 +10,7 @@ class StatsBuild(metaclass=ABCMeta):
     parameter = None
     dist = None
 
-    def __init__(self, data=None, *args, **kwargs):
+    def __init__(self, data: pd.Series = None, *args, **kwargs):
         for i in kwargs:
             self.parameter[i] = kwargs[i]
 
@@ -31,10 +32,6 @@ class StatsBuild(metaclass=ABCMeta):
 
     @abstractmethod
     def mml(self):
-        pass
-
-    @abstractmethod
-    def rvs(self, n):
         pass
 
     def probs(self, x):

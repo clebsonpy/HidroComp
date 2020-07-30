@@ -33,19 +33,16 @@ class Gantt(object):
         df_spells = pd.DataFrame(columns=['Task', 'Start', 'Finish', 'Complete', 'Name'])
         index = 0
         dates = pd.date_range(start=pd.to_datetime('1/%s/1998' % month_water[0], dayfirst=True), periods=365, freq='D')
-        inter = data_peaks['peaks'].max()-data_peaks['peaks'].min()
-        if len(data_peaks) > 0:
 
+        if len(data_peaks) > 0:
+            inter = data_peaks['Peaks'].max() - data_peaks['Peaks'].min()
             for groups in data_peaks.groupby(pd.Grouper(freq=month_water[1])):
                 for i in groups[1].index:
 
-                    #df_spells.at[index, 'Complete'] = 100 - (
-                    #            (data_peaks['peaks'].max() - data_peaks['peaks'].loc[i]) / data_peaks['peaks'].max()) * 100
-                    df_spells.at[index, 'Complete'] = 100-(100*(data_peaks['peaks'].max() - data_peaks['peaks'].loc[i])/inter)
-                    #df_spells.at[index, 'Complete'] = data_peaks['peaks'].loc[i]/1000
+                    df_spells.at[index, 'Complete'] = 100-(100*(data_peaks['Peaks'].max() - data_peaks['Peaks'].loc[i])/inter)
                     start = data_peaks['Start'].loc[i]
                     end = data_peaks['End'].loc[i]
-                    df_spells.at[index, 'Name'] = data_peaks['peaks'].loc[i]
+                    df_spells.at[index, 'Name'] = data_peaks['Peaks'].loc[i]
                     df_spells.at[index, 'Task'] = int(groups[0].year)
                     len_days = len(pd.date_range(start, end))
                     for date in dates:
@@ -69,5 +66,5 @@ class Gantt(object):
                     index += 1
                 else:
                     pass
-            #df_spells.to_csv("df_spells.csv")
+
         return df_spells, index, dates[0], dates[-1]

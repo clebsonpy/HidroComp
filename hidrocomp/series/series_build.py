@@ -13,7 +13,8 @@ class SeriesBuild(metaclass=ABCMeta):
 
     sources = {
         "ONS": ons.Ons,
-        "ANA": ana.Ana
+        "ANA": ana.Ana,
+        "SAR": ana.Sar,
     }
 
     def __init__(self, data=None, path=None, station=None, source=None, *args, **kwargs):
@@ -45,6 +46,7 @@ class SeriesBuild(metaclass=ABCMeta):
                 self.source = source
                 read = self.sources[self.source](path_file=self.path, station=self.station, *args, **kwargs)
                 self.data = read.data.sort_index()
+                self.inf_stations = read.inf_stations
             else:
                 raise KeyError('Source not supported!')
         if self.data.size == 0:
@@ -54,6 +56,7 @@ class SeriesBuild(metaclass=ABCMeta):
             _data = pd.DataFrame(index=pd.date_range(start=self.date_start, end=self.date_end))
             self.data = _data.combine_first(self.data[self.date_start:self.date_end])
 
+
     def __return_df(self, data):
         if type(data) is type(pd.Series()):
             self.data = pd.DataFrame(data)
@@ -61,7 +64,7 @@ class SeriesBuild(metaclass=ABCMeta):
             self.data = data
 
     @abstractmethod
-    def month_start_year_hydrologic(self):
+    def _month_start_year_hydrologic(self):
         pass
 
     @abstractmethod
@@ -86,6 +89,10 @@ class SeriesBuild(metaclass=ABCMeta):
         """
         return self.__class__(data=self.data[val].copy())
 
+    @property
+    def columns(self):
+        return self.data.columns
+
     def date(self, date_start=None, date_end=None):
         """
         """
@@ -99,6 +106,8 @@ class SeriesBuild(metaclass=ABCMeta):
         elif date_end is not None:
             date_end = pd.to_datetime(date_end, dayfirst=True)
             self.data = self.data.loc[:date_end].copy()
+
+        return self
 
     def less_period(self, data):
         """
@@ -124,6 +133,12 @@ class SeriesBuild(metaclass=ABCMeta):
         """
         """
         return self.data.describe()
+
+    def min(self):
+        return self.data.min()
+
+    def max(self):
+        return self.data.max()
 
     def get_year(self, year):
         """

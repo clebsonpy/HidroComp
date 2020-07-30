@@ -20,7 +20,10 @@ class Gpa(StatsBuild):
         self.parameter['loc'] = self.loc
         self.parameter['scale'] = self.scale
         super().__init__(data, shape, loc, scale)
-        self.dist = genpareto(c=self.shape, loc=self.loc, scale=self.scale)
+        try:
+            self.dist = genpareto(c=self.shape, loc=self.loc, scale=self.scale)
+        except TypeError:
+            self.dist = None
     
     def mml(self):
         if self.data is None:
@@ -30,6 +33,7 @@ class Gpa(StatsBuild):
         self.shape = mml['c']
         self.loc = mml['loc']
         self.scale = mml['scale']
+        print(self.shape)
         self.dist = genpareto(c=self.shape, loc=self.loc, scale=self.scale)
 
         return self.shape, self.loc, self.scale

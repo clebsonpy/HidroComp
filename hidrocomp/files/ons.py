@@ -15,24 +15,33 @@ class Ons(FileRead):
     source = "ONS"
     extension = "xlsx"
 
-    def __init__(self, path_file=os.getcwd(), type_data='FLUVIOMÉTRICO', station=None, *args, **kwargs):
+    def __init__(self, path_file=None, type_data='FLUVIOMÉTRICO', station=None, *args, **kwargs):
         super().__init__(path_file)
         self.type_data = type_data
         self.station = station
         if self.station is None:
-            self.data = self.read(self.name)
+            self.data = self.read(self.station)
         else:
-            self.data = pd.DataFrame(self.read(self.name)[self.station])
+            self.data = pd.DataFrame(self.read(self.station)[self.station])
+        self.inf_stations = None
 
     def list_files(self):
         return super().list_files()
 
     def read(self, name=None):
-        if name is None:
-            return super().read()
+        if self.api:
+            if name is None:
+                self.name = ""
+                return super().read()
+            else:
+                self.name = name
+                return self.__series_temporal()
         else:
-            self.name = name
-            return self.__read_xls()
+            if name is None:
+                return super().read()
+            else:
+                self.name = name
+                return self.__read_xls()
 
     def __read_xls(self):
         file_ons = os.path.join(self.path, self.name+'.'+Ons.extension)
@@ -52,3 +61,12 @@ class Ons(FileRead):
         data_flow.columns = code_column
 
         return data_flow.astype(float)
+
+    def __series_temporal(self):
+        data = pd.read_csv('http://raw.githubusercontent.com/wallissoncarvalho/hydrobr/master/hydrobr/'
+                           'resources/ONS_daily_flow.csv', index_col=0, parse_dates=True)
+        code_column = [i.split(' (')[0] for i in data.axes[1]]
+        data.columns = code_column
+        data.index.name = None
+        return data
+

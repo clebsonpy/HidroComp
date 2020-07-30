@@ -1,5 +1,3 @@
-import numpy as np
-
 from hidrocomp import statistic as e
 from hidrocomp.statistic.stats_build import StatsBuild
 from scipy.stats import genextreme
@@ -48,3 +46,6 @@ class Gev(StatsBuild):
         self.dist = genextreme(c=self.shape, loc=self.loc, scale=self.scale)
 
         return self.shape, self.loc, self.scale
+
+    def rvs(self, n):
+        pass
