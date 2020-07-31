@@ -96,7 +96,7 @@ class TestRVA(TestCase):
         print(magnitude_duration_obs.metrics)
         print(magnitude_duration_nat.rva_frequency(aspect_pos=magnitude_duration_obs))
         print(magnitude_duration_nat.rva_measure_hydrologic_alteration(aspect_pos=magnitude_duration_obs))
-        dhram = magnitude_duration_nat.cha(aspect_pos=magnitude_duration_obs, m=100, interval=95)
+        dhram = magnitude_duration_nat.era(aspect_pos=magnitude_duration_obs, m=100, interval=95)
         print(dhram.diff)
         print(dhram.point)
 
@@ -107,7 +107,7 @@ class TestRVA(TestCase):
         print(timing_extreme_obs.metrics)
         print(timing_extreme_nat.rva_frequency(aspect_pos=timing_extreme_obs))
         print(timing_extreme_nat.rva_measure_hydrologic_alteration(aspect_pos=timing_extreme_obs))
-        dhram = timing_extreme_nat.cha(aspect_pos=timing_extreme_obs, m=1000, interval=95)
+        dhram = timing_extreme_nat.era(aspect_pos=timing_extreme_obs, m=1000, interval=95)
         print(dhram.diff)
         print(dhram.point)
 
@@ -118,7 +118,7 @@ class TestRVA(TestCase):
         print(frequency_duration_obs.metrics)
         print(frequency_duration_nat.rva_frequency(aspect_pos=frequency_duration_obs))
         print(frequency_duration_nat.rva_measure_hydrologic_alteration(aspect_pos=frequency_duration_obs))
-        dhram = frequency_duration_nat.cha(aspect_pos=frequency_duration_obs, m=1000, interval=95)
+        dhram = frequency_duration_nat.era(aspect_pos=frequency_duration_obs, m=1000, interval=95)
         print(dhram.diff)
         print(dhram.point)
 
@@ -129,6 +129,6 @@ class TestRVA(TestCase):
         print(rate_and_frequency_obs.metrics)
         print(rate_and_frequency_nat.rva_frequency(aspect_pos=rate_and_frequency_obs))
         print(rate_and_frequency_nat.rva_measure_hydrologic_alteration(aspect_pos=rate_and_frequency_obs))
-        dhram = rate_and_frequency_nat.cha(aspect_pos=rate_and_frequency_obs, m=1000, interval=95)
+        dhram = rate_and_frequency_nat.era(aspect_pos=rate_and_frequency_obs, m=1000, interval=95)
         print(dhram.diff)
         print(dhram.point)

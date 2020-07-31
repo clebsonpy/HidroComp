@@ -4,7 +4,7 @@ import numpy as np
 import calendar as cal
 from hidrocomp.eflow.exceptions import *
 from hidrocomp.eflow.rva import RVA
-from hidrocomp.eflow.cha import ChaVariable, ChaAspect
+from hidrocomp.eflow.era import EraVariable, EraAspect
 
 
 class Aspect(metaclass=ABCMeta):
@@ -12,7 +12,7 @@ class Aspect(metaclass=ABCMeta):
 
     def __init__(self, flow, month_start, central_metric, variation_metric, status, variables: list = None, *args,
                  **kwargs):
-        self._cha = None
+        self._era = None
         self.flow = flow
         self.station = flow.station
         self.month_start = month_start
@@ -91,17 +91,17 @@ class Aspect(metaclass=ABCMeta):
         else:
             raise StatusError("Aspect status must be pos")
 
-    def cha(self, aspect_pos, m: int, interval: int):
-        if self._cha is None:
-            self._cha = ChaAspect(name=self.name)
+    def era(self, aspect_pos, m: int, interval: int):
+        if self._era is None:
+            self._era = EraAspect(name=self.name)
             if aspect_pos.status == "pos":
                 for i in self.variables:
-                    cha_variable = self.variable(name=i).cha(variable_pos=aspect_pos.variable(name=i), m=m,
+                    cha_variable = self.variable(name=i).era(variable_pos=aspect_pos.variable(name=i), m=m,
                                                              interval=interval)
-                    self._cha.variables = cha_variable
+                    self._era.variables = cha_variable
             else:
                 raise StatusError("Aspect status must be pos")
-        return self._cha
+        return self._era
 
 
 class Variable:
@@ -118,7 +118,7 @@ class PosVariable(Variable):
 
 class PreVariable(Variable):
 
-    _cha: ChaVariable = None
+    _era: EraVariable = None
     _rva: RVA = None
 
     def rva(self, variable_pos, statistic="non-parametric", boundaries=17) -> RVA:
@@ -126,10 +126,10 @@ class PreVariable(Variable):
             self._rva = RVA(variable_pre=self, variable_pos=variable_pos, boundaries=boundaries, statistic=statistic)
         return self._rva
 
-    def cha(self, variable_pos, m: int, interval: int) -> ChaVariable:
-        if self._cha is None:
-            self._cha = ChaVariable(variable_pre=self, variable_pos=variable_pos, m=m, interval=interval)
-        return self._cha
+    def era(self, variable_pos, m: int, interval: int) -> EraVariable:
+        if self._era is None:
+            self._era = EraVariable(variable_pre=self, variable_pos=variable_pos, m=m, interval=interval)
+        return self._era
 
 
 class Magnitude(Aspect):
@@ -349,6 +349,7 @@ class FrequencyDuration(Aspect):
         frequency_and_duration_low, threshold_low_mag = aux_frequency_and_duration(self.events_low)
 
         frequency_and_duration = frequency_and_duration_high.combine_first(frequency_and_duration_low)
+        frequency_and_duration.index = frequency_and_duration.index.year
         return frequency_and_duration
 
 

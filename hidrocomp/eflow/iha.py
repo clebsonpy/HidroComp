@@ -4,7 +4,7 @@ from hidrocomp.eflow.exceptions import *
 import pandas as pd
 import calendar as cal
 from hidrocomp.eflow.aspect import Magnitude, MagnitudeDuration, TimingExtreme, FrequencyDuration, RateFrequency
-from hidrocomp.eflow import Cha, RVA
+from hidrocomp.eflow import Era, RVA
 
 
 class IHA:
@@ -40,7 +40,7 @@ class IHA:
 
         self.flow = flow
         self.status = status
-        self._cha = None
+        self._era = None
         self.month_start = self.get_month_start(month_water)
         self.date_start = pd.to_datetime(date_start, dayfirst=True)
         self.date_end = pd.to_datetime(date_end, dayfirst=True)
@@ -115,28 +115,28 @@ class IHA:
     def rva(self) -> RVA:
         pass
 
-    def cha(self, iha_obs, m: int = 500, interval: int = 95) -> Cha:
+    def era(self, iha_obs, m: int = 500, interval: int = 95) -> Era:
         if self.status == "pos":
             raise StatusError("Dhram not available for self object!")
         if iha_obs.status == "pre":
             raise StatusError(f"status of {iha_obs} invalid!")
 
-        self._cha = Cha()
+        self._era = Era()
         for aspect in self.aspects:
             if aspect == "Magnitude":
-                self._cha.aspects = self.magnitude.cha(aspect_pos=iha_obs.magnitude, m=m, interval=interval)
+                self._era.aspects = self.magnitude.era(aspect_pos=iha_obs.magnitude, m=m, interval=interval)
             elif aspect == "Magnitude and Duration":
-                self._cha.aspects = self.magnitude_and_duration.cha(aspect_pos=iha_obs.magnitude_and_duration, m=m,
+                self._era.aspects = self.magnitude_and_duration.era(aspect_pos=iha_obs.magnitude_and_duration, m=m,
                                                                     interval=interval)
             elif aspect == "Timing Extreme":
-                self._cha.aspects = self.timing_extreme.cha(aspect_pos=iha_obs.timing_extreme, m=m, interval=interval)
+                self._era.aspects = self.timing_extreme.era(aspect_pos=iha_obs.timing_extreme, m=m, interval=interval)
             elif aspect == "Frequency and Duration":
-                self._cha.aspects = self.frequency_and_duration.cha(aspect_pos=iha_obs.frequency_and_duration, m=m,
+                self._era.aspects = self.frequency_and_duration.era(aspect_pos=iha_obs.frequency_and_duration, m=m,
                                                                     interval=interval)
             elif aspect == "Rate and Frequency":
-                self._cha.aspects = self.rate_and_frequency.cha(aspect_pos=iha_obs.rate_and_frequency, m=m,
+                self._era.aspects = self.rate_and_frequency.era(aspect_pos=iha_obs.rate_and_frequency, m=m,
                                                                 interval=interval)
-        return self._cha
+        return self._era
 
     def summary(self):
         df = pd.DataFrame()
