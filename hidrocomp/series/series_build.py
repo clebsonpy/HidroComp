@@ -1,7 +1,5 @@
-import os
 import pandas as pd
 import plotly.figure_factory as FF
-import plotly.graph_objs as go
 
 from abc import abstractmethod, ABCMeta
 
@@ -55,7 +53,6 @@ class SeriesBuild(metaclass=ABCMeta):
             self.date_start, self.date_end = self.__start_and_end()
             _data = pd.DataFrame(index=pd.date_range(start=self.date_start, end=self.date_end))
             self.data = _data.combine_first(self.data[self.date_start:self.date_end])
-
 
     def __return_df(self, data):
         if type(data) is type(pd.Series()):

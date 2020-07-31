@@ -72,27 +72,6 @@ class TestRVA(TestCase):
         fig, data = partial.plot_hydrogram("")
         py.offline.plot(fig, filename=os.path.join("graficos", "test.html"))
 
-    def test_cha_aspects(self):
-        iha_pre = self.data_nat.iha(status='pre', statistic="no-parametric", central_metric="mean", month_water=9,
-                                    variation_metric="std", type_threshold="stationary", type_criterion="wrc",
-                                    threshold_high=self.threshold_high, threshold_low=self.threshold_low,
-                                    duration=self.duration, aspects=["Magnitude and Duration", "Frequency and Duration",
-                                                                     "Timing Extreme"],
-                                    magnitude_and_duration=["1-day maximum", "1-day minimum"],
-                                    timing=["Date of maximum", "Date of minimum"])
-
-        iha_pos = self.data_obs.iha(status='pos', statistic="no-parametric", central_metric="mean", month_water=9,
-                                    variation_metric="std", type_threshold="stationary", type_criterion="wrc",
-                                    threshold_high=self.threshold_high, threshold_low=self.threshold_low,
-                                    duration=self.duration, aspects=["Magnitude and Duration", "Frequency and Duration",
-                                                                     "Timing Extreme"],
-                                    magnitude_and_duration=["1-day maximum", "1-day minimum"],
-                                    timing=["Date of maximum", "Date of minimum"])
-
-        cha = iha_pre.cha(iha_obs=iha_pos)
-        print(cha.abnormality)
-        fig, data = cha.plot(data_type="mean")
-        py.offline.plot(fig, filename=os.path.join("graficos", "test.html"))
 
     def test_cha(self):
         iha_pre = self.data_nat.iha(status='pre', statistic="no-parametric", central_metric="mean", month_water=9,

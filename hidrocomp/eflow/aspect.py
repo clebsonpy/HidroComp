@@ -10,7 +10,8 @@ from hidrocomp.eflow.cha import ChaVariable, ChaAspect
 class Aspect(metaclass=ABCMeta):
     name = None
 
-    def __init__(self, flow, month_start, central_metric, variation_metric, status, variables: list = None):
+    def __init__(self, flow, month_start, central_metric, variation_metric, status, variables: list = None, *args,
+                 **kwargs):
         self._cha = None
         self.flow = flow
         self.station = flow.station
@@ -20,6 +21,8 @@ class Aspect(metaclass=ABCMeta):
         self.status = status
         self.data = self._data()
         self.metrics = self.metric_stats()
+        self.args = args
+        self.kwargs = kwargs
 
     def variable(self, name=None):
         name = name.capitalize()
@@ -171,7 +174,11 @@ class MagnitudeDuration(Aspect):
                       "90-day minimum": None, "90-day maximum": None, "Number of zero days": None,
                       "Base flow index": None}
 
-    def __init__(self, flow, month_start, central_metric, variation_metric, status, variables: list = None):
+    def __init__(self, flow, month_start, central_metric, variation_metric, status, variables: list = None,
+                 events_high=None, events_low=None):
+        self.events_high = events_high
+        self.events_low = events_low
+
         self.variables = {}
         if variables is not None:
             for variable in variables:
@@ -182,38 +189,48 @@ class MagnitudeDuration(Aspect):
                          variation_metric=variation_metric, status=status)
 
     def _data(self):
-        # self.variables = {"1-day minimum": None, "1-day maximum": None, "3-day minimum": None, "3-day maximum": None,
-        #                   "7-day minimum": None, "7-day maximum": None, "30-day minimum": None, "30-day maximum": None,
-        #                   "90-day minimum": None, "90-day maximum": None, "Number of zero days": None,
-        #                   "Base flow index": None}
+        if self.events_high is None is self.events_low:
+            aver_data = pd.DataFrame()
+            for i in [1, 3, 7, 30, 90]:
+                ave_max = self.flow.data.rolling(window=i).mean().groupby(pd.Grouper(freq=self.month_start[1])).max()
+                ave_min = self.flow.data.rolling(window=i).mean().groupby(pd.Grouper(freq=self.month_start[1])).min()
+                years = ave_max.index.year
+                df1 = pd.DataFrame(pd.Series(data=ave_min[self.station].values, name='%s-day minimum' % i,
+                                             index=ave_max.index.year))
+                df2 = pd.DataFrame(pd.Series(data=ave_max[self.station].values, name='%s-day maximum' % i,
+                                             index=ave_min.index.year))
+                aver_data = aver_data.combine_first(df1)
+                aver_data = aver_data.combine_first(df2)
+                if i == 7:
+                    mean_year = self.flow.data[self.station].groupby(pd.Grouper(freq=self.month_start[1])).mean().values
+                    base_flow = pd.DataFrame(pd.Series(data=ave_min[self.station].values / mean_year,
+                                                       name='Base flow index', index=years))
+                    aver_data = aver_data.combine_first(base_flow)
 
-        aver_data = pd.DataFrame()
-        for i in [1, 3, 7, 30, 90]:
-            ave_max = self.flow.data.rolling(window=i).mean().groupby(pd.Grouper(freq=self.month_start[1])).max()
-            ave_min = self.flow.data.rolling(window=i).mean().groupby(pd.Grouper(freq=self.month_start[1])).min()
-            years = ave_max.index.year
-            df1 = pd.DataFrame(pd.Series(data=ave_min[self.station].values, name='%s-day minimum' % i,
-                                         index=ave_max.index.year))
-            df2 = pd.DataFrame(pd.Series(data=ave_max[self.station].values, name='%s-day maximum' % i,
-                                         index=ave_min.index.year))
-            aver_data = aver_data.combine_first(df1)
-            aver_data = aver_data.combine_first(df2)
-            if i == 7:
-                mean_year = self.flow.data[self.station].groupby(pd.Grouper(freq=self.month_start[1])).mean().values
-                base_flow = pd.DataFrame(pd.Series(data=ave_min[self.station].values / mean_year,
-                                                   name='Base flow index', index=years))
-                aver_data = aver_data.combine_first(base_flow)
-
-        dic_zero = {i[0].year: i[1].loc[i[1][self.station].values == 0].sum().values[0]
-                    for i in self.flow.data.groupby(pd.Grouper(freq=self.month_start[1]))}
-        serie_dict_zero = pd.Series(data=dic_zero, name='Number of zero days')
-        serie_dict_zero.loc[serie_dict_zero.isnull()].value = 0
-        if serie_dict_zero.sum() > 0:
-            magn_and_duration = aver_data.combine_first(pd.DataFrame(serie_dict_zero))
+            dic_zero = {i[0].year: i[1].loc[i[1][self.station].values == 0].sum().values[0]
+                        for i in self.flow.data.groupby(pd.Grouper(freq=self.month_start[1]))}
+            serie_dict_zero = pd.Series(data=dic_zero, name='Number of zero days')
+            serie_dict_zero.loc[serie_dict_zero.isnull()].value = 0
+            if serie_dict_zero.sum() > 0:
+                magn_and_duration = aver_data.combine_first(pd.DataFrame(serie_dict_zero))
+            else:
+                if 'Number of zero days' in self.variables.keys():
+                    del self.variables['Number of zero days']
+                magn_and_duration = aver_data
         else:
-            if 'Number of zero days' in self.variables.keys():
-                del self.variables['Number of zero days']
-            magn_and_duration = aver_data
+            peaks_high = self.events_high.peaks
+            peaks_high.index.name = None
+            maximum = peaks_high["Peaks"].groupby(pd.Grouper(freq=self.month_start[1])).mean()
+            maximum.index = maximum.index.year
+            maximum.name = "1-day maximum"
+
+            peaks_low = self.events_low.peaks
+            peaks_low.index.name = None
+            minimum = peaks_low["Peaks"].groupby(pd.Grouper(freq=self.month_start[1])).mean()
+            minimum.index = minimum.index.year
+            minimum.name = "1-day minimum"
+
+            magn_and_duration = minimum.to_frame().combine_first(maximum.to_frame())
         return magn_and_duration
 
 
@@ -221,7 +238,11 @@ class TimingExtreme(Aspect):
     name = "Timing Extreme"
     variables_all = {"Date of minimum": None, "Date of maximum": None}
 
-    def __init__(self, flow, month_start, central_metric, variation_metric, status, variables: list = None):
+    def __init__(self, flow, month_start, central_metric, variation_metric, status, variables: list = None,
+                 events_high=None, events_low=None):
+        self.events_high = events_high
+        self.events_low = events_low
+
         self.variables = {}
         if variables is not None:
             for variable in variables:
@@ -232,22 +253,37 @@ class TimingExtreme(Aspect):
                          variation_metric=variation_metric, status=status)
 
     def _data(self):
+        if self.events_high is None is self.events_low:
+            day_julian_max = self.flow.data[self.station].groupby(
+                pd.Grouper(freq=self.month_start[1])).idxmax().dropna(axis=0)
+            day_julian_min = self.flow.data[self.station].groupby(
+                pd.Grouper(freq=self.month_start[1])).idxmin().dropna(axis=0)
 
-        day_julian_max = self.flow.data[self.station].groupby(
-            pd.Grouper(freq=self.month_start[1])).idxmax().dropna(axis=0)
-        day_julian_min = self.flow.data[self.station].groupby(
-            pd.Grouper(freq=self.month_start[1])).idxmin().dropna(axis=0)
+            df_day_julian_max = pd.DataFrame(list(map(int, pd.DatetimeIndex(day_julian_max.values).strftime("%j"))),
+                                             index=day_julian_max.index.year,
+                                             columns=["Date of maximum"])
 
-        df_day_julian_max = pd.DataFrame(list(map(int, pd.DatetimeIndex(day_julian_max.values).strftime("%j"))),
-                                         index=day_julian_max.index.year,
-                                         columns=["Date of maximum"])
+            df_day_julian_min = pd.DataFrame(list(map(int, pd.DatetimeIndex(day_julian_min.values).strftime("%j"))),
+                                             index=day_julian_min.index.year,
+                                             columns=["Date of minimum"])
+        else:
+            peaks_high = self.events_high.peaks
+            peaks_high.index.name = None
+            df_day_julian_max = pd.DataFrame(data=peaks_high.index.strftime("%j"), index=peaks_high.index,
+                                             columns=["Date of maximum"],
+                                             dtype="float64").groupby(pd.Grouper(freq=self.month_start[1])).mean()
+            df_day_julian_max.index = df_day_julian_max.index.year
 
-        df_day_julian_min = pd.DataFrame(list(map(int, pd.DatetimeIndex(day_julian_min.values).strftime("%j"))),
-                                         index=day_julian_min.index.year,
-                                         columns=["Date of minimum"])
+            peaks_low = self.events_low.peaks
+            peaks_low.index.name = None
+            df_day_julian_min = pd.DataFrame(data=peaks_low.index.strftime("%j"), index=peaks_low.index,
+                                             columns=["Date of minimum"],
+                                             dtype="float64").groupby(pd.Grouper(freq=self.month_start[1])).mean()
+            df_day_julian_min.index = df_day_julian_min.index.year
 
         # combine the dfs of days julian
         timing_extreme = df_day_julian_max.combine_first(df_day_julian_min)
+        # print(timing_extreme)
         return timing_extreme
 
 
@@ -256,14 +292,10 @@ class FrequencyDuration(Aspect):
     variables_all = {"High pulse count": None, "High pulse duration": None, "Low pulse count": None,
                      "Low pulse duration": None}
 
-    def __init__(self, flow, month_start, central_metric, variation_metric, status, type_threshold, type_criterion,
-                 threshold_high, threshold_low, variables: list = None, *args, **kwargs):
-        self.type_threshold = type_threshold
-        self.type_criterion = type_criterion
-        self.threshold_high = threshold_high
-        self.threshold_low = threshold_low
-        self.__events_high = None
-        self.__events_low = None
+    def __init__(self, flow, month_start, central_metric, variation_metric, status, events_high, events_low,
+                 variables: list = None, *args, **kwargs):
+        self.events_high = events_high
+        self.events_low = events_low
         self.args = args
         self.kwargs = kwargs
         self.variables = {}
@@ -275,15 +307,7 @@ class FrequencyDuration(Aspect):
         super().__init__(flow=flow, month_start=month_start, central_metric=central_metric,
                          variation_metric=variation_metric, status=status)
 
-    def events_low(self):
-        return self.__events_low
-
-    def events_high(self):
-        return self.__events_high
-
     def _data(self):
-        # self.variables = {"High pulse count": None, "High pulse duration": None, "Low pulse count": None,
-        #                   "Low pulse duration": None}
 
         def aux_frequency_and_duration(events):
             name = {'flood': 'High', 'drought': 'Low'}
@@ -309,17 +333,9 @@ class FrequencyDuration(Aspect):
             threshold = pd.DataFrame(pd.Series(events.threshold, name="{} Pulse Threshold".format(name[type_event])))
             return group, threshold
 
-        self.__events_high = self.flow.partial(type_threshold=self.type_threshold, type_event="flood",
-                                               type_criterion=self.type_criterion, value_threshold=self.threshold_high,
-                                               *self.args, **self.kwargs)
+        frequency_and_duration_high, threshold_high_mag = aux_frequency_and_duration(self.events_high)
 
-        frequency_and_duration_high, threshold_high_mag = aux_frequency_and_duration(self.__events_high)
-
-        self.__events_low = self.flow.partial(type_event='drought', type_threshold=self.type_threshold,
-                                              type_criterion=self.type_criterion, value_threshold=self.threshold_low,
-                                              *self.args, **self.kwargs)
-
-        frequency_and_duration_low, threshold_low_mag = aux_frequency_and_duration(self.__events_low)
+        frequency_and_duration_low, threshold_low_mag = aux_frequency_and_duration(self.events_low)
 
         frequency_and_duration = frequency_and_duration_high.combine_first(frequency_and_duration_low)
         return frequency_and_duration

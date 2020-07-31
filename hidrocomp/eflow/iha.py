@@ -45,6 +45,8 @@ class IHA:
         self.date_start = pd.to_datetime(date_start, dayfirst=True)
         self.date_end = pd.to_datetime(date_end, dayfirst=True)
         self.statistic = statistic
+        self.__events_high = None
+        self.__events_low = None
         self.central_metric = central_metric
         self.variation_metric = variation_metric
         self.type_threshold = type_threshold
@@ -58,8 +60,21 @@ class IHA:
         self.rate_and_frequency_variables = rate_and_frequency
         self.kwargs = kwargs
 
-    # def divide_data(self, station):
-    #     self.flow.data[station]
+    @property
+    def events_high(self):
+        if self.__events_high is None:
+            self.__events_high = self.flow.partial(type_threshold=self.type_threshold, type_event="flood",
+                                                   type_criterion=self.type_criterion,
+                                                   value_threshold=self.threshold_high, **self.kwargs)
+        return self.__events_high
+
+    @property
+    def events_low(self):
+        if self.__events_low is None:
+            self.__events_low = self.flow.partial(type_event='drought', type_threshold=self.type_threshold,
+                                                  type_criterion=self.type_criterion,
+                                                  value_threshold=self.threshold_low, **self.kwargs)
+        return self.__events_low
 
     # <editor-fold desc="Return Station">
     def get_station(self, station):
@@ -162,7 +177,8 @@ class IHA:
     def magnitude_and_duration(self) -> MagnitudeDuration:
         if not isinstance(self.aspects["Magnitude and Duration"], MagnitudeDuration):
             magnit_and_durat = MagnitudeDuration(flow=self.flow, month_start=self.month_start, status=self.status,
-                                                 central_metric=self.central_metric,
+                                                 central_metric=self.central_metric, events_high=self.events_high,
+                                                 events_low=self.events_low,
                                                  variables=self.magnitude_and_duration_variables,
                                                  variation_metric=self.variation_metric)
 
@@ -176,6 +192,7 @@ class IHA:
         if not isinstance(self.aspects["Timing Extreme"], TimingExtreme):
             timing = TimingExtreme(flow=self.flow, month_start=self.month_start, central_metric=self.central_metric,
                                    variation_metric=self.variation_metric, status=self.status,
+                                   events_high=self.events_high, events_low=self.events_low,
                                    variables=self.timing_extreme_variables)
 
             self.aspects["Timing Extreme"] = timing
@@ -188,8 +205,7 @@ class IHA:
         if not isinstance(self.aspects["Frequency and Duration"], FrequencyDuration):
             freq = FrequencyDuration(flow=self.flow, month_start=self.month_start, central_metric=self.central_metric,
                                      variation_metric=self.variation_metric, status=self.status,
-                                     type_threshold=self.type_threshold, type_criterion=self.type_criterion,
-                                     threshold_high=self.threshold_high, threshold_low=self.threshold_low,
+                                     events_high=self.events_high, events_low=self.events_low,
                                      variables=self.frequency_and_duration_variables, **self.kwargs)
 
             self.aspects["Frequency and Duration"] = freq

@@ -179,7 +179,7 @@ class Flow(SeriesBuild):
         fig, data = hydrogram.plot()
         return fig, data
 
-    def rating_curve(self, width=None, height=None, size_text=None, title=None):
+    def rating_curve(self, title=None, width=None, height=None, size_text=16):
         if self.station is None:
             raise StationError
         permanence = RatingCurve(self.data[self.station], width=width, height=height, size_text=size_text,

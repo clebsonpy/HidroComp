@@ -1,10 +1,11 @@
 import plotly.graph_objs as go
 import numpy as np
+import pandas as pd
 
 
 class RatingCurve:
 
-    def __init__(self, data, width=None, height=None, size_text=None, title=None):
+    def __init__(self, data: pd.DataFrame, title=None, width=None, height=None, size_text=None):
         self.data = data
         self.width = width
         self.height = height
@@ -12,15 +13,17 @@ class RatingCurve:
         self.title = title
 
     def plot(self):
-        bandxaxis = go.layout.XAxis(title="Probabilidade de excedência")
+        bandxaxis = go.layout.XAxis(title="% do tempo que a vazão é igualada ou superada")
         bandyaxis = go.layout.YAxis(title="Vazão(m³/s)")
 
-
-        layout = dict(title=self.title,
-                      width=self.width, height=self.height,
-                      xaxis=bandxaxis, yaxis=bandyaxis,
-                      font=dict(family='Time New Roman', size=self.size_text, color='rgb(0,0,0)')
-                      )
+        layout = dict(
+            title=dict(text=self.title, x=0.5, xanchor='center', y=0.95, yanchor='top',
+                       font=dict(family='Courier New, monospace', size=self.size_text + 10)),
+            xaxis=bandxaxis,
+            yaxis=bandyaxis,
+            width=self.width, height=self.height,
+            font=dict(family='Courier New, monospace', size=self.size_text, color='rgb(0,0,0)'),
+            showlegend=False, plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF')
 
         data = list()
         data.append(self.data_plot(color='rgb(0,0,0)'))

@@ -22,6 +22,18 @@ class Cha:
     def aspects(self, aspect):
         self._aspects[aspect.name] = aspect
 
+    def values_mean(self):
+        df = pd.DataFrame()
+        for aspect in self.aspects:
+            df = df.combine_first(self.aspects[aspect].values_mean)
+        return df["Pos - mean"]
+
+    def values_std(self):
+        df = pd.DataFrame()
+        for aspect in self.aspects:
+            df = df.combine_first(self.aspects[aspect].values_std)
+        return df["Pos - mean"]
+
     @property
     def abnormality(self):
         if self._abnormality is None:
@@ -171,13 +183,15 @@ class ChaVariable:
         self.name = variable_pre.name
         self.data_pre = variable_pre.data
         self.data_pos = variable_pos.data
+        self.data_pos_nulls = self.data_pos
         self.interval = [((100 - interval) / 2) / 100, 1 - ((100 - interval) / 2) / 100]
         self.sample_pre = Bootstrap(data=self.data_pre, m=m, name=self.name)
         self.sample_pos = Bootstrap(data=self.data_pos, m=m, name=self.name)
         self.sample_diff = Bootstrap(data=self.data_pre-self.data_pos, m=m, name=self.name)
 
     def __calc_value(self, dist_pre, dist_pos, dist_diff):
-        value = pd.DataFrame(columns=["Pre - 2_5", "Pre - 97_5", "Pos - 2_5", "Pos - 97_5", "Pre - mean", "Pos - mean"])
+        value = pd.DataFrame(columns=["Pre - 2_5", "Pre - 97_5", "Pos - 2_5", "Pos - 97_5", "Pre - mean", "Pos - mean"],
+                             dtype='float64')
         confidence_intervals_pre = dist_pre.data.quantile(self.interval)
         confidence_intervals_pos = dist_pos.data.quantile(self.interval)
         confidence_intervals_diff = dist_diff.data.quantile(self.interval)
