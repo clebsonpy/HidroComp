@@ -64,7 +64,7 @@ class TestFlowOneStation(TestCase):
         partial = self.flow.partial(type_threshold="stationary", type_event="drought", type_criterion="autocorrelation",
                                     value_threshold=threshold_low, duration=1)
 
-        fig, data = partial.plot_hydrogram("")
+        fig, data = partial.plot_hydrogram(title="", line_threshold=True, point_start_end=False)
         pyo.plot(fig, filename="../figs/partial_high.html")
 
     def test_hydrogram_by_year(self):

@@ -44,33 +44,47 @@ class Cha:
             return self._abnormality
         return self._abnormality
 
-    def plot(self, data_type="diff"):
+    def plot(self, data_type="diff", by_type_events=None, showlegend: bool = False):
         data_type_dict = {'std': "Standard deviation", "mean": "Mean"}
         data = []
-        symbol = {'Magnitude': 'circle', 'Magnitude and Duration': 'x', 'Timing Extreme': 'cross',
-                  'Frequency and Duration': 'triangle-up', 'Rate and Frequency': 'diamond'}
+
+        symbol = {"1-day maximum": 'circle', "Date of maximum": 'x', "High pulse count": 'triangle-up',
+                  "High pulse duration": 'cross', "1-day minimum": 'circle', "Date of minimum": 'x',
+                  "Low pulse count": 'triangle-up', "Low pulse duration": 'cross'}
+
+        names = {"1-day maximum": "Magnitude", "Date of maximum": "Timing", "High pulse count": "Frequency",
+                 "High pulse duration": "Duration", "1-day minimum": "Magnitude", "Date of minimum": "Timing",
+                 "Low pulse count": "Frequency", "Low pulse duration": "Duration"}
         x = []
         error = []
         error_minus = []
         for i in self.aspects:
-            graphs = GraphicsCha(obj_dhram=self.aspects[i], data_type=data_type, xaxis="Variable",
-                                 yaxis="Abnormality")
-            fig, df = graphs.plot(type="error_bar")
+            for j in self.aspects[i].variables:
+                graphs = GraphicsCha(obj_dhram=self.aspects[i].variables[j], data_type=data_type, xaxis="Variables",
+                                     yaxis="Z-scores")
+                try:
+                    fig, df = graphs.plot(type="error_bar", by_type_events=by_type_events)
+                except TypeError:
+                    continue
+                data_fig = fig["data"]
+                error = error + list(df["Data"].values + df["Error"].values)
+                error_minus = error_minus + list(df["Data"].values - df["Error_minus"].values)
+                x = x + list(df["Variable"].values)
+                data_fig[0]["name"] = names[j]
+                data_fig[0]["marker"]["color"] = "black"
+                data_fig[0]["marker"]["symbol"] = symbol[j]
+                data_fig[0]["showlegend"] = False
 
-            data_fig = fig["data"]
-            error = error + list(df["Data"].values + df["Error"].values)
-            error_minus = error_minus + list(df["Data"].values - df["Error_minus"].values)
-            x = x + list(df["Variable"].values)
-            data_fig[0]["name"] = i
-            data_fig[0]["marker"]["color"] = "black"
-            data_fig[0]["marker"]["symbol"] = symbol[i]
-            data = data + [data_fig[0]]
+                data_fig[1]["name"] = names[j]
+                data_fig[1]["marker"]["color"] = "black"
+                data_fig[1]["marker"]["symbol"] = symbol[j]
+                data = data + [data_fig[0], data_fig[1]]
         layout = fig["layout"]
-        layout["title"]["text"] = f"Difference - {data_type_dict[data_type]}"
-
+        layout['showlegend'] = showlegend
+        layout["title"]["text"] = None # f"Difference - {data_type_dict[data_type]}"
         fig = go.Figure(data=data, layout=layout)
         fig.add_trace(go.Scatter(
-            x=x, y=[4]*len(x),
+            x=x, y=[4] * len(x),
             mode='lines',
             line=dict(width=0.5, color='#2EFE2E'),
             stackgroup="one",
@@ -92,7 +106,7 @@ class Cha:
         ))
         if max(error) > 8:
             fig.add_trace(go.Scatter(
-                x=x, y=[max(error)-8] * len(x),
+                x=x, y=[max(error) - 8] * len(x),
                 mode='lines',
                 line=dict(width=0.5, color='#FE2E2E'),
                 stackgroup="one",

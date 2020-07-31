@@ -1,13 +1,12 @@
 import plotly.graph_objs as go
-import pandas as pd
-
 from hidrocomp.graphics.hydrogram_build import HydrogramBuild
 
 
 class HydrogramParcial(HydrogramBuild):
 
     def __init__(self, data, peaks, threshold, threshold_criterion=None, type_criterion=None, width=None,
-                 height=None, size_text=None, title=None, station=None, color=None):
+                 height=None, size_text=None, title=None, station=None, color=None, line_threshold: bool = True,
+                 point_start_end: bool = True):
         super().__init__(width=width, height=height, size_text=size_text, title=title)
         self.color = color
         self.peaks = peaks
@@ -16,6 +15,8 @@ class HydrogramParcial(HydrogramBuild):
         self.threshold = threshold
         self.type_criterion = type_criterion
         self.threshold_criterion = threshold_criterion
+        self.line_threshold = line_threshold
+        self.point_start_end = point_start_end
 
     def plot(self):
         bandxaxis = go.layout.XAxis(title="Date")
@@ -57,7 +58,9 @@ class HydrogramParcial(HydrogramBuild):
                     color = None
 
             data.append(self._plot_one(self.data, station=self.station, color=color))
-            data.append(self._plot_threshold())
+            if self.line_threshold:
+                data.append(self._plot_threshold())
+
             if len(self.peaks) > 0:
                 data += self._plot_event_peaks()
 
@@ -65,26 +68,28 @@ class HydrogramParcial(HydrogramBuild):
             return fig, data
 
     def _plot_event_peaks(self):
-        point_start = go.Scatter(
-            x=list(self.peaks.Start),
-            y=self.data.loc[self.peaks.Start].T.values[0],
-            name="Start of events",
-            mode='markers',
-            marker=dict(color='rgb(0, 0, 0)',
-                        symbol='circle-dot',
-                        size=6),
-            opacity=1)
-
-        point_end = go.Scatter(
-            x=list(self.peaks.End),
-            y=self.data.loc[self.peaks.End].T.values[0],
-            name="Ends of events",
-            mode='markers',
-            marker=dict(color='rgb(0, 0, 0)',
-                        size=6,
-                        symbol="x-dot"),
-            opacity=1)
-
+        points = []
+        if self.point_start_end:
+            point_start = go.Scatter(
+                x=list(self.peaks.Start),
+                y=self.data.loc[self.peaks.Start].T.values[0],
+                name="Start of events",
+                mode='markers',
+                marker=dict(color='rgb(0, 0, 0)',
+                            symbol='circle-dot',
+                            size=6),
+                opacity=1)
+            points.append(point_start)
+            point_end = go.Scatter(
+                x=list(self.peaks.End),
+                y=self.data.loc[self.peaks.End].T.values[0],
+                name="Ends of events",
+                mode='markers',
+                marker=dict(color='rgb(0, 0, 0)',
+                            size=6,
+                            symbol="x-dot"),
+                opacity=1)
+            points.append(point_end)
         point_vazao = go.Scatter(
             x=self.peaks['Peaks'].index,
             y=self.peaks['Peaks'].values,
@@ -95,8 +100,8 @@ class HydrogramParcial(HydrogramBuild):
                         line=dict(width=1,
                                   color='rgb(0, 0, 0)'),),
             opacity=1)
-
-        return [point_start, point_end, point_vazao]
+        points.append(point_vazao)
+        return points
 
     def _plot_threshold(self):
         trace_threshold = go.Scatter(

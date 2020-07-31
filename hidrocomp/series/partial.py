@@ -359,10 +359,11 @@ class Partial(object):
 
         return fig, data
 
-    def plot_hydrogram(self, title, width=None, height=None, size_text=16, color=None):
+    def plot_hydrogram(self, title, width=None, height=None, size_text=16, color=None, line_threshold: bool = True,
+                       point_start_end: bool = True):
         hydrogram = HydrogramParcial(data=self.data, peaks=self.peaks, threshold=self.threshold, station=self.station,
                                      threshold_criterion=self.threshold_criterion, title=title, width=width,
                                      type_criterion=self.type_criterion, height=height, size_text=size_text,
-                                     color=color)
+                                     color=color, line_threshold=line_threshold, point_start_end=point_start_end)
         fig, data = hydrogram.plot()
         return fig, data

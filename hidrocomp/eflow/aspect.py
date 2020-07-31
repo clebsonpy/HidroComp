@@ -219,17 +219,22 @@ class MagnitudeDuration(Aspect):
                 magn_and_duration = aver_data
         else:
             peaks_high = self.events_high.peaks
-            peaks_high.index.name = None
-            maximum = peaks_high["Peaks"].groupby(pd.Grouper(freq=self.month_start[1])).mean()
-            maximum.index = maximum.index.year
-            maximum.name = "1-day maximum"
+            if len(peaks_high) > 0:
+                peaks_high.index.name = None
+                maximum = peaks_high["Peaks"].groupby(pd.Grouper(freq=self.month_start[1])).mean()
+                maximum.index = maximum.index.year
+                maximum.name = "1-day maximum"
+            else:
+                maximum = pd.Series(name="1-day maximum")
 
             peaks_low = self.events_low.peaks
-            peaks_low.index.name = None
-            minimum = peaks_low["Peaks"].groupby(pd.Grouper(freq=self.month_start[1])).mean()
-            minimum.index = minimum.index.year
-            minimum.name = "1-day minimum"
-
+            if len(peaks_low) > 0:
+                peaks_low.index.name = None
+                minimum = peaks_low["Peaks"].groupby(pd.Grouper(freq=self.month_start[1])).mean()
+                minimum.index = minimum.index.year
+                minimum.name = "1-day minimum"
+            else:
+                minimum = pd.Series(name="1-day minimum")
             magn_and_duration = minimum.to_frame().combine_first(maximum.to_frame())
         return magn_and_duration
 
@@ -268,18 +273,24 @@ class TimingExtreme(Aspect):
                                              columns=["Date of minimum"])
         else:
             peaks_high = self.events_high.peaks
-            peaks_high.index.name = None
-            df_day_julian_max = pd.DataFrame(data=peaks_high.index.strftime("%j"), index=peaks_high.index,
-                                             columns=["Date of maximum"],
-                                             dtype="float64").groupby(pd.Grouper(freq=self.month_start[1])).mean()
-            df_day_julian_max.index = df_day_julian_max.index.year
+            if len(peaks_high) > 0:
+                peaks_high.index.name = None
+                df_day_julian_max = pd.DataFrame(data=peaks_high.index.strftime("%j"), index=peaks_high.index,
+                                                 columns=["Date of maximum"],
+                                                 dtype="float64").groupby(pd.Grouper(freq=self.month_start[1])).mean()
+                df_day_julian_max.index = df_day_julian_max.index.year
+            else:
+                df_day_julian_max = pd.DataFrame(columns=["Date of maximum"])
 
             peaks_low = self.events_low.peaks
-            peaks_low.index.name = None
-            df_day_julian_min = pd.DataFrame(data=peaks_low.index.strftime("%j"), index=peaks_low.index,
-                                             columns=["Date of minimum"],
-                                             dtype="float64").groupby(pd.Grouper(freq=self.month_start[1])).mean()
-            df_day_julian_min.index = df_day_julian_min.index.year
+            if len(peaks_low) > 0:
+                peaks_low.index.name = None
+                df_day_julian_min = pd.DataFrame(data=peaks_low.index.strftime("%j"), index=peaks_low.index,
+                                                 columns=["Date of minimum"],
+                                                 dtype="float64").groupby(pd.Grouper(freq=self.month_start[1])).mean()
+                df_day_julian_min.index = df_day_julian_min.index.year
+            else:
+                df_day_julian_min = pd.DataFrame(columns=["Date of minimum"])
 
         # combine the dfs of days julian
         timing_extreme = df_day_julian_max.combine_first(df_day_julian_min)
@@ -289,7 +300,7 @@ class TimingExtreme(Aspect):
 
 class FrequencyDuration(Aspect):
     name = "Frequency and Duration"
-    variables_all = {"High pulse count": None, "High pulse duration": None, "Low pulse count": None,
+    variables_all = {"High pulse count": None, "Low pulse count": None, "High pulse duration": None,
                      "Low pulse duration": None}
 
     def __init__(self, flow, month_start, central_metric, variation_metric, status, events_high, events_low,

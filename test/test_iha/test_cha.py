@@ -65,9 +65,5 @@ class TestFlowOneStation(TestCase):
                                timing=["Date of maximum", "Date of minimum"])
 
         cha = iha_pre.cha(iha_obs=iha_pos)
-        mean_aspect = cha.values_std()
-        print(mean_aspect)
-        print(mean_aspect.abs().mean())
-        print(mean_aspect.abs().idxmax())
-        fig, data = cha.plot(data_type="mean")
+        fig, data = cha.plot(by_type_events="High", showlegend=True)
         pyo.plot(fig, filename="../figs/test_cha.html")
