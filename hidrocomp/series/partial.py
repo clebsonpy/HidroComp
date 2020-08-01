@@ -333,8 +333,8 @@ class Partial(object):
         fig = FF.create_gantt(df_spells, group_tasks=True, colors=colors, title=title, height=900, width=1200)
 
         fig['layout'].update(autosize=True)
-        fig['layout']['xaxis'].update(title="Mês", range=[month_start, month_end], tickformat="%b")
-        fig['layout']['yaxis'].update(title="Ano")
+        fig['layout']['xaxis'].update(title="Month", range=[month_start, month_end], tickformat="%b")
+        fig['layout']['yaxis'].update(title="Year")
         fig['layout']['xaxis']['rangeselector'] = {}
         fig.layout.title = dict(text=title, x=0.5, xanchor='center', y=0.9, yanchor='top',
                                 font=dict(family='Courier New, monospace', color='#7f7f7f', size=size_text + 6))

@@ -44,6 +44,10 @@ class TestFlowOneStation(TestCase):
         threshold_high = flow_pre.quantile(0.75)[0]
         threshold_low = flow_pre.quantile(0.25)[0]
 
+        names = {"1-day maximum": "1-day", "Date of maximum": "Date", "High events count": "Count",
+                 "High events duration": "Duration", "1-day minimum": "1-day", "Date of minimum": "Date",
+                 "Low events count": "Count", "Low events duration": "Duration"}
+
         iha_pre = flow_pre.iha(status='pre', statistic="no-parametric", central_metric="mean", month_water=9,
                                variation_metric="std", type_threshold="stationary", type_criterion="wrc",
                                threshold_high=threshold_high, threshold_low=threshold_low,
@@ -67,5 +71,5 @@ class TestFlowOneStation(TestCase):
         era = iha_pre.era(iha_obs=iha_pos)
         print(era.values_mean())
         print(era.values_std())
-        fig, data = era.plot(by_type_events="Low", showlegend=True)
+        fig, data = era.plot(by_type_events="Low", showlegend=True, names_variables=names)
         pyo.plot(fig, filename="../figs/test_cha.html")

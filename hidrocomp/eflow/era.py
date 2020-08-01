@@ -44,7 +44,8 @@ class Era:
             return self._abnormality
         return self._abnormality
 
-    def plot(self, data_type="diff", by_type_events=None, showlegend: bool = False, size_text=14):
+    def plot(self, data_type="diff", by_type_events=None, showlegend: bool = False, size_text: int =14,
+             names_variables: dict = None):
         data_type_dict = {'std': "Standard deviation", "mean": "Mean"}
         data = []
 
@@ -55,13 +56,14 @@ class Era:
         names = {"1-day maximum": "Magnitude", "Date of maximum": "Timing", "High events count": "Frequency",
                  "High events duration": "Duration", "1-day minimum": "Magnitude", "Date of minimum": "Timing",
                  "Low events count": "Frequency", "Low events duration": "Duration"}
+
         x = []
         error = []
         error_minus = []
         for i in self.aspects:
             for j in self.aspects[i].variables:
                 graphs = GraphicsCha(obj_dhram=self.aspects[i].variables[j], data_type=data_type, xaxis="Variables",
-                                     yaxis="Z-scores", size_text=size_text)
+                                     yaxis="Z-scores", size_text=size_text, names_variables=names_variables)
                 try:
                     fig, df = graphs.plot(type="error_bar", by_type_events=by_type_events)
                 except TypeError:

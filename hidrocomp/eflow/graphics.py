@@ -84,10 +84,11 @@ class GraphicsRVA(Graphics):
 class GraphicsCha(Graphics):
 
     def __init__(self, obj_dhram, color=None, width=None, height=None, size_text=14, xaxis=None, yaxis=None, name=None,
-                 data_type=None):
+                 data_type=None, names_variables: dict = None):
         super().__init__(obj=obj_dhram, color=color, width=width, height=height, size_text=size_text, xaxis=xaxis,
                          yaxis=yaxis, name=name)
         self.data_type = data_type
+        self.names_variables = names_variables
 
     def plot(self, type="error_bar", by_type_events=None):
         layout = self.layout()
@@ -114,6 +115,10 @@ class GraphicsCha(Graphics):
         events_high = ["1-day maximum", "Date of maximum", "High events count", "High events duration"]
         events_low = ["1-day minimum", "Date of minimum", "Low events count", "Low events duration"]
 
+        # names = {"1-day maximum": "1-day", "Date of maximum": "Date", "High events count": "Count",
+        #          "High events duration": "Duration", "1-day minimum": "1-day", "Date of minimum": "Date",
+        #          "Low events count": "Count", "Low events duration": "Duration"}
+
         dict_events = {"High": events_high, "Low": events_low}
         if self.data_type == "mean":
             if self.obj.name in dict_events[by_type_events]:
@@ -138,7 +143,8 @@ class GraphicsCha(Graphics):
         for j in variable:
             dic["Data"] = dic["Data"] + [variable[j]["Pos - mean"].values[0]]
             dic["Status"] = dic["Status"] + [j]
-            dic["Variable"] = dic["Variable"] + [self.obj.name + "("+j+")"]
+            dic["Variable"] = dic["Variable"] + [self.names_variables[self.obj.name] + "("+j+")"
+                                                 if self.obj.name in self.names_variables.keys() else self.obj.name]
             dic["Error"] = dic["Error"] + [variable[j]["Pos - 97_5"].values[0] - variable[j]["Pos - mean"].values[0]]
             dic["Error_minus"] = dic["Error_minus"] + [variable[j]["Pos - mean"].values[0] - variable[j]["Pos - 2_5"].values[0]]
 

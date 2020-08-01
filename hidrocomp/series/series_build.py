@@ -94,15 +94,15 @@ class SeriesBuild(metaclass=ABCMeta):
         """
         """
         if date_start is not None and date_end is not None:
-            date_start = pd.to_datetime(date_start, dayfirst=True)
-            date_end = pd.to_datetime(date_end, dayfirst=True)
-            self.data = self.data.loc[date_start:date_end]
+            self.date_start = pd.to_datetime(date_start, dayfirst=True)
+            self.date_end = pd.to_datetime(date_end, dayfirst=True)
+            self.data = self.data.loc[self.date_start:self.date_end]
         elif date_start is not None:
-            date_start = pd.to_datetime(date_start, dayfirst=True)
-            self.data = self.data.loc[date_start:]
+            self.date_start = pd.to_datetime(date_start, dayfirst=True)
+            self.data = self.data.loc[self.date_start:]
         elif date_end is not None:
-            date_end = pd.to_datetime(date_end, dayfirst=True)
-            self.data = self.data.loc[:date_end].copy()
+            self.date_end = pd.to_datetime(date_end, dayfirst=True)
+            self.data = self.data.loc[:self.date_end].copy()
 
         return self
 
