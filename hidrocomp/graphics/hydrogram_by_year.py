@@ -46,23 +46,23 @@ class HydrogramYear(HydrogramBuild):
                 trace_threshold = []
                 i = 1
                 for t in self.threshold:
-                    trace_threshold.append(self._plot_threshold(group, t, name="Limiar - {}".format(i)))
+                    trace_threshold.append(self._plot_threshold(group, t, name="Threshold - {}".format(i)))
                     i += 1
             else:
-                trace_threshold = [self._plot_threshold(group, self.threshold, name="Limiar")]
+                trace_threshold = [self._plot_threshold(group, self.threshold, name="Threshold")]
             data = trace + [colorbar_trace] + trace_threshold
         else:
             data = trace + [colorbar_trace]
 
         bandxaxis = go.layout.XAxis(
-            title="Mês",
+            title="Month",
             tickformat="%b",
             linecolor='rgba(1,1,1,1)',
             gridcolor='rgba(1,1,1,1)'
         )
 
         bandyaxis = go.layout.YAxis(
-            title="Vazão(m³/s)",
+            title="Flow(m³/s)",
             showgrid=False,
         )
 
@@ -81,7 +81,7 @@ class HydrogramYear(HydrogramBuild):
 
     def _plot_threshold(self, group, threshold, name):
         trace_threshold = go.Scatter(
-            x=list(group[group.columns[3]].index),
+            x=list(group[group.columns[2]].index),
             y=[threshold]*len(group),
             mode='lines+text',
             text=[name],

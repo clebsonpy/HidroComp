@@ -65,5 +65,7 @@ class TestFlowOneStation(TestCase):
                                timing=["Date of maximum", "Date of minimum"])
 
         era = iha_pre.era(iha_obs=iha_pos)
+        print(era.values_mean())
+        print(era.values_std())
         fig, data = era.plot(by_type_events="Low", showlegend=True)
         pyo.plot(fig, filename="../figs/test_cha.html")

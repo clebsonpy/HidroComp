@@ -48,13 +48,13 @@ class Era:
         data_type_dict = {'std': "Standard deviation", "mean": "Mean"}
         data = []
 
-        symbol = {"1-day maximum": 'circle', "Date of maximum": 'x', "High pulse count": 'triangle-up',
-                  "High pulse duration": 'cross', "1-day minimum": 'circle', "Date of minimum": 'x',
-                  "Low pulse count": 'triangle-up', "Low pulse duration": 'cross'}
+        symbol = {"1-day maximum": 'circle', "Date of maximum": 'x', "High events count": 'triangle-up',
+                  "High events duration": 'cross', "1-day minimum": 'circle', "Date of minimum": 'x',
+                  "Low events count": 'triangle-up', "Low events duration": 'cross'}
 
-        names = {"1-day maximum": "Magnitude", "Date of maximum": "Timing", "High pulse count": "Frequency",
-                 "High pulse duration": "Duration", "1-day minimum": "Magnitude", "Date of minimum": "Timing",
-                 "Low pulse count": "Frequency", "Low pulse duration": "Duration"}
+        names = {"1-day maximum": "Magnitude", "Date of maximum": "Timing", "High events count": "Frequency",
+                 "High events duration": "Duration", "1-day minimum": "Magnitude", "Date of minimum": "Timing",
+                 "Low events count": "Frequency", "Low events duration": "Duration"}
         x = []
         error = []
         error_minus = []
@@ -81,10 +81,10 @@ class Era:
                 data = data + [data_fig[0], data_fig[1]]
         layout = fig["layout"]
         layout['showlegend'] = showlegend
-        layout["title"]["text"] = None # f"Difference - {data_type_dict[data_type]}"
+        layout["title"]["text"] = None
         fig = go.Figure(data=data, layout=layout)
         fig.add_trace(go.Scatter(
-            x=x, y=[4] * len(x),
+            x=x, y=[2] * len(x),
             mode='lines',
             line=dict(width=0.5, color='#2EFE2E'),
             stackgroup="one",
@@ -104,16 +104,16 @@ class Era:
             stackgroup="one",
             showlegend=False
         ))
-        if max(error) > 8:
+        if max(error) > 6:
             fig.add_trace(go.Scatter(
-                x=x, y=[max(error) - 8] * len(x),
+                x=x, y=[max(error) - 6] * len(x),
                 mode='lines',
                 line=dict(width=0.5, color='#FE2E2E'),
                 stackgroup="one",
                 showlegend=False
             ))
         fig.add_trace(go.Scatter(
-            x=x, y=[-4] * len(x),
+            x=x, y=[-2] * len(x),
             mode='lines',
             line=dict(width=0.5, color='#2EFE2E'),
             stackgroup="two",
@@ -133,9 +133,10 @@ class Era:
             stackgroup="two",
             showlegend=False
         ))
-        if min(error_minus) < -8:
+        error_minus_not_null = [x for x in error_minus if str(x) != 'nan']
+        if min(error_minus_not_null) < -6:
             fig.add_trace(go.Scatter(
-                x=x, y=[min(error_minus)+8] * len(x),
+                x=x, y=[min(error_minus_not_null)+6] * len(x),
                 mode='lines',
                 line=dict(width=0.5, color='#FE2E2E'),
                 stackgroup="two",

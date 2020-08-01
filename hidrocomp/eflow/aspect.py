@@ -300,8 +300,8 @@ class TimingExtreme(Aspect):
 
 class FrequencyDuration(Aspect):
     name = "Frequency and Duration"
-    variables_all = {"High pulse count": None, "Low pulse count": None, "High pulse duration": None,
-                     "Low pulse duration": None}
+    variables_all = {"High events count": None, "Low events count": None, "High events duration": None,
+                     "Low events duration": None}
 
     def __init__(self, flow, month_start, central_metric, variation_metric, status, events_high, events_low,
                  variables: list = None, *args, **kwargs):
@@ -326,22 +326,22 @@ class FrequencyDuration(Aspect):
 
             group = pd.DataFrame(
                 index=pd.date_range(events.obj.date_start, events.obj.date_end, freq=self.month_start[1]),
-                columns=["{} pulse duration".format(name[type_event]),
-                         '{} pulse count'.format(name[type_event])])
+                columns=["{} events duration".format(name[type_event]),
+                         '{} events count'.format(name[type_event])])
 
             if len(events.peaks) != 0:
                 duration_pulse = pd.DataFrame(events.peaks.groupby(
                     pd.Grouper(freq=self.month_start[1])).Duration.mean()).rename(
-                    columns={"Duration": '{} pulse duration'.format(name[type_event])})
+                    columns={"Duration": '{} events duration'.format(name[type_event])})
 
                 pulse = pd.DataFrame(events.peaks.resample(self.month_start[1]).count().Duration).rename(
-                    columns={"Duration": '{} pulse count'.format(name[type_event])})
+                    columns={"Duration": '{} events count'.format(name[type_event])})
 
                 group = group.combine_first(duration_pulse)
                 group = group.combine_first(pulse)
 
-            group = group.fillna(value={'{} pulse count'.format(name[type_event]): 0})
-            threshold = pd.DataFrame(pd.Series(events.threshold, name="{} Pulse Threshold".format(name[type_event])))
+            group = group.fillna(value={'{} events count'.format(name[type_event]): 0})
+            threshold = pd.DataFrame(pd.Series(events.threshold, name="{} Threshold".format(name[type_event])))
             return group, threshold
 
         frequency_and_duration_high, threshold_high_mag = aux_frequency_and_duration(self.events_high)

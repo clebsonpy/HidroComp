@@ -111,8 +111,8 @@ class GraphicsCha(Graphics):
 
     def _error_bar(self, by_type_events):
         dic = {"Data": [], "Status": [], "Variable": [], "Error": [], "Error_minus": [], "Text": []}
-        events_high = ["1-day maximum", "Date of maximum", "High pulse count", "High pulse duration"]
-        events_low = ["1-day minimum", "Date of minimum", "Low pulse count", "Low pulse duration"]
+        events_high = ["1-day maximum", "Date of maximum", "High events count", "High events duration"]
+        events_low = ["1-day minimum", "Date of minimum", "Low events count", "Low events duration"]
 
         dict_events = {"High": events_high, "Low": events_low}
         if self.data_type == "mean":
