@@ -51,7 +51,7 @@ class TestFlowOneStation(TestCase):
         self.assertEqual(flow.month_abr_flood, "AS-FEB")
         self.assertEqual(flow.month_abr_drought, "AS-AUG")
 
-    def test_get_data_from_all(self):
+    def test_get_data_from_ons_all(self):
         flow = Flow(source="ONS")
         print(flow)
 
