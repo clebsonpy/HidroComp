@@ -1,7 +1,5 @@
-import os
 import pandas as pd
 import plotly.figure_factory as FF
-import plotly.graph_objs as go
 
 from abc import abstractmethod, ABCMeta
 
@@ -56,7 +54,6 @@ class SeriesBuild(metaclass=ABCMeta):
             _data = pd.DataFrame(index=pd.date_range(start=self.date_start, end=self.date_end))
             self.data = _data.combine_first(self.data[self.date_start:self.date_end])
 
-
     def __return_df(self, data):
         if type(data) is type(pd.Series()):
             self.data = pd.DataFrame(data)
@@ -97,15 +94,15 @@ class SeriesBuild(metaclass=ABCMeta):
         """
         """
         if date_start is not None and date_end is not None:
-            date_start = pd.to_datetime(date_start, dayfirst=True)
-            date_end = pd.to_datetime(date_end, dayfirst=True)
-            self.data = self.data.loc[date_start:date_end]
+            self.date_start = pd.to_datetime(date_start, dayfirst=True)
+            self.date_end = pd.to_datetime(date_end, dayfirst=True)
+            self.data = self.data.loc[self.date_start:self.date_end]
         elif date_start is not None:
-            date_start = pd.to_datetime(date_start, dayfirst=True)
-            self.data = self.data.loc[date_start:]
+            self.date_start = pd.to_datetime(date_start, dayfirst=True)
+            self.data = self.data.loc[self.date_start:]
         elif date_end is not None:
-            date_end = pd.to_datetime(date_end, dayfirst=True)
-            self.data = self.data.loc[:date_end].copy()
+            self.date_end = pd.to_datetime(date_end, dayfirst=True)
+            self.data = self.data.loc[:self.date_end].copy()
 
         return self
 

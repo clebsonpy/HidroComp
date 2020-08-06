@@ -4,7 +4,7 @@ from hidrocomp.eflow.exceptions import *
 import pandas as pd
 import calendar as cal
 from hidrocomp.eflow.aspect import Magnitude, MagnitudeDuration, TimingExtreme, FrequencyDuration, RateFrequency
-from hidrocomp.eflow import Cha, RVA
+from hidrocomp.eflow import Era, RVA
 
 
 class IHA:
@@ -40,11 +40,13 @@ class IHA:
 
         self.flow = flow
         self.status = status
-        self._cha = None
+        self._era = None
         self.month_start = self.get_month_start(month_water)
         self.date_start = pd.to_datetime(date_start, dayfirst=True)
         self.date_end = pd.to_datetime(date_end, dayfirst=True)
         self.statistic = statistic
+        self.__events_high = None
+        self.__events_low = None
         self.central_metric = central_metric
         self.variation_metric = variation_metric
         self.type_threshold = type_threshold
@@ -58,8 +60,21 @@ class IHA:
         self.rate_and_frequency_variables = rate_and_frequency
         self.kwargs = kwargs
 
-    # def divide_data(self, station):
-    #     self.flow.data[station]
+    @property
+    def events_high(self):
+        if self.__events_high is None:
+            self.__events_high = self.flow.partial(type_threshold=self.type_threshold, type_event="flood",
+                                                   type_criterion=self.type_criterion,
+                                                   value_threshold=self.threshold_high, **self.kwargs)
+        return self.__events_high
+
+    @property
+    def events_low(self):
+        if self.__events_low is None:
+            self.__events_low = self.flow.partial(type_event='drought', type_threshold=self.type_threshold,
+                                                  type_criterion=self.type_criterion,
+                                                  value_threshold=self.threshold_low, **self.kwargs)
+        return self.__events_low
 
     # <editor-fold desc="Return Station">
     def get_station(self, station):
@@ -100,28 +115,28 @@ class IHA:
     def rva(self) -> RVA:
         pass
 
-    def cha(self, iha_obs, m: int = 500, interval: int = 95) -> Cha:
+    def era(self, iha_obs, m: int = 500, interval: int = 95) -> Era:
         if self.status == "pos":
             raise StatusError("Dhram not available for self object!")
         if iha_obs.status == "pre":
             raise StatusError(f"status of {iha_obs} invalid!")
 
-        self._cha = Cha()
+        self._era = Era()
         for aspect in self.aspects:
             if aspect == "Magnitude":
-                self._cha.aspects = self.magnitude.cha(aspect_pos=iha_obs.magnitude, m=m, interval=interval)
+                self._era.aspects = self.magnitude.era(aspect_pos=iha_obs.magnitude, m=m, interval=interval)
             elif aspect == "Magnitude and Duration":
-                self._cha.aspects = self.magnitude_and_duration.cha(aspect_pos=iha_obs.magnitude_and_duration, m=m,
+                self._era.aspects = self.magnitude_and_duration.era(aspect_pos=iha_obs.magnitude_and_duration, m=m,
                                                                     interval=interval)
             elif aspect == "Timing Extreme":
-                self._cha.aspects = self.timing_extreme.cha(aspect_pos=iha_obs.timing_extreme, m=m, interval=interval)
+                self._era.aspects = self.timing_extreme.era(aspect_pos=iha_obs.timing_extreme, m=m, interval=interval)
             elif aspect == "Frequency and Duration":
-                self._cha.aspects = self.frequency_and_duration.cha(aspect_pos=iha_obs.frequency_and_duration, m=m,
+                self._era.aspects = self.frequency_and_duration.era(aspect_pos=iha_obs.frequency_and_duration, m=m,
                                                                     interval=interval)
             elif aspect == "Rate and Frequency":
-                self._cha.aspects = self.rate_and_frequency.cha(aspect_pos=iha_obs.rate_and_frequency, m=m,
+                self._era.aspects = self.rate_and_frequency.era(aspect_pos=iha_obs.rate_and_frequency, m=m,
                                                                 interval=interval)
-        return self._cha
+        return self._era
 
     def summary(self):
         df = pd.DataFrame()
@@ -162,7 +177,8 @@ class IHA:
     def magnitude_and_duration(self) -> MagnitudeDuration:
         if not isinstance(self.aspects["Magnitude and Duration"], MagnitudeDuration):
             magnit_and_durat = MagnitudeDuration(flow=self.flow, month_start=self.month_start, status=self.status,
-                                                 central_metric=self.central_metric,
+                                                 central_metric=self.central_metric, events_high=self.events_high,
+                                                 events_low=self.events_low,
                                                  variables=self.magnitude_and_duration_variables,
                                                  variation_metric=self.variation_metric)
 
@@ -176,6 +192,7 @@ class IHA:
         if not isinstance(self.aspects["Timing Extreme"], TimingExtreme):
             timing = TimingExtreme(flow=self.flow, month_start=self.month_start, central_metric=self.central_metric,
                                    variation_metric=self.variation_metric, status=self.status,
+                                   events_high=self.events_high, events_low=self.events_low,
                                    variables=self.timing_extreme_variables)
 
             self.aspects["Timing Extreme"] = timing
@@ -188,8 +205,7 @@ class IHA:
         if not isinstance(self.aspects["Frequency and Duration"], FrequencyDuration):
             freq = FrequencyDuration(flow=self.flow, month_start=self.month_start, central_metric=self.central_metric,
                                      variation_metric=self.variation_metric, status=self.status,
-                                     type_threshold=self.type_threshold, type_criterion=self.type_criterion,
-                                     threshold_high=self.threshold_high, threshold_low=self.threshold_low,
+                                     events_high=self.events_high, events_low=self.events_low,
                                      variables=self.frequency_and_duration_variables, **self.kwargs)
 
             self.aspects["Frequency and Duration"] = freq

@@ -84,12 +84,13 @@ class GraphicsRVA(Graphics):
 class GraphicsCha(Graphics):
 
     def __init__(self, obj_dhram, color=None, width=None, height=None, size_text=14, xaxis=None, yaxis=None, name=None,
-                 data_type=None):
+                 data_type=None, names_variables: dict = None):
         super().__init__(obj=obj_dhram, color=color, width=width, height=height, size_text=size_text, xaxis=xaxis,
                          yaxis=yaxis, name=name)
         self.data_type = data_type
+        self.names_variables = names_variables
 
-    def plot(self, type="error_bar"):
+    def plot(self, type="error_bar", by_type_events=None):
         layout = self.layout()
 
         data = list()
@@ -102,37 +103,54 @@ class GraphicsCha(Graphics):
         elif type == "violin":
             pass
         elif type == "error_bar":
-            return self._error_bar()
+            return self._error_bar(by_type_events)
         else:
             raise TypeError
 
     def _box(self):
         pass
 
-    def _error_bar(self):
+    def _error_bar(self, by_type_events):
         dic = {"Data": [], "Status": [], "Variable": [], "Error": [], "Error_minus": [], "Text": []}
+        events_high = ["1-day maximum", "Date of maximum", "High events count", "High events duration"]
+        events_low = ["1-day minimum", "Date of minimum", "Low events count", "Low events duration"]
 
-        for i in self.obj.variables:
-            if self.data_type == "mean":
-                variable_diff = self.obj.variables[i].value_mean
-                variable = {"Diff": variable_diff}
-            elif self.data_type == "std":
-                variable_diff = self.obj.variables[i].value_std
+        # names = {"1-day maximum": "1-day", "Date of maximum": "Date", "High events count": "Count",
+        #          "High events duration": "Duration", "1-day minimum": "1-day", "Date of minimum": "Date",
+        #          "Low events count": "Count", "Low events duration": "Duration"}
+
+        dict_events = {"High": events_high, "Low": events_low}
+        if self.data_type == "mean":
+            if self.obj.name in dict_events[by_type_events]:
+                variable_diff = self.obj.value_mean
                 variable = {"Diff": variable_diff}
             else:
-                raise TypeError("Type: mean, std or diff_mean")
+                return None
+        elif self.data_type == "std":
+            if self.obj.name in dict_events[by_type_events]:
+                variable_diff = self.obj.value_std
+                variable = {"Diff": variable_diff}
+            else:
+                return None
+        else:
+            if self.obj.name in dict_events[by_type_events]:
+                variable_diff_mean = self.obj.value_mean
+                variable_diff_std = self.obj.value_std
+                variable = {"Mean": variable_diff_mean, "Std": variable_diff_std}
+            else:
+                return None
 
-            for j in variable:
-                dic["Data"] = dic["Data"] + [variable[j]["Pos - mean"].values[0]]
-                dic["Status"] = dic["Status"] + [j]
-                dic["Variable"] = dic["Variable"] + [i]
-                dic["Error"] = dic["Error"] + [variable[j]["Pos - 97_5"].values[0] - variable[j]["Pos - mean"].values[0]]
-                dic["Error_minus"] = dic["Error_minus"] + [variable[j]["Pos - mean"].values[0] - variable[j]["Pos - 2_5"].values[0]]
+        for j in variable:
+            dic["Data"] = dic["Data"] + [variable[j]["Pos - mean"].values[0]]
+            dic["Status"] = dic["Status"] + [j]
+            dic["Variable"] = dic["Variable"] + [self.names_variables[self.obj.name] + "("+j+")"
+                                                 if self.obj.name in self.names_variables.keys() else self.obj.name]
+            dic["Error"] = dic["Error"] + [variable[j]["Pos - 97_5"].values[0] - variable[j]["Pos - mean"].values[0]]
+            dic["Error_minus"] = dic["Error_minus"] + [variable[j]["Pos - mean"].values[0] - variable[j]["Pos - 2_5"].values[0]]
 
-                dic["Text"] = dic["Text"] + [f"{(self.obj.variables[i].interval[1] - self.obj.variables[i].interval[0]) * 100}% "
-                                             f"({round(variable[j]['Pos - 2_5'].values[0], 2)}"
-                                             f"; {round(variable[j]['Pos - 97_5'].values[0], 2)})"]
-
+            dic["Text"] = dic["Text"] + [f"{(self.obj.interval[1] - self.obj.interval[0]) * 100}% "
+                                         f"({round(variable[j]['Pos - 2_5'].values[0], 2)}"
+                                         f"; {round(variable[j]['Pos - 97_5'].values[0], 2)})"]
         df = pd.DataFrame(dic)
         fig = px.scatter(df, x="Variable", y="Data", color="Status", error_y="Error", error_y_minus="Error_minus",
                          text="Text", labels={"Text": "Variable", "Data": ""},

@@ -1,9 +1,12 @@
 from unittest import TestCase
 import pandas as pd
 from hidrocomp.series import Flow
+import plotly.offline as pyo
 
 
 class TestFlowOneStation(TestCase):
+
+    flow = Flow(data=pd.read_csv("E:\\Projetos\\HidroComp\\Artigo-Cha\\ons.csv", index_col=0, parse_dates=True))
 
     def test_get_data_from_ana_hydro(self):
         flow = Flow(station="49330000", source="ANA")
@@ -12,10 +15,9 @@ class TestFlowOneStation(TestCase):
         print(flow.inf_stations)
 
     def test_get_data_from_ana_hydro_list(self):
-        flow = Flow(station=["49330000", "49370000"], source="ANA")
-        print(flow)
-        print(flow.station)
-        print(flow.inf_stations)
+        print(self.flow)
+        print(self.flow.station)
+        print(self.flow.inf_stations)
 
     def test_get_data_from_ana_sar(self):
         flow = Flow(station="19086", source="SAR")
@@ -49,22 +51,31 @@ class TestFlowOneStation(TestCase):
         self.assertEqual(flow.month_abr_flood, "AS-FEB")
         self.assertEqual(flow.month_abr_drought, "AS-AUG")
 
-    def test_get_data_from_all(self):
+    def test_get_data_from_ons_all(self):
         flow = Flow(source="ONS")
         print(flow)
 
     def test_hydrogram_partial(self):
-        flow = Flow(station="49330000", source="ANA")
-        print(flow)
-        fig, data = flow.parcial(type_threshold="stationary", type_event="flood", type_criterion=None,
-                                 value_threshold=500).hydrogram("Test")
+        start_period = "01/09/2003"
+        end_period = "31/08/2018"
+        threshold_high = 203
+        threshold_low = 99
+
+        self.flow.date(date_start=start_period, date_end=end_period)
+        partial = self.flow.partial(type_threshold="stationary", type_event="drought", type_criterion="autocorrelation",
+                                    value_threshold=threshold_low, duration=1)
+
+        fig, data = partial.plot_hydrogram(title="", line_threshold=True, point_start_end=False)
+        pyo.plot(fig, filename="../figs/partial_high.html")
 
     def test_hydrogram_by_year(self):
-        flow = Flow(station="49330000", source="ANA")
-        print(flow)
-        fig, data = flow.hydrogram_year("Title")
+        print(self.flow)
+        fig, data = self.flow.hydrogram_year("Title")
 
     def test_hydrogram(self):
-        flow = Flow(station="49330000", source="ANA")
-        print(flow)
-        fig, data = flow.hydrogram("Title")
+        print(self.flow)
+        fig, data = self.flow.hydrogram("Title")
+
+    def test_rating_curve(self):
+        fig, data = self.flow.rating_curve("Curva de Permanência")
+        pyo.plot(fig, filename="../figs/rating.html")

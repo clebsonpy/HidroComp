@@ -87,7 +87,8 @@ class Partial(object):
                     self.__peaks = self.__test_autocorrelation()
                     if len(self.__peaks) > 0:
                         self.__peaks.at[self.__peaks.sort_values(by="End").index[-1],
-                                        "End"] = self.__peaks.sort_values(by="End")["End"].iloc[-1] - pd.to_timedelta(1, unit="d")
+                                        "End"] = self.__peaks.sort_values(
+                            by="End")["End"].iloc[-1] - pd.to_timedelta(1, unit="d")
             else:
                 self.__peaks = self.__events_over_threshold()
         return self.__peaks
@@ -174,13 +175,14 @@ class Partial(object):
         try:
             n = len(peaks.Peaks)
             serie = pd.Series(peaks.Peaks, index=peaks.index)
-            lag1 = serie.autocorr(lag=1)
-            lag2 = serie.autocorr(lag=2)
+            self.lag1 = serie.autocorr(lag=1)
+            self.lag2 = serie.autocorr(lag=2)
             r11_n = (-1 + 1.645 * math.sqrt(n - 1 - 1)) / (n - 1)
             r12_n = (-1 - 1.645 * math.sqrt(n - 1 - 1)) / (n - 1)
             r21_n = (-1 + 1.645 * math.sqrt(n - 2 - 1)) / (n - 2)
             r22_n = (-1 - 1.645 * math.sqrt(n - 2 - 1)) / (n - 2)
-            if r11_n > lag1 > r12_n and r21_n > lag2 > r22_n:
+
+            if r11_n > self.lag1 > r12_n and r21_n > self.lag2 > r22_n:
                 self.duration += 1
                 return self.__test_autocorrelation()
             return peaks
@@ -331,8 +333,8 @@ class Partial(object):
         fig = FF.create_gantt(df_spells, group_tasks=True, colors=colors, title=title, height=900, width=1200)
 
         fig['layout'].update(autosize=True)
-        fig['layout']['xaxis'].update(title="Mês", range=[month_start, month_end], tickformat="%b")
-        fig['layout']['yaxis'].update(title="Ano")
+        fig['layout']['xaxis'].update(title="Month", range=[month_start, month_end], tickformat="%b")
+        fig['layout']['yaxis'].update(title="Year")
         fig['layout']['xaxis']['rangeselector'] = {}
         fig.layout.title = dict(text=title, x=0.5, xanchor='center', y=0.9, yanchor='top',
                                 font=dict(family='Courier New, monospace', color='#7f7f7f', size=size_text + 6))
@@ -357,10 +359,11 @@ class Partial(object):
 
         return fig, data
 
-    def plot_hydrogram(self, title, width=None, height=None, size_text=16, color=None):
+    def plot_hydrogram(self, title, width=None, height=None, size_text=16, color=None, line_threshold: bool = True,
+                       point_start_end: bool = True):
         hydrogram = HydrogramParcial(data=self.data, peaks=self.peaks, threshold=self.threshold, station=self.station,
                                      threshold_criterion=self.threshold_criterion, title=title, width=width,
                                      type_criterion=self.type_criterion, height=height, size_text=size_text,
-                                     color=color)
+                                     color=color, line_threshold=line_threshold, point_start_end=point_start_end)
         fig, data = hydrogram.plot()
         return fig, data
