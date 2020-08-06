@@ -9,9 +9,10 @@ class TestFlowOneStation(TestCase):
     flow = Flow(data=pd.read_csv("E:\\Projetos\\HidroComp\\Artigo-Cha\\ons.csv", index_col=0, parse_dates=True))
 
     def test_get_data_from_ana_hydro(self):
-        print(self.flow)
-        print(self.flow.station)
-        print(self.flow.inf_stations)
+        flow = Flow(station="49330000", source="ANA")
+        print(flow)
+        print(flow.station)
+        print(flow.inf_stations)
 
     def test_get_data_from_ana_hydro_list(self):
         print(self.flow)
