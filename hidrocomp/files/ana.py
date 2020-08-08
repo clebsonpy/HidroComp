@@ -113,8 +113,10 @@ class Ana(FileRead):
 
     def hydro_series_historical(self):
         inventory = Stations(code_start=self.name)
-        series_temporal = inventory[self.name].series_temporal(type_data=Ana.typesData[self.type_data][2])
-        return series_temporal, inventory
+        if inventory[self.name]:
+            series_temporal = inventory[self.name].series_temporal(type_data=Ana.typesData[self.type_data][2])
+            return series_temporal, inventory
+        return pd.DataFrame(columns=[self.name]), None
 
     def __excludes_duplicates(self, data):
         if len(data) > 0:
