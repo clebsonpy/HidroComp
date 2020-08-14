@@ -18,7 +18,7 @@ class IHA:
                  month_water: int = None, type_criterion: str = None, threshold_high: float = None,
                  threshold_low: float = None, aspects: list = None, magnitude: list = None,
                  magnitude_and_duration: list = None, timing: list = None, frequency_and_duration: list = None,
-                 rate_and_frequency: list = None, **kwargs):
+                 rate_and_frequency: list = None, new_iha: bool = False, **kwargs):
         """
         :param data: pandas Series
         :param month_water: initial month water (int: referent the month, ex.: 1 for Jan, 2 for Fev)
@@ -58,6 +58,7 @@ class IHA:
         self.timing_extreme_variables = timing
         self.frequency_and_duration_variables = frequency_and_duration
         self.rate_and_frequency_variables = rate_and_frequency
+        self.new_iha = new_iha
         self.kwargs = kwargs
 
     @property
@@ -176,12 +177,17 @@ class IHA:
     @property
     def magnitude_and_duration(self) -> MagnitudeDuration:
         if not isinstance(self.aspects["Magnitude and Duration"], MagnitudeDuration):
-            magnit_and_durat = MagnitudeDuration(flow=self.flow, month_start=self.month_start, status=self.status,
-                                                 central_metric=self.central_metric, events_high=self.events_high,
-                                                 events_low=self.events_low,
-                                                 variables=self.magnitude_and_duration_variables,
-                                                 variation_metric=self.variation_metric)
-
+            if self.new_iha:
+                magnit_and_durat = MagnitudeDuration(flow=self.flow, month_start=self.month_start, status=self.status,
+                                                     central_metric=self.central_metric, events_high=self.events_high,
+                                                     events_low=self.events_low,
+                                                     variables=self.magnitude_and_duration_variables,
+                                                     variation_metric=self.variation_metric)
+            else:
+                magnit_and_durat = MagnitudeDuration(flow=self.flow, month_start=self.month_start, status=self.status,
+                                                     central_metric=self.central_metric,
+                                                     variables=self.magnitude_and_duration_variables,
+                                                     variation_metric=self.variation_metric)
             self.aspects["Magnitude and Duration"] = magnit_and_durat
         return self.aspects["Magnitude and Duration"]
     # </editor-fold>
