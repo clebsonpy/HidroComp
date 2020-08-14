@@ -93,6 +93,7 @@ class Partial(object):
                 if self.type_event == "flood":
                     self.__peaks = self.__events_over_threshold()
                 else:
+                    self.__peaks = self.__events_over_threshold()
                     self.__peaks.at[self.__peaks.index[-1], "End"] = self.__peaks[
                                                                          "End"].iloc[-1] - pd.to_timedelta(1, unit="d")
         return self.__peaks
