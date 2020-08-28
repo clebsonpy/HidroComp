@@ -6,7 +6,8 @@ import plotly.offline as pyo
 
 class TestFlow(TestCase):
 
-    flow = Flow(data=pd.read_csv("E:\\Projetos\\HidroComp\\Artigo-Cha\\ons.csv", index_col=0, parse_dates=True))
+    # flow = Flow(data=pd.read_csv("E:\\Projetos\\HidroComp\\Artigo-Cha\\ons.csv", index_col=0, parse_dates=True))
+    flow = Flow(data=pd.read_csv("E:\\Projetos\\HidroComp\\Medicoes\\dadosXingo_nat.csv", index_col=0, parse_dates=True))
 
     def test_get_data_from_ana_hydro(self):
         flow = Flow(station="49330000", source="ANA")

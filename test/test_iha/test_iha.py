@@ -10,10 +10,11 @@ class TestIHA(TestCase):
     path = os.path.abspath(os.path.join('data', 'dadosXingo_nat.csv'))
     data = pd.read_csv(path, ',', index_col=0, parse_dates=True)
     flow = Flow(data, source="ONS", station="XINGO")
+    flow.date(date_start="01/09/1995", date_end="31/08/2012")
 
     iha_obj_nat = flow.iha(month_water=9, status='pre', statistic='non-parametric', central_metric='mean',
                            variation_metric='cv',  type_criterion=None, type_threshold="stationary", duration=0,
-                           threshold_high=4813, threshold_low=569.5)
+                           threshold_high=3084, threshold_low=935.5)
 
     @staticmethod
     def read_iha(file):
@@ -37,6 +38,9 @@ class TestIHA(TestCase):
         print(data)
         print(data2)
         self.test(data, data2)
+
+    def test_iha_summary(self):
+        print(self.iha_obj_nat.summary())
 
     def test_moving_averages(self):
         data = self.read_iha('Group2.csv')
