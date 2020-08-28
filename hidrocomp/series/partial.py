@@ -94,9 +94,10 @@ class Partial(object):
                     self.__peaks = self.__events_over_threshold()
                 elif self.type_event == "drought":
                     self.__peaks = self.__events_over_threshold()
-                    self.__peaks.at[self.__peaks.sort_values(by="End").index[-1],
-                                    "End"] = self.__peaks.sort_values(
-                        by="End")["End"].iloc[-1] - pd.to_timedelta(1, unit="d")
+                    if len(self.__peaks) > 0:
+                        self.__peaks.at[self.__peaks.sort_values(by="End").index[-1],
+                                        "End"] = self.__peaks.sort_values(
+                            by="End")["End"].iloc[-1] - pd.to_timedelta(1, unit="d")
         return self.__peaks
 
     def __events_over_threshold(self):
