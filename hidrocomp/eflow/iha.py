@@ -113,8 +113,10 @@ class IHA:
     def __str__(self) -> str:
         return self.summary().__str__()
 
-    def rva(self) -> RVA:
-        pass
+    def rva(self, iha_obs, boundaries) -> RVA:
+        print(self.magnitude.variable("April"))
+        rva = RVA(self.magnitude, iha_obs.magnitude, self.statistic, boundaries)
+        return rva
 
     def era(self, iha_obs, m: int = 500, interval: int = 95) -> Era:
         if self.status == "pos":

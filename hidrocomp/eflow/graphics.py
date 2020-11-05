@@ -40,15 +40,17 @@ class Graphics(metaclass=ABCMeta):
 class GraphicsRVA(Graphics):
 
     def __init__(self, data_variable, line=None, color=None, width=None, height=None, size_text=14, xaxis=None,
-                 yaxis=None):
+                 yaxis=None, status=None):
         super().__init__(obj=data_variable, color=color, width=width, height=height,
                          size_text=size_text, xaxis=xaxis, yaxis=yaxis)
         self.line = line
+        self.status = status
 
     def _plot_rva(self, line):
+        print(self.obj.name)
         dash = {"upper_line": "dot", "lower_line": "dash"}
-        line_graph = go.Scatter(x=self.data.index,
-                                y=[self.line[line][self.name]] * len(self.data.index),
+        line_graph = go.Scatter(x=self.obj.data.index,
+                                y=[self.line[line][self.obj.name]] * len(self.obj.data.index),
                                 name=line.title(),
                                 mode='lines',
                                 line=dict(width=1, dash=dash[line], color='rgb(0, 0, 0)'),
@@ -56,8 +58,8 @@ class GraphicsRVA(Graphics):
         return line_graph
 
     def _plot_iha(self):
-        point = go.Scatter(x=self.data.index,
-                           y=self.data.loc[self.data.index].values,
+        point = go.Scatter(x=self.obj.data.index,
+                           y=self.obj.data.loc[self.obj.data.index].values,
                            name=self.status.title()+'-impacto',
                            mode='markers+lines',
                            marker=dict(size=8, color=self.color[self.status], line=dict(width=1,
@@ -70,12 +72,12 @@ class GraphicsRVA(Graphics):
 
         data = list()
         data.append(self._plot_iha())
-        try:
-            for i in self.line:
-                if i != 'median_line':
-                    data.append(self._plot_rva(i))
-        except:
-            pass
+
+        for i in self.line:
+            if i != 'median_line':
+                data.append(self._plot_rva(i))
+
+
 
         fig = dict(data=data, layout=layout)
         return fig, data

@@ -89,6 +89,23 @@ class TestRVA(TestCase):
         fig, data = cha.plot(data_type="mean")
         py.offline.plot(fig, filename=os.path.join("graficos", "test.html"))
 
+    def test_rva(self):
+        iha_pre = self.data_nat.iha(status='pre', statistic="non-parametric", central_metric="mean", month_water=9,
+                                    variation_metric="std", type_threshold="stationary", type_criterion="wrc",
+                                    threshold_high=self.threshold_high, threshold_low=self.threshold_low,
+                                    duration=self.duration)
+        print(iha_pre)
+
+        iha_pos = self.data_obs.iha(status='pos', statistic="non-parametric", central_metric="mean", month_water=9,
+                                    variation_metric="std", type_threshold="stationary", type_criterion="wrc",
+                                    threshold_high=self.threshold_high, threshold_low=self.threshold_low,
+                                    duration=self.duration)
+
+        rva = iha_pre.magnitude.variable(name="April").rva(variable_pos=iha_pos.magnitude.variable(name="April"))
+        # print(rva)
+        fig, data = rva.plot()
+        py.offline.plot(fig, filename=os.path.join("graficos", "test.html"))
+
     def test_moving_averages(self):
         magnitude_duration_nat = self.iha_obj_nat.magnitude_and_duration
         magnitude_duration_obs = self.iha_obj_obs.magnitude_and_duration

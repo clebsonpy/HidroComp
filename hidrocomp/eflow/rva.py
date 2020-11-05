@@ -7,14 +7,14 @@ from hidrocomp.eflow.graphics import Graphics, GraphicsRVA
 class RVA:
 
     def __init__(self, variable_pre, variable_pos, statistic, boundaries):
-        self.data_pre = variable_pre.data
-        self.data_pos = variable_pos.data
+        self.data_pre = variable_pre
+        self.data_pos = variable_pos
         self.boundaries = boundaries
         self.statistic = statistic
         self.name_variable = variable_pre.name
         self.line = self.__line()
-        self.frequency_pre = self.__frequency(data_variable=self.data_pre)
-        self.frequency_pos = self.__frequency(data_variable=self.data_pos)
+        self.frequency_pre = self.__frequency(data_variable=self.data_pre.data)
+        self.frequency_pos = self.__frequency(data_variable=self.data_pos.data)
 
     def measure_hydrologic_alteration(self):
         def very(rva):
@@ -30,19 +30,22 @@ class RVA:
         return very(mha)
 
     def __line(self):
+
+        print(self.name_variable)
+
         line = pd.DataFrame(columns=['lower_line', 'upper_line', 'median_line'])
 
         if self.statistic == 'non-parametric':
-            line.at[self.name_variable, 'lower_line'] = self.data_pre.quantile((50 - self.boundaries) / 100)
-            line.at[self.name_variable, 'upper_line'] = self.data_pre.quantile((50 + self.boundaries) / 100)
-            line.at[self.name_variable, 'median_line'] = self.data_pre.median()
+            line.at[self.name_variable, 'lower_line'] = self.data_pre.data.quantile((50 - self.boundaries) / 100)
+            line.at[self.name_variable, 'upper_line'] = self.data_pre.data.quantile((50 + self.boundaries) / 100)
+            line.at[self.name_variable, 'median_line'] = self.data_pre.data.median()
             return line
         elif self.statistic == 'parametric':
             line.at[self.name_variable,
-                    'lower_line'] = self.data_pre[self.name_variable].mean() - self.data_pre[self.name_variable].std()
+                    'lower_line'] = self.data_pre.data[self.name_variable].mean() - self.data_pre.data[self.name_variable].std()
             line.at[self.name_variable,
-                    'lower_line'] = self.data_pre[self.name_variable].mean() + self.data_pre[self.name_variable].std()
-            line.at[self.name_variable, 'lower_line'] = self.data_pre[self.name_variable].median()
+                    'lower_line'] = self.data_pre.data[self.name_variable].mean() + self.data_pre.data[self.name_variable].std()
+            line.at[self.name_variable, 'lower_line'] = self.data_pre.data[self.name_variable].median()
             return line
         else:
             raise NotStatistic('Not exist statistic {}: use {} or {}'.format(self.statistic,

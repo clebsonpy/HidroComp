@@ -10,7 +10,7 @@ import calendar as ca
 import numpy as np
 import pandas as pd
 from hidrocomp.files.fileRead import FileRead
-from hydro_api.ana.hidro import Stations
+from hydro_api.ana.hidro import Stations, SerieTemporal
 from hydro_api.ana.sar import Reservoirs
 
 
@@ -112,11 +112,16 @@ class Ana(FileRead):
         return data_flow
 
     def hydro_series_historical(self):
-        inventory = Stations(code_start=self.name)
-        if inventory[self.name]:
-            series_temporal = inventory[self.name].series_temporal(type_data=Ana.typesData[self.type_data][2])
-            return series_temporal, inventory
-        return pd.DataFrame(columns=[self.name]), None
+        consult_info_station = False
+        if consult_info_station:
+            inventory = Stations(code_start=self.name)
+            if inventory[self.name]:
+                series_temporal = inventory[self.name].series_temporal(type_data=Ana.typesData[self.type_data][2])
+                return series_temporal, inventory
+            return pd.DataFrame(columns=[self.name]), None
+        else:
+            series_temporal = SerieTemporal(code=self.name, type_data=Ana.typesData[self.type_data][2])
+            return series_temporal.data, None
 
     def __excludes_duplicates(self, data):
         if len(data) > 0:
