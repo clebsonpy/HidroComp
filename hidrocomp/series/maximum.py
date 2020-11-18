@@ -15,7 +15,7 @@ class Maximum(object):
         self.obj = obj
         self.station = station
         self.peaks = self.__annual()
-        self.dist_gev = Gev(self.peaks['peaks'])
+        self.dist_gev = Gev(self.peaks['Peaks'])
 
     def __annual(self):
         data_by_year_hydrologic = self.obj.data.groupby(pd.Grouper(freq=self.obj.month_abr_flood))
@@ -23,7 +23,7 @@ class Maximum(object):
         idx = data_by_year_hydrologic[self.station].idxmax()
         max_vazao = max.values
         idx_vazao = idx.values
-        self.peaks = pd.DataFrame(max_vazao, index=idx_vazao, columns=['peaks'])
+        self.peaks = pd.DataFrame(max_vazao, index=idx_vazao, columns=['Peaks'])
         return self.peaks
 
     def period_return(self, magnitude, estimador):

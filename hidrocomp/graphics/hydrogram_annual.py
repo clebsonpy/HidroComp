@@ -33,8 +33,8 @@ class HydrogramAnnual(HydrogramBuild):
         return fig, data
 
     def _plot_event_peaks(self):
-        point_peak = go.Scatter(x=self.peaks['peaks'].index,
-                                y=self.peaks['peaks'].values,
+        point_peak = go.Scatter(x=self.peaks['Peaks'].index,
+                                y=self.peaks['Peaks'].values,
                                 name="Pico",
                                 mode='markers',
                                 marker=dict(size=8, color='rgb(128, 128, 128)', line=dict(width=1, color='rgb(0, 0, 0)')

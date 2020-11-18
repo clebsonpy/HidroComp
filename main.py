@@ -268,7 +268,8 @@ if __name__ == '__main__':
     # fig_gantt, data_gantt = flow.gantt(title="Gantt")
 
     flow = Flow(station='39431000', source='ANA')
-    print(flow)
+    max_year = flow.maximum()
+    fig, data = max_year.polar(title="Test")
 
     # file = os.path.abspath(os.path.join('Medicoes', 'dados_manso.csv'))
     # dados = pd.read_csv(file, index_col=0, parse_dates=True)
@@ -367,7 +368,7 @@ if __name__ == '__main__':
     # fig, data = parcial.plot_hydrogram('Parcial')
     #py.offline.plot(fig2, filename=os.path.join(path, 'graficos/rva.html'))
     """
-    # py.offline.plot(fig, filename=os.path.join(path, 'graficos/gantt_artigo.html'))
+    py.offline.plot(fig, filename=os.path.join(path, 'graficos/polar_test.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/gantt_ipanema.html'))
     # py.offline.plot(fig_gantt, filename=os.path.join(path, 'graficos/gantt_ipanema_2008.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro_anual.html'))
