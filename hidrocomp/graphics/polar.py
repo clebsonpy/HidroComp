@@ -15,9 +15,12 @@ class Polar(object):
         df_events_julian['DateJulianPolar'] = date_julian_polar
         return df_events_julian
 
-    def plot(self, width=None, height=None, size_text=None, title=None, color=None, name=None):
-        dicMes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set",
-                  "Out", "Nov", "Dez"]
+    def plot(self, width: int = None, height: int = None, size_text: int = None, title=None, color=None, name=None,
+             showlegend: bool = False, language: str = 'pt'):
+        list_month_pt = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
+        list_month_en = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        dic_month = {'pt': list_month_pt, 'en': list_month_en}
+
         df_polar = self.year_polar()
         position = [0, 31*0.9863, 59*0.9863, 90*0.9863, 120*0.9863, 151*0.9863, 181*0.9863, 212*0.9863, 243*0.9863,
                     273*0.9863, 303*0.9863, 334*0.9863]
@@ -83,11 +86,11 @@ class Polar(object):
                        font=dict(family='Courier New, monospace', color='#7f7f7f', size=size_text + 6)),
             width=width, height=height,
             font=dict(family='Courier New, monospace', size=size_text, color='#7f7f7f'),
-            showlegend=False, plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF',
+            showlegend=showlegend, plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF',
             polar=dict(
                 radialaxis=dict(showticklabels=True, gridcolor="#000000"),
-                angularaxis=dict(showticklabels=True, ticks='', tickvals=position, ticktext=dicMes, rotation=90,
-                                 direction="clockwise", gridcolor="#000000", tickcolor="#000000"),
+                angularaxis=dict(showticklabels=True, ticks='', tickvals=position, ticktext=dic_month[language],
+                                 rotation=90, direction="clockwise", gridcolor="#000000", tickcolor="#000000"),
                 bgcolor='#FFFFFF',
             )
         )

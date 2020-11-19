@@ -269,7 +269,7 @@ if __name__ == '__main__':
 
     flow = Flow(station='39431000', source='ANA')
     max_year = flow.maximum()
-    fig, data = max_year.polar(title="Test")
+    fig, data = max_year.hydrogram(title="Test", language='en', showlegend=False)
 
     # file = os.path.abspath(os.path.join('Medicoes', 'dados_manso.csv'))
     # dados = pd.read_csv(file, index_col=0, parse_dates=True)

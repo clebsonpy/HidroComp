@@ -5,11 +5,17 @@ from abc import ABCMeta, abstractmethod
 
 class HydrogramBuild(metaclass=ABCMeta):
 
-    def __init__(self, width=None, height=None, title=None, size_text=None):
+    colobar_title = {'pt': 'Ano', 'en': 'Year'}
+    threshold_title = {'pt': 'Limiar', 'en': 'Threshold'}
+    x_axis_title = {'pt': 'Data', 'en': 'Date'}
+    y_axis_title = {'pt': 'Vazão (m³/s)', 'en': 'Flow (m³/s)'}
+
+    def __init__(self, width=None, height=None, title=None, size_text=None, showlegend=None):
         self.width = width
         self.height = height
         self.title = title
         self.size_text = size_text
+        self.showlegend = showlegend
 
     def layout(self, bandxaxis, bandyaxis):
         layout = dict(
@@ -19,7 +25,7 @@ class HydrogramBuild(metaclass=ABCMeta):
             yaxis=bandyaxis,
             width=self.width, height=self.height,
             font=dict(family='Courier New, monospace', size=self.size_text, color='rgb(0,0,0)'),
-            showlegend=True, plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF')
+            showlegend=self.showlegend, plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF')
 
         return layout
 

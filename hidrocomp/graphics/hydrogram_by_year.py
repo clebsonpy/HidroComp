@@ -7,10 +7,11 @@ import numpy as np
 
 class HydrogramYear(HydrogramBuild):
 
-    def __init__(self, data, title, threshold, width, height, size_text):
+    def __init__(self, data, title, threshold, width, height, size_text, language, showlegend):
         self.data = data
         self.threshold = threshold
-        super().__init__(width=width, height=height, size_text=size_text, title=title)
+        self.language = language
+        super().__init__(width=width, height=height, size_text=size_text, title=title, showlegend=showlegend)
 
     def plot(self):
         group = self.group_by_year()
@@ -34,7 +35,7 @@ class HydrogramYear(HydrogramBuild):
                                     marker=dict(
                                         colorscale=ylrd,
                                         showscale=True,
-                                        colorbar=dict(title='Ano'),
+                                        colorbar=dict(title=self.colobar_title[self.language]),
                                         cmin=group.columns[0],
                                         cmax=group.columns[-1],
                                     ),
@@ -46,34 +47,37 @@ class HydrogramYear(HydrogramBuild):
                 trace_threshold = []
                 i = 1
                 for t in self.threshold:
-                    trace_threshold.append(self._plot_threshold(group, t, name="Threshold - {}".format(i)))
+                    trace_threshold.append(self._plot_threshold(group, t,
+                                                                name=f"{self.threshold[self.language]} - {i}"))
                     i += 1
             else:
-                trace_threshold = [self._plot_threshold(group, self.threshold, name="Threshold")]
+                trace_threshold = [self._plot_threshold(group, self.threshold, name=self.threshold[self.language])]
             data = trace + [colorbar_trace] + trace_threshold
         else:
             data = trace + [colorbar_trace]
 
         bandxaxis = go.layout.XAxis(
-            title="Month",
+            title=self.x_axis_title[self.language],
             tickformat="%b",
             linecolor='rgba(1,1,1,1)',
             gridcolor='rgba(1,1,1,1)'
         )
 
         bandyaxis = go.layout.YAxis(
-            title="Flow(m³/s)",
+            title=self.y_axis_title[self.language],
             showgrid=False,
         )
 
-        layout = dict(
-            title=dict(text=self.title,  x=0.5, xanchor='center', y=0.95, yanchor='top',
-                       font=dict(family='Courier New, monospace', color='rgba(0,0,0,0)', size=self.size_text+6)),
-            xaxis=bandxaxis,
-            yaxis=bandyaxis,
-            width=self.width, height=self.height,
-            font=dict(family='Courier New, monospace', size=self.size_text, color='#7f7f7f'),
-            showlegend=False, plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
+        layout = self.layout(bandxaxis=bandxaxis, bandyaxis=bandyaxis)
+
+        # layout = dict(
+        #     title=dict(text=self.title,  x=0.5, xanchor='center', y=0.95, yanchor='top',
+        #                font=dict(family='Courier New, monospace', color='rgba(0,0,0,0)', size=self.size_text+6)),
+        #     xaxis=bandxaxis,
+        #     yaxis=bandyaxis,
+        #     width=self.width, height=self.height,
+        #     font=dict(family='Courier New, monospace', size=self.size_text, color='#7f7f7f'),
+        #     showlegend=False, plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
 
         fig = dict(data=data, layout=layout)
 

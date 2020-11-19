@@ -58,18 +58,22 @@ class Maximum(object):
                                                                        estimador))
         return fig, data
 
-    def hydrogram(self, save=False, width=None, height=None, size_text=16, title=None):
+    def hydrogram(self, save=False, width: int = None, height: int = None, size_text: int = 16, title=None,
+                  showlegend: bool = True, language: str = 'pt'):
         _hydrogram = HydrogramAnnual(data=self.obj.data[self.station], peaks=self.peaks, width=height, height=width,
-                                     size_text=size_text, title=title, station=self.station)
+                                     size_text=size_text, title=title, station=self.station, language=language,
+                                     showlegend=showlegend)
         fig, data = _hydrogram.plot()
         if save:
             py.image.save_as(fig, filename='gráficos/hidrogama_maximas_anuais.png')
 
         return fig, data
 
-    def polar(self, save=False, width=None, height=None, size_text=14, title="Máximas Anuais"):
+    def polar(self, save=False, width=None, height=None, size_text=14, title="Máximas Anuais", language: str = 'pt',
+              color=None, name=None, showlegend: bool = False):
         _polar = Polar(df_events=self.peaks)
-        fig, data = _polar.plot(width=width, height=height, size_text=size_text, title=title)
+        fig, data = _polar.plot(width=width, height=height, size_text=size_text, title=title, language=language,
+                                color=color, name=name, showlegend=showlegend)
         if save:
             py.image.save_as(fig, filename='graficos/polar_maximas_anuais.png')
 

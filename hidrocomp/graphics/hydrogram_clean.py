@@ -5,29 +5,21 @@ from hidrocomp.graphics.hydrogram_build import HydrogramBuild
 
 class HydrogramClean(HydrogramBuild):
 
-    def __init__(self, data, threshold=None, width=None, height=None, size_text=None, title=None, y_title=None,
-                 x_title=None, color=None):
-        super().__init__(width=width, height=height, size_text=size_text, title=title)
+    def __init__(self, data, threshold=None, width=None, height=None, size_text=None, title=None, color=None,
+                 showlegend: bool = False, language: str = 'pt'):
+        super().__init__(width=width, height=height, size_text=size_text, title=title, showlegend=showlegend)
         self.threshold = threshold
         self.data = pd.DataFrame(data)
-        self.y_title = y_title
-        self.x_title = x_title
         self.color = color
+        self.language = language
 
     def plot(self):
-        bandxaxis = go.layout.XAxis(title=self.x_title)
-        bandyaxis = go.layout.YAxis(title=self.y_title)
+        bandxaxis = go.layout.XAxis(title=self.x_axis_title[self.language])
+        bandyaxis = go.layout.YAxis(title=self.y_axis_title[self.language])
 
         if len(self.data.columns.values) == 1:
 
-            layout = dict(
-                title=dict(text=self.title, x=0.5, xanchor='center', y=0.95, yanchor='top',
-                           font=dict(family='Courier New, monospace', size=self.size_text + 10)),
-                xaxis=bandxaxis,
-                yaxis=bandyaxis,
-                width=self.width, height=self.height,
-                font=dict(family='Courier New, monospace', size=self.size_text, color='rgb(0,0,0)'),
-                showlegend=True, plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF')
+            layout = self.layout(bandxaxis=bandxaxis, bandyaxis=bandyaxis)
 
             data = list()
             data.append(self._plot_one(self.data, self.title, color='rgb(0,0,0)'))
@@ -65,20 +57,14 @@ class HydrogramClean(HydrogramBuild):
             else:
                 pass
 
-            menus = False
-            if menus:
-                update_menus = go.layout.Updatemenu(active=0, buttons=list(buttons))
-            else:
-                update_menus = None
+            # menus = False
+            # if menus:
+            #     update_menus = go.layout.Updatemenu(active=0, buttons=list(buttons))
+            # else:
+            #     update_menus = None
 
-            layout = dict(
-                title=dict(text=self.title, x=0.5, xanchor='center', y=0.95, yanchor='top',
-                           font=dict(family='Courier New, monospace', size=self.size_text + 10)),
-                xaxis=bandxaxis,
-                yaxis=bandyaxis,
-                width=self.width, height=self.height,
-                font=dict(family='Courier New, monospace', size=self.size_text, color='rgb(0,0,0)'),
-                showlegend=True, plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF', updatemenus=update_menus)
+            layout = self.layout(bandxaxis=bandxaxis, bandyaxis=bandyaxis)
+
             fig = dict(data=data, layout=layout)
             return fig, data
 
@@ -97,11 +83,12 @@ class HydrogramClean(HydrogramBuild):
         return trace_threshold
 
     def _plot_multi(self):
+        title = {'pt': 'Hidrograma', 'en': 'Hydrogram'}
         data = []
         buttons = [dict(label="All",
                         method='update',
                         args=[{"visible": [True] * len(self.data.columns)},
-                              {"title": "Hidrograma"}]
+                              {"title": title[self.language]}]
                         )]
         aux = 0
         visible = [False] * len(self.data.columns)
@@ -118,7 +105,7 @@ class HydrogramClean(HydrogramBuild):
                 dict(label=i,
                      method='update',
                      args=[{"visible": visible},
-                           {"title": "Hidrograma: {}".format(i)}]
+                           {"title": "{}: {}".format(title[self.language], i)}]
                      )
             )
 
