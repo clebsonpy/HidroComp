@@ -323,6 +323,7 @@ class Partial(object):
             py.image.save_as(fig, filename='gráficos/' + '%s.png' % aux_name)
         return data, fig
 
+    # TODO Rename of spells
     def plot_spells(self, title, size_text=14):
         if self.type_event == "drought":
             month_start_abr, month_start_num = self.obj.month_abr_drought, self.obj.month_num_drought
@@ -349,6 +350,8 @@ class Partial(object):
         fig.layout.plot_bgcolor = 'rgba(0,0,0,0)'
         return fig, df_spells
 
+    # TODO Rename of polar
+    # TODO Add parameters language and showlegend
     def plot_polar(self, title=None, width=900, height=900, size_text=14, color=None, name=None):
         if self.type_event == 'flood':
             if title is None:
@@ -366,6 +369,8 @@ class Partial(object):
 
         return fig, data
 
+    # TODO Rename of hydrogram
+    # TODO Add parameters language and showlegend
     def plot_hydrogram(self, title, width=None, height=None, size_text=16, color=None, line_threshold: bool = True,
                        point_start_end: bool = True):
         hydrogram = HydrogramParcial(data=self.data, peaks=self.peaks, threshold=self.threshold, station=self.station,
