@@ -114,20 +114,6 @@ class Flow(SeriesBuild):
         else:
             return None
 
-    # def hydrogram(self, title, threshold=None, save=False, width=None, height=None, size_text=16, color=None,
-    #               showlegend: bool = False, language: str = 'pt'):
-    #     if self.station is None:
-    #         hydrogram = HydrogramClean(self.data, threshold=threshold, width=width, height=height, size_text=size_text,
-    #                                    title=title, color=color, showlegend=showlegend, language=language,
-    #                                    data_type=self.data_type)
-    #         fig, data = hydrogram.plot()
-    #     else:
-    #         hydrogram = HydrogramClean(self.data[self.station], threshold=threshold, width=width, height=height,
-    #                                    size_text=size_text, title=title, color=color, showlegend=showlegend,
-    #                                    language=language, data_type=self.data_type)
-    #         fig, data = hydrogram.plot()
-    #     return fig, data
-
     def iha(self, status=None, date_start: str = None, date_end: str = None, statistic="no-parametric",
             central_metric="mean", month_water: int = None, variation_metric: str = "std", type_threshold="stationary",
             type_criterion: str = None, threshold_high: float = None, threshold_low: float = None,
@@ -178,8 +164,8 @@ class Flow(SeriesBuild):
         idx = [i for i in self.data.index if i.month == 2 and i.day == 29]
         data = self.data.drop(index=idx)
         data = data.groupby(pd.Grouper(freq=self.month_abr_flood))
-        hydrogram = HydrogramYear(data=data, threshold=threshold, width=width, height=height, title=title,
-                                  size_text=size_text, language=language, showlegend=showlegend)
+        hydrogram = HydrogramYear(data=data, threshold=threshold, width=width, height=height, size_text=size_text,
+                                  title=title, language=language, showlegend=showlegend, data_type=self.data_type)
         fig, data = hydrogram.plot()
         return fig, data
 

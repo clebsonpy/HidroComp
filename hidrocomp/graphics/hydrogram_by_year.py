@@ -7,10 +7,11 @@ import numpy as np
 
 class HydrogramYear(HydrogramBuild):
 
-    def __init__(self, data, title, threshold, width, height, size_text, language, showlegend):
+    def __init__(self, data, data_type, title, threshold, width, height, size_text, language, showlegend):
         self.data = data
         self.threshold = threshold
         self.language = language
+        self.data_type = data_type
         super().__init__(width=width, height=height, size_text=size_text, title=title, showlegend=showlegend)
 
     def plot(self):
@@ -64,20 +65,11 @@ class HydrogramYear(HydrogramBuild):
         )
 
         bandyaxis = go.layout.YAxis(
-            title=self.y_axis_title[self.language],
+            title=self.y_axis_title[self.data_type][self.language],
             showgrid=False,
         )
 
         layout = self.layout(bandxaxis=bandxaxis, bandyaxis=bandyaxis)
-
-        # layout = dict(
-        #     title=dict(text=self.title,  x=0.5, xanchor='center', y=0.95, yanchor='top',
-        #                font=dict(family='Courier New, monospace', color='rgba(0,0,0,0)', size=self.size_text+6)),
-        #     xaxis=bandxaxis,
-        #     yaxis=bandyaxis,
-        #     width=self.width, height=self.height,
-        #     font=dict(family='Courier New, monospace', size=self.size_text, color='#7f7f7f'),
-        #     showlegend=False, plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
 
         fig = dict(data=data, layout=layout)
 
