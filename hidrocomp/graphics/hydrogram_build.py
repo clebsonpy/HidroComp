@@ -8,7 +8,9 @@ class HydrogramBuild(metaclass=ABCMeta):
     colobar_title = {'pt': 'Ano', 'en': 'Year'}
     threshold_title = {'pt': 'Limiar', 'en': 'Threshold'}
     x_axis_title = {'pt': 'Data', 'en': 'Date'}
-    y_axis_title = {'pt': 'Vazão (m³/s)', 'en': 'Flow (m³/s)'}
+    y_axis_title = {'flow': {'pt': 'Vazão (m³/s)', 'en': 'Flow (m³/s)'},
+                    'height': {'pt': 'Cota (m)', 'en': 'Height (m)'},
+                    'rainfall': {'pt': 'Precipitação (mm)', 'en': 'Rainfall (mm)'}}
 
     def __init__(self, width=None, height=None, title=None, size_text=None, showlegend=None):
         self.width = width

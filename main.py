@@ -267,9 +267,10 @@ if __name__ == '__main__':
     # flow.data.to_excel(os.path.abspath(os.path.join('Medicoes', 'dados_ipanema_2008.xlsx')))
     # fig_gantt, data_gantt = flow.gantt(title="Gantt")
 
-    flow = Flow(station='39431000', source='ANA')
-    max_year = flow.maximum()
-    fig, data = max_year.hydrogram(title="Test", language='en', showlegend=False)
+    height = Rainfall(station='00836008', source='ANA')
+    # flow = Flow(station='39431000', source='ANA')
+    # max_year = flow.maximum()
+    fig, data = height.hydrogram(title="Test", language='en', showlegend=False)
 
     # file = os.path.abspath(os.path.join('Medicoes', 'dados_manso.csv'))
     # dados = pd.read_csv(file, index_col=0, parse_dates=True)

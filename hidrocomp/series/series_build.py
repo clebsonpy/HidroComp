@@ -5,6 +5,7 @@ from abc import abstractmethod, ABCMeta
 
 from hidrocomp.files import ana, ons
 from hidrocomp.graphics.gantt import Gantt
+from hidrocomp.graphics.hydrogram_clean import HydrogramClean
 
 
 class SeriesBuild(metaclass=ABCMeta):
@@ -161,6 +162,20 @@ class SeriesBuild(metaclass=ABCMeta):
 
     def quantile(self, percentile):
         return self.data.quantile(percentile).values
+
+    def hydrogram(self, title, threshold=None, save=False, width=None, height=None, size_text=16, color=None,
+                  showlegend: bool = False, language: str = 'pt'):
+        if self.station is None:
+            hydrogram = HydrogramClean(self.data, threshold=threshold, width=width, height=height, size_text=size_text,
+                                       title=title, color=color, showlegend=showlegend, language=language,
+                                       data_type=self.data_type)
+            fig, data = hydrogram.plot()
+        else:
+            hydrogram = HydrogramClean(self.data[self.station], threshold=threshold, width=width, height=height,
+                                       size_text=size_text, title=title, color=color, showlegend=showlegend,
+                                       language=language, data_type=self.data_type)
+            fig, data = hydrogram.plot()
+        return fig, data
 
     def gantt(self, title=None, size_text=14):
         cont = 0

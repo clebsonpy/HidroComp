@@ -6,27 +6,20 @@ from hidrocomp.graphics.hydrogram_build import HydrogramBuild
 
 class HydrogramAnnual(HydrogramBuild):
 
-    def __init__(self, data, peaks, width: int = None, height: int = None, size_text: int = None, title=None,
-                 station=None, showlegend: bool = True, language: str = 'pt'):
+    def __init__(self, data, peaks, data_type: str, width: int = None, height: int = None, size_text: int = None,
+                 title=None, station=None, showlegend: bool = True, language: str = 'pt'):
         self.data = pd.DataFrame(data)
         self.peaks = peaks
         self.station = station
         self.language = language
+        self.data_type = data_type
         super().__init__(width=width, height=height, size_text=size_text, title=title, showlegend=showlegend)
 
     def plot(self):
         bandxaxis = go.layout.XAxis(title=self.x_axis_title[self.language])
-        bandyaxis = go.layout.YAxis(title=self.y_axis_title[self.language])
+        bandyaxis = go.layout.YAxis(title=self.y_axis_title[self.data_type][self.language])
 
         layout = self.layout(bandxaxis=bandxaxis, bandyaxis=bandyaxis)
-        # layout = dict(
-        #     title=dict(text=self.title, x=0.5, xanchor='center', y=0.95, yanchor='top',
-        #                font=dict(family='Courier New, monospace', size=self.size_text + 10)),
-        #     xaxis=bandxaxis,
-        #     yaxis=bandyaxis,
-        #     width=self.width, height=self.height,
-        #     font=dict(family='Courier New, monospace', size=self.size_text, color='#7f7f7f'),
-        #     showlegend=True, plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
 
         data = list()
         data.append(self._plot_one(data=self.data, station=self.station, color='rgb(0,0,0)'))

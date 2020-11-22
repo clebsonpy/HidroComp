@@ -5,17 +5,18 @@ from hidrocomp.graphics.hydrogram_build import HydrogramBuild
 
 class HydrogramClean(HydrogramBuild):
 
-    def __init__(self, data, threshold=None, width=None, height=None, size_text=None, title=None, color=None,
-                 showlegend: bool = False, language: str = 'pt'):
+    def __init__(self, data, data_type: str, threshold=None, width=None, height=None, size_text=None, title=None,
+                 color=None, showlegend: bool = False, language: str = 'pt', ):
         super().__init__(width=width, height=height, size_text=size_text, title=title, showlegend=showlegend)
         self.threshold = threshold
         self.data = pd.DataFrame(data)
         self.color = color
         self.language = language
+        self.data_type = data_type  # flow, height or rainfall
 
     def plot(self):
         bandxaxis = go.layout.XAxis(title=self.x_axis_title[self.language])
-        bandyaxis = go.layout.YAxis(title=self.y_axis_title[self.language])
+        bandyaxis = go.layout.YAxis(title=self.y_axis_title[self.data_type][self.language])
 
         if len(self.data.columns.values) == 1:
 

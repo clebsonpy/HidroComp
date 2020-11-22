@@ -58,11 +58,11 @@ class Maximum(object):
                                                                        estimador))
         return fig, data
 
-    def hydrogram(self, save=False, width: int = None, height: int = None, size_text: int = 16, title=None,
-                  showlegend: bool = True, language: str = 'pt'):
+    def hydrogram(self, save=False, width: int = None, height: int = None, size_text: int = 16,
+                  title=None, showlegend: bool = True, language: str = 'pt'):
         _hydrogram = HydrogramAnnual(data=self.obj.data[self.station], peaks=self.peaks, width=height, height=width,
                                      size_text=size_text, title=title, station=self.station, language=language,
-                                     showlegend=showlegend)
+                                     showlegend=showlegend, data_type=self.obj.data_type)
         fig, data = _hydrogram.plot()
         if save:
             py.image.save_as(fig, filename='gráficos/hidrogama_maximas_anuais.png')

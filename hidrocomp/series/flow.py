@@ -14,6 +14,7 @@ from hidrocomp.graphics import RatingCurve, HydrogramYear, HydrogramClean
 class Flow(SeriesBuild):
 
     type_data = 'FLUVIOMÉTRICO'
+    data_type = 'flow'
 
     def __init__(self, data=None, path_file=None, station=None, source=None, *args, **kwargs):
         super().__init__(data=data, path=path_file, station=station, source=source, type_data=self.type_data, *args,
@@ -113,18 +114,19 @@ class Flow(SeriesBuild):
         else:
             return None
 
-    def hydrogram(self, title, threshold=None, save=False, width=None, height=None, size_text=16, color=None,
-                  showlegend: bool = False, language: str = 'pt'):
-        if self.station is None:
-            hydrogram = HydrogramClean(self.data, threshold=threshold, width=width, height=height, size_text=size_text,
-                                       title=title, color=color, showlegend=showlegend, language=language)
-            fig, data = hydrogram.plot()
-        else:
-            hydrogram = HydrogramClean(self.data[self.station], threshold=threshold, width=width, height=height,
-                                       size_text=size_text, title=title, color=color, showlegend=showlegend,
-                                       language=language)
-            fig, data = hydrogram.plot()
-        return fig, data
+    # def hydrogram(self, title, threshold=None, save=False, width=None, height=None, size_text=16, color=None,
+    #               showlegend: bool = False, language: str = 'pt'):
+    #     if self.station is None:
+    #         hydrogram = HydrogramClean(self.data, threshold=threshold, width=width, height=height, size_text=size_text,
+    #                                    title=title, color=color, showlegend=showlegend, language=language,
+    #                                    data_type=self.data_type)
+    #         fig, data = hydrogram.plot()
+    #     else:
+    #         hydrogram = HydrogramClean(self.data[self.station], threshold=threshold, width=width, height=height,
+    #                                    size_text=size_text, title=title, color=color, showlegend=showlegend,
+    #                                    language=language, data_type=self.data_type)
+    #         fig, data = hydrogram.plot()
+    #     return fig, data
 
     def iha(self, status=None, date_start: str = None, date_end: str = None, statistic="no-parametric",
             central_metric="mean", month_water: int = None, variation_metric: str = "std", type_threshold="stationary",
