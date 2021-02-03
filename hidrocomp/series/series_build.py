@@ -9,7 +9,6 @@ from hidrocomp.graphics.hydrogram_clean import HydrogramClean
 
 
 class SeriesBuild(metaclass=ABCMeta):
-
     sources = {
         "ONS": ons.Ons,
         "ANA": ana.Ana,
@@ -153,7 +152,7 @@ class SeriesBuild(metaclass=ABCMeta):
     def mean(self):
         """
         """
-        return self.data.mean().values
+        return self.data.mean().values  # TODO Alterar na biblioteca o método flow.mean() para retorna um float, atualmente tá retornando um np.array.
 
     def std(self):
         """

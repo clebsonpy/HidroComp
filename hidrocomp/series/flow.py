@@ -193,3 +193,7 @@ class Flow(SeriesBuild):
             dist = Pearson3(qmin[self.station].values)
             dist.mml()
             return dist.values(prop)
+
+    def cdf_empirical(self):
+        # TODO Create method of calculation cdf empirical, view statistic
+        pass
