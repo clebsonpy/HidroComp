@@ -31,6 +31,12 @@ class Ana(FileRead):
         self.date_start = date_start
         self.date_end = date_end
         self.type_data = type_data.upper()
+
+        if 'tz' in kwargs:
+            self.tz = kwargs['tz']
+        else:
+            self.tz = None
+
         self.data, inf = self.read(self.name)
         self.inf_stations = inf
 
@@ -116,11 +122,12 @@ class Ana(FileRead):
         if consult_info_station:
             inventory = Stations(code_start=self.name)
             if inventory[self.name]:
-                series_temporal = inventory[self.name].series_temporal(type_data=Ana.typesData[self.type_data][2])
+                series_temporal = inventory[self.name].series_temporal(type_data=Ana.typesData[self.type_data][2],
+                                                                       tz=self.tz)
                 return series_temporal, inventory
             return pd.DataFrame(columns=[self.name]), None
         else:
-            series_temporal = SerieTemporal(code=self.name, type_data=Ana.typesData[self.type_data][2])
+            series_temporal = SerieTemporal(code=self.name, type_data=Ana.typesData[self.type_data][2], tz=self.tz)
             return series_temporal.data, None
 
     def __excludes_duplicates(self, data):
