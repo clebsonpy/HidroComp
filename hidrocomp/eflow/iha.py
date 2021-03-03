@@ -114,7 +114,7 @@ class IHA:
         return self.summary().__str__()
 
     def rva(self, iha_obs, boundaries) -> RVA:
-        print(self.magnitude.variable("April"))
+        # print(self.magnitude.variable("April"))
         rva = RVA(self.magnitude, iha_obs.magnitude, self.statistic, boundaries)
         return rva
 

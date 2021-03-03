@@ -13,8 +13,8 @@ class RVA:
         self.statistic = statistic
         self.name_variable = variable_pre.name
         self.line = self.__line()
-        self.frequency_pre = self.__frequency(data_variable=self.data_pre.data)
-        self.frequency_pos = self.__frequency(data_variable=self.data_pos.data)
+        self.frequency_pre = self.__frequency(data_variable=self.data_pre.data.dropna())
+        self.frequency_pos = self.__frequency(data_variable=self.data_pos.data.dropna())
 
     def measure_hydrologic_alteration(self):
         def very(rva):
@@ -30,8 +30,6 @@ class RVA:
         return very(mha)
 
     def __line(self):
-
-        print(self.name_variable)
 
         line = pd.DataFrame(columns=['lower_line', 'upper_line', 'median_line'])
 
@@ -81,7 +79,7 @@ class RVA:
         fig_obs, data_obs = GraphicsRVA(data_variable=self.data_pos, status="pos", color=color, line=self.line).plot()
         fig_nat, data_nat = GraphicsRVA(data_variable=self.data_pre, status="pre", color=color, line=self.line).plot()
 
-        data = data_obs + [data_nat[0]]
+        data = data_nat + [data_obs[0]]
         fig = dict(data=data, layout=fig_nat['layout'])
 
         return fig, data

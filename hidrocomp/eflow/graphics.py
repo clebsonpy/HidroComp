@@ -47,7 +47,6 @@ class GraphicsRVA(Graphics):
         self.status = status
 
     def _plot_rva(self, line):
-        print(self.obj.name)
         dash = {"upper_line": "dot", "lower_line": "dash"}
         line_graph = go.Scatter(x=self.obj.data.index,
                                 y=[self.line[line][self.obj.name]] * len(self.obj.data.index),
