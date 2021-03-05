@@ -3,10 +3,10 @@ import pandas as pd
 
 import plotly.graph_objs as go
 
-from hidrocomp.graphics.distribution_build import DistributionBiuld
+from hidrocomp.graphics.distribution_build import DistributionBuild
 
 
-class GenPareto(DistributionBiuld):
+class GenPareto(DistributionBuild):
 
     def __init__(self, title, shape, location, scale):
         super().__init__(title, shape, location, scale)

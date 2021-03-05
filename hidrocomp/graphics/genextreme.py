@@ -61,10 +61,11 @@ class GenExtreme(DistributionBuild):
         return pd.DataFrame(dic)
 
     def _data_cumulative(self):
-        probability = list()
-        for i in range(1, 999):
-            probability.append(i/1000)
+        # probability = list()
+        # for i in range(1, 999):
+            # probability.append(i/1000)
 
+        probability = sorted(stat.uniform.rvs(size=500))
         quantiles = stat.genextreme.ppf(probability, self.shape, loc=self.location, scale=self.scale)
 
         dic = {'peaks': quantiles, 'Cumulative': probability}

@@ -89,3 +89,8 @@ class TestFlow(TestCase):
                     source='ANA')
         fig, data = flow.gantt(title="Test")
         pyo.plot(fig, filename="../figs/gantt_flow.html")
+
+    def test_graphic_cumulative(self):
+        flow = Flow(station='40740000', source='ANA')
+        fig, data = flow.maximum().plot_distribution("", estimador="mml", type_function='cumulative')
+        pyo.plot(fig, filename="../figs/cumulative_flow.html")
