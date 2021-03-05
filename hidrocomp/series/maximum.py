@@ -45,17 +45,16 @@ class Maximum(object):
         return self.dist_gev.values(p)
 
     def plot_distribution(self, title, estimador, type_function, save=False):
-        if estimador == 'MVS':
+        if estimador.upper() == 'MVS':
             self.dist_gev.mvs()
-        elif estimador == 'MML':
+        elif estimador.upper() == 'MML':
             self.dist_gev.mml()
         else:
             raise ValueError("Estimador: [mvs or mml]")
         genextreme = GenExtreme(title, self.dist_gev.shape, self.dist_gev.loc, self.dist_gev.scale)
-        data, fig = genextreme.plot(type_function)
+        fig, data = genextreme.plot(type_function)
         if save:
-            py.image.save_as(fig, filename='gráficos/GEV_%s_%s.png' % (type_function,
-                                                                       estimador))
+            py.image.save_as(fig, filename='gráficos/GEV_%s_%s.png' % (type_function, estimador))
         return fig, data
 
     def hydrogram(self, save=False, width: int = None, height: int = None, size_text: int = 16,

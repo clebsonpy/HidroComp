@@ -3,10 +3,10 @@ import pandas as pd
 
 import plotly.graph_objs as go
 
-from hidrocomp.graphics.distribution_biuld import DistributionBiuld
+from hidrocomp.graphics.distribution_build import DistributionBuild
 
 
-class GenExtreme(DistributionBiuld):
+class GenExtreme(DistributionBuild):
 
     def __init__(self, title, shape, location, scale):
         super().__init__(title, shape, location, scale)
@@ -14,8 +14,7 @@ class GenExtreme(DistributionBiuld):
     def cumulative(self):
         datas = self._data('cumulative')
         data = [go.Scatter(x=datas['peaks'], y=datas['Cumulative'],
-                           name=self.title, line=dict(color='rgb(128, 128, 128)',
-                                                      width=1.5))]
+                           name=self.title, line=dict(color='rgb(128, 128, 128)', width=1.5))]
 
         bandxaxis = go.layout.XAxis(title="Vazão(m³/s)")
         bandyaxis = go.layout.YAxis(title="Probabilidade")
@@ -63,12 +62,10 @@ class GenExtreme(DistributionBiuld):
 
     def _data_cumulative(self):
         probability = list()
-        for i in range(1, 1000):
+        for i in range(1, 999):
             probability.append(i/1000)
 
-        quantiles = stat.genextreme.ppf(probability, self.shape,
-                                        loc=self.location,
-                                        scale=self.scale)
+        quantiles = stat.genextreme.ppf(probability, self.shape, loc=self.location, scale=self.scale)
 
         dic = {'peaks': quantiles, 'Cumulative': probability}
 

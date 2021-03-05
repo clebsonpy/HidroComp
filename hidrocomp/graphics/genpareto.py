@@ -3,7 +3,7 @@ import pandas as pd
 
 import plotly.graph_objs as go
 
-from hidrocomp.graphics.distribution_biuld import DistributionBiuld
+from hidrocomp.graphics.distribution_build import DistributionBiuld
 
 
 class GenPareto(DistributionBiuld):
