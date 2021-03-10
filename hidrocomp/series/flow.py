@@ -182,17 +182,21 @@ class Flow(SeriesBuild):
                   9: 'Setembro', 10: 'Outubro', 11: 'Novembro', 12: 'Dezembro'}
         return months[self.month_num_flood]
 
-    def flow_min(self, method):
-        if method == 'q90':
-            return self.quantile(0.1)
-        elif method == 'q95':
-            return self.quantile(0.05)
-        elif method == 'q710':
+    def flow_min(self, method: str = "q95"):
+
+        if method == 'q7,10':
             qmin = self.data.rolling(7).mean().groupby(pd.Grouper(freq='AS-JAN')).min()
             prop = 1 / 10
             dist = Pearson3(qmin[self.station].values)
             dist.mml()
             return dist.values(prop)
+        else:
+            percent = float(method.split("q")[1])/100
+            return self.quantile(1-percent)
+
+    def baseflow(self, method: str = "q90/q50"):
+        # TODO Create method of calculation base flow
+        pass
 
     def cdf_empirical(self):
         # TODO Create method of calculation cdf empirical, view statistic
