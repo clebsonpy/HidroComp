@@ -97,6 +97,9 @@ class TestFlow(TestCase):
         pyo.plot(fig, filename="../figs/cumulative_flow.html")
 
     def test_flow_min(self):
-        flow = Flow(station=["49330000"], source="ANA")
-        flow.date(date_start="01/09/1995", date_end="31/08/2020")
-        self.assertEqual(flow.flow_min("q95"), np.array([597.095]))
+        self.flow.date(date_start="01/09/1995", date_end="31/08/2020")
+        self.assertEqual(self.flow.flow_min("q95"), np.array([590.267]))
+
+    def test_base_flow(self):
+        self.flow.date(date_start="01/09/1995", date_end="31/08/2020")
+        self.assertEqual(self.flow.base_flow(), 0.5029)

@@ -194,9 +194,13 @@ class Flow(SeriesBuild):
             percent = int(method.split("q")[1])
             return self.quantile((100-percent)/100)
 
-    def baseflow(self, method: str = "q90/q50"):
-        # TODO Create method of calculation base flow
-        pass
+    def base_flow(self, method: str = "q90/q50"):
+        if method == "q90/q50":
+            q50 = self.flow_min(method="q50")[0]
+            q90 = self.flow_min(method="q90")[0]
+            return round(q90/q50, 4)
+        else:
+            raise NameError("Method invalid!")
 
     def cdf_empirical(self):
         # TODO Create method of calculation cdf empirical, view statistic
