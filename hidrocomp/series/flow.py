@@ -191,8 +191,8 @@ class Flow(SeriesBuild):
             dist.mml()
             return dist.values(prop)
         else:
-            percent = float(method.split("q")[1])/100
-            return self.quantile(1-percent)
+            percent = int(method.split("q")[1])
+            return self.quantile((100-percent)/100)
 
     def baseflow(self, method: str = "q90/q50"):
         # TODO Create method of calculation base flow

@@ -96,12 +96,18 @@ class SeriesBuild(metaclass=ABCMeta):
         if date_start is not None and date_end is not None:
             self.date_start = pd.to_datetime(date_start, dayfirst=True)
             self.date_end = pd.to_datetime(date_end, dayfirst=True)
+            if self.date_start >= self.date_end:
+                raise ValueError("Date start >= Date end")
             self.data = self.data.loc[self.date_start:self.date_end]
         elif date_start is not None:
             self.date_start = pd.to_datetime(date_start, dayfirst=True)
+            if self.date_start >= self.data.iloc[-1].name:
+                raise ValueError("Date start ({}) >= {}".format(self.date_start, self.data.iloc[-1].name))
             self.data = self.data.loc[self.date_start:]
         elif date_end is not None:
             self.date_end = pd.to_datetime(date_end, dayfirst=True)
+            if self.date_end >= self.data.iloc[0].name:
+                raise ValueError("Date end ({}) <= {}".format(self.date_end, self.data.iloc[0].name))
             self.data = self.data.loc[:self.date_end].copy()
 
         return self
