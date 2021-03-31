@@ -24,7 +24,7 @@ class Maximum(object):
         max_vazao = max.values
         idx_vazao = idx.values
         self.peaks = pd.DataFrame(max_vazao, index=idx_vazao, columns=['Peaks'])
-        return self.peaks
+        return self.peaks.dropna(axis=0)
 
     def period_return(self, magnitude, estimador):
         if estimador == 'MML':

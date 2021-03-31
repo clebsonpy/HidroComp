@@ -103,3 +103,18 @@ class TestFlow(TestCase):
     def test_base_flow(self):
         self.flow.date(date_start="01/09/1995", date_end="31/08/2020")
         self.assertEqual(self.flow.base_flow(), 0.5029)
+
+    def test_maximum(self):
+        flow = Flow(station=['56110005', '56425000', '56430000', '56540001', '56610000', '56110005'], source='ANA')
+        flow.station = '56110005'
+        max_ = flow.maximum()
+        print(max_.peaks)
+        print(max_.dist_gev.mml())
+
+    def test_partial(self):
+        flow = Flow(station=['56110005', '56425000', '56430000', '56540001', '56610000', '56110005'], source='ANA')
+        flow.station = '56110005'
+        parti = flow.partial(type_event='flood', type_criterion='median', type_threshold='stationary',
+                             value_threshold=0.75)
+        print(parti.peaks)
+        print(parti.dist_gpa.mml())

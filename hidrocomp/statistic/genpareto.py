@@ -33,7 +33,6 @@ class Gpa(StatsBuild):
         self.shape = mml['c']
         self.loc = mml['loc']
         self.scale = mml['scale']
-        print(self.shape)
         self.dist = genpareto(c=self.shape, loc=self.loc, scale=self.scale)
 
         return self.shape, self.loc, self.scale

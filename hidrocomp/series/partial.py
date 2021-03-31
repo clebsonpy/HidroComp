@@ -57,7 +57,7 @@ class Partial(object):
         else:
             self.name = '%s(%s)' % (self.dic_name[self.type_threshold], self.value)
 
-        if self.peaks is None:
+        if self.peaks is not None:
             self.dist_gpa = Gpa(data=self.peaks["Peaks"])
 
     @property
