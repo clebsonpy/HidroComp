@@ -1,6 +1,7 @@
 from unittest import TestCase
 import pandas as pd
 import numpy as np
+from copy import copy
 from hidrocomp.series import Flow
 import plotly.offline as pyo
 
@@ -106,10 +107,15 @@ class TestFlow(TestCase):
 
     def test_maximum(self):
         flow = Flow(station=['56110005', '56425000', '56430000', '56540001', '56610000', '56110005'], source='ANA')
-        flow.station = '56110005'
-        max_ = flow.maximum()
-        print(max_.peaks)
-        print(max_.dist_gev.mml())
+        stations = flow.station
+        maximum = {}
+        for station in stations:
+            aux = copy(flow)
+            aux.station = station
+            maximum[station] = aux.maximum()
+
+        print(maximum['56110005'].peaks)
+        print(maximum['56110005'].dist_gev.mml())
 
     def test_partial(self):
         flow = Flow(station=['56110005', '56425000', '56430000', '56540001', '56610000', '56110005'], source='ANA')

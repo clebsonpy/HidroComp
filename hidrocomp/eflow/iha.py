@@ -13,8 +13,8 @@ class IHA:
                    "Timing Extreme": Union[TimingExtreme], "Frequency and Duration": Union[FrequencyDuration],
                    "Rate and Frequency": Union[RateFrequency]}
 
-    def __init__(self, flow, date_start: str = None, date_end: str = None, statistic="no-parametric",
-                 central_metric="mean", variation_metric: str = "std", type_threshold="stationary", status=None,
+    def __init__(self, flow, status, date_start: str = None, date_end: str = None, statistic="no-parametric",
+                 central_metric="mean", variation_metric: str = "std", type_threshold="stationary",
                  month_water: int = None, type_criterion: str = None, threshold_high: float = None,
                  threshold_low: float = None, aspects: list = None, magnitude: list = None,
                  magnitude_and_duration: list = None, timing: list = None, frequency_and_duration: list = None,
