@@ -132,6 +132,7 @@ class SeriesBuild(metaclass=ABCMeta):
         dic = {'Start': list_start, 'Finish': list_end}
         return pd.DataFrame(dic)
 
+    @property
     def summary(self):
         """
         """
@@ -155,17 +156,25 @@ class SeriesBuild(metaclass=ABCMeta):
         """
         return self.data.groupby(lambda x: x.month).get_group(month)
 
+    @property
     def mean(self):
         """
         """
-        return self.data.mean().values  # TODO Alterar na biblioteca o método flow.mean() para retorna um float, atualmente tá retornando um np.array.
+        if len(self.columns) == 1:
+            return self.data.mean().values[0]
+        return self.data.mean().values
 
+    @property
     def std(self):
         """
         """
+        if len(self.columns) == 1:
+            return self.data.std().values[0]
         return self.data.std()
 
     def quantile(self, percentile):
+        if len(self.columns) == 1:
+            return self.data.quantile(percentile).values[0]
         return self.data.quantile(percentile).values
 
     def hydrogram(self, title, threshold=None, save=False, width=None, height=None, size_text=16, color=None,

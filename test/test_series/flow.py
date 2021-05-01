@@ -36,6 +36,8 @@ class TestFlow(TestCase):
     def test_get_data_from_ana_sar_list(self):
         flow = Flow(station=["19086", "19002"], source="SAR")
         print(flow)
+        print(flow.quantile(0.75))
+        self.assertEqual(type(flow.quantile(0.75)), np.ndarray)
         print(flow.station)
         print(flow.inf_stations)
 
@@ -45,6 +47,7 @@ class TestFlow(TestCase):
         self.assertEqual(flow.month_num_drought, 2)
         self.assertEqual(flow.month_abr_flood, "AS-AUG")
         self.assertEqual(flow.month_abr_drought, "AS-FEB")
+        self.assertEqual(type(flow.quantile(0.75)), np.float64)
 
     def test_define_month_start_year(self):
         flow = Flow(station="MANSO", source="ONS")
