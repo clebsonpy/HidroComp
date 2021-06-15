@@ -36,6 +36,8 @@ class HydrogramBuild(metaclass=ABCMeta):
         pass
 
     def _plot_one(self, data, station=None, color=None):
+        print(len(data.T.values[0]))
+        print(len(data.index))
         data = go.Scatter(x=data.index,
                           y=data.T.values[0],
                           name=station,

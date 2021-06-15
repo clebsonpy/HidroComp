@@ -127,3 +127,8 @@ class TestFlow(TestCase):
                              value_threshold=0.75)
         print(parti.peaks)
         print(parti.dist_gpa.mml())
+
+    def test_xingo(self):
+        flow = Flow(station='XINGO', source='ONS')
+        dict_fig, data_fig = flow.hydrogram(title='Hidrograma')
+        pyo.plot(dict_fig, filename="../figs/hidro_flow.html")

@@ -159,6 +159,17 @@ class Flow(SeriesBuild):
         pot = data.multiply(const)
         return pot
 
+    def hydrogram(self, title, threshold=None, save=False, width=None, height=None, size_text=16, color=None):
+        if self.station is None:
+            hydrogram = HydrogramClean(data=self.data, threshold=threshold, width=width, height=height,
+                                       size_text=size_text, title=title, color=color, data_type=self.data_type)
+            fig, data = hydrogram.plot()
+        else:
+            hydrogram = HydrogramClean(data=self.data[self.station], threshold=threshold, width=width, height=height,
+                                       size_text=size_text, title=title, color=color, data_type=self.data_type)
+            fig, data = hydrogram.plot()
+        return fig, data
+
     def hydrogram_year(self, title="", threshold=None, width: int = None, height: int = None, size_text: int = 16,
                        showlegend: bool = False, language: str = 'pt'):
         idx = [i for i in self.data.index if i.month == 2 and i.day == 29]

@@ -63,8 +63,7 @@ class Ons(FileRead):
         return data_flow.astype(float)
 
     def __series_temporal(self):
-        data = pd.read_csv('http://raw.githubusercontent.com/wallissoncarvalho/hydrobr/master/hydrobr/'
-                           'resources/ONS_daily_flow.csv', index_col=0, parse_dates=True)
+        data = pd.read_csv('https://raw.githubusercontent.com/hydrobr/hydrobr/f84cf02998ab3db693d925e4c6f89b274595b117/hydrobr/resources/ONS_daily_flow.csv', index_col=0, parse_dates=True)
         code_column = [i.split(' (')[0] for i in data.axes[1]]
         data.columns = code_column
         data.index.name = None
