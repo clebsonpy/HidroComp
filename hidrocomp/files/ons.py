@@ -68,4 +68,3 @@ class Ons(FileRead):
         data.columns = code_column
         data.index.name = None
         return data
-
