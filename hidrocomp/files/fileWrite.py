@@ -33,22 +33,23 @@ class FileWrite(Files):
             self.df = self.df.resample('H').sum()
         bool = self.df.isnull()
         cont = 1
-        arq2 = open(os.path.join(os.getcwd(), 'interplu'+'.txt'), 'w')
-        arq2.write('{:>20}{:>23}{:>13}\n'.format('codigo', 'long dec', 'lat dec'))
-        for i in self.df:
-            data = pd.to_datetime('1/1/1977')
-            name_arq = '{:08}.txt'.format(cont)
-            cont += 1
-            arq2.write('{:>20}{:>23}{:>13}\n'.format(name_arq, i[0], i[1]))
-            arq = open(os.path.join(os.path.join(os.getcwd(),
-                                                 name_dir), name_arq), 'w')
-            for j in self.df[i].index:
-                if bool[i][j]:
-                    j =- 1
-                else:
-                    j = self.df[i][j]
-                arq.write('{:>6}{:>6}{:>6}{:>12}\n'.format(data.day, data.month,
-                                                           data.year, j))
-                data += pd.DateOffset(days=1)
-            arq.close()
-        arq2.close()
+        
+        # use context manager whenever possible, prevent bad stuff happening when the file is closed before the program finish
+        with open(os.path.join(os.getcwd(), 'interplu'+'.txt'), 'w') as arq2:
+            arq2.write('{:>20}{:>23}{:>13}\n'.format('codigo', 'long dec', 'lat dec'))
+            for i in self.df:
+                data = pd.to_datetime('1/1/1977')
+                name_arq = '{:08}.txt'.format(cont)
+                cont += 1
+                arq2.write('{:>20}{:>23}{:>13}\n'.format(name_arq, i[0], i[1]))
+                
+                path_file = os.path.join(os.path.join(os.getcwd(), name_dir), name_arq)
+                with open(path_file, 'w') as arq:
+                    for j in self.df[i].index:
+                        if bool[i][j]:
+                            j =- 1
+                        else:
+                            j = self.df[i][j]
+                        arq.write('{:>6}{:>6}{:>6}{:>12}\n'.format(data.day, data.month,
+                                                               data.year, j))
+                        data += pd.DateOffset(days=1)
