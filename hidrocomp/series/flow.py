@@ -70,17 +70,17 @@ class Flow(SeriesBuild):
     def month_abr_drought(self) -> str:
         return self._month_start_year_hydrologic()[3]
 
-    def minimum(self):
+    def minimum(self) -> Minimum:
         minimum = Minimum(obj=self, station=self.station)
 
         return minimum
 
-    def maximum(self):
+    def maximum(self) -> Maximum:
         maximum = Maximum(obj=self, station=self.station)
 
         return maximum
 
-    def partial(self, type_threshold, type_event, type_criterion, value_threshold, **kwargs):
+    def partial(self, type_threshold, type_event, type_criterion, value_threshold, **kwargs) -> Partial:
         partial = Partial(station=self.station, obj=self, type_threshold=type_threshold, type_event=type_event,
                           type_criterion=type_criterion, value_threshold=value_threshold, **kwargs)
 

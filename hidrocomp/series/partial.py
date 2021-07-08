@@ -49,7 +49,8 @@ class Partial(object):
             self.duration = kwargs['duration']
         elif self.type_criterion == "wrc":
             self.duration = kwargs['duration']
-
+        elif self.type_criterion == 'duration':
+            self.duration = kwargs['duration']
 
         self.__threshold(self.value)
         if self.type_criterion is not None:
@@ -76,10 +77,11 @@ class Partial(object):
                 if self.type_event == "flood":
                     self.__peaks = self.__duration()
                 elif self.type_event == "drought":
-                    self.__peaks = self.__events_over_threshold()
-                    self.__peaks.at[self.__peaks.iloc[-1].index,
-                                    "End"] = self.__peaks.iloc[-1].End - pd.timedelta_range(start='1 day', periods=1,
-                                                                                            freq='D')
+                    self.__peaks = self.__duration()
+                    if len(self.__peaks) > 0:
+                        self.__peaks.at[self.__peaks.index[-1],
+                                        "End"] = self.__peaks['End'].iloc[-1] - pd.to_timedelta(1, unit="d")
+
             elif self.type_criterion == "autocorrelation":
                 if self.type_event == "flood":
                     self.__peaks = self.__test_autocorrelation()
@@ -141,6 +143,7 @@ class Partial(object):
 
     def __duration(self):
         events_over_threshold = self.__events_over_threshold().sort_values(by="Peaks", ascending=False)
+        print(events_over_threshold)
 
         events_duration = pd.DataFrame()
 

@@ -120,13 +120,19 @@ class TestFlow(TestCase):
         print(maximum['56110005'].peaks)
         print(maximum['56110005'].dist_gev.mml())
 
-    def test_partial(self):
+    def test_partial_flood_median(self):
         flow = Flow(station=['56110005', '56425000', '56430000', '56540001', '56610000', '56110005'], source='ANA')
         flow.station = '56110005'
         parti = flow.partial(type_event='flood', type_criterion='median', type_threshold='stationary',
                              value_threshold=0.75)
         print(parti.peaks)
         print(parti.dist_gpa.mml())
+
+    def test_partial_drought_duration(self):
+        flow = Flow(station='XINGO', source='ONS')
+        parti = flow.partial(type_event='drought', type_criterion='duration', type_threshold='stationary',
+                             value_threshold=0.25, duration=20)
+        print(parti.peaks)
 
     def test_xingo(self):
         flow = Flow(station='XINGO', source='ONS')

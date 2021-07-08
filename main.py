@@ -267,10 +267,14 @@ if __name__ == '__main__':
     # flow.data.to_excel(os.path.abspath(os.path.join('Medicoes', 'dados_ipanema_2008.xlsx')))
     # fig_gantt, data_gantt = flow.gantt(title="Gantt")
 
+    flow = Flow(station='XINGO', source='ONS')
+    parti = flow.partial(type_event='drought', type_criterion='duration', type_threshold='stationary',
+                         value_threshold=0.25, duration=20)
+    print(parti.peaks)
     # height = Rainfall(station='00836008', source='ANA')
-    flow = Flow(station='39431000', source='ANA')
+    # flow = Flow(station='39431000', source='ANA')
     # max_year = flow.maximum()
-    fig, data = flow.hydrogram_year(title="Test", language='en', showlegend=False)
+    # fig, data = flow.hydrogram_year(title="Test", language='en', showlegend=False)
 
     # file = os.path.abspath(os.path.join('Medicoes', 'dados_manso.csv'))
     # dados = pd.read_csv(file, index_col=0, parse_dates=True)
@@ -369,7 +373,7 @@ if __name__ == '__main__':
     # fig, data = parcial.plot_hydrogram('Parcial')
     #py.offline.plot(fig2, filename=os.path.join(path, 'graficos/rva.html'))
     """
-    py.offline.plot(fig, filename=os.path.join(path, 'graficos/polar_test.html'))
+    # py.offline.plot(fig, filename=os.path.join(path, 'graficos/polar_test.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/gantt_ipanema.html'))
     # py.offline.plot(fig_gantt, filename=os.path.join(path, 'graficos/gantt_ipanema_2008.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro_anual.html'))
