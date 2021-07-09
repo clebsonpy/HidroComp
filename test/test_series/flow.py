@@ -141,8 +141,8 @@ class TestFlow(TestCase):
 
     def test_hydrogram_drought(self):
         # flow = Flow(station='XINGO', source='ONS')
-        flow = self.flow.date(date_start="01/{}/1931".format(self.flow.month_num_flood),
-                         date_end="31/{}/2018".format(self.flow.month_num_flood - 1))
+        flow = self.flow.date(date_start="01/2/1988".format(self.flow.month_num_flood),
+                         date_end="31/1/1989".format(self.flow.month_num_flood - 1))
         partial = flow.partial(type_event='drought', type_criterion='duration', type_threshold='stationary',
                                value_threshold=0.25, duration=20)
 
