@@ -268,9 +268,14 @@ if __name__ == '__main__':
     # fig_gantt, data_gantt = flow.gantt(title="Gantt")
 
     flow = Flow(station='XINGO', source='ONS')
-    parti = flow.partial(type_event='drought', type_criterion='duration', type_threshold='stationary',
-                         value_threshold=0.25, duration=20)
-    print(parti.peaks)
+    flow = flow.date(date_start="01/{}/1931".format(flow.month_num_flood),
+                     date_end="31/{}/2018".format(flow.month_num_flood - 1))
+    partial = flow.partial(type_event='drought', type_criterion='duration', type_threshold='stationary',
+                           value_threshold=0.25, duration=20)
+
+    print(partial)
+    # dict_fig_partial, data_fig_partial = partial.plot_hydrogram(title="Eventos de duração parcial - Estiagem")
+
     # height = Rainfall(station='00836008', source='ANA')
     # flow = Flow(station='39431000', source='ANA')
     # max_year = flow.maximum()

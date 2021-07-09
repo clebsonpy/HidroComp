@@ -138,3 +138,13 @@ class TestFlow(TestCase):
         flow = Flow(station='XINGO', source='ONS')
         dict_fig, data_fig = flow.hydrogram(title='Hidrograma')
         pyo.plot(dict_fig, filename="../figs/hidro_flow.html")
+
+    def test_hydrogram_drought(self):
+        # flow = Flow(station='XINGO', source='ONS')
+        flow = self.flow.date(date_start="01/{}/1931".format(self.flow.month_num_flood),
+                         date_end="31/{}/2018".format(self.flow.month_num_flood - 1))
+        partial = flow.partial(type_event='drought', type_criterion='duration', type_threshold='stationary',
+                               value_threshold=0.25, duration=20)
+
+        dict_fig_partial, data_fig_partial = partial.plot_hydrogram(title="Eventos de duração parcial - Estiagem")
+        pyo.plot(dict_fig_partial, filename="../figs/hidro_flow.html")

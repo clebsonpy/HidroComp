@@ -70,8 +70,9 @@ class Partial(object):
                 elif self.type_event == "drought":
                     self.__peaks = self.__events_over_threshold()
                     if len(self.__peaks) > 0:
-                        self.__peaks.at[self.__peaks.index[-1],
-                                        "End"] = self.__peaks["End"].iloc[-1] - pd.to_timedelta(1, unit="d")
+                        self.__peaks.at[self.__peaks.sort_values(by="End").index[-1],
+                                        "End"] = self.__peaks.sort_values(
+                            by="End")["End"].iloc[-1] - pd.to_timedelta(1, unit="d")
 
             elif self.type_criterion == "duration":
                 if self.type_event == "flood":
@@ -79,8 +80,9 @@ class Partial(object):
                 elif self.type_event == "drought":
                     self.__peaks = self.__duration()
                     if len(self.__peaks) > 0:
-                        self.__peaks.at[self.__peaks.index[-1],
-                                        "End"] = self.__peaks['End'].iloc[-1] - pd.to_timedelta(1, unit="d")
+                        self.__peaks.at[self.__peaks.sort_values(by="End").index[-1],
+                                        "End"] = self.__peaks.sort_values(
+                            by="End")["End"].iloc[-1] - pd.to_timedelta(1, unit="d")
 
             elif self.type_criterion == "autocorrelation":
                 if self.type_event == "flood":
@@ -138,12 +140,12 @@ class Partial(object):
             max_events["End"].append(end.values[0])
             max_events["Duration"].append(duration.days + 1)
 
-        df = pd.DataFrame(data=max_events, index=max_events["Date"], columns=['Peaks', 'Start', 'End', 'Duration'])
+        df = pd.DataFrame(data=max_events, index=max_events["Date"],
+                          columns=['Peaks', 'Start', 'End', 'Duration']).sort_values(by='End')
         return df
 
     def __duration(self):
         events_over_threshold = self.__events_over_threshold().sort_values(by="Peaks", ascending=False)
-        print(events_over_threshold)
 
         events_duration = pd.DataFrame()
 
@@ -151,19 +153,38 @@ class Partial(object):
             actual = events_over_threshold.loc[events_over_threshold.index == i]
 
             if len(events_duration) == 0:
-                events_duration = events_duration.combine_first(actual).sort_values(by="Peaks", ascending=False)
+                if self.type_event == 'flood':
+                    events_duration = events_duration.combine_first(actual).sort_values(by="Peaks", ascending=False)
+                elif self.type_event == 'drought':
+                    events_duration = events_duration.combine_first(actual).sort_values(by="Peaks", ascending=True)
+                else:
+                    raise TypeError("Type events {} invalid! Use flood or drought".format(self.type_event))
+
                 events_duration.at[i, "Date"] = i
             else:
                 if_add = False
                 for j in events_duration.index:
                     duration = i - j
                     if abs(duration.days) <= self.duration:
-                        events_duration = self.__update_peaks(actual=actual, events=events_duration,
-                                                              idx=j).sort_values(by="Peaks", ascending=False)
+                        if self.type_event == 'flood':
+                            events_duration = self.__update_peaks(actual=actual, events=events_duration,
+                                                                  idx=j).sort_values(by="Peaks", ascending=False)
+                        elif self.type_event == 'drought':
+                            events_duration = self.__update_peaks(actual=actual, events=events_duration,
+                                                                  idx=j).sort_values(by="Peaks", ascending=True)
+                        else:
+                            raise TypeError("Type events {} invalid! Use flood or drought".format(self.type_event))
+
                         if_add = True
                         break
                 if not if_add:
-                    events_duration = events_duration.combine_first(actual).sort_values(by="Peaks", ascending=False)
+                    if self.type_event == 'flood':
+                        events_duration = events_duration.combine_first(actual).sort_values(by="Peaks", ascending=False)
+                    elif self.type_event == 'drought':
+                        events_duration = events_duration.combine_first(actual).sort_values(by="Peaks", ascending=True)
+                    else:
+                        raise TypeError("Type events {} invalid! Use flood or drought".format(self.type_event))
+
                     events_duration.at[i, "Date"] = i
 
         if len(events_duration) > 0:
@@ -199,8 +220,7 @@ class Partial(object):
         except (AttributeError, ValueError):
             return peaks
 
-    @staticmethod
-    def __update_peaks(actual, events, idx):
+    def __update_peaks(self, actual, events, idx):
         if actual["End"].values[0] > events["End"][idx]:
             end = actual["End"].values[0]
         else:
@@ -219,7 +239,13 @@ class Partial(object):
 
         peaks = [actual["Peaks"].values[0], events["Peaks"][idx]]
         date_peaks = [actual.index.values[0], events["Date"][idx]]
-        peak_idx_max = peaks.index(max(peaks))
+        if self.type_event == 'flood':
+            peak_idx_max = peaks.index(max(peaks))
+        elif self.type_event == 'drought':
+            peak_idx_max = peaks.index(min(peaks))
+        else:
+            raise TypeError("Type events {} invalid! Use flood or drought".format(self.type_event))
+
         date = date_peaks[peak_idx_max]
         peaks = peaks[peak_idx_max]
         events["Peaks"][idx] = peaks
