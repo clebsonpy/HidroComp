@@ -1,21 +1,33 @@
 from unittest import TestCase
 import pandas as pd
 import os
-from hydrocomp.iha.iha import IHA
+import plotly as py
+from hidrocomp.series import Flow
+from hidrocomp.series.partial import Partial
 
 
 class TestRVA(TestCase):
 
-    path = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_obs.csv'))
-    data = pd.read_csv(path, ',', index_col=0, parse_dates=True)
+    # flow = Flow(station=["66231000", "66160000"], source="ANA")
+    # flow.date(date_start="01/09/2001", date_end="31/08/2008")
 
-    iha_obj_nat = IHA(data, month_water=1, status='pre', statistic='non-parametric', central_metric='mean',
-                      variation_metric='cv',  type_criterion=None, type_threshold="stationary", duration=0,
-                      threshold_high=4813, threshold_low=569.5, source='ONS', station='NAT')
+    # alpha = 2.2458955
+    # data_mod = pd.DataFrame(flow.data["66160000"] * alpha)
+    # data_nat = Flow(data=data_mod)
+    #
+    # data_obs = Flow(data=pd.DataFrame(flow.data["66231000"]))
 
-    iha_obj_obs = IHA(data, month_water=1, status='pos', statistic='non-parametric', central_metric='mean',
-                      variation_metric='cv', type_criterion=None, type_threshold="stationary", duration=0,
-                      threshold_high=4813, threshold_low=569.5, source='CHESF', station='OBS')
+    data_obs = Flow(station='49330000', source='ANA')
+    data_nat = Flow(station='XINGO', source='ONS')
+    data_nat.date(date_start='01/09/1995', date_end='31/08/2012')
+    data_obs.date(date_start='01/09/1995', date_end='31/08/2012')
+
+    # threshold_low = data.minimum().peaks.max().values[0]
+    threshold_high = 1025
+    threshold_low = 59
+    duration = 1
+    # duration = 10
+
 
     @staticmethod
     def read_iha(file):
@@ -29,36 +41,126 @@ class TestRVA(TestCase):
             self.assertEqual(data['Coeff. of Var.'][i], data2['Coeff. of Var.'][i])
 
     def test_mean_month(self):
-        data_group_nat, data_nat = self.iha_obj_nat.magnitude()
-        data_group_obs, data_obs = self.iha_obj_obs.magnitude()
-        print(data_nat)
-        print(data_obs)
-        print(self.iha_obj_nat.rva(self.iha_obj_obs, group_iha='group1')[1])
+        partial = self.data_nat.partial(type_criterion="autocorrelation", type_threshold="stationary",
+                                        duration=self.duration, value_threshold=self.threshold_high, type_event="flood")
+
+        fig, data = partial.plot_hydrogram("")
+        py.offline.plot(fig, filename=os.path.join("graficos", "test.html"))
+
+    def test_iha_events_high_pos(self):
+        iha_pos = self.data_obs.iha(status='pos', statistic="no-parametric", central_metric="mean", month_water=9,
+                               variation_metric="std", type_threshold="stationary",
+                               threshold_high=self.threshold_high, threshold_low=self.threshold_low,
+                               type_criterion="autocorrelation", duration=1,
+                               aspects=["Magnitude and Duration", "Frequency and Duration", "Timing Extreme"],
+                               magnitude_and_duration=["1-day maximum", "1-day minimum"],
+                               timing=["Date of maximum", "Date of minimum"])
+
+        partial = iha_pos.frequency_and_duration.events_high()
+
+        fig, data = partial.plot_polar("")
+        py.offline.plot(fig, filename=os.path.join("graficos", "test.html"))
+
+    def test_iha_events_high_pre(self):
+        iha_pre = self.data_nat.iha(status='pre', statistic="no-parametric", central_metric="mean", month_water=9,
+                           variation_metric="std", type_threshold="stationary",
+                           threshold_high=self.threshold_high, threshold_low=self.threshold_low, type_criterion="autocorrelation",
+                           duration=1,
+                           aspects=["Magnitude and Duration", "Frequency and Duration", "Timing Extreme"],
+                           magnitude_and_duration=["1-day maximum", "1-day minimum"],
+                           timing=["Date of maximum", "Date of minimum"])
+
+        print(iha_pre.summary())
+
+        partial = iha_pre.frequency_and_duration.events_high()
+
+        fig, data = partial.plot_hydrogram("")
+        py.offline.plot(fig, filename=os.path.join("graficos", "test.html"))
+
+
+    def test_cha(self):
+        iha_pre = self.data_nat.iha(status='pre', statistic="no-parametric", central_metric="mean", month_water=9,
+                                    variation_metric="std", type_threshold="stationary", type_criterion="wrc",
+                                    threshold_high=self.threshold_high, threshold_low=self.threshold_low,
+                                    duration=self.duration)
+        print(iha_pre)
+
+        iha_pos = self.data_obs.iha(status='pos', statistic="no-parametric", central_metric="mean", month_water=9,
+                                    variation_metric="std", type_threshold="stationary", type_criterion="wrc",
+                                    threshold_high=self.threshold_high, threshold_low=self.threshold_low,
+                                    duration=self.duration)
+
+        cha = iha_pre.cha(iha_obs=iha_pos)
+        fig, data = cha.plot(data_type="mean")
+        py.offline.plot(fig, filename=os.path.join("graficos", "test.html"))
+
+    def test_rva(self):
+        # iha_pre = self.data_nat.iha(status='pre', statistic="non-parametric", central_metric="mean", month_water=9,
+        #                             variation_metric="std", type_threshold="stationary", type_criterion="wrc",
+        #                             threshold_high=self.threshold_high, threshold_low=self.threshold_low,
+        #                             duration=self.duration)
+        # print(iha_pre)
+        threshold_high = self.data_nat.quantile(0.75)[0]
+        threshold_low = self.data_nat.quantile(0.25)[0]
+        iha_pre = self.data_nat.iha(status="pre", date_start="01/09/1995", date_end="31/08/2012",
+                                    threshold_high=threshold_high, threshold_low=threshold_low, month_water=9,
+                                    statistic='non-parametric')
+
+        # iha_pos = self.data_obs.iha(status='pos', statistic="non-parametric", central_metric="mean", month_water=9,
+        #                             variation_metric="std", type_threshold="stationary", type_criterion="wrc",
+        #                             threshold_high=self.threshold_high, threshold_low=self.threshold_low,
+        #                             duration=self.duration)
+
+        iha_pos = self.data_obs.iha(status="pos", date_start="01/09/1995", date_end="31/08/2012",
+                                    threshold_high=threshold_high, threshold_low=threshold_low, month_water=9,
+                                    statistic='non-parametric')
+
+        rva = iha_pre.timing_extreme.variable(name="Date of maximum").rva(variable_pos=iha_pos.timing_extreme.variable(name="Date of maximum"))
+        print(rva.frequency_pos)
+
+        fig, data = rva.plot()
+        py.offline.plot(fig, filename=os.path.join("graficos", "test.html"))
 
     def test_moving_averages(self):
-        data_group_nat, data_nat = self.iha_obj_nat.magnitude_and_duration()
-        data_group_obs, data_obs = self.iha_obj_obs.magnitude_and_duration()
-        print(data_nat)
-        print(data_obs)
-        print(self.iha_obj_nat.rva(self.iha_obj_obs, group_iha='group2'))
+        magnitude_duration_nat = self.iha_obj_nat.magnitude_and_duration
+        magnitude_duration_obs = self.iha_obj_obs.magnitude_and_duration
+        print(magnitude_duration_nat.metrics)
+        print(magnitude_duration_obs.metrics)
+        print(magnitude_duration_nat.rva_frequency(aspect_pos=magnitude_duration_obs))
+        print(magnitude_duration_nat.rva_measure_hydrologic_alteration(aspect_pos=magnitude_duration_obs))
+        dhram = magnitude_duration_nat.era(aspect_pos=magnitude_duration_obs, m=100, interval=95)
+        print(dhram.diff)
+        print(dhram.point)
 
     def test_days_julian(self):
-        data_group_nat, data_nat = self.iha_obj_nat.timing_extreme()
-        data_group_obs, data_obs = self.iha_obj_obs.timing_extreme()
-        print(data_nat)
-        print(data_obs)
-        print(self.iha_obj_nat.rva(self.iha_obj_obs, group_iha='group3'))
+        timing_extreme_nat = self.iha_obj_nat.timing_extreme
+        timing_extreme_obs = self.iha_obj_obs.timing_extreme
+        print(timing_extreme_nat.metrics)
+        print(timing_extreme_obs.metrics)
+        print(timing_extreme_nat.rva_frequency(aspect_pos=timing_extreme_obs))
+        print(timing_extreme_nat.rva_measure_hydrologic_alteration(aspect_pos=timing_extreme_obs))
+        dhram = timing_extreme_nat.era(aspect_pos=timing_extreme_obs, m=1000, interval=95)
+        print(dhram.diff)
+        print(dhram.point)
 
     def test_pulse(self):
-        data_group_nat, data_nat,  partial_high_nat, partial_low_nat = self.iha_obj_nat.frequency_and_duration()
-        data_group_obs, data_obs,  partial_high_obs, partial_low_obs = self.iha_obj_obs.frequency_and_duration()
-        print(data_nat)
-        print(data_obs)
-        print(self.iha_obj_nat.rva(self.iha_obj_obs, group_iha='group4'))
+        frequency_duration_nat = self.iha_obj_nat.frequency_and_duration
+        frequency_duration_obs = self.iha_obj_obs.frequency_and_duration
+        print(frequency_duration_nat.metrics)
+        print(frequency_duration_obs.metrics)
+        print(frequency_duration_nat.rva_frequency(aspect_pos=frequency_duration_obs))
+        print(frequency_duration_nat.rva_measure_hydrologic_alteration(aspect_pos=frequency_duration_obs))
+        dhram = frequency_duration_nat.era(aspect_pos=frequency_duration_obs, m=1000, interval=95)
+        print(dhram.diff)
+        print(dhram.point)
 
     def test_rise_fall(self):
-        data_group_nat, data_nat = self.iha_obj_nat.rate_and_frequency()
-        data_group_obs, data_obs = self.iha_obj_obs.rate_and_frequency()
-        print(data_nat)
-        print(data_obs)
-        print(self.iha_obj_nat.rva(self.iha_obj_obs, group_iha='group5'))
+        rate_and_frequency_nat = self.iha_obj_nat.rate_and_frequency
+        rate_and_frequency_obs = self.iha_obj_obs.rate_and_frequency
+        print(rate_and_frequency_nat.metrics)
+        print(rate_and_frequency_obs.metrics)
+        print(rate_and_frequency_nat.rva_frequency(aspect_pos=rate_and_frequency_obs))
+        print(rate_and_frequency_nat.rva_measure_hydrologic_alteration(aspect_pos=rate_and_frequency_obs))
+        dhram = rate_and_frequency_nat.era(aspect_pos=rate_and_frequency_obs, m=1000, interval=95)
+        print(dhram.diff)
+        print(dhram.point)

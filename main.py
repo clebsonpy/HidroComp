@@ -1,19 +1,18 @@
 import os
 
 import plotly as py
+import plotly.figure_factory as FF
 import timeit
+
 import pandas as pd
 
-from hydrocomp.api_ana.inventario import Inventario
-from hydrocomp.api_ana.basin import Basin
-from hydrocomp.api_ana.serie_temporal import SerieTemporal
-
-from hydrocomp.iha import iha
-from hydrocomp.iha.iha import IHA
-from hydrocomp.iha.graphics import Graphics
-from hydrocomp.series.flow import Flow
-from hydrocomp.series.height import Height
-from hydrocomp.series.rainfall import Rainfall
+from hidrocomp.eflow import iha
+from hidrocomp.eflow.iha import IHA
+from hidrocomp.eflow.graphics import Graphics
+from hidrocomp.series.flow import Flow
+from hidrocomp.series.height import Height
+from hidrocomp.series.rainfall import Rainfall
+# from api_ana.serie_temporal import SerieTemporal
 
 if __name__ == '__main__':
     ini = timeit.default_timer()
@@ -188,62 +187,142 @@ if __name__ == '__main__':
 
     # dados.data.to_csv("rio_ibicui_consistido.csv")
     # print(dados['1993'])
-    # file = os.path.abspath(os.path.join('Medicoes', 'dadosXingo_nat.csv'))
-    # dados = pd.read_csv(file, index_col=0, parse_dates=True)
-    # print(dados)
+    # file = os.path.abspath(os.path.join('Medicoes', 'PIMENTAL.csv'))
+    # dados_nat = pd.read_csv(file, index_col=0, parse_dates=True)
     path = ''
-    #file_rain = os.path.abspath(os.path.join('Medicoes', 'dados_inmet.csv'))
+    # file_rain = os.path.abspath(os.path.join('Medicoes', 'dados_inmet.csv'))
     # dados = pd.read_csv(file, ',', index_col=0, parse_dates=True).NAT
-    #rainfall = Rainfall(data=dados, source='INMET')
-    #print(rainfall.data)
-    #stations = ['76100000', '76310000', '76380000', '76440000', '76460000', '76750000', '76800000']
-
-    #df = SerieTemporal().get(codEstacao='76100000', tipoDados='3')
-    #print(df)
-    #stations_rainfall = ['835000', '835002', '835014', '835015', '835025', '835026', '835042', '835043', '835050',
+    # rainfall = Rainfall(data=dados, source='INMET')
+    # print(rainfall.data)
+    # stations = ['76100000', '76310000', '76380000', '76440000', '76460000', '76750000', '76800000']
+    #
+    # df = SerieTemporal().get(codEstacao='76100000', tipoDados='3')
+    # print(df)
+    # stations_rainfall = ['835000', '835002', '835014', '835015', '835025', '835026', '835042', '835043', '835050',
     #                     '835112', '835116', '835119', '835140', '835142', '835150', '835152', '835155', '835157',
     #                     '835158', '835160', '835177', '835179', '835181', '835186', '835195', '835197', '835198',
     #                     '835203', '835209']
-
-    #stations = ['76077000', '76085000', '76100000', '76120000', '76251000', '76260000', '76300000', '76310000',
+    #
+    # stations = ['76077000', '76085000', '76100000', '76120000', '76251000', '76260000', '76300000', '76310000',
     #            '76360001', '76370000', '76380000', '76395000', '76431000', '76440000', '76460000', '76490000',
     #            '76500000', '76550000', '76560000', '76600000', '76630000', '76650000', '76700000', '76742000',
     #            '76745000', '76750000', '76800000', '76081000']
 
-    #stations = ['49775100', '49775000', '49760000', '49750000', '49743100', '49740000', '49723000', '49706000',
-    #            '49690000', '49670000', '49550000', '49390000', '49370000', '49369000', '49330000', '49208100']
+    # stations = ['49775100', '49775000', '49760000', '49750000', '49743100', '49740000', '49723000', '49706000',
+    #             '49690000', '49670000', '49550000', '49390000', '49370000', '49369000', '49330000', '49208100']
 
-    stations = ['49151800', '49169000', '49270000', '49280000', '49295000', '49305000', '49310000', '49310040',
-                '49310060', '49310900', '49315000', '49330000', '49330001', '49330002', '49330990', '49340000',
-                '49340010', '49340020', '49340030', '49340040', '49340050', '49340060', '49340070', '49340080',
-                '49340100', '49341000', '49369000', '49370000', '49370001', '49370002', '49402000', '49402500',
-                '49047000', '49050002', '49180000', '49190000', '49200000', '49205000', '49208020', '49208030',
-                '49208040', '49208050', '49208055', '49208070', '49208080', '49208090', '49208100', '49209000',
-                '49209100', '49210000', '49210040', '49210045', '49210050', '49210060', '49210070', '49210075',
-                '49210080', '49210085', '49210090', '49211010', '49211020', '49211030', '49211040', '49215000',
-                '49330970', '49330980', '49340200', '49369600', '49385000', '49390000', '49550000', '49570000',
-                '49572000', '49598900', '49601000', '49610000', '49619000', '49620000', '49650000', '49658000',
-                '49660000', '49660001', '49660002', '49670000', '49681900', '49690000', '49695000', '49700000',
-                '49704000', '49704900', '49705000', '49705001', '49705005', '49706000', '49706250', '49720000',
-                '49723000', '49730000', '49731000', '49731100', '49731110', '49740000', '49740001', '49743000',
-                '49743100', '49744000', '49745000', '49746000', '49747000', '49750000', '49760000', '49775000',
-                '49775100', '49775110', '49775120', '49790000', '49790001']
+    # stations = ['49151800', '49169000', '49270000', '49280000', '49295000', '49305000', '49310000', '49310040',
+    #            '49310060', '49310900', '49315000', '49330000', '49330001', '49330002', '49330990', '49340000',
+    #            '49340010', '49340020', '49340030', '49340040', '49340050', '49340060', '49340070', '49340080',
+    #            '49340100', '49341000', '49369000', '49370000', '49370001', '49370002', '49402000', '49402500',
+    #            '49047000', '49050002', '49180000', '49190000', '49200000', '49205000', '49208020', '49208030',
+    #            '49208040', '49208050', '49208055', '49208070', '49208080', '49208090', '49208100', '49209000',
+    #            '49209100', '49210000', '49210040', '49210045', '49210050', '49210060', '49210070', '49210075',
+    #           '49210080', '49210085', '49210090', '49211010', '49211020', '49211030', '49211040', '49215000',
+    #           '49330970', '49330980', '49340200', '49369600', '49385000', '49390000', '49550000', '49570000',
+    #           '49572000', '49598900', '49601000', '49610000', '49619000', '49620000', '49650000', '49658000',
+    #           '49660000', '49660001', '49660002', '49670000', '49681900', '49690000', '49695000', '49700000',
+    #           '49704000', '49704900', '49705000', '49705001', '49705005', '49706000', '49706250', '49720000',
+    #           '49723000', '49730000', '49731000', '49731100', '49731110', '49740000', '49740001', '49743000',
+    #           '49743100', '49744000', '49745000', '49746000', '49747000', '49750000', '49760000', '49775000',
+    #           '49775100', '49775110', '49775120', '49790000', '49790001']
 
-    flow = Flow(station=stations, source='ANA')
-    flow.data.to_csv('Dados-Vazao-SF-AL-SE.csv')
+
+    # rain.date(date_start="01/01/1995", date_end="31/12/2012")
+    # dados = dados_nat.combine_first(flow_obs.data)
+    # flow_obs = Flow(station='49330000', source="ANA")
+    # fig, data = flow.hydrogram_year(title="")
+    # py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro_disser.html'))
+    # dados = SerieTemporal().get(codEstacao="49330000", tipoDados="3")
+    # print(dados)
+    # file = os.path.abspath(os.path.join('Medicoes', 'dadosDissertacao.csv'))
+    # flow = Flow(station=["66160000", "66231000"], source='ANA')
+    # file_nat = "E:\\Vazões_Diárias_1931_2018.xlsx"
+    # flow_nat = Flow(path_file=file_nat, source="ONS", station="MANSO")
+    # flow_nat.data.to_csv(os.path.join('Medicoes', "ons_manso.csv"))
+    # flow.data = flow.data.combine_first(flow_nat.data)
+    #
+    # file = os.path.abspath(os.path.join('Medicoes', 'sar_manso.csv'))
+    # dados_sar = pd.read_csv(file, index_col=0, parse_dates=True)
+    # flow.data = flow.data.combine_first(dados_sar)
+    #
+    # flow.data.to_csv(os.path.join('Medicoes', "dados_manso.csv"))
+
+    # station_mundau_pre = ["836008", "836009", "836013", "836014", "836015", "836016", "836017", "836026", "836066",
+    #                       "836070", "836072","836074", "836088", "836094", "836095", "836097", "836111", "936003",
+    #                       "936004", "936005", "936006", "936008", "936033", "936045", "936047", "936077", "936078",
+    #                       "936104", "936105", "936108", "936112", "936117", "936120", "936128", "936134", "936135",
+    #                       "936136", "935000", "935003", "935021", "935022", "935023", "935056", "935058", "935060",
+    #                       "935084", "935012", "935081", "936044", "936053", "936054", "936081", "936113", "936114",
+    #                       "936127", "936129", "936133", "936137"]
+
+    # stations = ['937032', '937031', '937010', '937006', '937004', '937002', '937000', '936026', '936009', '936007',
+    #             '837036', '837024', '837019', '837015', '837009', '837002', '836053', '836041', '836032', '836031',
+    #             '836029', '836019', '836011', '836002', '836000']
+    #
+    # rainfall = Rainfall(station=stations, source="ANA")
+    # flow.data.to_excel(os.path.abspath(os.path.join('Medicoes', 'dados_ipanema.xlsx')))
+    # fig, data = rainfall.gantt(title="Gantt")
+    # flow.date(date_start="01/01/2008")
+    # flow.data.to_excel(os.path.abspath(os.path.join('Medicoes', 'dados_ipanema_2008.xlsx')))
+    # fig_gantt, data_gantt = flow.gantt(title="Gantt")
+
+    flow = Flow(station='XINGO', source='ONS')
+    flow = flow.date(date_start="01/{}/1931".format(flow.month_num_flood),
+                     date_end="31/{}/2018".format(flow.month_num_flood - 1))
+    partial = flow.partial(type_event='drought', type_criterion='duration', type_threshold='stationary',
+                           value_threshold=0.25, duration=20)
+
+    print(partial)
+    # dict_fig_partial, data_fig_partial = partial.plot_hydrogram(title="Eventos de duração parcial - Estiagem")
+
+    # height = Rainfall(station='00836008', source='ANA')
+    # flow = Flow(station='39431000', source='ANA')
+    # max_year = flow.maximum()
+    # fig, data = flow.hydrogram_year(title="Test", language='en', showlegend=False)
+
+    # file = os.path.abspath(os.path.join('Medicoes', 'dados_manso.csv'))
+    # dados = pd.read_csv(file, index_col=0, parse_dates=True)
+    #
+    # result = dados.mean
+    # result = "{}".format(result)
+
+    # dados = flow_nat.data.combine_first(flow_obs.data)
+    # flow = Flow(data=dados)
+    # flow.date(date_start="01/01/1995", date_end="31/12/2018")
+    # print(flow)
+    # maximum = flow.maximum()
+    # minimum = flow.minimum()
+    # print(minimum.peaks.max().values)
+    # print(maximum.peaks.min().values)
+    # peaks_min = maximum.peaks.min().values
+    # peaks_max = minimum.peaks.max().values
+    # print(peaks_min)
+    # print(flow.get_year("2009").get_month(12))
+    # flow.data = flow.data.rename(columns={"XINGO": "Natural", "49330000": "Observado"})
+    # flow.data.to_csv("Medicoes/dadosDissertacao.csv")
+    # fig, data = flow.gantt(title="Gantt")
+    # print(data)
+    # fig.write_image("graficos/gantt.pdf")
+    # fig, data = maximum.hydrogram(title="Máximas Anuais")
+    # fig, data = flow.hydrogram_year("Hidrograma Anual", threshold=[2919.67, 945])
+    # fig, data = flow_nat.hydrogram(title="Belo Monte natural")
+    # i in flow.data:
+    #    print(i)
+    # flow.data.to_csv('Dados-Vazao-SF-AL-SE.csv')
     # flow.date(date_end='31/12/1977', date_start='1/4/1968')
     # flow.station = '76100000'
     # max_flow = flow.maximum()
     # print(max_flow.obj.month_abr)
-    #parcial_flow = flow.parcial(type_criterion='autocorrelation', type_threshold="stationary",
-                            #    type_event="drought", value_threshold=0.25, duration=6)
-    fig, data = flow.gantt('Gantt')
+    # parcial_flow = flow.parcial(type_criterion='autocorrelation', type_threshold="stationary",
+    #                            type_event="drought", value_threshold=0.25, duration=6)
+    # fig, data = flow.gantt('Gantt')
     # print(max_flow.peaks)
     # fig, data = max_flow.polar()
     # fig, data = parcial_flow.hydrogram(title="Hidrograma")
-    #print(max_flow.peaks)
-    #figg, data = flow.gantt(name='gantt')
-    #fig_h, data = flow.plot_hydrogram('Hidro')
+    # print(max_flow.peaks)
+    # figg, data = flow.gantt(name='gantt')
+    # fig_h, data = flow.plot_hydrogram('Hidro')
     """
 
     path = ''
@@ -299,9 +378,10 @@ if __name__ == '__main__':
     # fig, data = parcial.plot_hydrogram('Parcial')
     #py.offline.plot(fig2, filename=os.path.join(path, 'graficos/rva.html'))
     """
-    #py.offline.plot(figg, filename=os.path.join(path, 'graficos/gantt_test.html'))
-    #py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro.html'))
-    py.offline.plot(fig, filename=os.path.join(path, 'graficos/gantt_nubia.html'))
+    # py.offline.plot(fig, filename=os.path.join(path, 'graficos/polar_test.html'))
+    # py.offline.plot(fig, filename=os.path.join(path, 'graficos/gantt_ipanema.html'))
+    # py.offline.plot(fig_gantt, filename=os.path.join(path, 'graficos/gantt_ipanema_2008.html'))
+    # py.offline.plot(fig, filename=os.path.join(path, 'graficos/hidro_anual.html'))
     # py.offline.plot(fig_hp, filename=os.path.join(path, 'graficos/hidro_parcial.html'))
     # py.offline.plot(fig, filename=os.path.join(path, 'graficos/permanencia.html'))
 
