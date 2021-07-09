@@ -145,13 +145,11 @@ class Partial(object):
         return df
 
     def __duration(self):
-        events_over_threshold = self.__events_over_threshold().sort_values(by="Peaks", ascending=False)
-
+        events_over_threshold = self.__events_over_threshold()
         events_duration = pd.DataFrame()
 
-        for i in events_over_threshold.index:
-            actual = events_over_threshold.loc[events_over_threshold.index == i]
-
+        for idx in events_over_threshold.loc[events_over_threshold.index > events_duration.index[-1]].index:
+            actual = events_over_threshold.loc[events_over_threshold.index == idx]
             if len(events_duration) == 0:
                 if self.type_event == 'flood':
                     events_duration = events_duration.combine_first(actual).sort_values(by="Peaks", ascending=False)
@@ -160,37 +158,55 @@ class Partial(object):
                 else:
                     raise TypeError("Type events {} invalid! Use flood or drought".format(self.type_event))
 
-                events_duration.at[i, "Date"] = i
-            else:
-                if_add = False
-                for j in events_duration.index:
-                    duration = i - j
-                    if abs(duration.days) <= self.duration:
-                        if self.type_event == 'flood':
-                            events_duration = self.__update_peaks(actual=actual, events=events_duration,
-                                                                  idx=j).sort_values(by="Peaks", ascending=False)
-                        elif self.type_event == 'drought':
-                            events_duration = self.__update_peaks(actual=actual, events=events_duration,
-                                                                  idx=j).sort_values(by="Peaks", ascending=True)
-                        else:
-                            raise TypeError("Type events {} invalid! Use flood or drought".format(self.type_event))
+                events_duration.at[idx, "Date"] = idx
 
-                        if_add = True
-                        break
-                if not if_add:
-                    if self.type_event == 'flood':
-                        events_duration = events_duration.combine_first(actual).sort_values(by="Peaks", ascending=False)
-                    elif self.type_event == 'drought':
-                        events_duration = events_duration.combine_first(actual).sort_values(by="Peaks", ascending=True)
-                    else:
-                        raise TypeError("Type events {} invalid! Use flood or drought".format(self.type_event))
-
-                    events_duration.at[i, "Date"] = i
-
-        if len(events_duration) > 0:
-            events_duration = events_duration.set_index("Date")
-
-        return events_duration
+    # def __duration(self):
+    #     events_over_threshold = self.__events_over_threshold().sort_values(by="Peaks", ascending=False)
+    #
+    #     events_duration = pd.DataFrame()
+    #
+    #     for i in events_over_threshold.index:
+    #         actual = events_over_threshold.loc[events_over_threshold.index == i]
+    #
+    #         if len(events_duration) == 0:
+    #             if self.type_event == 'flood':
+    #                 events_duration = events_duration.combine_first(actual).sort_values(by="Peaks", ascending=False)
+    #             elif self.type_event == 'drought':
+    #                 events_duration = events_duration.combine_first(actual).sort_values(by="Peaks", ascending=True)
+    #             else:
+    #                 raise TypeError("Type events {} invalid! Use flood or drought".format(self.type_event))
+    #
+    #             events_duration.at[i, "Date"] = i
+    #         else:
+    #             if_add = False
+    #             for j in events_duration.index:
+    #                 duration = i - j
+    #                 if abs(duration.days) <= self.duration:
+    #                     if self.type_event == 'flood':
+    #                         events_duration = self.__update_peaks(actual=actual, events=events_duration,
+    #                                                               idx=j).sort_values(by="Peaks", ascending=False)
+    #                     elif self.type_event == 'drought':
+    #                         events_duration = self.__update_peaks(actual=actual, events=events_duration,
+    #                                                               idx=j).sort_values(by="Peaks", ascending=True)
+    #                     else:
+    #                         raise TypeError("Type events {} invalid! Use flood or drought".format(self.type_event))
+    #
+    #                     if_add = True
+    #                     break
+    #             if not if_add:
+    #                 if self.type_event == 'flood':
+    #                     events_duration = events_duration.combine_first(actual).sort_values(by="Peaks", ascending=False)
+    #                 elif self.type_event == 'drought':
+    #                     events_duration = events_duration.combine_first(actual).sort_values(by="Peaks", ascending=True)
+    #                 else:
+    #                     raise TypeError("Type events {} invalid! Use flood or drought".format(self.type_event))
+    #
+    #                 events_duration.at[i, "Date"] = i
+    #
+    #     if len(events_duration) > 0:
+    #         events_duration = events_duration.set_index("Date")
+    #
+    #     return events_duration
 
     def __threshold(self, value):
         if value > 1 and self.type_threshold == 'events_by_year':
