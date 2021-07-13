@@ -90,6 +90,9 @@ class SeriesBuild(metaclass=ABCMeta):
     def columns(self):
         return self.data.columns
 
+    def copy(self):
+        return self.copy()
+
     def date(self, date_start=None, date_end=None):
         """
         """
