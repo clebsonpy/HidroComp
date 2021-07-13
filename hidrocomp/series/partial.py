@@ -136,7 +136,7 @@ class Partial(object):
                 date_peak = data[start:end].idxmin()[0]
 
             max_events["Date"].append(date_peak)
-            max_events['Julian'].append(date_peak.strftime("%j"))
+            max_events['Julian'].append(int(date_peak.strftime("%j")))
             max_events["Peaks"].append(peaks)
             max_events["Start"].append(start)
             end = end + pd.timedelta_range(start='1 day', periods=1, freq='D')
