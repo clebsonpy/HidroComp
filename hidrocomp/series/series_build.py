@@ -2,7 +2,7 @@ import pandas as pd
 import plotly.figure_factory as FF
 
 from abc import abstractmethod, ABCMeta
-
+from copy import copy
 from hidrocomp.files import ana, ons
 from hidrocomp.graphics.gantt import Gantt
 from hidrocomp.graphics.hydrogram_clean import HydrogramClean
@@ -18,6 +18,8 @@ class SeriesBuild(metaclass=ABCMeta):
     def __init__(self, data=None, path=None, station=None, source=None, *args, **kwargs):
         self.path = path
         if data is not None:
+            if type(data) is pd.Series:
+                data = pd.DataFrame(data)
             try:
                 if type(station) == list():
                     self.station = None
@@ -90,8 +92,11 @@ class SeriesBuild(metaclass=ABCMeta):
     def columns(self):
         return self.data.columns
 
-    def copy(self):
-        return self.copy()
+    def copy(self, station=None):
+        if station:
+            return self[station]
+
+        return copy(self)
 
     def date(self, date_start=None, date_end=None):
         """

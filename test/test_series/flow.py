@@ -148,3 +148,11 @@ class TestFlow(TestCase):
 
         dict_fig_partial, data_fig_partial = partial.plot_hydrogram(title="Eventos de duração parcial - Estiagem")
         pyo.plot(dict_fig_partial, filename="../figs/hidro_flow.html")
+
+    def test_copy(self):
+        flow = Flow(station=['XINGO', 'SALTO PILAO'], source='ONS')
+        print(flow.__repr__())
+        print(flow)
+        flow_xingo = flow.copy(station='XINGO')
+        print(flow_xingo.__repr__())
+        print(flow_xingo)
