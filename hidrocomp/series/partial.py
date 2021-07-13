@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import math
 import scipy.stats as stat
 import plotly as py
@@ -346,6 +347,61 @@ class Partial(object):
         p = self.dist_gpa.probs(magnitude)
         return 1 / (1 - p)
 
+    def start_month_year_hydrological(self):
+        if self.type_event == 'flood':
+            return self.obj.month_num_flood
+
+        elif self.type_event == 'drought':
+            return self.obj.month_num_drought
+
+        else:
+            raise TypeError("Type events {} invalid! Use flood or drought".format(self.type_event))
+
+    def julian_radius(self, type_year='hydrological'):
+        if type_year == 'hydrological':
+            month = self.start_month_year_hydrological()
+        else:
+            month = 1
+
+        julian_day = pd.Series(name='Julian')
+        for idx in self.peaks.index:
+            day = self.peaks['Julian'][idx]
+            nd = len(pd.date_range(start=pd.to_datetime(f'01-01-{idx.year}', dayfirst=True),
+                                   end=pd.to_datetime(f'31-12-{idx.year}', dayfirst=True),
+                                   freq='D'))
+
+            start_day = int(pd.to_datetime(f'01-{month}-{idx.year}', dayfirst=True).strftime("%j"))
+            transformation_day = (day + (nd - start_day)) * (360 / nd)
+            if transformation_day > 360:
+                julian_day.at[idx] = transformation_day - 360
+            else:
+                julian_day.at[idx] = transformation_day
+
+        return julian_day
+
+    def julian(self, type_year='hydrological'):
+        if type_year == 'hydrological':
+            month = self.start_month_year_hydrological()
+        else:
+            month = 1
+
+        julian_day = pd.Series(name='Julian')
+        for idx in self.peaks.index:
+            day = self.peaks['Julian'][idx]
+            nd = len(pd.date_range(start=pd.to_datetime(f'01-01-{idx.year}', dayfirst=True),
+                                   end=pd.to_datetime(f'31-12-{idx.year}', dayfirst=True),
+                                   freq='D'))
+
+            start_day = int(pd.to_datetime(f'01-{month}-{idx.year}', dayfirst=True).strftime("%j"))
+
+            if day >= start_day:
+                julian_day.at[idx] = day - start_day
+            elif day < start_day:
+                julian_day.at[idx] = (nd - start_day) + day
+
+        return julian_day
+
+    # TODO Rename of spells
     def plot_distribution(self, title, type_function, save=False):
         parameter = self.dist_gpa.parameter
         genpareto = GenPareto(title, shape=parameter["shape"], location=parameter["loc"], scale=parameter["scale"])

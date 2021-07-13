@@ -134,6 +134,8 @@ class TestFlow(TestCase):
                                value_threshold=0.75, duration=5)
 
         print(partial.peaks)
+        print(partial.julian())
+        print(partial.julian_radius())
 
     def test_partial_drought_duration(self):
         flow = Flow(station='XINGO', source='ONS')
