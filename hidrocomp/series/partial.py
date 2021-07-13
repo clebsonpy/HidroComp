@@ -120,7 +120,9 @@ class Partial(object):
             _data = pd.DataFrame(index=pd.date_range(start=date_start, end=date_end))
             data = _data.combine_first(data[date_start:date_end])
 
-        max_events = {'Date': list(), 'Peaks': list(), 'Start': list(), 'End': list(), "Duration": list()}
+        max_events = {'Date': list(), 'Peaks': list(), 'Start': list(), 'End': list(),
+                      'Duration': list(), 'Julian': list()
+                      }
         events = self.__period_events(data=data, station=self.station)
         for i in events.index:
             start = events["Start"][i]
@@ -128,12 +130,13 @@ class Partial(object):
             duration = (end - start)
             if self.type_event == "flood":
                 peaks = data[start:end].max()[0]
-                date_max = data[start:end].idxmax()[0]
+                date_peak = data[start:end].idxmax()[0]
             else:
                 peaks = data[start:end].min()[0]
-                date_max = data[start:end].idxmin()[0]
+                date_peak = data[start:end].idxmin()[0]
 
-            max_events["Date"].append(date_max)
+            max_events["Date"].append(date_peak)
+            max_events['Julian'].append(date_peak.strftime("%j"))
             max_events["Peaks"].append(peaks)
             max_events["Start"].append(start)
             end = end + pd.timedelta_range(start='1 day', periods=1, freq='D')
@@ -141,7 +144,7 @@ class Partial(object):
             max_events["Duration"].append(duration.days + 1)
 
         df = pd.DataFrame(data=max_events, index=max_events["Date"],
-                          columns=['Peaks', 'Start', 'End', 'Duration']).sort_values(by='End')
+                          columns=['Peaks', 'Start', 'End', 'Duration', 'Julian']).sort_values(by='End')
         return df
 
     def __duration(self):

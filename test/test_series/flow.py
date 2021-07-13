@@ -128,6 +128,13 @@ class TestFlow(TestCase):
         print(parti.peaks)
         print(parti.dist_gpa.mml())
 
+    def test_partial_flood_wrc(self):
+        flow = Flow(station='XINGO', source='ONS')
+        partial = flow.partial(type_threshold="stationary", type_event="flood", type_criterion="wrc",
+                               value_threshold=0.75, duration=5)
+
+        print(partial.peaks)
+
     def test_partial_drought_duration(self):
         flow = Flow(station='XINGO', source='ONS')
         parti = flow.partial(type_event='drought', type_criterion='duration', type_threshold='stationary',
