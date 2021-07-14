@@ -76,7 +76,8 @@ class TestFlow(TestCase):
 
     def test_hydrogram_by_year(self):
         print(self.flow)
-        fig, data = self.flow.hydrogram_year("Title")
+        fig, data = self.flow.hydrogram_year("Title", threshold=3600)
+        pyo.plot(fig, filename="../figs/hidro_flow.html")
 
     def test_hydrogram(self):
         print(self.flow)
