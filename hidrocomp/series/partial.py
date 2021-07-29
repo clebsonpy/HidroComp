@@ -357,49 +357,64 @@ class Partial(object):
         else:
             raise TypeError("Type events {} invalid! Use flood or drought".format(self.type_event))
 
-    def julian_radius(self, type_year='hydrological'):
+    def julian_radius(self, type_year='hydrological', start_events=False):
         if type_year == 'hydrological':
             month = self.start_month_year_hydrological()
         else:
             month = 1
 
-        julian_day = pd.Series(name='Julian')
-        for idx in self.peaks.index:
-            day = self.peaks['Julian'][idx]
-            nd = len(pd.date_range(start=pd.to_datetime(f'01-01-{idx.year}', dayfirst=True),
-                                   end=pd.to_datetime(f'31-12-{idx.year}', dayfirst=True),
+        # julian_day = pd.Series(name='Julian')
+        # for idx in self.peaks.index:
+        #     day = self.peaks['Julian'][idx]
+        #     nd = len(pd.date_range(start=pd.to_datetime(f'01-01-{idx.year}', dayfirst=True),
+        #                            end=pd.to_datetime(f'31-12-{idx.year}', dayfirst=True),
+        #                            freq='D'))
+        #
+        #     start_day = int(pd.to_datetime(f'01-{month}-{idx.year}', dayfirst=True).strftime("%j"))
+        if start_events:
+            julian_day = self.__obtain_julian(month=month, dates_events=self.peaks.Start, radius=True)
+        else:
+            julian_day = self.__obtain_julian(month=month, dates_events=self.peaks.index, radius=True)
+
+        return julian_day
+
+    def julian(self, type_year='hydrological', start_events=False):
+        if type_year == 'hydrological':
+            month = self.start_month_year_hydrological()
+        else:
+            month = 1
+
+        if start_events:
+            julian_day = self.__obtain_julian(month=month, dates_events=self.peaks.Start, radius=False)
+        else:
+            julian_day = self.__obtain_julian(month=month, dates_events=self.peaks.index, radius=False)
+
+        return julian_day
+
+    @staticmethod
+    def __obtain_julian(month, dates_events, radius=False):
+        df_julian = pd.Series(name='Julian')
+        for date in dates_events:
+            day_julian = int(date.strftime("%j"))
+            nd = len(pd.date_range(start=pd.to_datetime(f'01-01-{date.year}', dayfirst=True),
+                                   end=pd.to_datetime(f'31-12-{date.year}', dayfirst=True),
                                    freq='D'))
 
-            start_day = int(pd.to_datetime(f'01-{month}-{idx.year}', dayfirst=True).strftime("%j"))
-            transformation_day = (day + (nd - start_day)) * (360 / nd)
-            if transformation_day > 360:
-                julian_day.at[idx] = transformation_day - 360
+            start_day = int(pd.to_datetime(f'01-{month}-{date.year}', dayfirst=True).strftime("%j"))
+
+            if radius:
+                transformation_day = (day_julian + (nd - start_day)) * (360 / nd)
+                if transformation_day > 360:
+                    df_julian.at[date] = transformation_day - 360
+                else:
+                    df_julian.at[date] = transformation_day
             else:
-                julian_day.at[idx] = transformation_day
+                if day_julian >= start_day:
+                    df_julian.at[date] = day_julian - start_day
+                elif day_julian < start_day:
+                    df_julian.at[date] = (nd - start_day) + day_julian
 
-        return julian_day
-
-    def julian(self, type_year='hydrological'):
-        if type_year == 'hydrological':
-            month = self.start_month_year_hydrological()
-        else:
-            month = 1
-
-        julian_day = pd.Series(name='Julian')
-        for idx in self.peaks.index:
-            day = self.peaks['Julian'][idx]
-            nd = len(pd.date_range(start=pd.to_datetime(f'01-01-{idx.year}', dayfirst=True),
-                                   end=pd.to_datetime(f'31-12-{idx.year}', dayfirst=True),
-                                   freq='D'))
-
-            start_day = int(pd.to_datetime(f'01-{month}-{idx.year}', dayfirst=True).strftime("%j"))
-
-            if day >= start_day:
-                julian_day.at[idx] = day - start_day
-            elif day < start_day:
-                julian_day.at[idx] = (nd - start_day) + day
-
-        return julian_day
+        return df_julian
 
     # TODO Rename of spells
     def plot_distribution(self, title, type_function, save=False):
