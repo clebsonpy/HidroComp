@@ -257,6 +257,13 @@ class Partial(object):
 
         return events
 
+    @property
+    def events_by_year(self):
+        n_year = self.obj.date_end.year - self.obj.date_start.year
+        n_events = len(self.peaks)
+
+        return n_events/n_year
+
     def __criterion_water_resources_council(self):
         """
         Events dependents
@@ -363,14 +370,6 @@ class Partial(object):
         else:
             month = 1
 
-        # julian_day = pd.Series(name='Julian')
-        # for idx in self.peaks.index:
-        #     day = self.peaks['Julian'][idx]
-        #     nd = len(pd.date_range(start=pd.to_datetime(f'01-01-{idx.year}', dayfirst=True),
-        #                            end=pd.to_datetime(f'31-12-{idx.year}', dayfirst=True),
-        #                            freq='D'))
-        #
-        #     start_day = int(pd.to_datetime(f'01-{month}-{idx.year}', dayfirst=True).strftime("%j"))
         if start_events:
             julian_day = self.__obtain_julian(month=month, dates_events=self.peaks.Start, radius=True)
         else:
