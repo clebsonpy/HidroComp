@@ -50,11 +50,11 @@ class SeriesBuild(metaclass=ABCMeta):
             else:
                 raise KeyError('Source not supported!')
         if self.data.size == 0:
-            self.date_start, self.date_end = None, None
+            self.start_date, self.end_date = None, None
         else:
-            self.date_start, self.date_end = self.__start_and_end()
-            _data = pd.DataFrame(index=pd.date_range(start=self.date_start, end=self.date_end))
-            self.data = _data.combine_first(self.data[self.date_start:self.date_end])
+            self.start_date, self.end_date = self.__start_and_end()
+            _data = pd.DataFrame(index=pd.date_range(start=self.start_date, end=self.end_date))
+            self.data = _data.combine_first(self.data[self.start_date:self.end_date])
 
     def __return_df(self, data):
         if type(data) is type(pd.Series()):
@@ -98,25 +98,25 @@ class SeriesBuild(metaclass=ABCMeta):
 
         return copy(self)
 
-    def date(self, date_start=None, date_end=None):
+    def date(self, start_date=None, end_date=None):
         """
         """
-        if date_start is not None and date_end is not None:
-            self.date_start = pd.to_datetime(date_start, dayfirst=True)
-            self.date_end = pd.to_datetime(date_end, dayfirst=True)
-            if self.date_start >= self.date_end:
+        if start_date is not None and end_date is not None:
+            self.start_date = pd.to_datetime(start_date, dayfirst=True)
+            self.end_date = pd.to_datetime(end_date, dayfirst=True)
+            if self.start_date >= self.end_date:
                 raise ValueError("Date start >= Date end")
-            self.data = self.data.loc[self.date_start:self.date_end]
-        elif date_start is not None:
-            self.date_start = pd.to_datetime(date_start, dayfirst=True)
-            if self.date_start >= self.data.iloc[-1].name:
-                raise ValueError("Date start ({}) >= {}".format(self.date_start, self.data.iloc[-1].name))
-            self.data = self.data.loc[self.date_start:]
-        elif date_end is not None:
-            self.date_end = pd.to_datetime(date_end, dayfirst=True)
-            if self.date_end >= self.data.iloc[0].name:
-                raise ValueError("Date end ({}) <= {}".format(self.date_end, self.data.iloc[0].name))
-            self.data = self.data.loc[:self.date_end].copy()
+            self.data = self.data.loc[self.start_date:self.end_date]
+        elif start_date is not None:
+            self.start_date = pd.to_datetime(start_date, dayfirst=True)
+            if self.start_date >= self.data.iloc[-1].name:
+                raise ValueError("Date start ({}) >= {}".format(self.start_date, self.data.iloc[-1].name))
+            self.data = self.data.loc[self.start_date:]
+        elif end_date is not None:
+            self.end_date = pd.to_datetime(end_date, dayfirst=True)
+            if self.end_date >= self.data.iloc[0].name:
+                raise ValueError("Date end ({}) <= {}".format(self.end_date, self.data.iloc[0].name))
+            self.data = self.data.loc[:self.end_date].copy()
 
         return self
 

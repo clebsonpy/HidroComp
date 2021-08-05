@@ -5,6 +5,7 @@ import scipy.stats as stat
 import plotly as py
 import plotly.figure_factory as FF
 
+from build.lib.hidrocomp.series.flow import Flow
 from hidrocomp.statistic.genpareto import Gpa
 from hidrocomp.graphics.gantt import Gantt
 from hidrocomp.graphics.genpareto import GenPareto
@@ -18,7 +19,7 @@ class Partial(object):
     __percentil = 0.8
     dic_name = {'stationary': 'Percentil', 'events_by_year': 'Eventos por Ano', 'autocorrelation': 'Autocorrelação'}
 
-    def __init__(self, obj, station, type_threshold, value_threshold, type_event, type_criterion, **kwargs):
+    def __init__(self, obj: Flow, station, type_threshold, value_threshold, type_event, type_criterion, **kwargs):
         """
             Parameter:
                 obj: Object Series;
@@ -103,7 +104,7 @@ class Partial(object):
                         self.__peaks.at[self.__peaks.sort_values(by="End").index[-1],
                                         "End"] = self.__peaks.sort_values(
                             by="End")["End"].iloc[-1] - pd.to_timedelta(1, unit="d")
-        return self.__peaks
+        return self.__peaks.sort_index()
 
     def __events_over_threshold(self):
 
@@ -259,7 +260,7 @@ class Partial(object):
 
     @property
     def events_by_year(self):
-        n_year = self.obj.date_end.year - self.obj.date_start.year
+        n_year = self.obj.end_date.year - self.obj.start_date.year
         n_events = len(self.peaks)
 
         return n_events/n_year
@@ -390,6 +391,24 @@ class Partial(object):
 
         return julian_day
 
+    def variable_op(self) -> pd.Series:
+
+        count = 0
+        series = pd.Series()
+        index_o = None
+        for index in self.peaks.index:
+            if count == 0:
+                series.at[index] = int((self.peaks['Start'][index] - self.obj.start_date).days)
+                index_o = index
+            else:
+                series.at[index] = int((self.peaks['Start'][index] - self.peaks['End'][index_o]).days)
+                print(index, self.peaks['Start'][index], self.peaks['End'][index_o], int((self.peaks['Start'][index] - self.peaks['End'][index_o]).days))
+                index_o = index
+
+            count += 1
+
+        return series
+
     @staticmethod
     def __obtain_julian(month, dates_events, radius=False):
         df_julian = pd.Series(name='Julian')
@@ -416,10 +435,10 @@ class Partial(object):
         return df_julian
 
     # TODO Rename of spells
-    def plot_distribution(self, title, type_function, save=False):
+    def plot_distribution(self, title, function_type, save=False):
         parameter = self.dist_gpa.parameter
         genpareto = GenPareto(title, shape=parameter["shape"], location=parameter["loc"], scale=parameter["scale"])
-        data, fig = genpareto.plot(type_function)
+        data, fig = genpareto.plot(function_type)
         if save:
             aux_name = title.replace(' ', '_')
             py.image.save_as(fig, filename='gráficos/' + '%s.png' % aux_name)
@@ -473,11 +492,11 @@ class Partial(object):
 
     # TODO Rename of hydrogram
     # TODO Add parameters language and showlegend
-    def plot_hydrogram(self, title, width=None, height=None, size_text=16, color=None, line_threshold: bool = True,
+    def plot_hydrogram(self, title, width=None, height=None, size_text=16, color=None, threshold_line: bool = True,
                        point_start_end: bool = True):
         hydrogram = HydrogramParcial(data=self.data, peaks=self.peaks, threshold=self.threshold, station=self.station,
                                      threshold_criterion=self.threshold_criterion, title=title, width=width,
                                      type_criterion=self.type_criterion, height=height, size_text=size_text,
-                                     color=color, line_threshold=line_threshold, point_start_end=point_start_end)
+                                     color=color, line_threshold=threshold_line, point_start_end=point_start_end)
         fig, data = hydrogram.plot()
         return fig, data
