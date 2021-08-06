@@ -138,6 +138,8 @@ class TestFlow(TestCase):
 
         print(partial.peaks)
         print(partial.variable_op())
+        dict_fig_partial, data_fig_partial = partial.plot_hydrogram(title="Eventos de duração parcial")
+        pyo.plot(dict_fig_partial, filename="../figs/hidro_flow.html")
         # print(partial.julian(start_events=True))
         # print(partial.julian_radius(start_events=True))
 
