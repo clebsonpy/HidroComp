@@ -5,7 +5,7 @@ import scipy.stats as stat
 import plotly as py
 import plotly.figure_factory as FF
 
-from . import Flow
+from .flow import Flow
 from hidrocomp.statistic.genpareto import Gpa
 from hidrocomp.graphics.gantt import Gantt
 from hidrocomp.graphics.genpareto import GenPareto
