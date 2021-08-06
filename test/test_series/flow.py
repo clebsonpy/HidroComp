@@ -76,7 +76,8 @@ class TestFlow(TestCase):
 
     def test_hydrogram_by_year(self):
         print(self.flow)
-        fig, data = self.flow.hydrogram_year("Title")
+        fig, data = self.flow.hydrogram_year("Title", threshold=3600)
+        pyo.plot(fig, filename="../figs/hidro_flow.html")
 
     def test_hydrogram(self):
         print(self.flow)
@@ -128,10 +129,22 @@ class TestFlow(TestCase):
         print(parti.peaks)
         print(parti.dist_gpa.mml())
 
+    def test_partial_flood_wrc(self):
+        flow = Flow(station='XINGO', source='ONS')
+        flow = flow.date(start_date="01/09/1931".format(self.flow.month_num_flood),
+                         end_date="31/08/2018".format(self.flow.month_num_flood))
+        partial = flow.partial(threshold_type="stationary", events_type="flood", criterion_type="wrc",
+                               threshold_value=0.75, duration=5)
+
+        print(partial.peaks)
+        print(partial.variable_op())
+        # print(partial.julian(start_events=True))
+        # print(partial.julian_radius(start_events=True))
+
     def test_partial_drought_duration(self):
         flow = Flow(station='XINGO', source='ONS')
-        parti = flow.partial(type_event='drought', type_criterion='duration', type_threshold='stationary',
-                             value_threshold=0.25, duration=20)
+        parti = flow.partial(events_type='drought', criterion_type='duration', threshold_type='stationary',
+                             threshold_value=0.25, duration=20)
         print(parti.peaks)
 
     def test_xingo(self):
@@ -141,10 +154,18 @@ class TestFlow(TestCase):
 
     def test_hydrogram_drought(self):
         # flow = Flow(station='XINGO', source='ONS')
-        flow = self.flow.date(date_start="01/2/1988".format(self.flow.month_num_flood),
-                         date_end="31/1/1989".format(self.flow.month_num_flood - 1))
-        partial = flow.partial(type_event='drought', type_criterion='duration', type_threshold='stationary',
-                               value_threshold=0.25, duration=20)
+        flow = self.flow.date(start_date="01/2/1988".format(self.flow.month_num_flood),
+                              end_date="31/1/1989".format(self.flow.month_num_flood - 1))
+        partial = flow.partial(events_type='drought', criterion_type='duration', threshold_type='stationary',
+                               threshold_value=0.25, duration=20)
 
         dict_fig_partial, data_fig_partial = partial.plot_hydrogram(title="Eventos de duração parcial - Estiagem")
         pyo.plot(dict_fig_partial, filename="../figs/hidro_flow.html")
+
+    def test_copy(self):
+        flow = Flow(station=['XINGO', 'SALTO PILAO'], source='ONS')
+        print(flow.__repr__())
+        print(flow)
+        flow_xingo = flow.copy(station='XINGO')
+        print(flow_xingo.__repr__())
+        print(flow_xingo)

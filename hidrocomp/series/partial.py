@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import math
 import scipy.stats as stat
 import plotly as py
@@ -102,7 +103,7 @@ class Partial(object):
                         self.__peaks.at[self.__peaks.sort_values(by="End").index[-1],
                                         "End"] = self.__peaks.sort_values(
                             by="End")["End"].iloc[-1] - pd.to_timedelta(1, unit="d")
-        return self.__peaks
+        return self.__peaks.sort_index()
 
     def __events_over_threshold(self):
 
@@ -120,7 +121,9 @@ class Partial(object):
             _data = pd.DataFrame(index=pd.date_range(start=date_start, end=date_end))
             data = _data.combine_first(data[date_start:date_end])
 
-        max_events = {'Date': list(), 'Peaks': list(), 'Start': list(), 'End': list(), "Duration": list()}
+        max_events = {'Date': list(), 'Peaks': list(), 'Start': list(), 'End': list(),
+                      'Duration': list(), 'Julian': list()
+                      }
         events = self.__period_events(data=data, station=self.station)
         for i in events.index:
             start = events["Start"][i]
@@ -128,12 +131,13 @@ class Partial(object):
             duration = (end - start)
             if self.type_event == "flood":
                 peaks = data[start:end].max()[0]
-                date_max = data[start:end].idxmax()[0]
+                date_peak = data[start:end].idxmax()[0]
             else:
                 peaks = data[start:end].min()[0]
-                date_max = data[start:end].idxmin()[0]
+                date_peak = data[start:end].idxmin()[0]
 
-            max_events["Date"].append(date_max)
+            max_events["Date"].append(date_peak)
+            max_events['Julian'].append(int(date_peak.strftime("%j")))
             max_events["Peaks"].append(peaks)
             max_events["Start"].append(start)
             end = end + pd.timedelta_range(start='1 day', periods=1, freq='D')
@@ -141,7 +145,7 @@ class Partial(object):
             max_events["Duration"].append(duration.days + 1)
 
         df = pd.DataFrame(data=max_events, index=max_events["Date"],
-                          columns=['Peaks', 'Start', 'End', 'Duration']).sort_values(by='End')
+                          columns=['Peaks', 'Start', 'End', 'Duration', 'Julian']).sort_values(by='End')
         return df
 
     def __duration(self):
@@ -269,6 +273,13 @@ class Partial(object):
 
         return events
 
+    @property
+    def events_by_year(self):
+        n_year = self.obj.end_date.year - self.obj.start_date.year
+        n_events = len(self.peaks)
+
+        return n_events/n_year
+
     def __criterion_water_resources_council(self):
         """
         Events dependents
@@ -359,10 +370,90 @@ class Partial(object):
         p = self.dist_gpa.probs(magnitude)
         return 1 / (1 - p)
 
-    def plot_distribution(self, title, type_function, save=False):
+    def start_month_year_hydrological(self):
+        if self.type_event == 'flood':
+            return self.obj.month_num_flood
+
+        elif self.type_event == 'drought':
+            return self.obj.month_num_drought
+
+        else:
+            raise TypeError("Type events {} invalid! Use flood or drought".format(self.type_event))
+
+    def julian_radius(self, type_year='hydrological', start_events=False):
+        if type_year == 'hydrological':
+            month = self.start_month_year_hydrological()
+        else:
+            month = 1
+
+        if start_events:
+            julian_day = self.__obtain_julian(month=month, dates_events=self.peaks.Start, radius=True)
+        else:
+            julian_day = self.__obtain_julian(month=month, dates_events=self.peaks.index, radius=True)
+
+        return julian_day
+
+    def julian(self, type_year='hydrological', start_events=False):
+        if type_year == 'hydrological':
+            month = self.start_month_year_hydrological()
+        else:
+            month = 1
+
+        if start_events:
+            julian_day = self.__obtain_julian(month=month, dates_events=self.peaks.Start, radius=False)
+        else:
+            julian_day = self.__obtain_julian(month=month, dates_events=self.peaks.index, radius=False)
+
+        return julian_day
+
+    def variable_op(self) -> pd.Series:
+
+        count = 0
+        series = pd.Series()
+        index_o = None
+        for index in self.peaks.index:
+            if count == 0:
+                series.at[index] = int((self.peaks['Start'][index] - self.obj.start_date).days)
+                index_o = index
+            else:
+                series.at[index] = int((self.peaks['Start'][index] - self.peaks['End'][index_o]).days)
+                print(index, self.peaks['Start'][index], self.peaks['End'][index_o], int((self.peaks['Start'][index] - self.peaks['End'][index_o]).days))
+                index_o = index
+
+            count += 1
+
+        return series
+
+    @staticmethod
+    def __obtain_julian(month, dates_events, radius=False):
+        df_julian = pd.Series(name='Julian')
+        for date in dates_events:
+            day_julian = int(date.strftime("%j"))
+            nd = len(pd.date_range(start=pd.to_datetime(f'01-01-{date.year}', dayfirst=True),
+                                   end=pd.to_datetime(f'31-12-{date.year}', dayfirst=True),
+                                   freq='D'))
+
+            start_day = int(pd.to_datetime(f'01-{month}-{date.year}', dayfirst=True).strftime("%j"))
+
+            if radius:
+                transformation_day = (day_julian + (nd - start_day)) * (360 / nd)
+                if transformation_day > 360:
+                    df_julian.at[date] = transformation_day - 360
+                else:
+                    df_julian.at[date] = transformation_day
+            else:
+                if day_julian >= start_day:
+                    df_julian.at[date] = day_julian - start_day
+                elif day_julian < start_day:
+                    df_julian.at[date] = (nd - start_day) + day_julian
+
+        return df_julian
+
+    # TODO Rename of spells
+    def plot_distribution(self, title, function_type, save=False):
         parameter = self.dist_gpa.parameter
         genpareto = GenPareto(title, shape=parameter["shape"], location=parameter["loc"], scale=parameter["scale"])
-        data, fig = genpareto.plot(type_function)
+        data, fig = genpareto.plot(function_type)
         if save:
             aux_name = title.replace(' ', '_')
             py.image.save_as(fig, filename='gráficos/' + '%s.png' % aux_name)
@@ -416,11 +507,11 @@ class Partial(object):
 
     # TODO Rename of hydrogram
     # TODO Add parameters language and showlegend
-    def plot_hydrogram(self, title, width=None, height=None, size_text=16, color=None, line_threshold: bool = True,
+    def plot_hydrogram(self, title, width=None, height=None, size_text=16, color=None, threshold_line: bool = True,
                        point_start_end: bool = True):
         hydrogram = HydrogramParcial(data=self.data, peaks=self.peaks, threshold=self.threshold, station=self.station,
                                      threshold_criterion=self.threshold_criterion, title=title, width=width,
                                      type_criterion=self.type_criterion, height=height, size_text=size_text,
-                                     color=color, line_threshold=line_threshold, point_start_end=point_start_end)
+                                     color=color, line_threshold=threshold_line, point_start_end=point_start_end)
         fig, data = hydrogram.plot()
         return fig, data

@@ -17,7 +17,7 @@ class Flow(SeriesBuild):
     data_type = 'flow'
 
     def __init__(self, data=None, path_file=None, station=None, source=None, *args, **kwargs):
-        super().__init__(data=data, path=path_file, station=station, source=source, type_data=self.type_data, *args,
+        super().__init__(data=data, path=path_file, station=station, source=source, data_type=self.type_data, *args,
                          **kwargs)
         self.__month_num_flood = None
         self.__month_abr_flood = None
@@ -80,9 +80,10 @@ class Flow(SeriesBuild):
 
         return maximum
 
-    def partial(self, type_threshold, type_event, type_criterion, value_threshold, **kwargs) -> Partial:
-        partial = Partial(station=self.station, obj=self, type_threshold=type_threshold, type_event=type_event,
-                          type_criterion=type_criterion, value_threshold=value_threshold, **kwargs)
+    def partial(self, threshold_type: str, events_type: str, criterion_type: str, threshold_value: float,
+                **kwargs) -> Partial:
+        partial = Partial(station=self.station, obj=self, type_threshold=threshold_type, type_event=events_type,
+                          type_criterion=criterion_type, value_threshold=threshold_value, **kwargs)
 
         return partial
 

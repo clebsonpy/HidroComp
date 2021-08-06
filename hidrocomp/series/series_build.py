@@ -2,7 +2,7 @@ import pandas as pd
 import plotly.figure_factory as FF
 
 from abc import abstractmethod, ABCMeta
-
+from copy import copy
 from hidrocomp.files import ana, ons
 from hidrocomp.graphics.gantt import Gantt
 from hidrocomp.graphics.hydrogram_clean import HydrogramClean
@@ -18,6 +18,8 @@ class SeriesBuild(metaclass=ABCMeta):
     def __init__(self, data=None, path=None, station=None, source=None, *args, **kwargs):
         self.path = path
         if data is not None:
+            if type(data) is pd.Series:
+                data = pd.DataFrame(data)
             try:
                 if type(station) == list():
                     self.station = None
@@ -48,11 +50,11 @@ class SeriesBuild(metaclass=ABCMeta):
             else:
                 raise KeyError('Source not supported!')
         if self.data.size == 0:
-            self.date_start, self.date_end = None, None
+            self.start_date, self.end_date = None, None
         else:
-            self.date_start, self.date_end = self.__start_and_end()
-            _data = pd.DataFrame(index=pd.date_range(start=self.date_start, end=self.date_end))
-            self.data = _data.combine_first(self.data[self.date_start:self.date_end])
+            self.start_date, self.end_date = self.__start_and_end()
+            _data = pd.DataFrame(index=pd.date_range(start=self.start_date, end=self.end_date))
+            self.data = _data.combine_first(self.data[self.start_date:self.end_date])
 
     def __return_df(self, data):
         if type(data) is type(pd.Series()):
@@ -90,25 +92,31 @@ class SeriesBuild(metaclass=ABCMeta):
     def columns(self):
         return self.data.columns
 
-    def date(self, date_start=None, date_end=None):
+    def copy(self, station=None):
+        if station:
+            return self[station]
+
+        return copy(self)
+
+    def date(self, start_date=None, end_date=None):
         """
         """
-        if date_start is not None and date_end is not None:
-            self.date_start = pd.to_datetime(date_start, dayfirst=True)
-            self.date_end = pd.to_datetime(date_end, dayfirst=True)
-            if self.date_start >= self.date_end:
+        if start_date is not None and end_date is not None:
+            self.start_date = pd.to_datetime(start_date, dayfirst=True)
+            self.end_date = pd.to_datetime(end_date, dayfirst=True)
+            if self.start_date >= self.end_date:
                 raise ValueError("Date start >= Date end")
-            self.data = self.data.loc[self.date_start:self.date_end]
-        elif date_start is not None:
-            self.date_start = pd.to_datetime(date_start, dayfirst=True)
-            if self.date_start >= self.data.iloc[-1].name:
-                raise ValueError("Date start ({}) >= {}".format(self.date_start, self.data.iloc[-1].name))
-            self.data = self.data.loc[self.date_start:]
-        elif date_end is not None:
-            self.date_end = pd.to_datetime(date_end, dayfirst=True)
-            if self.date_end >= self.data.iloc[0].name:
-                raise ValueError("Date end ({}) <= {}".format(self.date_end, self.data.iloc[0].name))
-            self.data = self.data.loc[:self.date_end].copy()
+            self.data = self.data.loc[self.start_date:self.end_date]
+        elif start_date is not None:
+            self.start_date = pd.to_datetime(start_date, dayfirst=True)
+            if self.start_date >= self.data.iloc[-1].name:
+                raise ValueError("Date start ({}) >= {}".format(self.start_date, self.data.iloc[-1].name))
+            self.data = self.data.loc[self.start_date:]
+        elif end_date is not None:
+            self.end_date = pd.to_datetime(end_date, dayfirst=True)
+            if self.end_date >= self.data.iloc[0].name:
+                raise ValueError("Date end ({}) <= {}".format(self.end_date, self.data.iloc[0].name))
+            self.data = self.data.loc[:self.end_date].copy()
 
         return self
 
