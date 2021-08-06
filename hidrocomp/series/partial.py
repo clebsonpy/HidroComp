@@ -5,7 +5,6 @@ import scipy.stats as stat
 import plotly as py
 import plotly.figure_factory as FF
 
-from .flow import Flow
 from hidrocomp.statistic.genpareto import Gpa
 from hidrocomp.graphics.gantt import Gantt
 from hidrocomp.graphics.genpareto import GenPareto
@@ -19,7 +18,7 @@ class Partial(object):
     __percentil = 0.8
     dic_name = {'stationary': 'Percentil', 'events_by_year': 'Eventos por Ano', 'autocorrelation': 'Autocorrelação'}
 
-    def __init__(self, obj: Flow, station, type_threshold, value_threshold, type_event, type_criterion, **kwargs):
+    def __init__(self, obj, station, type_threshold, value_threshold, type_event, type_criterion, **kwargs):
         """
             Parameter:
                 obj: Object Series;
