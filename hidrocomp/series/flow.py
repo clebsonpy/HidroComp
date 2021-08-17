@@ -7,6 +7,7 @@ from hidrocomp.series.series_build import SeriesBuild
 from hidrocomp.series.partial import Partial
 from hidrocomp.series.maximum import Maximum
 from hidrocomp.series.minimum import Minimum
+from hidrocomp.series.monthly_average import MonthlyAverageFlow
 from hidrocomp.eflow import IHA
 from hidrocomp.graphics import RatingCurve, HydrogramYear, HydrogramClean
 
@@ -217,3 +218,7 @@ class Flow(SeriesBuild):
     def cdf_empirical(self):
         # TODO Create method of calculation cdf empirical, view statistic
         pass
+
+    def monthly_average(self):
+        monthly_average_flow = MonthlyAverageFlow(flow=self, station=self.station)
+        return monthly_average_flow

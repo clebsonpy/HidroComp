@@ -154,6 +154,13 @@ class TestFlow(TestCase):
         dict_fig, data_fig = flow.hydrogram(title='Hidrograma')
         pyo.plot(dict_fig, filename="../figs/hidro_flow.html")
 
+    def test_monthly_average(self):
+        flow = Flow(station='XINGO', source='ONS')
+        monthly_average = flow.monthly_average()
+        print(monthly_average.events)
+        fig = monthly_average.plot(title='Média Mensal')
+        pyo.plot(fig, filename="../figs/hidro_flow_monthly.html")
+
     def test_hydrogram_drought(self):
         # flow = Flow(station='XINGO', source='ONS')
         flow = self.flow.date(start_date="01/2/1988".format(self.flow.month_num_flood),
