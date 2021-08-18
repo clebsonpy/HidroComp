@@ -13,3 +13,10 @@ class TestRainfall(TestCase):
                             source='ANA')
         fig, data = rainfall.gantt(title="Test")
         pyo.plot(fig, filename="../figs/gantt_rainfall.html")
+
+    def test_monthly_cumulative(self):
+        rainfall = Rainfall(station='00937032', source='ANA')
+        monthly_cumulative = rainfall.monthly_cumulative()
+        print(monthly_cumulative.events)
+        fig = monthly_cumulative.plot(title='Precipitação acumulada mensal')
+        pyo.plot(fig, filename="../figs/cumulative_rainfall.html")
