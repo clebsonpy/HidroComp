@@ -152,6 +152,8 @@ class TestFlow(TestCase):
         print(partial.duration_without_events())
         dict_fig_partial, data_fig_partial = partial.plot_hydrogram(title="Eventos de duração parcial")
         pyo.plot(dict_fig_partial, filename="../figs/hidro_flow.html")
+        # print(partial.julian(start_events=True))
+        # print(partial.julian_radius(start_events=True))
 
     def test_partial_drought_duration(self):
         flow = Flow(station='XINGO', source='ONS')
@@ -163,6 +165,13 @@ class TestFlow(TestCase):
         flow = Flow(station='XINGO', source='ONS')
         dict_fig, data_fig = flow.hydrogram(title='Hidrograma')
         pyo.plot(dict_fig, filename="../figs/hidro_flow.html")
+
+    def test_monthly_average(self):
+        flow = Flow(station='XINGO', source='ONS')
+        monthly_average = flow.monthly_average()
+        print(monthly_average.events)
+        fig = monthly_average.plot(title='Média Mensal')
+        pyo.plot(fig, filename="../figs/hidro_flow_monthly.html")
 
     def test_hydrogram_drought(self):
         # flow = Flow(station='XINGO', source='ONS')

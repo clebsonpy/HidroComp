@@ -13,3 +13,24 @@ class TestRainfall(TestCase):
                             source='ANA')
         fig, data = rainfall.gantt(title="Test")
         pyo.plot(fig, filename="../figs/gantt_rainfall.html")
+
+    def test_monthly_cumulative(self):
+        rainfall = Rainfall(station='00937032', source='ANA')
+        monthly_cumulative = rainfall.monthly_cumulative()
+        print(monthly_cumulative.events)
+        fig = monthly_cumulative.plot(title='Precipitação acumulada mensal')
+        pyo.plot(fig, filename="../figs/cumulative_rainfall.html")
+
+    def test_minimum_annual(self):
+        rainfall = Rainfall(station='00937032', source='ANA')
+        minimum = rainfall.minimum()
+        print(minimum.peaks)
+        fig = minimum.plot(title='Precipitação mínima anual')
+        pyo.plot(fig, filename="../figs/minimum_annual_rainfall.html")
+
+    def test_maximum_annual(self):
+        rainfall = Rainfall(station='00937032', source='ANA')
+        maximum = rainfall.maximum()
+        print(maximum.peaks)
+        fig = maximum.plot(title='Precipitação máxima anual')
+        pyo.plot(fig, filename="../figs/minimum_annual_rainfall.html")

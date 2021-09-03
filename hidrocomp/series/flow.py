@@ -5,8 +5,9 @@ from hidrocomp.series.exceptions import StationError
 from hidrocomp.statistic.pearson3 import Pearson3
 from hidrocomp.series.series_build import SeriesBuild
 from hidrocomp.series.partial import Partial
-from hidrocomp.series.maximum import Maximum
-from hidrocomp.series.minimum import Minimum
+from hidrocomp.series.maximum import MaximumFlow
+from hidrocomp.series.minimum import MinimumFlow
+from hidrocomp.series.monthly_average import MonthlyAverageFlow
 from hidrocomp.eflow import IHA
 from hidrocomp.graphics import RatingCurve, HydrogramYear, HydrogramClean
 
@@ -70,13 +71,13 @@ class Flow(SeriesBuild):
     def month_abr_drought(self) -> str:
         return self._month_start_year_hydrologic()[3]
 
-    def minimum(self) -> Minimum:
-        minimum = Minimum(obj=self, station=self.station)
+    def minimum(self) -> MinimumFlow:
+        minimum = MinimumFlow(obj=self, station=self.station)
 
         return minimum
 
-    def maximum(self) -> Maximum:
-        maximum = Maximum(obj=self, station=self.station)
+    def maximum(self) -> MaximumFlow:
+        maximum = MaximumFlow(obj=self, station=self.station)
 
         return maximum
 
@@ -217,3 +218,7 @@ class Flow(SeriesBuild):
     def cdf_empirical(self):
         # TODO Create method of calculation cdf empirical, view statistic
         pass
+
+    def monthly_average(self):
+        monthly_average_flow = MonthlyAverageFlow(flow=self, station=self.station)
+        return monthly_average_flow
