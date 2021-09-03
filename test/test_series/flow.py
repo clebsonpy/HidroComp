@@ -155,6 +155,26 @@ class TestFlow(TestCase):
         # print(partial.julian(start_events=True))
         # print(partial.julian_radius(start_events=True))
 
+    def test_duration_without_events(self):
+        flow = Flow(station='XINGO', source='ONS')
+        flow = flow.date(start_date="01/09/1931".format(self.flow.month_num_flood),
+                         end_date="31/08/2018".format(self.flow.month_num_flood))
+        partial = flow.partial(threshold_type="stationary", events_type="flood", criterion_type="autocorrelation",
+                               threshold_value=0.75, duration=5)
+
+        print(partial.peaks)
+        print(partial.duration_without_events())
+
+    def test_duration_with_events(self):
+        flow = Flow(station='XINGO', source='ONS')
+        flow = flow.date(start_date="01/09/1931".format(self.flow.month_num_flood),
+                         end_date="31/08/2018".format(self.flow.month_num_flood))
+        partial = flow.partial(threshold_type="stationary", events_type="flood", criterion_type="autocorrelation",
+                               threshold_value=0.75, duration=5)
+
+        print(partial.peaks)
+        print(partial.duration_with_events())
+
     def test_partial_drought_duration(self):
         flow = Flow(station='XINGO', source='ONS')
         parti = flow.partial(events_type='drought', criterion_type='duration', threshold_type='stationary',

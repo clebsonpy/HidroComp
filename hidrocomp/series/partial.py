@@ -425,6 +425,14 @@ class Partial(object):
 
         return series
 
+    def duration_with_events(self) -> pd.Series:
+        # series = pd.Series(name='duration_with_events')
+        series = self.peaks['Duration']
+        series.name = 'duration_with_events'
+        series.index.name = None
+
+        return series
+
     @staticmethod
     def __obtain_julian(month, dates_events, radius=False):
         df_julian = pd.Series(name='Julian')
