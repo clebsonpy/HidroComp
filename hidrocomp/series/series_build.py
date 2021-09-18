@@ -98,7 +98,7 @@ class SeriesBuild(metaclass=ABCMeta):
 
         return copy(self)
 
-    def date(self, start_date=None, end_date=None):
+    def date(self, start_date: str = None, end_date: str = None):
         """
         """
         if start_date is not None and end_date is not None:

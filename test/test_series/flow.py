@@ -1,6 +1,7 @@
 from unittest import TestCase
 import pandas as pd
 import numpy as np
+import os
 from copy import copy
 from hidrocomp.series import Flow
 import plotly.offline as pyo
@@ -9,7 +10,8 @@ import plotly.offline as pyo
 class TestFlow(TestCase):
 
     # flow = Flow(data=pd.read_csv("E:\\Projetos\\HidroComp\\Artigo-Cha\\ons.csv", index_col=0, parse_dates=True))
-    flow = Flow(data=pd.read_csv("E:\\Projetos\\HidroComp\\Medicoes\\dadosXingo_nat.csv", index_col=0, parse_dates=True))
+    flow = Flow(data=pd.read_csv("../../Medicoes/dadosXingo_nat.csv", index_col=0, parse_dates=True))
+    print(os.path)
 
     def test_get_data_from_ana_hydro(self):
         flow = Flow(station="49330000", source="ANA")
@@ -67,11 +69,11 @@ class TestFlow(TestCase):
         threshold_high = 203
         threshold_low = 99
 
-        self.flow.date(date_start=start_period, date_end=end_period)
+        self.flow.date(start_date=start_period, end_date=end_period)
         partial = self.flow.partial(type_threshold="stationary", type_event="drought", type_criterion="autocorrelation",
                                     value_threshold=threshold_low, duration=1)
 
-        fig, data = partial.plot_hydrogram(title="", line_threshold=True, point_start_end=False)
+        fig, data = partial.plot_hydrogram(title="", threshold_line=True, point_start_end=False)
         pyo.plot(fig, filename="../figs/partial_high.html")
 
     def test_hydrogram_by_year(self):
@@ -102,11 +104,11 @@ class TestFlow(TestCase):
         pyo.plot(fig, filename="../figs/cumulative_flow.html")
 
     def test_flow_min(self):
-        self.flow.date(date_start="01/09/1995", date_end="31/08/2020")
+        self.flow.date(start_date="01/09/1995", end_date="31/08/2020")
         self.assertEqual(self.flow.flow_min("q95"), np.array([590.267]))
 
     def test_base_flow(self):
-        self.flow.date(date_start="01/09/1995", date_end="31/08/2020")
+        self.flow.date(start_date="01/09/1995", end_date="31/08/2020")
         self.assertEqual(self.flow.base_flow(), 0.5029)
 
     def test_maximum(self):
