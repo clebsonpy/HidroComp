@@ -62,6 +62,9 @@ class Partial(object):
         if self.peaks is not None:
             self.dist_gpa = Gpa(data=self.peaks["Peaks"])
 
+    def __str__(self) -> str:
+        return self.__peaks.__str__()
+
     @property
     def peaks(self):
         if self.__peaks is None:
@@ -354,7 +357,7 @@ class Partial(object):
         p = self.dist_gpa.probs(magnitude)
         return 1 / (1 - p)
 
-    def start_month_year_hydrological(self):
+    def start_month_year_hydrological(self) -> int:
         if self.type_event == 'flood':
             return self.obj.month_num_flood
 
@@ -409,7 +412,7 @@ class Partial(object):
         return series
 
     @staticmethod
-    def __obtain_julian(month, dates_events, radius=False):
+    def __obtain_julian(month: int, dates_events, radius=False) -> pd.Series:
         df_julian = pd.Series(name='Julian')
         for date in dates_events:
             day_julian = int(date.strftime("%j"))
