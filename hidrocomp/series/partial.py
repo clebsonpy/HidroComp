@@ -404,7 +404,7 @@ class Partial(object):
                 index_o = index
             else:
                 series.at[index] = int((self.peaks['Start'][index] - self.peaks['End'][index_o]).days)
-                print(index, self.peaks['Start'][index], self.peaks['End'][index_o], int((self.peaks['Start'][index] - self.peaks['End'][index_o]).days))
+                # print(index, self.peaks['Start'][index], self.peaks['End'][index_o], int((self.peaks['Start'][index] - self.peaks['End'][index_o]).days))
                 index_o = index
 
             count += 1

@@ -38,7 +38,7 @@ class SeriesBuild(metaclass=ABCMeta):
                 self.station = None
                 self.__return_df(data)
         else:
-            if type(station) != list():
+            if type(station) != list() or len(station) == 1:
                 self.station = station
             else:
                 self.station = None
