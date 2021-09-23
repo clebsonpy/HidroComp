@@ -36,7 +36,7 @@ class Partial(object):
         self.obj = obj
         self.data = self.obj.data
         self.station = station
-        self.__peaks = None
+        self.__events = None
         self.threshold_criterion = None
         self.fit = None
         self.type_threshold = type_threshold
@@ -59,54 +59,65 @@ class Partial(object):
         else:
             self.name = '%s(%s)' % (self.dic_name[self.type_threshold], self.value)
 
-        if self.peaks is not None:
+        if self.__events is not None:
             self.dist_gpa = Gpa(data=self.peaks["Peaks"])
 
     def __str__(self) -> str:
-        return self.__peaks.__str__()
+        return self.__events.__str__()
+
+    def __repr__(self) -> str:
+        return self.__events.__repr__()
 
     @property
-    def peaks(self):
-        if self.__peaks is None:
+    def events(self) -> pd.DataFrame:
+        events = pd.DataFrame(columns=['Peaks', 'NDBE', 'Duration', 'PEY', 'NDTP'])
+        
+
+        return events
+
+    @property
+    def peaks(self) -> pd.Series:
+        if self.__events is None:
             if self.type_criterion == "wrc":
                 if self.type_event == "flood":
-                    self.__peaks = self.__criterion_water_resources_council()
+                    self.__events = self.__criterion_water_resources_council()
                 elif self.type_event == "drought":
-                    self.__peaks = self.__events_over_threshold()
-                    if len(self.__peaks) > 0:
-                        self.__peaks.at[self.__peaks.sort_values(by="End").index[-1],
-                                        "End"] = self.__peaks.sort_values(
+                    self.__events = self.__events_over_threshold()
+                    if len(self.__events) > 0:
+                        self.__events.at[self.__events.sort_values(by="End").index[-1],
+                                        "End"] = self.__events.sort_values(
                             by="End")["End"].iloc[-1] - pd.to_timedelta(1, unit="d")
 
             elif self.type_criterion == "duration":
                 if self.type_event == "flood":
-                    self.__peaks = self.__duration()
+                    self.__events = self.__duration()
                 elif self.type_event == "drought":
-                    self.__peaks = self.__duration()
-                    if len(self.__peaks) > 0:
-                        self.__peaks.at[self.__peaks.sort_values(by="End").index[-1],
-                                        "End"] = self.__peaks.sort_values(
+                    self.__events = self.__duration()
+                    if len(self.__events) > 0:
+                        self.__events.at[self.__events.sort_values(by="End").index[-1],
+                                        "End"] = self.__events.sort_values(
                             by="End")["End"].iloc[-1] - pd.to_timedelta(1, unit="d")
 
             elif self.type_criterion == "autocorrelation":
                 if self.type_event == "flood":
-                    self.__peaks = self.__test_autocorrelation()
+                    self.__events = self.__test_autocorrelation()
                 elif self.type_event == "drought":
-                    self.__peaks = self.__test_autocorrelation()
-                    if len(self.__peaks) > 0:
-                        self.__peaks.at[self.__peaks.sort_values(by="End").index[-1],
-                                        "End"] = self.__peaks.sort_values(
+                    self.__events = self.__test_autocorrelation()
+                    if len(self.__events) > 0:
+                        self.__events.at[self.__events.sort_values(by="End").index[-1],
+                                        "End"] = self.__events.sort_values(
                             by="End")["End"].iloc[-1] - pd.to_timedelta(1, unit="d")
             else:
                 if self.type_event == "flood":
-                    self.__peaks = self.__events_over_threshold()
+                    self.__events = self.__events_over_threshold()
                 elif self.type_event == "drought":
-                    self.__peaks = self.__events_over_threshold()
-                    if len(self.__peaks) > 0:
-                        self.__peaks.at[self.__peaks.sort_values(by="End").index[-1],
-                                        "End"] = self.__peaks.sort_values(
+                    self.__events = self.__events_over_threshold()
+                    if len(self.__events) > 0:
+                        self.__events.at[self.__events.sort_values(by="End").index[-1],
+                                        "End"] = self.__events.sort_values(
                             by="End")["End"].iloc[-1] - pd.to_timedelta(1, unit="d")
-        return self.__peaks.sort_index()
+        
+        return self.__events.sort_index()['Peaks']
 
     def __events_over_threshold(self):
 
