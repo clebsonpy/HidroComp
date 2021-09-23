@@ -36,7 +36,7 @@ class Partial(object):
         self.obj = obj
         self.data = self.obj.data
         self.station = station
-        self.__events = None
+        self.__information = None
         self.threshold_criterion = None
         self.fit = None
         self.type_threshold = type_threshold
@@ -59,65 +59,80 @@ class Partial(object):
         else:
             self.name = '%s(%s)' % (self.dic_name[self.type_threshold], self.value)
 
-        if self.__events is not None:
-            self.dist_gpa = Gpa(data=self.peaks["Peaks"])
+        if self.__information is not None:
+            self.dist_gpa = Gpa(data=self.information["Peaks"])
 
     def __str__(self) -> str:
-        return self.__events.__str__()
+        return self.__information.__str__()
 
     def __repr__(self) -> str:
-        return self.__events.__repr__()
+        return self.__information.__repr__()
 
     @property
     def events(self) -> pd.DataFrame:
-        events = pd.DataFrame(columns=['Peaks', 'NDBE', 'Duration', 'PEY', 'NDTP'])
-        
+        """
+        Peaks - Flow Peaks the events.
+        NDBE - Number of Days Before the Events.
+        Duration - Duration the Events.
+        PEY - Position of the Event in the Year.
+        NDTP - Number of Days to Peak from the start of the event.
+        Type - Type the events in the year, e.g (1, 2, ... n)
+        """
+        events = pd.DataFrame(columns=['Peaks', 'NDBE', 'Duration', 'PEY', 'NDTP', 'Type'])
+        events['Peaks'] = self.information['Peaks']
+        events['NDBE'] = self.number_days_before_events
+        events['Duration'] = self.__information['Duration']
+        events['Type'] = self.type_events_year
+        events['PEY'] = self.julian()
+        events['NDTP'] = self.number_days_to_peaks
+        # events['']
 
         return events
 
     @property
-    def peaks(self) -> pd.Series:
-        if self.__events is None:
+    def information(self) -> pd.Series:
+        if self.__information is None:
             if self.type_criterion == "wrc":
                 if self.type_event == "flood":
-                    self.__events = self.__criterion_water_resources_council()
+                    self.__information = self.__criterion_water_resources_council()
                 elif self.type_event == "drought":
-                    self.__events = self.__events_over_threshold()
-                    if len(self.__events) > 0:
-                        self.__events.at[self.__events.sort_values(by="End").index[-1],
-                                        "End"] = self.__events.sort_values(
+                    self.__information = self.__events_over_threshold()
+                    if len(self.__information) > 0:
+                        self.__information.at[self.__information.sort_values(by="End").index[-1],
+                                        "End"] = self.__information.sort_values(
                             by="End")["End"].iloc[-1] - pd.to_timedelta(1, unit="d")
 
             elif self.type_criterion == "duration":
                 if self.type_event == "flood":
-                    self.__events = self.__duration()
+                    self.__information = self.__duration()
                 elif self.type_event == "drought":
-                    self.__events = self.__duration()
-                    if len(self.__events) > 0:
-                        self.__events.at[self.__events.sort_values(by="End").index[-1],
-                                        "End"] = self.__events.sort_values(
+                    self.__information = self.__duration()
+                    if len(self.__information) > 0:
+                        self.__information.at[self.__information.sort_values(by="End").index[-1],
+                                        "End"] = self.__information.sort_values(
                             by="End")["End"].iloc[-1] - pd.to_timedelta(1, unit="d")
 
             elif self.type_criterion == "autocorrelation":
                 if self.type_event == "flood":
-                    self.__events = self.__test_autocorrelation()
+                    self.__information = self.__test_autocorrelation()
                 elif self.type_event == "drought":
-                    self.__events = self.__test_autocorrelation()
-                    if len(self.__events) > 0:
-                        self.__events.at[self.__events.sort_values(by="End").index[-1],
-                                        "End"] = self.__events.sort_values(
+                    self.__information = self.__test_autocorrelation()
+                    if len(self.__information) > 0:
+                        self.__information.at[self.__information.sort_values(by="End").index[-1],
+                                        "End"] = self.__information.sort_values(
                             by="End")["End"].iloc[-1] - pd.to_timedelta(1, unit="d")
             else:
                 if self.type_event == "flood":
-                    self.__events = self.__events_over_threshold()
+                    self.__information = self.__events_over_threshold()
                 elif self.type_event == "drought":
-                    self.__events = self.__events_over_threshold()
-                    if len(self.__events) > 0:
-                        self.__events.at[self.__events.sort_values(by="End").index[-1],
-                                        "End"] = self.__events.sort_values(
+                    self.__information = self.__events_over_threshold()
+                    if len(self.__information) > 0:
+                        self.__information.at[self.__information.sort_values(by="End").index[-1],
+                                        "End"] = self.__information.sort_values(
                             by="End")["End"].iloc[-1] - pd.to_timedelta(1, unit="d")
-        
-        return self.__events.sort_index()['Peaks']
+
+        self.__information = self.__information.sort_index()
+        return self.__information
 
     def __events_over_threshold(self):
 
@@ -274,7 +289,7 @@ class Partial(object):
     @property
     def events_by_year(self):
         n_year = self.obj.end_date.year - self.obj.start_date.year
-        n_events = len(self.peaks)
+        n_events = len(self.information)
 
         return n_events/n_year
 
@@ -368,7 +383,7 @@ class Partial(object):
         p = self.dist_gpa.probs(magnitude)
         return 1 / (1 - p)
 
-    def start_month_year_hydrological(self) -> int:
+    def number_start_month_year_hydrological(self) -> int:
         if self.type_event == 'flood':
             return self.obj.month_num_flood
 
@@ -378,47 +393,80 @@ class Partial(object):
         else:
             raise TypeError("Type events {} invalid! Use flood or drought".format(self.type_event))
 
+    def abbr_start_month_year_hydrological(self) -> str:
+        if self.type_event == 'flood':
+            return self.obj.month_abr_flood
+
+        elif self.type_event == 'drought':
+            return self.obj.month_abr_drought
+
+        else:
+            raise TypeError("Type events {} invalid! Use flood or drought".format(self.type_event))
+
     def julian_radius(self, type_year='hydrological', start_events=False):
         if type_year == 'hydrological':
-            month = self.start_month_year_hydrological()
+            month = self.number_start_month_year_hydrological()
         else:
             month = 1
 
         if start_events:
-            julian_day = self.__obtain_julian(month=month, dates_events=self.peaks.Start, radius=True)
+            julian_day = self.__obtain_julian(month=month, dates_events=self.information.Start, radius=True)
         else:
-            julian_day = self.__obtain_julian(month=month, dates_events=self.peaks.index, radius=True)
+            julian_day = self.__obtain_julian(month=month, dates_events=self.information.index, radius=True)
 
         return julian_day
 
     def julian(self, type_year='hydrological', start_events=False):
         if type_year == 'hydrological':
-            month = self.start_month_year_hydrological()
+            month = self.number_start_month_year_hydrological()
         else:
             month = 1
 
         if start_events:
-            julian_day = self.__obtain_julian(month=month, dates_events=self.peaks.Start, radius=False)
+            julian_day = self.__obtain_julian(month=month, dates_events=self.information.Start, radius=False)
         else:
-            julian_day = self.__obtain_julian(month=month, dates_events=self.peaks.index, radius=False)
+            julian_day = self.__obtain_julian(month=month, dates_events=self.information.index, radius=False)
 
         return julian_day
 
-    def variable_op(self) -> pd.Series:
+    @property
+    def number_days_before_events(self) -> pd.Series:
 
-        count = 0
-        series = pd.Series()
-        index_o = None
-        for index in self.peaks.index:
-            if count == 0:
-                series.at[index] = int((self.peaks['Start'][index] - self.obj.start_date).days)
-                index_o = index
-            else:
-                series.at[index] = int((self.peaks['Start'][index] - self.peaks['End'][index_o]).days)
-                # print(index, self.peaks['Start'][index], self.peaks['End'][index_o], int((self.peaks['Start'][index] - self.peaks['End'][index_o]).days))
-                index_o = index
+        if self.__information is None:
+            return self.events['NDBE']
 
-            count += 1
+        series = pd.Series(name='NDBE')
+        for date, information in self.__information.groupby(pd.Grouper(freq=self.abbr_start_month_year_hydrological())):
+            count = 0
+            index_o = None
+            for index in information.index:
+                if count == 0:
+                    series.at[index] = int((information['Start'][index] - date).days)
+                    index_o = index
+                else:
+                    series.at[index] = int((information['Start'][index] - information['End'][index_o]).days)
+                    index_o = index
+
+                count += 1
+
+        return series
+
+    @property
+    def type_events_year(self) -> pd.Series:
+        series = pd.Series(name='Type')
+        for date, information in self.__information.groupby(pd.Grouper(freq=self.abbr_start_month_year_hydrological())):
+            count = 1
+            for idx in information.index:
+                series.at[idx] = f'event-{count}'
+                count += 1
+        return series
+
+    @property
+    def number_days_to_peaks(self) -> pd.Series:
+
+        series = pd.Series(name='NDTP')
+        for index in self.__information.index:
+            series.at[index] = int((index - self.__information['Start'][index]).days)
 
         return series
 
@@ -466,7 +514,7 @@ class Partial(object):
         else:
             raise TypeError
 
-        df_spells, df, month_start, month_end = Gantt.get_spells(data_peaks=self.peaks,
+        df_spells, df, month_start, month_end = Gantt.get_spells(data_peaks=self.information,
                                                                  month_water=[month_start_num, month_start_abr])
 
         df_spells = df_spells.sort_values('Task', ascending=False).reset_index(drop=True)
@@ -498,7 +546,7 @@ class Partial(object):
             elif name is None:
                 name = 'Minimum peaks'
 
-        _polar = Polar(df_events=self.peaks)
+        _polar = Polar(df_events=self.information)
         fig, data = _polar.plot(width=width, height=height, size_text=size_text, title=title, color=color, name=name)
 
         return fig, data
@@ -507,9 +555,10 @@ class Partial(object):
     # TODO Add parameters language and showlegend
     def plot_hydrogram(self, title, width=None, height=None, size_text=16, color=None, threshold_line: bool = True,
                        point_start_end: bool = True):
-        hydrogram = HydrogramParcial(data=self.data, peaks=self.peaks, threshold=self.threshold, station=self.station,
-                                     threshold_criterion=self.threshold_criterion, title=title, width=width,
-                                     type_criterion=self.type_criterion, height=height, size_text=size_text,
-                                     color=color, line_threshold=threshold_line, point_start_end=point_start_end)
+        hydrogram = HydrogramParcial(data=self.data, peaks=self.information, threshold=self.threshold,
+                                     station=self.station, threshold_criterion=self.threshold_criterion, title=title,
+                                     width=width, type_criterion=self.type_criterion, height=height,
+                                     size_text=size_text, color=color, line_threshold=threshold_line,
+                                     point_start_end=point_start_end)
         fig, data = hydrogram.plot()
         return fig, data

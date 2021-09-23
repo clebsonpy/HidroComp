@@ -1,9 +1,9 @@
+from hidrocomp.series import Flow
 from unittest import TestCase
 import pandas as pd
 import numpy as np
 import os
 from copy import copy
-from hidrocomp.series import Flow
 import plotly.offline as pyo
 
 
@@ -138,12 +138,12 @@ class TestFlow(TestCase):
         partial = flow.partial(threshold_type="stationary", events_type="flood", criterion_type="wrc",
                                threshold_value=0.75, duration=5)
 
-        print(partial.peaks)
-        print(partial.variable_op())
+        # print(partial.peaks)
+        print(partial.events)
         dict_fig_partial, data_fig_partial = partial.plot_hydrogram(title="Eventos de duração parcial")
         pyo.plot(dict_fig_partial, filename="../figs/hidro_flow.html")
-        # print(partial.julian(start_events=True))
-        # print(partial.julian_radius(start_events=True))
+        print(partial.julian(start_events=True))
+        print(partial.julian_radius(start_events=True))
 
     def test_partial_drought_duration(self):
         flow = Flow(station='XINGO', source='ONS')
