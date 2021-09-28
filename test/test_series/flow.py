@@ -180,3 +180,7 @@ class TestFlow(TestCase):
         flow_xingo = flow.copy(station='XINGO')
         print(flow_xingo.__repr__())
         print(flow_xingo)
+
+    def test_percentage_failures(self):
+        flow = Flow(station=['49330000'], source='ANA')
+        self.assertEqual(flow.percentage_failures(), 0.007286199444272924)

@@ -26,6 +26,7 @@ class MonthlyCumulativeRainfall:
         layout = self.__layout(bandyaxis=bandyaxis, bandxaxis=bandxaxis, showlegend=showlegend,
                                size_text=size_text, title=title, width=width, height=height)
         fig = exp.bar(x=self.events.index, y=self.events)
+        fig['data'][0]['marker']['color'] = 'rgb(0,0,0)'
         fig.layout = layout
         return fig
 

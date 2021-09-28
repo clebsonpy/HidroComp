@@ -110,6 +110,7 @@ class MaximumRainfall(object):
         layout = self.__layout(bandyaxis=bandyaxis, bandxaxis=bandxaxis, showlegend=showlegend,
                                size_text=size_text, title=title, width=width, height=height)
         fig = exp.line(x=self.peaks.index.values, y=self.peaks['Peaks'].values)
+        fig['data'][0]['line']['color'] = 'rgb(0,0,0)'
         fig.layout = layout
         return fig
 
