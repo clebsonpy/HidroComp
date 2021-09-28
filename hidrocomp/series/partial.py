@@ -1,7 +1,5 @@
 import pandas as pd
-import numpy as np
 import math
-import scipy.stats as stat
 import plotly as py
 import plotly.figure_factory as FF
 
@@ -9,7 +7,6 @@ from hidrocomp.statistic.genpareto import Gpa
 from hidrocomp.graphics.gantt import Gantt
 from hidrocomp.graphics.genpareto import GenPareto
 from hidrocomp.graphics.hydrogram_parcial import HydrogramParcial
-from hidrocomp.graphics.boxplot import Boxplot
 from hidrocomp.graphics.polar import Polar
 
 
@@ -78,16 +75,22 @@ class Partial(object):
         NDTP - Number of Days to Peak from the start of the event.
         Type - Type the events in the year, e.g (1, 2, ... n)
         """
-        events = pd.DataFrame(columns=['Peaks', 'NDBE', 'Duration', 'PEY', 'NDTP', 'Type'])
+        events = pd.DataFrame(columns=['Peaks', 'NDBE', 'Duration', 'PEY', 'NDTP', 'Date peak'])
         events['Peaks'] = self.information['Peaks']
         events['NDBE'] = self.number_days_before_events
         events['Duration'] = self.__information['Duration']
-        events['Type'] = self.type_events_year
         events['PEY'] = self.julian()
         events['NDTP'] = self.number_days_to_peaks
-        # events['']
+        events = events.combine_first(self.type_events_year)
+        events['Date peak'] = events.index
+        events.set_index(['Year', 'Type'], inplace=True)
+        return events[['Peaks', 'NDBE', 'Duration', 'PEY', 'NDTP', 'Date peak']]
 
-        return events
+    @property
+    def peaks(self):
+        if self.__information is None:
+            return self.information['Peaks']
+        return self.__information['Peaks']
 
     @property
     def information(self) -> pd.Series:
@@ -452,14 +455,15 @@ class Partial(object):
         return series
 
     @property
-    def type_events_year(self) -> pd.Series:
-        series = pd.Series(name='Type')
+    def type_events_year(self) -> pd.DataFrame:
+        df = pd.DataFrame(columns=['Type', 'Year'])
         for date, information in self.__information.groupby(pd.Grouper(freq=self.abbr_start_month_year_hydrological())):
             count = 1
             for idx in information.index:
-                series.at[idx] = f'event-{count}'
+                df.at[idx, 'Type'] = count
+                df.at[idx, 'Year'] = date.year
                 count += 1
-        return series
+        return df
 
     @property
     def number_days_to_peaks(self) -> pd.Series:
