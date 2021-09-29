@@ -67,13 +67,13 @@ class Rainfall(SeriesBuild):
 
         return layout
 
-    # def hydrogram(self, title, threshold=None, save=False, width=None, height=None, size_text=16, color=None):
-    #     if self.station is None:
-    #         hydrogram = HydrogramClean(self.data, threshold=threshold, width=width, height=height, size_text=size_text,
-    #                                    title=title, data_type=self.data_type)
-    #         fig, data = hydrogram.plot()
-    #     else:
-    #         hydrogram = HydrogramClean(self.data[self.station], threshold=threshold, width=width, height=height,
-    #                                    size_text=size_text, title=title, data_type=self.data_type)
-    #         fig, data = hydrogram.plot()
-    #     return fig, data
+    def hietogram(self, title, threshold=None, width=None, height=None, size_text=16, **kwargs):
+        if self.station is None:
+            hietogram = HydrogramClean(self.data, threshold=threshold, width=width, height=height, size_text=size_text,
+                                       title=title, data_type=self.data_type, **kwargs)
+            fig, data = hietogram.plot()
+        else:
+            hietogram = HydrogramClean(self.data[self.station], threshold=threshold, width=width, height=height,
+                                       size_text=size_text, title=title, data_type=self.data_type, **kwargs)
+            fig, data = hietogram.plot()
+        return fig, data
