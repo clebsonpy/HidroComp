@@ -44,13 +44,14 @@ class Rainfall(SeriesBuild):
 
         anomaly['color'] = 'black'
 
+
         bandxaxis = go.layout.XAxis(title='Data')
         bandyaxis = go.layout.YAxis(title='Precipitação (mm)')
         layout = self.__layout(bandyaxis=bandyaxis, bandxaxis=bandxaxis, showlegend=showlegend,
                                size_text=size_text, title=title, width=width, height=height)
-        fig = exp.bar(anomaly, x=anomaly.index, y=self.station, color='color',
-                      color_discrete_sequence='black')
+        fig = exp.bar(anomaly, x=anomaly.index, y=self.station)
         fig.layout = layout
+        fig.update_traces(marker_color='black')
         return fig
 
     @staticmethod
