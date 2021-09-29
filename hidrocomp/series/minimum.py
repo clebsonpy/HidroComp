@@ -126,10 +126,29 @@ class MinimumRainfall(object):
 
         return fig, data
 
-    # def polar(self, save=False, width=None, height=None, size_text=14, title="Máximas Anuais"):
-    #     _polar = Polar(df_events=self.peaks)
-    #     fig, data = _polar.plot(width=width, height=height, size_text=size_text, title=title)
-    #     if save:
-    #         py.image.save_as(fig, filename='graficos/polar_maximas_anuais.png')
-    #
-    #     return fig, data
+
+class MinimumHeight:
+
+    def __init__(self, height, station):
+        self.height = height
+        self.station = station
+        self.peaks = self.__annual()
+
+    def __annual(self):
+        data_by_year_hydrologic = self.height.data.groupby(pd.Grouper(freq=self.height.month_abr_drought))
+        minimum = data_by_year_hydrologic[self.station].min()
+        idx = data_by_year_hydrologic[self.station].idxmin()
+        min_vazao = minimum.values
+        idx_vazao = idx.values
+        self.peaks = pd.DataFrame(min_vazao, index=idx_vazao, columns=['Peaks'])
+        return self.peaks
+
+    def cotagram(self, save=False, width=None, height=None, size_text=16, title=None, **kwargs):
+        cotagram = HydrogramAnnual(data=self.height.data[self.station], peaks=self.peaks, width=height, height=width,
+                                   size_text=size_text, title=title, station=self.station,
+                                   data_type=self.height.data_type, **kwargs)
+        fig, data = cotagram.plot()
+        if save:
+            py.image.save_as(fig, filename='gráficos/cotagram_minimas_anuais.png')
+
+        return fig, data

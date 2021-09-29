@@ -126,3 +126,31 @@ class MaximumRainfall(object):
             showlegend=showlegend, plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF')
 
         return layout
+
+
+class MaximumHeight(object):
+
+    def __init__(self, height, station):
+        self.height = height
+        self.station = station
+        self.peaks = self.__annual()
+
+    def __annual(self):
+        data_maximum_by_year_hydrologic = self.height.data.groupby(pd.Grouper(freq=self.height.month_abr_flood))
+        maximum = data_maximum_by_year_hydrologic[self.station].max()
+        idx = data_maximum_by_year_hydrologic[self.station].idxmax()
+        max_vazao = maximum.values
+        idx_vazao = idx.values
+        self.peaks = pd.DataFrame(max_vazao, index=idx_vazao, columns=['Peaks'])
+        return self.peaks.dropna(axis=0)
+
+    def cotagram(self, save=False, width: int = None, height: int = None, size_text: int = 16,
+                 title=None, showlegend: bool = True, language: str = 'pt'):
+        cotagram = HydrogramAnnual(data=self.height.data[self.station], peaks=self.peaks, width=height, height=width,
+                                   size_text=size_text, title=title, station=self.station, language=language,
+                                   showlegend=showlegend, data_type=self.height.data_type)
+        fig, data = cotagram.plot()
+        if save:
+            py.image.save_as(fig, filename='gráficos/cotagram_maximas_anuais.png')
+
+        return fig, data
