@@ -406,16 +406,18 @@ class Partial(object):
         else:
             raise TypeError("Type events {} invalid! Use flood or drought".format(self.type_event))
 
-    def julian_radius(self, type_year='hydrological', start_events=False):
+    def julian_radius(self, length, type_year='hydrological', start_events=False):
         if type_year == 'hydrological':
             month = self.number_start_month_year_hydrological()
         else:
             month = 1
 
         if start_events:
-            julian_day = self.__obtain_julian(month=month, dates_events=self.information.Start, radius=True)
+            julian_day = self.__obtain_julian(month=month, dates_events=self.information.Start, radius=True,
+                                              length=length)
         else:
-            julian_day = self.__obtain_julian(month=month, dates_events=self.information.index, radius=True)
+            julian_day = self.__obtain_julian(month=month, dates_events=self.information.index, radius=True,
+                                              length=length)
 
         return julian_day
 
@@ -475,23 +477,27 @@ class Partial(object):
         return series
 
     @staticmethod
-    def __obtain_julian(month: int, dates_events, radius=False) -> pd.Series:
+    def __obtain_julian(month: int, dates_events, length=None, radius=False) -> pd.Series:
         df_julian = pd.Series(name='Julian')
         for date in dates_events:
             day_julian = int(date.strftime("%j"))
-            nd = len(pd.date_range(start=pd.to_datetime(f'01-01-{date.year}', dayfirst=True),
-                                   end=pd.to_datetime(f'31-12-{date.year}', dayfirst=True),
-                                   freq='D'))
+            if length:
+                nd = length
+            else:
+                nd = len(pd.date_range(start=pd.to_datetime(f'01-01-{date.year}', dayfirst=True),
+                                       end=pd.to_datetime(f'31-12-{date.year}', dayfirst=True),
+                                       freq='D'))
 
             start_day = int(pd.to_datetime(f'01-{month}-{date.year}', dayfirst=True).strftime("%j"))
 
             if radius:
-                transformation_day = (day_julian + (nd - start_day)) * (360 / nd)
-                if transformation_day > 360:
-                    df_julian.at[date] = transformation_day - 360
-                else:
-                    df_julian.at[date] = transformation_day
+                df_julian.at[date] = day_julian * (360 / nd)
+                # if transformation_day > 360:
+                #     df_julian.at[date] = transformation_day - 360
+                # else:
+                #     df_julian.at[date] = transformation_day
             else:
+
                 if day_julian >= start_day:
                     df_julian.at[date] = day_julian - start_day
                 elif day_julian < start_day:
