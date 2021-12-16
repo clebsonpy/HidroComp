@@ -491,11 +491,11 @@ class Partial(object):
             start_day = int(pd.to_datetime(f'01-{month}-{date.year}', dayfirst=True).strftime("%j"))
 
             if radius:
-                df_julian.at[date] = day_julian * (360 / nd)
-                # if transformation_day > 360:
-                #     df_julian.at[date] = transformation_day - 360
-                # else:
-                #     df_julian.at[date] = transformation_day
+                transformation_day = day_julian * (360 / nd)
+                if transformation_day > 360:
+                    df_julian.at[date] = transformation_day - 360
+                else:
+                    df_julian.at[date] = transformation_day
             else:
 
                 if day_julian >= start_day:
