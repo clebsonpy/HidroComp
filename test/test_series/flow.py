@@ -140,10 +140,12 @@ class TestFlow(TestCase):
 
         # print(partial.peaks)
         print(partial.events)
-        dict_fig_partial, data_fig_partial = partial.plot_hydrogram(title="Eventos de duração parcial")
-        pyo.plot(dict_fig_partial, filename="../figs/hidro_flow.html")
+        # dict_fig_partial, data_fig_partial = partial.plot_hydrogram(title="Eventos de duração parcial")
+        # pyo.plot(dict_fig_partial, filename="../figs/hidro_flow.html")
         # print(partial.julian(start_events=True))
-        print(partial.julian_radius(start_events=False, length=182))
+        # print(partial.julian_radius(start_events=False))
+        print(partial.occurrence_dates_radius(start_date='01/01/2021', end_date='31/05/2021'))
+        print(partial.occurrence_dates_radius(start_date='01/10/2021', end_date='31/12/2021'))
 
     def test_partial_drought_duration(self):
         flow = Flow(station='XINGO', source='ONS')

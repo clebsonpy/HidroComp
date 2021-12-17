@@ -406,18 +406,16 @@ class Partial(object):
         else:
             raise TypeError("Type events {} invalid! Use flood or drought".format(self.type_event))
 
-    def julian_radius(self, length, type_year='hydrological', start_events=False):
+    def julian_radius(self, type_year='hydrological', start_events=False):
         if type_year == 'hydrological':
             month = self.number_start_month_year_hydrological()
         else:
             month = 1
 
         if start_events:
-            julian_day = self.__obtain_julian(month=month, dates_events=self.information.Start, radius=True,
-                                              length=length)
+            julian_day = self.__obtain_julian(month=month, dates_events=self.information.Start, radius=True)
         else:
-            julian_day = self.__obtain_julian(month=month, dates_events=self.information.index, radius=True,
-                                              length=length)
+            julian_day = self.__obtain_julian(month=month, dates_events=self.information.index, radius=True)
 
         return julian_day
 
@@ -433,6 +431,28 @@ class Partial(object):
             julian_day = self.__obtain_julian(month=month, dates_events=self.information.index, radius=False)
 
         return julian_day
+
+    def occurrence_dates_radius(self, start_date, end_date):
+        dates = self.information.index
+        start_date = pd.to_datetime(start_date, dayfirst=True)
+        end_date = pd.to_datetime(end_date, dayfirst=True)
+
+        df_occurrence_dates = pd.Series(name='Date')
+
+        for date in dates:
+            date_range = pd.date_range(
+                start=pd.to_datetime(f'{start_date.day}-{start_date.month}-{date.year}', dayfirst=True),
+                end=pd.to_datetime(f'{end_date.day}-{end_date.month}-{date.year}', dayfirst=True),
+                freq='D'
+            )
+            length = date_range.size
+            try:
+                idx = date_range.get_loc(date)
+                df_occurrence_dates.at[date] = (idx+1) / length * 360
+            except KeyError:
+                pass
+
+        return df_occurrence_dates
 
     @property
     def number_days_before_events(self) -> pd.Series:
@@ -477,16 +497,13 @@ class Partial(object):
         return series
 
     @staticmethod
-    def __obtain_julian(month: int, dates_events, length=None, radius=False) -> pd.Series:
+    def __obtain_julian(month: int, dates_events, radius=False) -> pd.Series:
         df_julian = pd.Series(name='Julian')
         for date in dates_events:
             day_julian = int(date.strftime("%j"))
-            if length:
-                nd = length
-            else:
-                nd = len(pd.date_range(start=pd.to_datetime(f'01-01-{date.year}', dayfirst=True),
-                                       end=pd.to_datetime(f'31-12-{date.year}', dayfirst=True),
-                                       freq='D'))
+            nd = len(pd.date_range(start=pd.to_datetime(f'01-01-{date.year}', dayfirst=True),
+                                   end=pd.to_datetime(f'31-12-{date.year}', dayfirst=True),
+                                   freq='D'))
 
             start_day = int(pd.to_datetime(f'01-{month}-{date.year}', dayfirst=True).strftime("%j"))
 
