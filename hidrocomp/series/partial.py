@@ -432,17 +432,17 @@ class Partial(object):
 
         return julian_day
 
-    def occurrence_dates_radius(self, start_date, end_date):
+    def occurrence_dates_radius(self, start_day: int, start_month: int, end_day: int, end_month: int) -> pd.Series:
         dates = self.information.index
-        start_date = pd.to_datetime(start_date, dayfirst=True)
-        end_date = pd.to_datetime(end_date, dayfirst=True)
+        # start_date = pd.to_datetime(start_, dayfirst=True)
+        # end_date = pd.to_datetime(end_date, dayfirst=True)
 
         df_occurrence_dates = pd.Series(name='Date')
 
         for date in dates:
             date_range = pd.date_range(
-                start=pd.to_datetime(f'{start_date.day}-{start_date.month}-{date.year}', dayfirst=True),
-                end=pd.to_datetime(f'{end_date.day}-{end_date.month}-{date.year}', dayfirst=True),
+                start=pd.to_datetime(f'{start_day}-{start_month}-{date.year}', dayfirst=True),
+                end=pd.to_datetime(f'{end_day}-{end_month}-{date.year}', dayfirst=True),
                 freq='D'
             )
             length = date_range.size
