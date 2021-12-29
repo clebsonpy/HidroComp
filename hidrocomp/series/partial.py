@@ -432,7 +432,7 @@ class Partial(object):
 
         return julian_day
 
-    def occurrence_dates_radius(self, start_day: int, start_month: int, end_day: int, end_month: int) -> pd.Series:
+    def occurrence_dates_graus(self, start_day: int, start_month: int, end_day: int, end_month: int) -> pd.Series:
         dates = self.information.index
         # start_date = pd.to_datetime(start_, dayfirst=True)
         # end_date = pd.to_datetime(end_date, dayfirst=True)
