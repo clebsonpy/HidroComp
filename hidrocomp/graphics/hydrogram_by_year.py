@@ -51,6 +51,13 @@ class HydrogramYear(HydrogramBuild):
                     trace_threshold.append(self._plot_threshold(group, t,
                                                                 name=f"{self.threshold_title[self.language]} - {i}"))
                     i += 1
+
+            elif type(self.threshold) is dict:
+                trace_threshold = []
+                for t in self.threshold:
+                    trace_threshold.append(self._plot_threshold(group, self.threshold[t],
+                                                                name=f"{self.threshold_title[self.language]} - {t}"))
+
             else:
                 trace_threshold = [self._plot_threshold(group, self.threshold, name=self.threshold_title[self.language])]
             data = trace + [colorbar_trace] + trace_threshold
