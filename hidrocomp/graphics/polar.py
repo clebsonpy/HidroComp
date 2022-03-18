@@ -26,7 +26,7 @@ class Polar(object):
 
         df_polar_year = df_polar.index.year.drop_duplicates()
         number_of_lines = len(df_polar_year)
-        ylrd = cl.scales['10']['div']['Spectral'][::-1]
+        ylrd = cl.scales['9']['div']['Spectral'][::-1]
         ylrd = cl.interp(ylrd, number_of_lines)
         colors = dict(zip(df_polar_year, ylrd))
 
