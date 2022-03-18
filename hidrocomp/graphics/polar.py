@@ -1,5 +1,6 @@
 import plotly.graph_objs as go
 import pandas as pd
+import colorlover as cl
 
 
 class Polar(object):
@@ -22,6 +23,19 @@ class Polar(object):
         dic_month = {'pt': list_month_pt, 'en': list_month_en}
 
         df_polar = self.year_polar()
+
+        df_polar_year = df_polar.index.year.drop_duplicates()
+        number_of_lines = len(df_polar_year)
+        ylrd = cl.scales['10']['div']['Spectral'][::-1]
+        ylrd = cl.interp(ylrd, number_of_lines)
+        colors = dict(zip(df_polar_year, ylrd))
+
+        if color == 'by_year':
+            list_color = [colors[i] for i in df_polar.index.year]
+
+        else:
+            list_color = color
+
         position = [0, 31*0.9863, 59*0.9863, 90*0.9863, 120*0.9863, 151*0.9863, 181*0.9863, 212*0.9863, 243*0.9863,
                     273*0.9863, 303*0.9863, 334*0.9863]
         if len(df_polar) > 0:
@@ -31,7 +45,7 @@ class Polar(object):
                     theta=df_polar.DateJulianPolar.values,  # Data
                     mode='markers',
                     marker=dict(
-                        color=color,
+                        color=list_color,
                         size=10,
                         line=dict(
                             color='white'
@@ -47,7 +61,7 @@ class Polar(object):
                     theta=df_polar.DateJulianPolar.values,  # Data
                     mode='markers',
                     marker=dict(
-                        color=color,
+                        color=list_color,
                         size=10,
                         line=dict(
                             color='white'
@@ -65,7 +79,7 @@ class Polar(object):
                 theta=None,  # Data
                 mode='markers',
                 marker=dict(
-                    color=color,
+                    color=list_color,
                     size=10,
                     line=dict(
                         color='white'
@@ -75,6 +89,22 @@ class Polar(object):
                 name=name
             )
             data = [trace]
+
+        colorbar_trace = go.Scatter(
+            x=[None],
+            y=[None],
+            mode='markers',
+            marker=dict(
+                colorscale=ylrd,
+                showscale=True,
+                colorbar=dict(title=''),
+                cmin=df_polar_year[0],
+                cmax=df_polar_year[-1],
+            ),
+            hoverinfo='none',
+        )
+
+        data = data + [colorbar_trace]
 
         angularX = go.layout.AngularAxis(
             showticklabels=False,
