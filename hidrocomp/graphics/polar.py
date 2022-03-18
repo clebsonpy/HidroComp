@@ -104,7 +104,8 @@ class Polar(object):
             hoverinfo='none',
         )
 
-        data = data + [colorbar_trace]
+        if color == 'by_year':
+            data = data + [colorbar_trace]
 
         angularX = go.layout.AngularAxis(
             showticklabels=False,
