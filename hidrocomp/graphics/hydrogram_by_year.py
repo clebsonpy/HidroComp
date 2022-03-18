@@ -17,7 +17,7 @@ class HydrogramYear(HydrogramBuild):
     def plot(self):
         group = self.group_by_year()
         number_of_lines = len(group.columns)
-        ylrd = cl.scales['9']['div']['Spectral']
+        ylrd = cl.scales['10']['div']['Spectral'][::-1]
         ylrd = cl.interp(ylrd, number_of_lines)
         colors = dict(zip(group.columns, ylrd))
         trace = []
