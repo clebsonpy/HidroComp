@@ -1,21 +1,81 @@
-import os
+# import os
 
-import plotly as py
-import plotly.figure_factory as FF
+# import plotly as py
+# import plotly.figure_factory as FF
 import timeit
+import requests
+import json
 
-import pandas as pd
+# import pandas as pd
 
-from hidrocomp.eflow import iha
-from hidrocomp.eflow.iha import IHA
-from hidrocomp.eflow.graphics import Graphics
-from hidrocomp.series.flow import Flow
-from hidrocomp.series.height import Height
-from hidrocomp.series.rainfall import Rainfall
+# from hidrocomp.eflow import iha
+# from hidrocomp.eflow.iha import IHA
+# from hidrocomp.eflow.graphics import Graphics
+# from hidrocomp.series.flow import Flow
+# from hidrocomp.series.height import Height
+# from hidrocomp.series.rainfall import Rainfall
 # from api_ana.serie_temporal import SerieTemporal
 
 if __name__ == '__main__':
     ini = timeit.default_timer()
+
+    url = "https://aplicacao.mj.gov.br/sismunic-back-hml/api/v1/data-manage/locations/"
+
+    payload = json.dumps([
+    {
+        "ibge_code": 999997,
+        "name": "Test_Brasil",
+        "type": "country",
+        "financeable_rule": False,
+        "is_capital": False,
+        "is_metropolitan_city": False,
+        "population": 420294250,
+        "score": None,
+        "ranking": None,
+        "abbreviation": "nan",
+        "state": None,
+        "region": None,
+        "metropolis": None
+    },
+    {
+        "ibge_code": 999998,
+        "name": "Test_Norte",
+        "type": "region",
+        "financeable_rule": False,
+        "is_capital": False,
+        "is_metropolitan_city": False,
+        "population": 18430980,
+        "score": None,
+        "ranking": None,
+        "abbreviation": "nan",
+        "state": None,
+        "region": None,
+        "metropolis": None
+    },
+    {
+        "ibge_code": 999999,
+        "name": "Test_Nordeste",
+        "type": "region",
+        "financeable_rule": False,
+        "is_capital": False,
+        "is_metropolitan_city": False,
+        "population": 57071654,
+        "score": None,
+        "ranking": None,
+        "abbreviation": "nan",
+        "state": None,
+        "region": None,
+        "metropolis": None
+    }
+    ])
+    headers = {
+    'Authorization': 'SefMmwdSth9QWxhUfPGXZx2vYFcYytGy8XUeGBN',
+    'Content-Type': 'application/json'
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+    print(response.text)
 
     # Boa Fortuna
     """
@@ -189,7 +249,7 @@ if __name__ == '__main__':
     # print(dados['1993'])
     # file = os.path.abspath(os.path.join('Medicoes', 'PIMENTAL.csv'))
     # dados_nat = pd.read_csv(file, index_col=0, parse_dates=True)
-    path = ''
+    # path = ''
     # file_rain = os.path.abspath(os.path.join('Medicoes', 'dados_inmet.csv'))
     # dados = pd.read_csv(file, ',', index_col=0, parse_dates=True).NAT
     # rainfall = Rainfall(data=dados, source='INMET')
@@ -267,13 +327,13 @@ if __name__ == '__main__':
     # flow.data.to_excel(os.path.abspath(os.path.join('Medicoes', 'dados_ipanema_2008.xlsx')))
     # fig_gantt, data_gantt = flow.gantt(title="Gantt")
 
-    flow = Flow(station='XINGO', source='ONS')
-    flow = flow.date(start_date="01/{}/1931".format(flow.month_num_flood),
-                     end_date="31/{}/2018".format(flow.month_num_flood - 1))
-    partial = flow.partial(events_type='drought', criterion_type='duration', threshold_type='stationary',
-                           threshold_value=0.25, duration=20)
+    # flow = Flow(station='XINGO', source='ONS')
+    # flow = flow.date(start_date="01/{}/1931".format(flow.month_num_flood),
+    #                  end_date="31/{}/2018".format(flow.month_num_flood - 1))
+    # partial = flow.partial(events_type='drought', criterion_type='duration', threshold_type='stationary',
+    #                        threshold_value=0.25, duration=20)
 
-    print(partial)
+    # print(partial)
     # dict_fig_partial, data_fig_partial = partial.plot_hydrogram(title="Eventos de duração parcial - Estiagem")
 
     # height = Rainfall(station='00836008', source='ANA')

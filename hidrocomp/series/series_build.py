@@ -51,13 +51,15 @@ class SeriesBuild(metaclass=ABCMeta):
                 self.inf_stations = read.inf_stations
             else:
                 raise KeyError('Source not supported!')
-        if self.data.size == 0:
-            self.start_date, self.end_date = None, None
-        else:
-            self.start_date, self.end_date = self.__start_and_end()
-            data_range = pd.date_range(start=self.start_date, end=self.end_date)
-            _data = pd.DataFrame(index=data_range)
-            self.data = _data.combine_first(self.data[self.start_date:self.end_date])
+
+        if source in ['ONS', 'ANA']:
+            if self.data.size == 0:
+                self.start_date, self.end_date = None, None
+            else:
+                self.start_date, self.end_date = self.__start_and_end()
+                data_range = pd.date_range(start=self.start_date, end=self.end_date)
+                _data = pd.DataFrame(index=data_range)
+                self.data = _data.combine_first(self.data[self.start_date:self.end_date])
 
     def __return_df(self, data):
         if type(data) is type(pd.Series()):
