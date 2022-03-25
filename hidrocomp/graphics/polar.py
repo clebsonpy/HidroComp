@@ -114,9 +114,9 @@ class Polar(object):
         layout = dict(
             angularaxis=angularX,
             title=dict(text=title, x=0.5, xanchor='center', y=0.95, yanchor='top',
-                       font=dict(family='Courier New, monospace', color='#7f7f7f', size=size_text + 6)),
+                       font=dict(family='Courier New, monospace', color='rgb(0,0,0)', size=size_text + 6)),
             width=width, height=height,
-            font=dict(family='Courier New, monospace', size=size_text, color='#7f7f7f'),
+            font=dict(family='Courier New, monospace', size=size_text, color='rgb(0,0,0)'),
             showlegend=showlegend, plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF',
             polar=dict(
                 radialaxis=dict(showticklabels=True, gridcolor="#000000"),
