@@ -126,8 +126,8 @@ class TestFlow(TestCase):
     def test_partial_flood_median(self):
         flow = Flow(station=['56110005', '56425000', '56430000', '56540001', '56610000', '56110005'], source='ANA')
         flow.station = '56110005'
-        parti = flow.partial(type_event='flood', type_criterion='median', type_threshold='stationary',
-                             value_threshold=0.75)
+        parti = flow.partial(events_type='flood', criterion_type='median', threshold_type='stationary',
+                             threshold_value=0.75)
         print(parti.peaks)
         print(parti.dist_gpa.mml())
 
@@ -185,4 +185,14 @@ class TestFlow(TestCase):
 
     def test_percentage_failures(self):
         flow = Flow(station=['49330000'], source='ANA')
-        self.assertEqual(flow.percentage_failures(), 0.007286199444272924)
+        flow.date(start_date='01/11/1976', end_date='30/09/2021')
+        self.assertEqual(flow.percentage_failures(), 0.005393148250291108)
+
+    def test_polar_with_duration(self):
+        flow = Flow(station=['56110005', '56425000', '56430000', '56540001', '56610000', '56110005'], source='ANA')
+        flow.station = '56110005'
+        partial = flow.partial(events_type='flood', criterion_type='median', threshold_type='stationary',
+                               threshold_value=0.75)
+
+        fig, data = partial.plot_polar(title="", with_duration=True)
+        pyo.plot(fig, filename="../figs/polar_duration.html")

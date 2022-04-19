@@ -562,7 +562,8 @@ class Partial(object):
 
     # TODO Rename of polar
     # TODO Add parameters language and showlegend
-    def plot_polar(self, title=None, width=900, height=900, size_text=14, color=None, name=None):
+    def plot_polar(self, title: str = None, width: int = 900, height: int = 900, size_text: int = 14,
+                   color=None, name=None, with_duration: bool = False, showlegend: bool = False, language: str = 'pt'):
         if self.type_event == 'flood':
             if title is None:
                 title = 'Maximum Partial'
@@ -575,7 +576,8 @@ class Partial(object):
                 name = 'Minimum peaks'
 
         _polar = Polar(df_events=self.information)
-        fig, data = _polar.plot(width=width, height=height, size_text=size_text, title=title, color=color, name=name)
+        fig, data = _polar.plot(width=width, height=height, size_text=size_text, title=title, color=color, name=name,
+                                with_duration=with_duration, showlegend=showlegend, language=language)
 
         return fig, data
 
