@@ -53,7 +53,9 @@ class SeriesBuild(metaclass=ABCMeta):
                 raise KeyError('Source not supported!')
 
         if source in ['ONS', 'ANA']:
+            print(self.data)
             if self.data.size == 0:
+                print('Dataframe is empty!')
                 self.start_date, self.end_date = None, None
             else:
                 self.start_date, self.end_date = self.__start_and_end()
@@ -188,6 +190,9 @@ class SeriesBuild(metaclass=ABCMeta):
     def percentage_failures(self):
         data_range = len(pd.date_range(start=self.start_date, end=self.end_date))
         null = data_range - self.data.count().values[0]
+
+        if self.data.count().values[0] == 0:
+            return None
 
         return null / self.data.count().values[0]
 

@@ -184,9 +184,10 @@ class TestFlow(TestCase):
         print(flow_xingo)
 
     def test_percentage_failures(self):
-        flow = Flow(station=['49330000'], source='ANA')
+        flow = Flow(station=['49770000'], source='ANA')
         flow.date(start_date='01/11/1976', end_date='30/09/2021')
         self.assertEqual(flow.percentage_failures(), 0.005393148250291108)
+        self.assertGreater(flow.percentage_failures(), 0)
 
     def test_polar_with_duration(self):
         flow = Flow(station=['56110005', '56425000', '56430000', '56540001', '56610000', '56110005'], source='ANA')

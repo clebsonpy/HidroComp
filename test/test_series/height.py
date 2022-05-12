@@ -33,3 +33,9 @@ class TestHeight(TestCase):
         print(maximum.peaks)
         fig, data = maximum.cotagram(title="Test", showlegend=True)
         pyo.plot(fig, filename="../figs/cotagram_maximum.html")
+
+    def test_percentage_failures(self):
+        height = Height(station='39770000', source='ANA')
+        height.date(start_date='01/11/1976', end_date='30/09/2021')
+        self.assertEqual(height.percentage_failures(), 0.005393148250291108)
+        self.assertGreater(height.percentage_failures(), 0)
