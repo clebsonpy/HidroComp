@@ -175,6 +175,14 @@ class TestFlow(TestCase):
         dict_fig_partial, data_fig_partial = partial.plot_hydrogram(title="Eventos de duração parcial - Estiagem")
         pyo.plot(dict_fig_partial, filename="../figs/hidro_flow.html")
 
+    def test_hydrogram_flood(self):
+        flow = self.flow.date(start_date="01/09/1931", end_date="31/08/2018")
+        partial = flow.partial(events_type='flood', criterion_type='median', threshold_type='stationary',
+                               threshold_value=0.75)
+
+        dict_fig_partial, data_fig_partial = partial.plot_hydrogram(title="Eventos de duração parcial - Cheias")
+        pyo.plot(dict_fig_partial, filename="../figs/hidro_flow.html")
+
     def test_copy(self):
         flow = Flow(station=['XINGO', 'SALTO PILAO'], source='ONS')
         print(flow.__repr__())
@@ -196,5 +204,17 @@ class TestFlow(TestCase):
                                threshold_value=0.75)
 
         fig, data = partial.plot_polar(title="", with_duration=False)
-        print(data)
         pyo.plot(fig, filename="../figs/polar_duration.html")
+
+    def test_cdf_empirical(self):
+        flow = self.flow.date(start_date="01/09/1931", end_date="31/08/2018")
+        partial = flow.partial(events_type='flood', criterion_type='median', threshold_type='stationary',
+                               threshold_value=0.75)
+
+        print(partial.cdf_empirical())
+
+    def test_empirical_period_return(self):
+        flow = self.flow.date(start_date="01/09/1931", end_date="31/08/2018")
+        partial = flow.partial(events_type='flood', criterion_type='median', threshold_type='stationary',
+                               threshold_value=0.75)
+        print(partial.empirical_period_return())

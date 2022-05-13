@@ -75,7 +75,7 @@ class Partial(object):
         NDTP - Number of Days to Peak from the start of the event.
         Type - Type the events in the year, e.g (1, 2, ... n)
         """
-        events = pd.DataFrame(columns=['Peaks', 'NDBE', 'Duration', 'PEY', 'NDTP', 'Date peak'])
+        events = pd.DataFrame(columns=['Peaks', 'NDBE', 'Duration', 'PEY', 'NDTP', 'Date peak', 'TR'])
         events['Peaks'] = self.information['Peaks']
         events['NDBE'] = self.number_days_before_events
         events['Duration'] = self.__information['Duration']
@@ -83,8 +83,9 @@ class Partial(object):
         events['NDTP'] = self.number_days_to_peaks
         events = events.combine_first(self.type_events_year)
         events['Date peak'] = events.index
+        events['TR'] = self.__information['TR']
         events.set_index(['Year', 'Type'], inplace=True)
-        return events[['Peaks', 'NDBE', 'Duration', 'PEY', 'NDTP', 'Date peak']]
+        return events[['Peaks', 'NDBE', 'Duration', 'PEY', 'NDTP', 'Date peak', 'TR']]
 
     @property
     def peaks(self):
@@ -93,7 +94,7 @@ class Partial(object):
         return self.__information['Peaks']
 
     @property
-    def information(self) -> pd.Series:
+    def information(self) -> pd.DataFrame:
         if self.__information is None:
             if self.type_criterion == "wrc":
                 if self.type_event == "flood":
@@ -135,6 +136,7 @@ class Partial(object):
                             by="End")["End"].iloc[-1] - pd.to_timedelta(1, unit="d")
 
         self.__information = self.__information.sort_index()
+        self.__information = self.__information.combine_first(pd.DataFrame(self.empirical_period_return()))
         return self.__information
 
     def __events_over_threshold(self):
@@ -592,3 +594,25 @@ class Partial(object):
                                      point_start_end=point_start_end)
         fig, data = hydrogram.plot()
         return fig, data
+
+    def cdf_empirical(self):
+        """
+        Calculates the empirical cumulative distribution function (CDF) of the data.
+        Method: Gringorten Teoric
+        """
+        data_obs = self.peaks.copy()
+        data_obs.sort_values(inplace=True)
+        cdf_empirical = []
+
+        i = 1
+        for _ in data_obs:
+            cdf_empirical.append((i - 0.44) / (len(data_obs) + 0.12))
+            i += 1
+
+        return pd.Series(cdf_empirical, index=data_obs.index)
+
+    def empirical_period_return(self):
+
+        cdf_empirical = self.cdf_empirical()
+
+        return pd.Series([1/(1-p) for p in cdf_empirical], index=cdf_empirical.index, name='TR')
