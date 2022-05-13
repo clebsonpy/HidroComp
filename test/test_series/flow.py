@@ -195,5 +195,6 @@ class TestFlow(TestCase):
         partial = flow.partial(events_type='flood', criterion_type='median', threshold_type='stationary',
                                threshold_value=0.75)
 
-        fig, data = partial.plot_polar(title="", with_duration=True)
+        fig, data = partial.plot_polar(title="", with_duration=False)
+        print(data)
         pyo.plot(fig, filename="../figs/polar_duration.html")

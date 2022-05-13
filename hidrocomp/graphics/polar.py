@@ -38,8 +38,7 @@ class Polar(object):
 
         if with_duration:
             size = df_polar.Duration.values
-        else:
-            size = 10
+
 
         position = [0, 31*0.9863, 59*0.9863, 90*0.9863, 120*0.9863, 151*0.9863, 181*0.9863, 212*0.9863, 243*0.9863,
                     273*0.9863, 303*0.9863, 334*0.9863]
@@ -51,14 +50,21 @@ class Polar(object):
                     mode='markers',
                     marker=dict(
                         color=list_color,
-                        size=size,
+                        size=[10]*len(df_polar.Duration.values),
                         line=dict(
                             color='white'
                         ),
                         opacity=0.7),
-                    text=df_polar.index.date,
+                    text=['<b>Data</b>: {}<br>'
+                          '<b>Duração</b>: {} dias'.format(i, j)
+                          for i, j in zip(df_polar.index.date, df_polar.Duration.values)
+                          ],
                     thetaunit='degrees',
-                    name=name
+                    name=name,
+                    hovertemplate=
+                    '<b>Dia Juliano</b>: %{theta:.2f}°<br>' +
+                    '<b>Vazão</b>: %{r}<br>' +
+                    '%{text}',
                 )
             except AttributeError:
                 trace = go.Scatterpolar(
