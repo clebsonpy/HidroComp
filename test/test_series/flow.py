@@ -198,12 +198,21 @@ class TestFlow(TestCase):
         self.assertGreater(flow.percentage_failures(), 0)
 
     def test_polar_with_duration(self):
-        flow = Flow(station=['56110005', '56425000', '56430000', '56540001', '56610000', '56110005'], source='ANA')
+        flow = Flow(station=['56110005'], source='ANA')
         flow.station = '56110005'
         partial = flow.partial(events_type='flood', criterion_type='median', threshold_type='stationary',
                                threshold_value=0.75)
 
-        fig, data = partial.plot_polar(title="", with_duration=False)
+        fig, data = partial.plot_polar(title="", color='by_year', width=800, height=800, color_bar_range=[1970, 2021])
+        pyo.plot(fig, filename="../figs/polar_duration.html")
+
+    def test_polar(self):
+        flow = Flow(station=['49330000'], source='ANA')
+        flow.station = '49330000'
+        partial = flow.partial(events_type='flood', criterion_type='median', threshold_type='stationary',
+                               threshold_value=0.75)
+
+        fig, data = partial.plot_polar(title="", color='by_year', width=800, height=800, color_bar_range=[1970, 2021])
         pyo.plot(fig, filename="../figs/polar_duration.html")
 
     def test_cdf_empirical(self):

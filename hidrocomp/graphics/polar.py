@@ -16,29 +16,54 @@ class Polar(object):
         df_events_julian['DateJulianPolar'] = date_julian_polar
         return df_events_julian
 
+    def color_bar(self, df_polar, color_bar_range: list):
+
+        ylrd = cl.scales['9']['div']['Spectral'][::-1]
+
+        if color_bar_range:
+            year_color_bar = list(map(int, range(color_bar_range[0], color_bar_range[1]+1)))
+        else:
+            year_color_bar = df_polar.index.year.drop_duplicates()
+
+        number_of_lines = len(year_color_bar)
+        ylrd = cl.interp(ylrd, number_of_lines)
+        colors = dict(zip(year_color_bar, ylrd))
+
+        try:
+            list_color = [colors[i] for i in df_polar.index.year]
+        except KeyError:
+            raise KeyError('O intervalo do dataframe ficou fora do intervalo do colorbar')
+
+        colorbar_trace = go.Scatter(
+            x=[None],
+            y=[None],
+            mode='markers',
+            marker=dict(
+                colorscale=ylrd,
+                showscale=True,
+                colorbar=dict(title='Anos'),
+                cmin=year_color_bar[0],
+                cmax=year_color_bar[-1],
+            ),
+        )
+
+        return list_color, colorbar_trace
+
     def plot(self, width: int = None, height: int = None, size_text: int = None, title=None, color=None, name=None,
-             showlegend: bool = False, language: str = 'pt', with_duration: bool = False):
+             showlegend: bool = False, language: str = 'pt', color_bar_range: list = None):
         list_month_pt = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
         list_month_en = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
         dic_month = {'pt': list_month_pt, 'en': list_month_en}
 
         df_polar = self.year_polar()
 
-        df_polar_year = df_polar.index.year.drop_duplicates()
-        number_of_lines = len(df_polar_year)
-        ylrd = cl.scales['9']['div']['Spectral'][::-1]
-        ylrd = cl.interp(ylrd, number_of_lines)
-        colors = dict(zip(df_polar_year, ylrd))
-
         if color == 'by_year':
-            list_color = [colors[i] for i in df_polar.index.year]
+            list_color, colorbar_trace = self.color_bar(df_polar, color_bar_range)
+            data = [colorbar_trace]
 
         else:
             list_color = color
-
-        if with_duration:
-            size = df_polar.Duration.values
-
+            data = []
 
         position = [0, 31*0.9863, 59*0.9863, 90*0.9863, 120*0.9863, 151*0.9863, 181*0.9863, 212*0.9863, 243*0.9863,
                     273*0.9863, 303*0.9863, 334*0.9863]
@@ -82,8 +107,6 @@ class Polar(object):
                     name=name
                 )
 
-            data = [trace]
-
         else:
             trace = go.Scatterpolar(
                 r=None,  # Vazao
@@ -99,34 +122,24 @@ class Polar(object):
                 thetaunit='degrees',
                 name=name
             )
-            data = [trace]
 
-        colorbar_trace = go.Scatter(
-            x=[None],
-            y=[None],
-            mode='markers',
-            marker=dict(
-                colorscale=ylrd,
-                showscale=True,
-                colorbar=dict(title=''),
-                cmin=df_polar_year[0],
-                cmax=df_polar_year[-1],
-            ),
-            hoverinfo='none',
-        )
+        data = data + [trace]
 
-        if color == 'by_year':
-            data = data + [colorbar_trace]
-
-        angularX = go.layout.AngularAxis(
+        xaxis = go.layout.XAxis(
             showticklabels=False,
+            showgrid=False,
+            showline=False,
+        )
+        yaxis = go.layout.YAxis(
+            showticklabels=False,
+            showgrid=False,
+            showline=False,
         )
 
         layout = dict(
-            angularaxis=angularX,
             title=dict(text=title, x=0.5, xanchor='center', y=0.95, yanchor='top',
                        font=dict(family='Courier New, monospace', color='rgb(0,0,0)', size=size_text + 6)),
-            width=width, height=height,
+            width=width+width*0.05, height=height,
             font=dict(family='Courier New, monospace', size=size_text, color='rgb(0,0,0)'),
             showlegend=showlegend, plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF',
             polar=dict(
@@ -134,7 +147,9 @@ class Polar(object):
                 angularaxis=dict(showticklabels=True, ticks='', tickvals=position, ticktext=dic_month[language],
                                  rotation=90, direction="clockwise", gridcolor="#000000", tickcolor="#000000"),
                 bgcolor='#FFFFFF',
-            )
+            ),
+            xaxis=xaxis,
+            yaxis=yaxis,
         )
 
         fig = dict(data=data, layout=layout)
