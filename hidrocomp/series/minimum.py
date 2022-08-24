@@ -17,7 +17,7 @@ class MinimumFlow(object):
         self.obj = obj
         self.station = station
         self.peaks = self.__annual()
-        self.dist_gev = Gev(self.peaks['peaks'].values)
+        self.dist_gev = Gev(self.peaks['Peaks'].values)
 
     def __annual(self):
         data_by_year_hydrologic = self.obj.data.groupby(pd.Grouper(freq=self.obj.month_abr_drought))
@@ -25,7 +25,7 @@ class MinimumFlow(object):
         idx = data_by_year_hydrologic[self.station].idxmin()
         min_vazao = min.values
         idx_vazao = idx.values
-        self.peaks = pd.DataFrame(min_vazao, index=idx_vazao, columns=['peaks'])
+        self.peaks = pd.DataFrame(min_vazao, index=idx_vazao, columns=['Peaks'])
         return self.peaks
 
     def magnitude(self, period_return, estimador):
@@ -53,7 +53,8 @@ class MinimumFlow(object):
 
     def hydrogram(self, save=False, width=None, height=None, size_text=16, title=None):
         _hydrogram = HydrogramAnnual(data=self.obj.data[self.station], peaks=self.peaks, width=height, height=width,
-                                     size_text=size_text, title=title, station=self.station)
+                                     size_text=size_text, title=title, station=self.station,
+                                     data_type=self.obj.data_type)
         fig, data = _hydrogram.plot()
         if save:
             py.image.save_as(fig, filename='gráficos/hidrogama_maximas_anuais.png')
@@ -83,7 +84,7 @@ class MinimumRainfall(object):
         idx = data_by_year_hydrologic[self.station].idxmin()
         min_vazao = min.values
         idx_vazao = idx.values
-        self.peaks = pd.DataFrame(min_vazao, index=idx_vazao, columns=['peaks'])
+        self.peaks = pd.DataFrame(min_vazao, index=idx_vazao, columns=['Peaks'])
         return self.peaks
 
     def magnitude(self, period_return, estimador):
@@ -97,8 +98,9 @@ class MinimumRainfall(object):
         bandyaxis = go.layout.YAxis(title='Precipitação (mm)')
         layout = self.__layout(bandyaxis=bandyaxis, bandxaxis=bandxaxis, showlegend=showlegend,
                                size_text=size_text, title=title, width=width, height=height)
-        fig = exp.line(x=self.peaks.index.values, y=self.peaks['peaks'].values)
+        fig = exp.line(x=self.peaks.index.values, y=self.peaks['Peaks'].values)
         fig.layout = layout
+        fig['data'][0]['line']['color'] = 'rgb(0,0,0)'
         return fig
 
     @staticmethod
@@ -114,21 +116,39 @@ class MinimumRainfall(object):
 
         return layout
 
+    def hydrogram(self, save=False, width=None, height=None, size_text=16, title=None):
+        _hydrogram = HydrogramAnnual(data=self.rainfall.data[self.station], peaks=self.peaks, width=height,
+                                     height=width, size_text=size_text, title=title, station=self.station,
+                                     data_type=self.rainfall.data_type)
+        fig, data = _hydrogram.plot()
+        if save:
+            py.image.save_as(fig, filename='gráficos/hidrogama_maximas_anuais.png')
 
-    # def hydrogram(self, save=False, width=None, height=None, size_text=16, title=None):
-    #     _hydrogram = HydrogramAnnual(data=self.rainfall.data[self.station], peaks=self.peaks, width=height,
-    #                                  height=width, size_text=size_text, title=title, station=self.station,
-    #                                  data_type=self.rainfall.data_type)
-    #     fig, data = _hydrogram.plot()
-    #     if save:
-    #         py.image.save_as(fig, filename='gráficos/hidrogama_maximas_anuais.png')
-    #
-    #     return fig, data
+        return fig, data
 
-    # def polar(self, save=False, width=None, height=None, size_text=14, title="Máximas Anuais"):
-    #     _polar = Polar(df_events=self.peaks)
-    #     fig, data = _polar.plot(width=width, height=height, size_text=size_text, title=title)
-    #     if save:
-    #         py.image.save_as(fig, filename='graficos/polar_maximas_anuais.png')
-    #
-    #     return fig, data
+
+class MinimumHeight:
+
+    def __init__(self, height, station):
+        self.height = height
+        self.station = station
+        self.peaks = self.__annual()
+
+    def __annual(self):
+        data_by_year_hydrologic = self.height.data.groupby(pd.Grouper(freq=self.height.month_abr_drought))
+        minimum = data_by_year_hydrologic[self.station].min()
+        idx = data_by_year_hydrologic[self.station].idxmin()
+        min_vazao = minimum.values
+        idx_vazao = idx.values
+        self.peaks = pd.DataFrame(min_vazao, index=idx_vazao, columns=['Peaks'])
+        return self.peaks
+
+    def cotagram(self, save=False, width=None, height=None, size_text=16, title=None, **kwargs):
+        cotagram = HydrogramAnnual(data=self.height.data[self.station], peaks=self.peaks, width=height, height=width,
+                                   size_text=size_text, title=title, station=self.station,
+                                   data_type=self.height.data_type, **kwargs)
+        fig, data = cotagram.plot()
+        if save:
+            py.image.save_as(fig, filename='gráficos/cotagram_minimas_anuais.png')
+
+        return fig, data

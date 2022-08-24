@@ -7,7 +7,7 @@ from hidrocomp.graphics.hydrogram_build import HydrogramBuild
 class HydrogramAnnual(HydrogramBuild):
 
     def __init__(self, data, peaks, data_type: str, width: int = None, height: int = None, size_text: int = None,
-                 title=None, station=None, showlegend: bool = True, language: str = 'pt'):
+                 title=None, station=None, showlegend: bool = False, language: str = 'pt'):
         self.data = pd.DataFrame(data)
         self.peaks = peaks
         self.station = station

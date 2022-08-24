@@ -1,5 +1,9 @@
 import os
 
+import pandas as pd
+import plotly.graph_objs as go
+from plotly import express as exp
+
 from hidrocomp.series.series_build import SeriesBuild
 from hidrocomp.series.monthly_cumulative import MonthlyCumulativeRainfall
 from hidrocomp.series.minimum import MinimumRainfall
@@ -31,13 +35,45 @@ class Rainfall(SeriesBuild):
         maximum = MaximumRainfall(rainfall=self, station=self.station)
         return maximum
 
-    # def hydrogram(self, title, threshold=None, save=False, width=None, height=None, size_text=16, color=None):
-    #     if self.station is None:
-    #         hydrogram = HydrogramClean(self.data, threshold=threshold, width=width, height=height, size_text=size_text,
-    #                                    title=title, data_type=self.data_type)
-    #         fig, data = hydrogram.plot()
-    #     else:
-    #         hydrogram = HydrogramClean(self.data[self.station], threshold=threshold, width=width, height=height,
-    #                                    size_text=size_text, title=title, data_type=self.data_type)
-    #         fig, data = hydrogram.plot()
-    #     return fig, data
+    def plot_annual_anomaly(self, title, size_text=14, showlegend=True, width=None, height=None):
+        annual_sum = self.data.groupby(pd.Grouper(freq='A')).sum()
+        annual_mean = self.data.groupby(pd.Grouper(freq='A')).sum().mean()
+
+        anomaly = annual_sum - annual_mean
+        anomaly = anomaly.loc[anomaly.index[1]:anomaly.index[-2]]
+
+        anomaly['color'] = 'black'
+
+
+        bandxaxis = go.layout.XAxis(title='Data')
+        bandyaxis = go.layout.YAxis(title='Precipitação (mm)')
+        layout = self.__layout(bandyaxis=bandyaxis, bandxaxis=bandxaxis, showlegend=showlegend,
+                               size_text=size_text, title=title, width=width, height=height)
+        fig = exp.bar(anomaly, x=anomaly.index, y=self.station)
+        fig.layout = layout
+        fig.update_traces(marker_color='black')
+        return fig
+
+    @staticmethod
+    def __layout(bandxaxis, bandyaxis, showlegend, title, size_text, width, height):
+        layout = dict(
+            title=dict(text=title, x=0.5, xanchor='center', y=0.95, yanchor='top',
+                       font=dict(family='Courier New, monospace', size=size_text + 10)),
+            xaxis=bandxaxis,
+            yaxis=bandyaxis,
+            width=width, height=height,
+            font=dict(family='Courier New, monospace', size=size_text, color='rgb(0,0,0)'),
+            showlegend=showlegend, plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF')
+
+        return layout
+
+    def hietogram(self, title, threshold=None, width=None, height=None, size_text=16, **kwargs):
+        if self.station is None:
+            hietogram = HydrogramClean(self.data, threshold=threshold, width=width, height=height, size_text=size_text,
+                                       title=title, data_type=self.data_type, **kwargs)
+            fig, data = hietogram.plot()
+        else:
+            hietogram = HydrogramClean(self.data[self.station], threshold=threshold, width=width, height=height,
+                                       size_text=size_text, title=title, data_type=self.data_type, **kwargs)
+            fig, data = hietogram.plot()
+        return fig, data

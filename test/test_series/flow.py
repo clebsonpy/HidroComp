@@ -1,15 +1,17 @@
+from hidrocomp.series import Flow
 from unittest import TestCase
 import pandas as pd
 import numpy as np
+import os
 from copy import copy
-from hidrocomp.series import Flow
 import plotly.offline as pyo
 
 
 class TestFlow(TestCase):
 
     # flow = Flow(data=pd.read_csv("E:\\Projetos\\HidroComp\\Artigo-Cha\\ons.csv", index_col=0, parse_dates=True))
-    flow = Flow(data=pd.read_csv("E:\\Projetos\\HidroComp\\Medicoes\\dadosXingo_nat.csv", index_col=0, parse_dates=True))
+    flow = Flow(data=pd.read_csv("../../Medicoes/dadosXingo_nat.csv", index_col=0, parse_dates=True))
+    print(os.path)
 
     def test_get_data_from_ana_hydro(self):
         flow = Flow(station="49330000", source="ANA")
@@ -67,11 +69,11 @@ class TestFlow(TestCase):
         threshold_high = 203
         threshold_low = 99
 
-        self.flow.date(date_start=start_period, date_end=end_period)
+        self.flow.date(start_date=start_period, end_date=end_period)
         partial = self.flow.partial(type_threshold="stationary", type_event="drought", type_criterion="autocorrelation",
                                     value_threshold=threshold_low, duration=1)
 
-        fig, data = partial.plot_hydrogram(title="", line_threshold=True, point_start_end=False)
+        fig, data = partial.plot_hydrogram(title="", threshold_line=True, point_start_end=False)
         pyo.plot(fig, filename="../figs/partial_high.html")
 
     def test_hydrogram_by_year(self):
@@ -102,11 +104,11 @@ class TestFlow(TestCase):
         pyo.plot(fig, filename="../figs/cumulative_flow.html")
 
     def test_flow_min(self):
-        self.flow.date(date_start="01/09/1995", date_end="31/08/2020")
+        self.flow.date(start_date="01/09/1995", end_date="31/08/2020")
         self.assertEqual(self.flow.flow_min("q95"), np.array([590.267]))
 
     def test_base_flow(self):
-        self.flow.date(date_start="01/09/1995", date_end="31/08/2020")
+        self.flow.date(start_date="01/09/1995", end_date="31/08/2020")
         self.assertEqual(self.flow.base_flow(), 0.5029)
 
     def test_maximum(self):
@@ -124,8 +126,8 @@ class TestFlow(TestCase):
     def test_partial_flood_median(self):
         flow = Flow(station=['56110005', '56425000', '56430000', '56540001', '56610000', '56110005'], source='ANA')
         flow.station = '56110005'
-        parti = flow.partial(type_event='flood', type_criterion='median', type_threshold='stationary',
-                             value_threshold=0.75)
+        parti = flow.partial(events_type='flood', criterion_type='median', threshold_type='stationary',
+                             threshold_value=0.75)
         print(parti.peaks)
         print(parti.dist_gpa.mml())
 
@@ -136,24 +138,14 @@ class TestFlow(TestCase):
         partial = flow.partial(threshold_type="stationary", events_type="flood", criterion_type="wrc",
                                threshold_value=0.75, duration=5)
 
-        print(partial.peaks)
-        print(partial.variable_op())
-        dict_fig_partial, data_fig_partial = partial.plot_hydrogram(title="Eventos de duração parcial")
-        pyo.plot(dict_fig_partial, filename="../figs/hidro_flow.html")
-
-    def test_partial_flood_autocorrelation(self):
-        flow = Flow(station='XINGO', source='ONS')
-        flow = flow.date(start_date="01/09/1931".format(self.flow.month_num_flood),
-                         end_date="31/08/2018".format(self.flow.month_num_flood))
-        partial = flow.partial(threshold_type="stationary", events_type="flood", criterion_type="autocorrelation",
-                               threshold_value=0.75, duration=5)
-
-        print(partial.peaks)
-        print(partial.duration_without_events())
-        dict_fig_partial, data_fig_partial = partial.plot_hydrogram(title="Eventos de duração parcial")
-        pyo.plot(dict_fig_partial, filename="../figs/hidro_flow.html")
+        # print(partial.peaks)
+        print(partial.events)
+        # dict_fig_partial, data_fig_partial = partial.plot_hydrogram(title="Eventos de duração parcial")
+        # pyo.plot(dict_fig_partial, filename="../figs/hidro_flow.html")
         # print(partial.julian(start_events=True))
-        # print(partial.julian_radius(start_events=True))
+        # print(partial.julian_radius(start_events=False))
+        print(len(partial.occurrence_dates_radius(start_day=15, start_month=1, end_day=31, end_month=5)))
+        print(len(partial.occurrence_dates_radius(start_day=20, start_month=11, end_day=31, end_month=12)))
 
     def test_duration_without_events(self):
         flow = Flow(station='XINGO', source='ONS')
@@ -203,6 +195,14 @@ class TestFlow(TestCase):
         dict_fig_partial, data_fig_partial = partial.plot_hydrogram(title="Eventos de duração parcial - Estiagem")
         pyo.plot(dict_fig_partial, filename="../figs/hidro_flow.html")
 
+    def test_hydrogram_flood(self):
+        flow = self.flow.date(start_date="01/09/1931", end_date="31/08/2018")
+        partial = flow.partial(events_type='flood', criterion_type='median', threshold_type='stationary',
+                               threshold_value=0.75)
+
+        dict_fig_partial, data_fig_partial = partial.plot_hydrogram(title="Eventos de duração parcial - Cheias")
+        pyo.plot(dict_fig_partial, filename="../figs/hidro_flow.html")
+
     def test_copy(self):
         flow = Flow(station=['XINGO', 'SALTO PILAO'], source='ONS')
         print(flow.__repr__())
@@ -210,3 +210,40 @@ class TestFlow(TestCase):
         flow_xingo = flow.copy(station='XINGO')
         print(flow_xingo.__repr__())
         print(flow_xingo)
+
+    def test_percentage_failures(self):
+        flow = Flow(station=['49770000'], source='ANA')
+        flow.date(start_date='01/11/1976', end_date='30/09/2021')
+        self.assertEqual(flow.percentage_failures(), 0.005393148250291108)
+        self.assertGreater(flow.percentage_failures(), 0)
+
+    def test_polar_with_duration(self):
+        flow = Flow(station=['56110005'], source='ANA')
+        flow.station = '56110005'
+        partial = flow.partial(events_type='flood', criterion_type='median', threshold_type='stationary',
+                               threshold_value=0.75)
+
+        fig, data = partial.plot_polar(title="", color='by_year', width=800, height=800, color_bar_range=[1970, 2021])
+        pyo.plot(fig, filename="../figs/polar_duration.html")
+
+    def test_polar(self):
+        flow = Flow(station=['49330000'], source='ANA')
+        flow.station = '49330000'
+        partial = flow.partial(events_type='flood', criterion_type='median', threshold_type='stationary',
+                               threshold_value=0.75)
+
+        fig, data = partial.plot_polar(title="", color='by_year', width=800, height=800, color_bar_range=[1970, 2021])
+        pyo.plot(fig, filename="../figs/polar_duration.html")
+
+    def test_cdf_empirical(self):
+        flow = self.flow.date(start_date="01/09/1931", end_date="31/08/2018")
+        partial = flow.partial(events_type='flood', criterion_type='median', threshold_type='stationary',
+                               threshold_value=0.75)
+
+        print(partial.cdf_empirical())
+
+    def test_empirical_period_return(self):
+        flow = self.flow.date(start_date="01/09/1931", end_date="31/08/2018")
+        partial = flow.partial(events_type='flood', criterion_type='median', threshold_type='stationary',
+                               threshold_value=0.75)
+        print(partial.empirical_period_return())

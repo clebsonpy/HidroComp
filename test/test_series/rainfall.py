@@ -34,3 +34,13 @@ class TestRainfall(TestCase):
         print(maximum.peaks)
         fig = maximum.plot(title='Precipitação máxima anual')
         pyo.plot(fig, filename="../figs/minimum_annual_rainfall.html")
+
+    def test_plot_annual_anomaly(self):
+        rainfall = Rainfall(station=['00937032'], source='ANA')
+        fig = rainfall.plot_annual_anomaly(title='Anomalia')
+        pyo.plot(fig, filename="../figs/anomalia_annual_rainfall.html")
+
+    def test_hietogram(self):
+        rainfall = Rainfall(station=['00937032'], source='ANA')
+        fig, data = rainfall.hietogram(title='Teste')
+        pyo.plot(fig, filename="../figs/hietogram.html")

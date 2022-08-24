@@ -215,10 +215,6 @@ class Flow(SeriesBuild):
         else:
             raise NameError("Method invalid!")
 
-    def cdf_empirical(self):
-        # TODO Create method of calculation cdf empirical, view statistic
-        pass
-
     def monthly_average(self):
         monthly_average_flow = MonthlyAverageFlow(flow=self, station=self.station)
         return monthly_average_flow

@@ -7,4 +7,3 @@ pyzmq==19.0.*
 scipy==1.5.*
 six==1.15.*
 statsmodels==0.12.*
-hydro-python-api==1.1.*

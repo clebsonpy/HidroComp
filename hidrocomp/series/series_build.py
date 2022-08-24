@@ -38,7 +38,9 @@ class SeriesBuild(metaclass=ABCMeta):
                 self.station = None
                 self.__return_df(data)
         else:
-            if type(station) != list():
+            if type(station) == list() or len(station) == 1:
+                self.station = station[0]
+            elif type(station) != list():
                 self.station = station
             else:
                 self.station = None
@@ -49,12 +51,17 @@ class SeriesBuild(metaclass=ABCMeta):
                 self.inf_stations = read.inf_stations
             else:
                 raise KeyError('Source not supported!')
-        if self.data.size == 0:
-            self.start_date, self.end_date = None, None
-        else:
-            self.start_date, self.end_date = self.__start_and_end()
-            _data = pd.DataFrame(index=pd.date_range(start=self.start_date, end=self.end_date))
-            self.data = _data.combine_first(self.data[self.start_date:self.end_date])
+
+        if source in ['ONS', 'ANA']:
+            print(self.data)
+            if self.data.size == 0:
+                print('Dataframe is empty!')
+                self.start_date, self.end_date = None, None
+            else:
+                self.start_date, self.end_date = self.__start_and_end()
+                data_range = pd.date_range(start=self.start_date, end=self.end_date)
+                _data = pd.DataFrame(index=data_range)
+                self.data = _data.combine_first(self.data[self.start_date:self.end_date])
 
     def __return_df(self, data):
         if type(data) is type(pd.Series()):
@@ -98,7 +105,7 @@ class SeriesBuild(metaclass=ABCMeta):
 
         return copy(self)
 
-    def date(self, start_date=None, end_date=None):
+    def date(self, start_date: str = None, end_date: str = None):
         """
         """
         if start_date is not None and end_date is not None:
@@ -180,6 +187,15 @@ class SeriesBuild(metaclass=ABCMeta):
             return self.data.std().values[0]
         return self.data.std()
 
+    def percentage_failures(self):
+        data_range = len(pd.date_range(start=self.start_date, end=self.end_date))
+        null = data_range - self.data.count().values[0]
+
+        if self.data.count().values[0] == 0:
+            return None
+
+        return null / self.data.count().values[0]
+
     def quantile(self, percentile):
         if len(self.columns) == 1:
             return self.data.quantile(percentile).values[0]
@@ -187,17 +203,7 @@ class SeriesBuild(metaclass=ABCMeta):
 
     def hydrogram(self, title, threshold=None, save=False, width=None, height=None, size_text=16, color=None,
                   showlegend: bool = False, language: str = 'pt'):
-        if self.station is None:
-            hydrogram = HydrogramClean(self.data, threshold=threshold, width=width, height=height, size_text=size_text,
-                                       title=title, color=color, showlegend=showlegend, language=language,
-                                       data_type=self.data_type)
-            fig, data = hydrogram.plot()
-        else:
-            hydrogram = HydrogramClean(self.data[self.station], threshold=threshold, width=width, height=height,
-                                       size_text=size_text, title=title, color=color, showlegend=showlegend,
-                                       language=language, data_type=self.data_type)
-            fig, data = hydrogram.plot()
-        return fig, data
+        pass
 
     def gantt(self, title=None, size_text=14):
         cont = 0

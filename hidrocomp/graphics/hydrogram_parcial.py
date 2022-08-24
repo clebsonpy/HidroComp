@@ -99,7 +99,13 @@ class HydrogramParcial(HydrogramBuild):
                         color='rgb(128, 128, 128)',
                         line=dict(width=1,
                                   color='rgb(0, 0, 0)'),),
-            opacity=1)
+            opacity=1,
+            text=['{:.2f} anos'.format(tr) for tr in self.peaks['TR'].values],
+            hovertemplate=
+            "<b>Vazão</b>: %{y:.2f} m³/s<br>" +
+            "<b>Data</b>: %{x}<br>" +
+            "<b>TR</b>: %{text}"
+        )
         points.append(point_vazao)
         return points
 
