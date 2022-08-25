@@ -43,11 +43,7 @@ class Rainfall(SeriesBuild):
         anomaly = anomaly.loc[anomaly.index[1]:anomaly.index[-2]]
 
         anomaly['color'] = 'black'
-
-
-        bandxaxis = go.layout.XAxis(title='Data')
-        bandyaxis = go.layout.YAxis(title='Precipitação (mm)')
-        layout = self.__layout(bandyaxis=bandyaxis, bandxaxis=bandxaxis, showlegend=showlegend,
+        layout = self.__layout(title_xaxis='Data', title_yaxis='Precipitação (mm)', showlegend=showlegend,
                                size_text=size_text, title=title, width=width, height=height)
         fig = exp.bar(anomaly, x=anomaly.index, y=self.station)
         fig.layout = layout
@@ -55,7 +51,9 @@ class Rainfall(SeriesBuild):
         return fig
 
     @staticmethod
-    def __layout(bandxaxis, bandyaxis, showlegend, title, size_text, width, height):
+    def __layout(title_xaxis, title_yaxis, showlegend, title, size_text, width, height):
+        bandxaxis = go.layout.XAxis(title=title_xaxis)
+        bandyaxis = go.layout.YAxis(title=title_yaxis)
         layout = dict(
             title=dict(text=title, x=0.5, xanchor='center', y=0.95, yanchor='top',
                        font=dict(family='Courier New, monospace', size=size_text + 10)),
@@ -68,9 +66,7 @@ class Rainfall(SeriesBuild):
         return layout
 
     def hietogram(self, title, width=None, height=None, size_text=16, showlegend=False, **kwargs):
-        bandxaxis = go.layout.XAxis(title='Data')
-        bandyaxis = go.layout.YAxis(title='Precipitação (mm)')
-        layout = self.__layout(bandyaxis=bandyaxis, bandxaxis=bandxaxis, showlegend=showlegend,
+        layout = self.__layout(title_xaxis='Data', title_yaxis='Precipitação (mm)', showlegend=showlegend,
                                size_text=size_text, title=title, width=width, height=height)
         fig = exp.bar(data_frame=self.data)
         fig['data'][0]['marker']['color'] = 'rgb(0,0,0)'
