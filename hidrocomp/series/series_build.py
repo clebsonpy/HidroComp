@@ -53,7 +53,6 @@ class SeriesBuild(metaclass=ABCMeta):
                 raise KeyError('Source not supported!')
 
         if source in ['ONS', 'ANA']:
-            print(self.data)
             if self.data.size == 0:
                 print('Dataframe is empty!')
                 self.start_date, self.end_date = None, None
