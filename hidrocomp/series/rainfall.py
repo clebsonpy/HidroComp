@@ -67,13 +67,12 @@ class Rainfall(SeriesBuild):
 
         return layout
 
-    def hietogram(self, title, threshold=None, width=None, height=None, size_text=16, **kwargs):
-        if self.station is None:
-            hietogram = HydrogramClean(self.data, threshold=threshold, width=width, height=height, size_text=size_text,
-                                       title=title, data_type=self.data_type, **kwargs)
-            fig, data = hietogram.plot()
-        else:
-            hietogram = HydrogramClean(self.data[self.station], threshold=threshold, width=width, height=height,
-                                       size_text=size_text, title=title, data_type=self.data_type, **kwargs)
-            fig, data = hietogram.plot()
-        return fig, data
+    def hietogram(self, title, width=None, height=None, size_text=16, showlegend=False, **kwargs):
+        bandxaxis = go.layout.XAxis(title='Data')
+        bandyaxis = go.layout.YAxis(title='Precipitação (mm)')
+        layout = self.__layout(bandyaxis=bandyaxis, bandxaxis=bandxaxis, showlegend=showlegend,
+                               size_text=size_text, title=title, width=width, height=height)
+        fig = exp.bar(data_frame=self.data)
+        fig['data'][0]['marker']['color'] = 'rgb(0,0,0)'
+        fig.layout = layout
+        return fig, fig['data']
