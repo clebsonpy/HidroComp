@@ -90,7 +90,7 @@ class MaximumRainfall(object):
         self.peaks = self.__annual()
 
     def __annual(self):
-        data_by_year_hydrologic = self.rainfall.data.groupby(pd.Grouper(freq='A-JAN'))
+        data_by_year_hydrologic = self.rainfall.data.groupby(pd.Grouper(freq='A'))
         max = data_by_year_hydrologic[self.station].max()
         idx = data_by_year_hydrologic[self.station].idxmax()
         max_vazao = max.values
@@ -109,8 +109,8 @@ class MaximumRainfall(object):
         bandyaxis = go.layout.YAxis(title='Precipitação (mm)')
         layout = self.__layout(bandyaxis=bandyaxis, bandxaxis=bandxaxis, showlegend=showlegend,
                                size_text=size_text, title=title, width=width, height=height)
-        fig = exp.line(x=self.peaks.index.values, y=self.peaks['Peaks'].values)
-        fig['data'][0]['line']['color'] = 'rgb(0,0,0)'
+        fig = exp.bar(x=self.peaks.index.year, y=self.peaks['Peaks'].values)
+        fig['data'][0]['marker']['color'] = 'rgb(0,0,0)'
         fig.layout = layout
         return fig
 
