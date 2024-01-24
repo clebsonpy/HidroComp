@@ -1,5 +1,5 @@
 lmoments3==1.0.*
-pandas
+pandas>=0.25
 colorlover==0.3.*
 plotly
 pytz==2020.1
