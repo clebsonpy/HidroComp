@@ -1,7 +1,7 @@
 lmoments3==1.0.*
 pandas>=0.25
 colorlover==0.3.*
-plotly
+plotly>=4.6.0
 pytz==2020.1
 pyzmq==19.0.*
 scipy==1.5.*
